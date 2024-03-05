@@ -1,0 +1,19 @@
+<action>
+  <id>usrCancelShort</id>
+  <name>Cancel Short</name>
+  <description>Cancel Short</description>
+  <type>ACTION</type>
+  <ws>
+     <method>GET</method>
+	 <href>/usrCancelShort</href>
+  </ws>
+  <impl>
+     <command>cancel replenishment</command>
+	 <arguments>
+         <argument name="rplref" type="string" required="true"  description="Replenishment Reference" />
+     </arguments>
+  </impl>
+  <auth>
+     <opt>optOpen</opt>
+  </auth>
+</action>

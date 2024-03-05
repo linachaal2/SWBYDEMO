@@ -1,0 +1,68 @@
+<command>
+  <name>get usr dummy load information</name>
+  <description>get usr dummy load information</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* get usr dummy load information
+ * Returns the dummy load information, this indicates if the only item on the load is a dummy item.
+ * Version history:
+ *  2019-03-31  Salem Hamze     Initial version.
+ */
+get warehouse id
+|
+[select rtstr1 as pol_dummy_inv_prtnum,
+        rtstr2 as pol_dummy_inv_prt_client_id
+   from poldat_view
+  where wh_id = @wh_id
+    and polcod = 'USR-RF-FORM'
+    and polvar = 'USR_EXCEPTION'
+    and polval = 'DUMMY-INV-PRTNUM'
+    and rtnum1 = 1
+    and rownum <= 1] catch(-1403)
+|
+[select rtstr1 as pol_dummy_inv_invsts
+   from poldat_view
+  where wh_id = @wh_id
+    and polcod = 'USR-RF-FORM'
+    and polvar = 'USR_EXCEPTION'
+    and polval = 'DUMMY-INV-INVSTS'
+    and rtnum1 = 1
+    and rownum <= 1] catch(-1403)
+|
+if (@lodnum != '' and @lodnum_list = '')
+{
+    publish data
+     where lodnum_list = @lodnum
+}
+|
+if (@lodnum_list != '')
+{
+    convert list to in clause
+     where string = @lodnum_list
+       and table_prefix = 'invlod'
+       and column_name = 'lodnum'
+       and separator = ','
+    |
+    /* If there is an item on the load which is not a dummy load then it is not a dummy load. */
+    [select nvl(min(decode(invdtl.prtnum || '|' || invdtl.prt_client_id, @pol_dummy_inv_prtnum || '|' || @pol_dummy_inv_prt_client_id, 1, 0)), 0) as dummy_load_flg
+       from invlod
+      inner
+       join invsub
+         on invsub.lodnum = invlod.lodnum
+      inner
+       join invdtl
+         on invdtl.subnum = invsub.subnum
+      where @in_clause:raw] catch(-1403)
+}
+|
+publish data
+ where dummy_load_flg = @dummy_load_flg
+   and dummy_prtnum = @pol_dummy_inv_prtnum
+   and dummy_prt_client_id = @pol_dummy_inv_prt_client_id
+   and dummy_invsts = @pol_dummy_inv_invsts
+]]>
+</local-syntax>
+  <argument name="lodnum" datatype="string">Load number to check</argument>
+  <argument name="lodnum_list" datatype="string">Comma seperated list of load numbers</argument>
+</command>

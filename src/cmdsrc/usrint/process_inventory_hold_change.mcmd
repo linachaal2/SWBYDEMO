@@ -1,0 +1,45 @@
+<command>
+  <name>process inventory hold change</name>
+  <description>process inventory hold change</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* process inventory hold change
+ * User wrapper to set the uc_ columns if needed.
+ * Version history:
+ *  2018-11-20  Salem Hamze  Initial version.
+ */
+^process inventory hold change
+ where @* >> res_hld
+|
+if (@acttyp='A' and rowcount(@res_hld) > 0)
+{
+    {
+        publish data combination
+         where res = @res_hld
+        |
+        if (@exec_sts = 0 and @to_hld_flg = 1)
+        {
+            [update invhld
+                set uc_invtyp = @uc_invtyp,
+                    uc_nottxt = @uc_nottxt
+              where hldpfx = @hldpfx
+                and hldnum = @hldnum
+                and wh_id = @wh_id
+                and dtlnum = @dtlnum]
+        };
+        noop
+    };
+    publish data combination
+     where res = @res_hld
+       and uc_invtyp = @uc_invtyp
+       and uc_nottxt = @uc_nottxt
+}
+else
+{
+    publish data combination
+     where res = @res_hld
+}
+]]>
+</local-syntax>
+</command>

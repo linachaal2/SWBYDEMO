@@ -1,0 +1,16 @@
+<action>
+  <id>usrListDtlTrackOverview</id>
+  <name>usrListDtlTrackOverview</name>
+  <description>List Occupation Delivery Track Overview (Details)</description>
+  <type>LIST</type>
+  <ws>
+     <method>GET</method>
+	 <href>/usrListDtlTrackOverview</href>
+  </ws>
+  <impl>
+     <command>list usr detail track overview</command>
+  </impl>
+  <auth>
+     <opt>optOpen</opt>
+  </auth>
+</action>

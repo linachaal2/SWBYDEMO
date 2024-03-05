@@ -1,0 +1,5 @@
+pcklst_break_on_cri_id,pcklst_rule_id,break_on_function,break_on_field,max_weight,max_volume,max_pckuntqty,max_qty,volume_thr,max_add_pick_weight,seqnum,ins_dt,last_upd_dt,ins_user_id,last_upd_user_id,min_volume,min_weight
+1,1,"volume_func","",0,2538780.0,0,0,2538780.0,99000.0,1,"20200515132649","20200515132649","938673","938673",0,0
+2,6,"volume_func","",0,2538780.0,0,0,2538780.0,99000.0,1,"20221114110335","20221114110335","939370","939370",0,0
+3,9,"volume_func","",0,2538780.0,0,0,2538780.0,99000.0,1,"20221114113924","20221114113924","939370","939370",0,0
+4,28,"volume_func","",0,2538780.0,0,0,2538780.0,99000.0,1,"20230130161849","20230130161849","939370","939370",0,0

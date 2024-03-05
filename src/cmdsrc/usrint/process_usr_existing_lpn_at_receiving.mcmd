@@ -1,0 +1,91 @@
+<command>
+
+<name>process usr existing lpn at receiving</name>
+
+<description>process usr existing lpn at receiving</description>
+
+<type>Local Syntax</type>
+
+<local-syntax>
+<![CDATA[
+/* process usr existing lpn at receiving
+ * check if the lpn is on a production staging location and move it to the receive truck to allow RF receiving to it
+ * Version history:
+ *  2023-04-04  Radina Ivanova  Initial version.
+ */
+    [select 'x'
+       from invlod
+       join locmst
+         on locmst.stoloc = invlod.stoloc
+        and locmst.wh_id = invlod.wh_id
+       join loc_typ
+         on locmst.loc_typ_id = loc_typ.loc_typ_id
+        and locmst.wh_id = loc_typ.wh_id
+      where invlod.lodnum = @lodnum
+        and invlod.wh_id = @wh_id
+        and loc_typ.prd_stgflg = 1] catch(-1403)
+    |
+    if (@? = 0)
+    {
+        {
+            [select dtlnum,
+                    untqty,
+                    rcvkey
+               from inventory_view
+              where lodnum = @lodnum
+                and wh_id = @wh_id]
+            |
+            [update rcvlin
+                set rcvqty = rcvqty - @untqty
+              where rcvkey = @rcvkey
+                and rcvqty >= @untqty] catch(-1403)
+        }
+        ;
+        [select 'x'
+           from locmst
+          where stoloc = @wkonum
+            and wh_id = @wh_id] catch(-1403)
+        |
+        if (@? != 0)
+        {
+            /* this is the first time we receive to this work order so the receive truck and location are not created yet */
+            [select prcare,
+                    prdlin
+               from wkohdr
+              where wkonum = @wkonum
+                and wkorev = @wkorev
+                and client_id = @client_id
+                and wh_id = @wh_id]
+            |
+            get wip expected receipt area
+            where arecod = @prcare
+              and wh_id = @wh_id
+            |
+            create receive truck
+             where trknum = @wkonum
+               and wh_id  = @wh_id
+               and trkref = @prdlin
+               and shpdte = sysdate
+               and expdte = sysdate
+               and devcod = @@devcod
+               and lblflg = 0
+               and arecod = @arecod
+               and loc_typ_id = @wip_loc_typ
+        }
+        |
+        move inventory
+        where srclod = @lodnum
+          and dstloc = @wkonum
+          and wh_id = @wh_id
+          and bypass_trigger = 1
+    }
+]]>
+
+</local-syntax>
+<argument name="lodnum" datatype="string">Load number</argument>
+<argument name="wkonum" datatype="string">Work Order Number</argument>
+<argument name="wkorev" datatype="string">Work Order Revision</argument>
+<argument name="client_id" datatype="string">Client Id</argument>
+<argument name="wh_id" datatype="string">Warehouse ID</argument>
+
+</command>

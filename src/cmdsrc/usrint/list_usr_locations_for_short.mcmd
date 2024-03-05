@@ -1,0 +1,57 @@
+<command>
+  <name>list usr locations for short</name>
+  <description>list usr locations for short</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* list usr locations for short
+ *
+ * Version history:
+ *  2023-08-16  Radina Ivanova - Initial version
+ */
+    publish data where wh_id = nvl(@wh_id, @@wh_id)
+    |
+    if (@wh_id = '')
+    {
+        [select wh_id
+           from wh]
+    }
+    |
+    [select locmst.stoloc,
+            locmst.useflg,
+            locmst.pckflg,
+            dscmst.lngdsc locsts,
+            sum(inventory_view.untqty) untqty,
+            inventory_view.lodnum,
+            inventory_view.lotnum,
+            inventory_view.prtnum
+       from inventory_view
+       join locmst
+         on inventory_view.stoloc = locmst.stoloc
+        and inventory_view.wh_id = locmst.wh_id
+       join dscmst
+         on dscmst.colnam = 'locsts'
+        and dscmst.colval = locmst.locsts
+        and dscmst.locale_id = nvl(@locale_id, @@locale_id)
+      where @+inventory_view.lotnum
+        and @+inventory_view.prtnum
+        and inventory_view.wh_id = @wh_id
+        and (locmst.useflg = 0
+         or locmst.pckflg = 0
+         or locmst.locsts = 'I'
+         or not exists(select 'x'
+                         from alloc_search_path_rule
+                        where alloc_search_path_rule.pck_zone_id = locmst.pck_zone_id))
+      group by locmst.stoloc,
+               locmst.useflg,
+               locmst.pckflg,
+               dscmst.lngdsc,
+               inventory_view.lodnum,
+               inventory_view.lotnum,
+               inventory_view.prtnum]
+]]>
+</local-syntax>
+<argument name="wh_id" required="no" datatype="string">Warehouse ID</argument>
+<argument name="lotnum" required="no" datatype="string">Lot number</argument>
+<argument name="prtnum" required="no" datatype="string">Item number</argument>
+</command>

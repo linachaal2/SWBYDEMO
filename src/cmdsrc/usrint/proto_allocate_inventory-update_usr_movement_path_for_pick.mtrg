@@ -1,0 +1,68 @@
+<trigger>
+  <name>update usr movement path for pick</name>
+  <on-command>proto allocate inventory</on-command>
+  <description />
+  <fire-sequence>9100</fire-sequence>
+  <local-syntax>
+<![CDATA[
+/* Trigger to correct the movement path hops based on the allocated asset type
+ *
+ *
+ * Version history:
+ *  2023-05-11  Radina Ivanova    Copied the allocate pick group trigger
+ */
+
+    [select invlod.asset_typ asset,
+            pckwrk_view.src_mov_zone_id,
+            pckwrk_view.dst_mov_zone_id,
+            pckwrk_view.cmbcod
+       from pckwrk_view
+       join invlod
+         on pckwrk_view.srcloc = invlod.stoloc
+        and pckwrk_view.wh_id = invlod.wh_id
+      where pckwrk_view.wrkref = nvl(@srcref, @wrkref)
+        and lodlvl = 'L'
+        and invlod.asset_typ is not null
+        and rownum = 1] catch(-1403)
+    |
+    if (@? = 0)
+    {
+        [select cri_id,
+                hop_mov_zone_id
+           from mov_path_dtl
+          where src_mov_zone_id = @src_mov_zone_id
+            and dst_mov_zone_id = @dst_mov_zone_id
+            and cri_id like 'ASSET%'] catch(-1403)
+        |
+        if (@? = 0)
+        {
+            
+            execute server command  where cmd = '[select 1 from dual where ' || '@' || @cri_id || ']' catch(-1403)
+            |
+            if (@? != 0)
+            {
+                [select seqnum
+                   from pckmov
+                  where cmbcod = @cmbcod
+                    and mov_zone_id = @hop_mov_zone_id] catch(-1403)
+                |
+                if (@? = 0)
+                {
+                    [delete
+                       from pckmov
+                      where cmbcod = @cmbcod
+                        and mov_zone_id = @hop_mov_zone_id]
+                    |
+                    [update pckmov
+                        set seqnum = seqnum - 1
+                      where cmbcod = @cmbcod
+                        and seqnum > @seqnum] catch(-1403)
+                }
+            }
+        }
+    }
+
+]]>
+</local-syntax>
+  <enable>yes</enable>
+</trigger>

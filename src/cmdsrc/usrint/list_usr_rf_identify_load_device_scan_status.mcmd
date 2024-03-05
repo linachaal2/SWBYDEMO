@@ -1,0 +1,231 @@
+<command>
+  <name>list usr rf identify load device scan status</name>
+  <description>list usr rf identify load device scan status</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* list usr rf identify load device scan status
+ * Lists the scan status for the USR_IDENTIFY_LOAD screen.
+ * Version history:
+ *  2018-10-05  Salem Hamze         Initial version.
+ *  2018-10-28  Salem Hamze         Added new train, added auto deposit.
+ *  2018-12-07  Salem Hamze         Added grote partij fields.
+ *  2019-10-23  Tim van den Akker   CR803580 - change vraagtekenspoor LOT.MULTI, naar PHOTO.MISS. If two auction groups are detected, and one of them is PHOTO.MISS, then PHOTO.MISS. 
+ *  2020-01-28	Shailesh Raina		Check on Plant Passport
+ *  2023-01-26	Raoul Scholten 		Added seq on fetching single inv_attr_str17 for mssql TOP(1) could return different sorting as oracle rownum = 1
+ */
+publish data
+ where devcod = nvl(@devcod, @@devcod)
+|
+validate stack variable not null
+ where name = 'devcod'
+|
+get warehouse id
+|
+validate stack variable not null
+ where name = 'wh_id'
+|
+{
+    /* Get information about the current status. */
+    [select @devcod as devcod,
+            @wh_id as wh_id,
+            (select rftmst.curstoloc
+               from rftmst
+              where devcod = @devcod
+                and wh_id = @wh_id) as rf_curstoloc,
+            nvl(max(case when dev_varnam = 'USR_IDENTIFY_LOAD|STOLOC' then 1
+                    end), 0) as dc_stoloc_flg,
+            max(case when dev_varnam = 'USR_IDENTIFY_LOAD|STOLOC' then value
+                end) as dc_stoloc,
+            nvl(max(case when dev_varnam = 'USR_IDENTIFY_LOAD|STOLOC' and value = @stoloc then 1
+                    end), 0) as dc_stoloc_on_dc_flg,
+            nvl(max(case when dev_varnam = 'USR_IDENTIFY_LOAD|START_IDENTIFIER' then 1
+                    end), 0) as dc_start_identifier_flg,
+            max(case when dev_varnam = 'USR_IDENTIFY_LOAD|START_IDENTIFIER' then value
+                end) as dc_start_identifier,
+            nvl(max(case when dev_varnam = 'USR_IDENTIFY_LOAD|IDENTIFIER' then 1
+                    end), 0) as dc_identifier_flg,
+            count(case when dev_varnam = 'USR_IDENTIFY_LOAD|IDENTIFIER' then value
+                  end) as dc_no_identifier,
+            nvl(max(case when dev_varnam = 'USR_IDENTIFY_LOAD|IDENTIFIER' and value = @identifier then 1
+                    end), 0) as dc_identifier_on_dc_flg,
+            nvl(max(case when dev_varnam = 'USR_IDENTIFY_LOAD|FINISH_IDENTIFIER' then 1
+                    end), 0) as dc_finish_identifier_flg,
+            max(case when dev_varnam = 'USR_IDENTIFY_LOAD|FINISH_IDENTIFIER' then value
+                end) as dc_finish_identifier,
+            max(case when dev_varnam = 'USR_IDENTIFY_LOAD|FINISH_ASSET_TYP' then value
+                end) as dc_finish_asset_typ,
+            nvl(max(case when dev_varnam = 'USR_IDENTIFY_LOAD|LODNUM' then 1
+                    end), 0) as dc_lodnum_flg,
+            count(case when dev_varnam = 'USR_IDENTIFY_LOAD|LODNUM' then value
+                  end) as dc_no_lodnum,
+            nvl(max(case when dev_varnam = 'USR_IDENTIFY_LOAD|LODNUM' and value = @lodnum then 1
+                    end), 0) as dc_lodnum_on_dc_flg,
+            nvl(max(case when dev_varnam = 'USR_IDENTIFY_LOAD|ADD_TO_LODNUM' then 1
+                    end), 0) as dc_add_to_lodnum_flg,
+            nvl(max(case when dev_varnam = 'USR_IDENTIFY_LOAD|NEW_TRAIN' then 1
+                    end), 0) as dc_new_train_flg,
+            nvl(max(case when dev_varnam = 'USR_IDENTIFY_LOAD|ALLOCATE_LOCATION' then 1
+                    end), 0) as dc_allocate_location_flg,
+            nvl(max(case when dev_varnam = 'USR_IDENTIFY_LOAD|AUTO_DEPOSIT' then 1
+                    end), 0) as dc_auto_deposit_flg
+       from device_context
+      where devcod = @devcod
+        and wh_id = @wh_id
+        and dev_varnam like 'USR_IDENTIFY_LOAD%']
+} >> dc_context_sts
+|
+/* Get the data for the loads which were scanned by the user, excluding the load which was just scanned. */
+{
+    [select value
+       from device_context
+      where wh_id = @wh_id
+        and devcod = @devcod
+        and dev_varnam in ('USR_IDENTIFY_LOAD|LODNUM', 'USR_IDENTIFY_LOAD|FINISH_IDENTIFIER')] catch(-1403) >> res_loads
+    |
+    if (@lodnum)
+    {
+        {
+            publish data combination
+             where res = @res_loads &
+            publish data
+             where value = @lodnum
+        } >> res_loads
+    }
+    |
+    if (rowcount(@res_loads) > 0)
+    {
+        convert column results to string
+         where resultset = @res_loads
+           and colnam = 'value'
+        |
+        convert list to in clause
+         where string = @result_string
+           and table_prefix = 'invlod'
+           and column_name = 'lodnum'
+           and separator = ','
+    }
+    else
+    {
+        publish data
+         where in_clause = ' 1 = 2 '
+    }
+    |
+    /*get the action group considered photo.miss*/
+    [select rtstr1
+       from poldat_view
+      where poldat_view.polcod = 'USR-RECEIVING'
+        and poldat_view.polvar = 'EXCEPTION'
+        and poldat_view.polval = 'PHOTOMISS'
+        and poldat_view.rtnum1 = 1
+        and poldat_view.wh_id = @wh_id] catch(-1403) >> res_vg_photo_miss
+    |
+    convert column results to string
+     where resultset = @res_vg_photo_miss
+       and colnam = 'rtstr1'
+       and separator = "','"
+    |
+    publish data
+     where vg_photo_miss = "'" || @result_string || "'"
+    |
+   [select @devcod as devcod,
+        @wh_id as wh_id,
+        decode(min(rcvinv.invtyp), max(rcvinv.invtyp), max(rcvinv.invtyp), null, null, '*MULT*') as dc_invtyp,
+        decode(min(prtmst.prtfam), max(prtmst.prtfam), max(prtmst.prtfam), null, null, '*MULT*') as dc_prtfam,
+        decode(min(invdtl.inv_attr_str1), max(invdtl.inv_attr_str1), max(invdtl.inv_attr_str1), null, null, '*MULT*') as dc_vg_ais,
+        decode(min(invdtl.inv_attr_str6), max(invdtl.inv_attr_str6), max(invdtl.inv_attr_str6), null, null, '*MULT*') as dc_vg_kweker,
+        max(case when invdtl.inv_attr_str6 <> invdtl.inv_attr_str1 then 1
+                 else 0
+            end) as dc_vg_diff,
+        max(case when nvl(invdtl.inv_attr_str1, invdtl.inv_attr_str6) in (@vg_photo_miss:raw) then 1
+                 else 0
+            end) as i_sts_photo_miss,
+        decode(min(invlod.asset_typ), max(invlod.asset_typ), max(invlod.asset_typ), null, null, '*MULT*') as dc_asset_typ,
+        nvl(max(invdtl.inv_attr_int1), 0) as dc_gp_flg,
+        nvl(max(invlod.load_attr2_flg), 0) as dc_gp_mb_flg,
+        (select tmp.inv_attr_str17
+           from (select invdtl.inv_attr_str17, 0 as invstr17_seq
+                   from invdtl,
+                        invsub,
+                        invlod
+                  where invdtl.subnum = invsub.subnum
+                    and invsub.lodnum = invlod.lodnum
+                    and not exists(select 0
+                                     from device_context
+                                    where devcod = @devcod
+                                      and dev_varnam = 'USR_IDENTIFY_LOAD|LODNUM'
+                                      and value = invlod.lodnum)
+                    and @in_clause:raw
+                 union
+                 select invdtl.inv_attr_str17, 1 as invstr17_seq
+                   from invdtl,
+                        invsub,
+                        invlod
+                  where invdtl.subnum = invsub.subnum
+                    and invsub.lodnum = invlod.lodnum
+                    and invlod.lodnum = (select value as lodnum
+                                           from device_context
+                                          where devcod = @devcod
+                                            and dev_varnam = 'USR_IDENTIFY_LOAD|LODNUM'
+                                          order by srtseq desc offset 0 rows fetch first 1 row only)) tmp
+          order by invstr17_seq asc offset 0 rows fetch first 1 row only) as inv_attr_str17_ind,
+        (case when max(invdtl.inv_attr_int1) = 1 then(select nvl(max(loc_typ_sub.fwiflg), 0)
+                                                        from invdtl invdtl_sub
+                                                       inner
+                                                        join invsub invsub_sub
+                                                          on invsub_sub.subnum = invdtl_sub.subnum
+                                                       inner
+                                                        join invlod invlod_sub
+                                                          on invlod_sub.lodnum = invsub_sub.lodnum
+                                                       inner
+                                                        join locmst locmst_sub
+                                                          on locmst_sub.stoloc = invlod_sub.stoloc
+                                                         and locmst_sub.wh_id = invlod_sub.wh_id
+                                                       inner
+                                                        join loc_typ loc_typ_sub
+                                                          on loc_typ_sub.loc_typ_id = locmst_sub.loc_typ_id
+                                                       where invdtl_sub.inv_attr_int1 = 1
+                                                         and invdtl_sub.prtnum = max(invdtl.prtnum)
+                                                         and invdtl_sub.prt_client_id = max(invdtl.prt_client_id)
+                                                         and invdtl_sub.lotnum = max(invdtl.lotnum)
+                                                         and loc_typ_sub.fwiflg = 1)
+              else 0
+         end) as dc_gp_fwi_flg
+   from invlod
+  inner
+   join invsub
+     on invsub.lodnum = invlod.lodnum
+  inner
+   join invdtl
+     on invdtl.subnum = invsub.subnum
+  inner
+   join rcvlin
+     on rcvlin.rcvkey = invdtl.rcvkey
+  inner
+   join prtmst
+     on prtmst.prtnum = rcvlin.prtnum
+    and prtmst.prt_client_id = rcvlin.prt_client_id
+    and prtmst.wh_id_tmpl = rcvlin.wh_id
+  inner
+   join rcvinv
+     on rcvinv.trknum = rcvlin.trknum
+    and rcvinv.supnum = rcvlin.supnum
+    and rcvinv.invnum = rcvlin.invnum
+    and rcvinv.wh_id = rcvlin.wh_id
+    and rcvinv.client_id = rcvlin.client_id
+  where @in_clause:raw]
+} >> dc_inv_sts
+|
+/* Publish both the the result sets. */
+merge result sets with data
+ where keycolumns = 'devcod'
+   and resultset = @dc_context_sts
+   and additionalresultset = @dc_inv_sts
+]]>
+</local-syntax>
+  <argument name="devcod" datatype="string">devcod</argument>
+  <argument name="wh_id" datatype="string">wh_id</argument>
+  <argument name="identifier" datatype="string">identifier to determine if it is on the device</argument>
+  <argument name="lodnum" datatype="string">lodnum to determine if it is on the device</argument>
+  <argument name="stoloc" datatype="string">stoloc to determine if it is on the device</argument>
+</command>

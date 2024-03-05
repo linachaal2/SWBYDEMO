@@ -1,0 +1,19 @@
+<command>
+  <name>produce usr usr_rfh009</name>
+  <description>produce work order</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* produce usr usr_rfh009
+ * produce work order
+ * Version history:
+ *  2023-04-06  Marco Schouwenaar Initial version
+ */
+        get lbl document format
+         where doc_typ = @doc_typ
+           and exitpnt = @exitpnt
+
+]]>
+</local-syntax>
+  <argument name="wkonum" required="yes" datatype="string">wkonum</argument>
+</command>

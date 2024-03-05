@@ -1,0 +1,31 @@
+<command>
+  <name>get usr rf multiple lpn handling flag</name>
+  <description>Returns the Multiple LPN flag based on the policy settings.</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* User command to get the value of the rtnum1 from the policy Multiple LPN Handling
+ *
+ * Version history:
+ * 2020-04-07  Shailesh Raina     Initial version.
+ */
+get warehouse id
+|
+publish data
+ where devcod = nvl(@devcod, @@devcod)
+|
+[select rtnum1
+   from poldat_view
+  where wh_id = @wh_id
+    and polcod = 'USR-INVENTORY'
+    and polvar = 'INVENTORY-MOVEMENT'
+    and polval = 'MULTIPLE-LPN-HANDLING']
+|
+if(@? != 1403) 
+{
+ publish data 
+	where mult_lpn_handling = @rtnum1
+}
+]]>
+</local-syntax>
+</command>

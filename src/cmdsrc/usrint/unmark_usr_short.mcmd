@@ -1,0 +1,38 @@
+<command>
+  <name>unmark usr short</name>
+  <description>unmark usr short</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* unmark usr short
+ *
+ * Version history:
+ *  2023-08-16  Radina Ivanova - Initial version
+ */
+    [update rplwrk
+	    set waybil = null
+      where rplref = @rplref
+        and waybil is not null] catch(-1403)
+    |
+    if (@? != 0)
+    {
+        set return status where status = 90061
+    }
+    |
+    [update rplwrk
+	    set waybil = null
+      where waybil = @marked
+        and prtnum = @prtnum
+        and exists (select 'x'
+                      from alloc_rule_dtl
+                     where field_name = 'lotnum'
+                       and value = @lotnum
+                       and rule_nam = rplwrk.rule_nam
+                       and wh_id = rplwrk.wh_id)] catch(-1403)
+]]>
+</local-syntax>
+<argument name="rplref" required="yes" datatype="string">Replenishment Reference</argument>
+<argument name="prtnum" required="yes" datatype="string">Item Number</argument>
+<argument name="lotnum" required="yes" datatype="string">Lot Number</argument>
+<argument name="marked" required="no" datatype="string">Marked</argument>
+</command>

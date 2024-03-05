@@ -1,0 +1,107 @@
+<trigger>
+  <name>send usr allocable status</name>
+  <on-command>move inventory</on-command>
+  <description>send usr allocable status</description>
+  <fire-sequence>900002</fire-sequence>
+  <local-syntax>
+<![CDATA[
+/* Trigger: move inventory-send usr allocable status
+ * send allocable status towards host system (once).
+ *
+ * Version history:
+ *  2023-05-09  Marco Schouwenaar  Initial version.
+ *  2023-05-19  Marco Schouwenaar  Added movement to staging if applicable for work order(s)
+ */
+    if(@trolley_flag is null or @trolley_flag = 0)
+    {
+        if (@actcod = 'RCV')
+        {
+            [select wkonum,wkorev,client_id from wkohdr where wkonum=@srcloc and wh_id=@wh_id]catch(-1403)
+            |
+            if (@?=0 and @lodnum)
+            {
+                create usr move to production station staging 
+                  where wkonum = @wkonum 
+                    and wkorev = @wkorev
+                   and client_id = @client_id
+                   and immediate = 0
+                   and wh_id = @wh_id
+                   and lodnum =  @lodnum
+            }
+        }
+        |
+        /*
+         * If the inventory id is passed, we will need to
+         * verify if it is marked to sent an allocable status.
+         */
+        if(@dstlod)
+        {
+            publish data
+             where lod_clause = "invlod.lodnum = '" || @dstlod || "'"
+        }
+        else if(@srclod)
+        {
+            publish data
+             where lod_clause = "invlod.lodnum = '" || @srclod || "'"
+        }
+        else
+        {
+            publish data
+             where lod_clause = "1 = 1"
+        }
+        |
+        if(@dstsub)
+        {
+            publish data
+             where sub_clause = "invsub.subnum = '" || @dstsub || "'"
+        }
+        else if(@srcsub)
+        {
+            publish data
+             where sub_clause = "invsub.subnum = '" || @srcsub || "'"
+        }
+        else
+        {
+            publish data
+             where sub_clause = "1 = 1"
+        }
+        |
+        if(@dtlnum)
+        {
+            publish data
+             where dtl_clause = "invdtl.dtlnum = '" || @dtlnum || "'"
+        }
+        else
+        {
+            publish data
+             where dtl_clause = "1 = 1"
+        }
+        |
+        [select distinct invlod.lodnum
+           from invdtl
+           join invsub on invsub.subnum = invdtl.subnum
+           join invlod on invsub.lodnum = invlod.lodnum
+           join locmst on invlod.stoloc = locmst.stoloc
+            and invlod.wh_id = locmst.wh_id
+          where @lod_clause:raw
+            and @sub_clause:raw
+            and @dtl_clause:raw
+            and invdtl.u_version = 1
+            and invlod.wh_id = @wh_id
+            and locmst.stoloc = @dstloc
+            and locmst.stoflg = 1
+            and exists (select 'x' 
+                          from alloc_search_path_rule 
+                         where alloc_search_path_rule.pck_zone_id = locmst.pck_zone_id)] catch(-1403)
+        |
+        if(@? = 0 and @lodnum)
+        {          
+            publish data where cmd = 'get integrator system id where systyp = ''WMD'' | sl_log event where evt_id = ''UC_LOAD_STATUS'' and ifd_data_ptr = NULL and sys_id ='  || "'" || @sys_id || "'" || ' and wh_id = '|| "'" || @wh_id || "'" || ' and stoloc = '  || "'" || @dstloc || "'" || ' and lodnum= ' || "'" || @lodnum || "'" || ' and status=''A001'' '
+|
+create deferred execution where exec_typ = 'USR1' and deferred_cmd = @cmd
+        }
+    }
+]]>
+</local-syntax>
+  <enable>yes</enable>
+</trigger>

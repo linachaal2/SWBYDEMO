@@ -1,0 +1,385 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.11.0.final using JasperReports Library version 6.10.0  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Troubleshoot report 1" language="groovy" pageWidth="842" pageHeight="595" orientation="Landscape" columnWidth="802" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" scriptletClass="com.redprairie.moca.jrds.ReportingIreportScriptlet" resourceBundle="com.redprairie.moca.jrds.Xlate" whenResourceMissingType="Error" uuid="dc52c4c7-cf9f-4371-8053-83ecebc7e377">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="Docker local"/>
+	<property name="com.jaspersoft.studio.report.description" value="Troubleshoot report on lotnum"/>
+	<import value="net.sf.jasperreports.engine.*"/>
+	<import value="java.util.*"/>
+	<import value="net.sf.jasperreports.engine.data.*"/>
+	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
+		<property name="MOCA" value="true"/>
+		<defaultValueExpression><![CDATA["./"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="MOCA_REPORT_LOCALE" class="java.lang.String" isForPrompting="false">
+		<property name="MOCA" value="true"/>
+		<defaultValueExpression><![CDATA["US_ENGLISH"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="MOCA_REPORT_CONNECTION" class="com.redprairie.moca.jrds.JRMocaConnection" isForPrompting="false">
+		<property name="MOCA" value="true"/>
+		<defaultValueExpression><![CDATA[new com.redprairie.moca.jrds.JRMocaConnection("http://jda2018100.westeurope.cloudapp.azure.com:18000/service", "SUPER", "SUPER", true)]]></defaultValueExpression>
+	</parameter>
+	<parameter name="MOCA_REPORT_DATE" class="java.lang.String" isForPrompting="false">
+		<property name="MOCA" value="true"/>
+		<defaultValueExpression><![CDATA[DateFormat.getDateInstance(DateFormat.SHORT).format(new Date())]]></defaultValueExpression>
+	</parameter>
+	<parameter name="MOCA_REPORT_TIME" class="java.lang.String" isForPrompting="false">
+		<property name="MOCA" value="true"/>
+		<defaultValueExpression><![CDATA[DateFormat.getTimeInstance(DateFormat.SHORT).format(new Date())]]></defaultValueExpression>
+	</parameter>
+	<parameter name="MOCA_REPORT_TZ" class="java.lang.String" isForPrompting="false">
+		<property name="MOCA" value="true"/>
+		<defaultValueExpression><![CDATA[new java.text.SimpleDateFormat("z").format(new Date())]]></defaultValueExpression>
+	</parameter>
+	<parameter name="MOCA_REPORT_DATE_FMT" class="java.lang.String" isForPrompting="false">
+		<property name="MOCA" value="true"/>
+		<defaultValueExpression><![CDATA[DateFormat.SHORT]]></defaultValueExpression>
+	</parameter>
+	<parameter name="MOCA_REPORT_TIME_FMT" class="java.lang.String" isForPrompting="false">
+		<property name="MOCA" value="true"/>
+		<defaultValueExpression><![CDATA[DateFormat.SHORT]]></defaultValueExpression>
+	</parameter>
+	<parameter name="lotnum" class="java.lang.String">
+		<property name="prompt" value="^lotnum^"/>
+	</parameter>
+	<queryString language="MOCA">
+		<![CDATA[publish data where lotnum='%'||$P{lotnum}||'%' 
+|
+if (@lotnum = '%%' )
+{
+    publish data
+     where  lotnum='-' 
+}
+|
+[select case when nvl(shipment_line.ordnum,'-')='-' then 'Stock'  when nvl(shipment_line.ordnum,'-') <> '-' then  'Picked' end as status, stock.inv_attr_str8,  stock.inv_attr_str2 as fust, stock.inv_attr_int2 as content, stock.prtnum, prtdsc.short_dsc, stock.lotnum,stock.sup_lotnum,stock.untqty,stock.lodnum,stock.stoloc, dstloc.adr_district, shipment_line.ordnum,shipment_line.ordlin, shipment_line.picked_qty,ord_line.ordqty, ord_line.cancelled_flg, ord_line.sales_ordnum, ord.rtcust,cstmst.uc_ckn_no, dstnam.adrnam, nvl(pckwrk_hdr.srcloc,' ') srcloc, pckwrk_hdr.last_pck_usr_id from (select 'Stock' as status, invdtl.inv_attr_str8,invdtl.inv_attr_str2,invdtl.inv_attr_int2,invdtl.prtnum,invdtl.lotnum,invdtl.sup_lotnum,invdtl.untqty,invlod.lodnum,invlod.stoloc,invdtl.ship_line_id, invdtl.wrkref from invsub,invlod,invdtl ,locmst, loc_typ
+ where invdtl.subnum = invsub.subnum and invsub.lodnum = invlod.lodnum and invlod.stoloc=locmst.stoloc and loc_typ.loc_typ_id = locmst.loc_typ_id and loc_typ.fwiflg=1  
+union
+select 'Picked' as status, invdtl_hist.inv_attr_str8,   invdtl_hist.inv_attr_str2 as fust,  invdtl_hist.inv_attr_int2 as content,invdtl_hist.prtnum,invdtl_hist.lotnum,invdtl_hist.sup_lotnum,invdtl_hist.untqty,invlod_hist.lodnum,'-',invdtl_hist.ship_line_id,invdtl_hist.wrkref from invsub_hist,invlod_hist,invdtl_hist 
+ where invdtl_hist.subnum = invsub_hist.subnum and invsub_hist.lodnum = invlod_hist.lodnum  
+ ) stock 
+ left join shipment_line on (shipment_line.ship_line_id= stock.ship_line_id)
+ left join ord on (shipment_line.ordnum = ord.ordnum and shipment_line.client_id = ord.client_id and shipment_line.wh_id = ord.wh_id) 
+ left join ord_line on (ord_line.ordnum = shipment_line.ordnum and ord_line.ordlin = shipment_line.ordlin and ord_line.ordsln = shipment_line.ordsln and ord_line.wh_id = shipment_line.wh_id and ord_line.client_id = shipment_line.client_id)
+ left join cstmst on (ord.rtcust = cstmst.cstnum and ord.client_id=cstmst.client_id) 
+ left join adrmst dstloc on (ord.rt_adr_id=dstloc.adr_id and ord.client_id=dstloc.client_id)
+ left join adrmst dstnam on (cstmst.adr_id=dstnam.adr_id and cstmst.client_id=dstnam.client_id)
+ left join prtdsc on (prtdsc.colval = ord_line.prtnum||'|'||ord_line.prt_client_id||'|'||ord_line.wh_id and prtdsc.colnam='prtnum|prt_client_id|wh_id_tmpl' and prtdsc.locale_id='US_ENGLISH')
+ left join pckwrk_hdr on (pckwrk_hdr.wrkref=stock.wrkref) 
+ where stock.lotnum like @lotnum 
+ union
+ select 'Open' status, '-', '-','-',ord_line.prtnum, prtdsc.short_dsc, alloc_rule_dtl.value, '-', ord_line.ordqty as untqty ,'-','-', dstloc.adr_district, ord_line.ordnum,ord_line.ordlin, ord_line.pckqty,ord_line.ordqty, ord_line.cancelled_flg, ord_line.sales_ordnum, ord.rtcust,cstmst.uc_ckn_no, dstnam.adrnam, ' ', '-' from alloc_rule_dtl  
+ left join ord_line on (ord_line.rule_nam = alloc_rule_dtl.rule_nam and ord_line.wh_id = alloc_rule_dtl.wh_id)
+ left join ord on (ord.ordnum = ord_line.ordnum and ord.wh_id = ord_line.wh_id and ord.client_id = ord_line.client_id) 
+ left join cstmst on (ord.rtcust = cstmst.cstnum and ord.client_id=cstmst.client_id) 
+ left join adrmst dstloc on (ord.rt_adr_id=dstloc.adr_id and ord.client_id=dstloc.client_id)
+ left join adrmst dstnam on (cstmst.adr_id=dstnam.adr_id and cstmst.client_id=dstnam.client_id)
+ left join prtdsc on (prtdsc.colval = ord_line.prtnum||'|'||ord_line.prt_client_id||'|'||ord_line.wh_id and prtdsc.colnam='prtnum|prt_client_id|wh_id_tmpl' and prtdsc.locale_id='US_ENGLISH')
+ where alloc_rule_dtl.value like @lotnum and alloc_rule_dtl.field_name='lotnum' and ((ord_line.ordqty <> ord_line.shpqty and ord_line.pckqty=0) or  ord_line.cancelled_flg=1) and not exists (select 'x' from invdtl,shipment_line where  invdtl.ship_line_id = shipment_line.ship_line_id and shipment_line.ordnum=ord_line.ordnum and shipment_line.ordlin=ord_line.ordlin and shipment_line.client_id=ord_line.client_id and shipment_line.wh_id=ord_line.wh_id)
+ order by lotnum, status]]]>
+	</queryString>
+	<field name="inv_attr_str8" class="java.lang.String">
+		<fieldDescription><![CDATA[Aanvoerbrief]]></fieldDescription>
+	</field>
+	<field name="prtnum" class="java.lang.String">
+		<fieldDescription><![CDATA[SKU]]></fieldDescription>
+	</field>
+	<field name="lotnum" class="java.lang.String">
+		<fieldDescription><![CDATA[Partij]]></fieldDescription>
+	</field>
+	<field name="untqty" class="java.lang.String">
+		<fieldDescription><![CDATA[Aantal]]></fieldDescription>
+	</field>
+	<field name="stoloc" class="java.lang.String">
+		<fieldDescription><![CDATA[opslag locatie]]></fieldDescription>
+	</field>
+	<field name="adr_district" class="java.lang.String">
+		<fieldDescription><![CDATA[Aflever locatie]]></fieldDescription>
+	</field>
+	<field name="ordnum" class="java.lang.String">
+		<fieldDescription><![CDATA[Order nummer]]></fieldDescription>
+	</field>
+	<field name="ordlin" class="java.lang.String">
+		<fieldDescription><![CDATA[Order line]]></fieldDescription>
+	</field>
+	<field name="rtcust" class="java.lang.String">
+		<fieldDescription><![CDATA[Customer EAN]]></fieldDescription>
+	</field>
+	<field name="uc_ckn_no" class="java.lang.String">
+		<fieldDescription><![CDATA[CKN no]]></fieldDescription>
+	</field>
+	<field name="adrnam" class="java.lang.String">
+		<fieldDescription><![CDATA[Klant naam]]></fieldDescription>
+	</field>
+	<field name="status" class="java.lang.String">
+		<fieldDescription><![CDATA[Stock status]]></fieldDescription>
+	</field>
+	<field name="short_dsc" class="java.lang.String">
+		<fieldDescription><![CDATA[short part description]]></fieldDescription>
+	</field>
+	<field name="sales_ordnum" class="java.lang.String">
+		<fieldDescription><![CDATA[sales order reference]]></fieldDescription>
+	</field>
+	<field name="ordqty" class="java.lang.Float">
+		<fieldDescription><![CDATA[Order quantity]]></fieldDescription>
+	</field>
+	<field name="fust" class="java.lang.String">
+		<fieldDescription><![CDATA[Fust type]]></fieldDescription>
+	</field>
+	<field name="content" class="java.lang.Integer">
+		<fieldDescription><![CDATA[Content fust]]></fieldDescription>
+	</field>
+	<field name="shpqty" class="java.lang.Float">
+		<fieldDescription><![CDATA[Shipped quantity]]></fieldDescription>
+	</field>
+	<field name="srcloc" class="java.lang.String">
+		<fieldDescription><![CDATA[source location]]></fieldDescription>
+	</field>
+	<field name="last_pck_usr_id" class="java.lang.String">
+		<fieldDescription><![CDATA[pick user]]></fieldDescription>
+	</field>
+	<sortField name="lotnum"/>
+	<sortField name="status"/>
+	<pageHeader>
+		<band height="35">
+			<textField>
+				<reportElement x="0" y="0" width="200" height="30" uuid="231d51be-ec32-419d-a708-6d25b09cdd6e"/>
+				<textElement textAlignment="Left">
+					<font fontName="Liberation Sans" size="20" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{lotnum}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="630" y="0" width="170" height="20" uuid="2bf28354-a83f-4d8d-bab4-18c872a92757"/>
+				<textElement textAlignment="Right">
+					<font fontName="Liberation Sans"/>
+				</textElement>
+				<text><![CDATA[RFH005 v1.06 2023-11-07]]></text>
+			</staticText>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="34">
+			<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.FreeLayout"/>
+			<textField>
+				<reportElement x="0" y="0" width="100" height="15" uuid="8d67ae7d-c134-4a10-8a9b-4abee758d0e7">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="20ae3fe2-3f8b-4229-ad33-620e0e56f17b"/>
+				</reportElement>
+				<textElement>
+					<font fontName="Liberation Sans" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$R{^lotnum^}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="225" y="0" width="110" height="15" uuid="739a8867-2b25-4fa4-9d63-e70b644e3d58">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="a844aca1-af41-49f1-a252-8bb004cff7f7"/>
+				</reportElement>
+				<textElement>
+					<font fontName="Liberation Sans" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$R{^SKU^}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="620" y="16" width="100" height="15" uuid="6e5aa754-c839-48d5-b2c4-ecaa104f1d03">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="6cabda97-37c7-4bab-9dc9-c57165a55826"/>
+				</reportElement>
+				<textElement textAlignment="Left">
+					<font fontName="Liberation Sans" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$R{^custref^}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="225" y="16" width="110" height="15" uuid="e43f82ca-2a33-446b-a66d-d38464317e2d">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="256c1b27-0b83-4147-8d2b-fd6811cb2daf"/>
+				</reportElement>
+				<textElement>
+					<font fontName="Liberation Sans" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$R{^rtcust^}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="342" y="16" width="100" height="15" uuid="3a5cb3ea-9922-4c5d-94cd-ec8eb0e5db6b">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="881befa6-8b02-42e0-8d6b-c31ac9fe76ea"/>
+				</reportElement>
+				<textElement>
+					<font fontName="Liberation Sans" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$R{^uc_ckn_no^}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="450" y="16" width="100" height="15" uuid="6e7c496f-8c0b-4770-a411-e5366926b8d5">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="d28aa2b3-26ba-4101-b562-23a11f212cad"/>
+				</reportElement>
+				<textElement>
+					<font fontName="Liberation Sans" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$R{^cstnam^}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="550" y="0" width="160" height="15" uuid="cbec158f-33b9-4457-9cba-f2c264911cbc">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="2f9c79d9-de37-4bb2-bc62-48978e872aea"/>
+				</reportElement>
+				<textElement textAlignment="Right">
+					<font fontName="Liberation Sans" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$R{^quantity^} + ' / ' + $R{^Fustcode^} + ' / ' + $R{^content^}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="720" y="0" width="80" height="15" uuid="7f5f0179-2da5-40bd-be74-7b01cfefefc3">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="6ab2a9f5-5ce1-4632-8536-5c698f52b89b"/>
+				</reportElement>
+				<textElement textAlignment="Right">
+					<font fontName="Liberation Sans" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$R{^stoloc^}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="720" y="16" width="80" height="15" uuid="d65cbfd9-e4ff-40b1-9096-b39676288def">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="c805a580-263e-41b1-a5fc-a70d50d41e74"/>
+				</reportElement>
+				<textElement textAlignment="Right">
+					<font fontName="Liberation Sans" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$R{^Delivered^}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="0" y="30" width="800" height="1" uuid="93889c31-5989-40db-a845-91545ce75406"/>
+			</line>
+			<textField>
+				<reportElement x="342" y="0" width="110" height="15" uuid="d5dcb0cd-7940-4296-be9b-ea6acbe036e6">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="bff48f87-1023-48d0-8179-9272ae35ec48"/>
+				</reportElement>
+				<textElement>
+					<font fontName="Liberation Sans" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$R{^prtdsc^}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="16" width="100" height="15" uuid="2483385a-aa44-4874-abc9-6166441104f7">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="6cabda97-37c7-4bab-9dc9-c57165a55826"/>
+				</reportElement>
+				<textElement>
+					<font fontName="Liberation Sans" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$R{^order^}]]></textFieldExpression>
+			</textField>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="39" splitType="Stretch">
+			<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.FreeLayout"/>
+			<textField isBlankWhenNull="true">
+				<reportElement x="225" y="1" width="110" height="15" uuid="0d0bb437-0a58-4e45-a272-4803bf067378">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="a844aca1-af41-49f1-a252-8bb004cff7f7"/>
+				</reportElement>
+				<textElement>
+					<font fontName="Liberation Sans"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{prtnum}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="0" y="18" width="220" height="15" uuid="0adeff8c-d8cc-4d97-ba53-44c574192812">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="6cabda97-37c7-4bab-9dc9-c57165a55826"/>
+				</reportElement>
+				<textElement>
+					<font fontName="Liberation Sans"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{ordnum}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="225" y="18" width="110" height="15" uuid="ab61b250-e290-4c93-8d1b-b62a882088b9">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="256c1b27-0b83-4147-8d2b-fd6811cb2daf"/>
+				</reportElement>
+				<textElement>
+					<font fontName="Liberation Sans"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{rtcust}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="340" y="18" width="100" height="15" uuid="fd568330-b46b-42bf-9c0e-11fbafe022d0">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="881befa6-8b02-42e0-8d6b-c31ac9fe76ea"/>
+				</reportElement>
+				<textElement>
+					<font fontName="Liberation Sans"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{uc_ckn_no}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="448" y="18" width="162" height="15" uuid="e9e1aec5-3d76-4294-865b-db6b57ca870a">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="d28aa2b3-26ba-4101-b562-23a11f212cad"/>
+				</reportElement>
+				<textElement>
+					<font fontName="Liberation Sans"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{adrnam}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="620" y="1" width="100" height="15" uuid="7916df29-6f5a-4be2-90d9-37fc3b0a4ac5">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="2f9c79d9-de37-4bb2-bc62-48978e872aea"/>
+				</reportElement>
+				<textElement>
+					<font fontName="Liberation Sans" size="11" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{untqty} + ' / ' + $F{fust} + ' / ' + $F{content}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="720" y="1" width="80" height="15" uuid="3c13c5df-ccaf-4d67-86da-7ab98abbe388">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="6ab2a9f5-5ce1-4632-8536-5c698f52b89b"/>
+				</reportElement>
+				<textElement textAlignment="Right">
+					<font fontName="Liberation Sans" size="11" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{stoloc}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="720" y="18" width="80" height="15" uuid="255bfc7d-4280-4758-976f-301d0507524a">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="c805a580-263e-41b1-a5fc-a70d50d41e74"/>
+				</reportElement>
+				<textElement textAlignment="Right">
+					<font fontName="Liberation Sans"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{adr_district}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="0" y="35" width="800" height="1" uuid="aa311dba-1f84-4193-bae7-6acc57ccfb4f"/>
+			</line>
+			<textField isBlankWhenNull="true">
+				<reportElement x="340" y="1" width="270" height="15" uuid="c3e02d7b-09d5-4764-9ab5-90fda0cb07aa">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="bff48f87-1023-48d0-8179-9272ae35ec48"/>
+				</reportElement>
+				<textElement>
+					<font fontName="Liberation Sans"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{short_dsc}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="620" y="18" width="100" height="15" uuid="8b309a55-4de4-4a38-aafb-e1e2a702df98">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="ecedb687-f63e-4e62-997c-e990a55a98d9"/>
+				</reportElement>
+				<textElement>
+					<font fontName="Liberation Sans"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{sales_ordnum}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="90" y="1" width="130" height="15" uuid="eaea96e2-1f88-40ea-8ef8-10e64cb9802b">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="251ba58c-e796-46ae-831f-06c1a5ddbd9d"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Right">
+					<font fontName="Liberation Sans" size="11" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[IF((EQUALS($F{status},'Picked')),$F{last_pck_usr_id},$F{status}) + ' ' + $F{srcloc}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="0" y="1" width="90" height="15" uuid="2514b5ab-32a4-4e52-b3ec-74c282df6e26">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="6cbec44d-8254-428d-a134-d0161b85a3c5"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement>
+					<font fontName="Liberation Sans" size="11" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{lotnum}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

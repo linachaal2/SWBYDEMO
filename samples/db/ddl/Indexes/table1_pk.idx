@@ -1,0 +1,12 @@
+#include <../../../include/usrddl.h>
+#include <../../../include/varddl.h>
+#include <usrtbldef.h>
+#include <vartbldef.h>
+#include <sqlDataTypes.h>
+
+alter table table1 add
+BEGIN_CONSTRAINT
+contraint table1_pk primary_key (column1)
+CONSTRAINT_TABLESPACE_INFO (TABLE1_PK_TBLSPC, TABLE1_PK_STORAGE)
+END_CONSTRAINT
+RUN_SQL

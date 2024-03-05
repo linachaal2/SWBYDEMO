@@ -1,0 +1,41 @@
+<trigger>
+  <name>send usr consume interface</name>
+  <on-command>create component tracking for inventory</on-command>
+  <description>send usr consume interface</description>
+  <fire-sequence>1000</fire-sequence>
+  <local-syntax>
+<![CDATA[
+/* trigger send usr consume interface
+ * Transaction sent on create component tracking for inventory command, to keep the stock in the host on the correct level.
+ * Version history:
+ *  2023-03-34 Marco Schouwenaar  Initial version.
+ */
+
+get integrator system id
+ where systyp = 'WMD'
+|
+if (@? = 0)
+{
+sl_log event
+ where evt_id = 'UC_INV-CONS-WO'
+   and sys_id = @sys_id
+   and wh_id = @wh_id
+   and revlvl = nvl(@cmp_revlvl,'----')
+   and prtnum = @cmp_prtnum
+   and prt_client_id = @cmp_prt_client_id
+   and lotnum = nvl(@cmp_lotnum,'----')
+   and orgcod = nvl(@cmp_orgcod,'----')
+   and invsts = @cmp_invsts
+   and client_id = @client_id
+   and wkonum = @wkonum
+   and wkorev = @wkorev
+   and cmpkey_org = @sub_cmpkey   
+   and cmpkey = @cmpkey
+   and trnqty = @cmpqty
+   and subnum = nvl(@cmp_subnum,'----')
+   and dtlnum = nvl(@cmp_dtlnum,'----')
+}
+]]>
+</local-syntax>
+  <enable>yes</enable>
+</trigger>

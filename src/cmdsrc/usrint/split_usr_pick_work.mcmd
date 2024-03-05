@@ -1,0 +1,158 @@
+<command>
+  <name>split usr pick work</name>
+  <description>split usr pick work</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* split usr pick work
+ * Version history:
+ *  2023-01-17 Radina Ivanova    Initial version
+ *  2023-06-05 Marco Schouwenaar Removed pckwrk_view to improve performance 
+ */
+ 
+    generate next number
+       where numcod = 'wrkref'
+    |
+    publish data
+      where new_wrkref = @nxtnum
+    |
+    copy pick work header
+    where wrkref = @src_wrkref
+      and field_list = 'wrkref, pckqty'
+      and value_list = @new_wrkref || ', ' || @remqty 
+    |
+    [update pckwrk_hdr
+        set pckqty = @split_qty
+      where wrkref = @src_wrkref]
+    |
+    generate next number
+       where numcod = 'cmbcod'
+    |
+    publish data
+      where new_cmbcod = @nxtnum
+    |
+    [insert into pckmov (cmbcod, seqnum, mov_zone_id, stoloc, rescod, arrqty, prcqty, wh_id, init_mov_dte, upd_mov_dte)
+     select @new_cmbcod cmbcod, seqnum, mov_zone_id, stoloc, rescod, arrqty, prcqty, wh_id, init_mov_dte, upd_mov_dte
+       from pckmov
+      where cmbcod = (select cmbcod from pckwrk_dtl where wrkref = @src_wrkref and rownum = 1)]
+    |
+    [select wrkref_dtl, pckqty
+       from pckwrk_dtl
+      where wrkref = @src_wrkref] >> dtlRes
+    |
+    [[
+        int qty = split_qty;
+        while (dtlRes.next())
+        {
+            if (qty > 0)
+            {
+                if (dtlRes.getInt("pckqty") > qty)
+                {
+                    moca.executeCommand("generate next number " +
+                                        "   where numcod = 'wrkref_dtl' " +
+                                        "| " +
+                                        "publish data " +
+                                        "  where new_wrkref_dtl = @nxtnum " +
+                                        "| " +
+                                        " copy pick work detail " +
+                                        "where wrkref_dtl = '" + dtlRes.getString("wrkref_dtl") + "' " +
+                                        "  and field_list = 'wrkref, wrkref_dtl, cmbcod, pckqty' " +
+                                        "  and value_list = '" + new_wrkref + "' || ', ' || @new_wrkref_dtl || ', " + new_cmbcod +  ", " + (dtlRes.getInt("pckqty") - qty) + "' " +
+                                        "| " +
+                                        "[update pckwrk_dtl " +
+                                        "    set pckqty = " + qty +
+                                        "  where wrkref_dtl = '" + dtlRes.getString("wrkref_dtl") + "']");
+                      
+                    qty = 0;
+                }
+                else if (dtlRes.getInt("pckqty") <= qty)
+                {
+                     qty -= dtlRes.getInt("pckqty");
+                }
+            }
+            else
+            {
+                moca.executeCommand("[update pckwrk_dtl " +
+                                    "    set wrkref = '" + new_wrkref + "', " +
+                                    "        cmbcod = '" + new_cmbcod + "' " +
+                                    "  where wrkref_dtl = '" + dtlRes.getString("wrkref_dtl") + "']");
+            }
+        }
+    ]]
+    |
+   [select pckwrk_hdr.pcksts,
+            pckwrk_hdr.wrkref wrkref,
+            pckwrk_dtl.wrkref_dtl wrkref_dtl,
+            pckwrk_dtl.cmbcod cmbcod,
+            pckwrk_hdr.wh_id wh_id,
+            pckwrk_hdr.client_id client_id,
+            pckwrk_hdr.lodlvl lodlvl,
+            pckwrk_hdr.wrktyp,
+            pckwrk_hdr.pckqty,
+            pckwrk_hdr.untcas,
+            pckwrk_dtl.pckqty dtl_pckqty,
+            ''  group_by_combined,
+            '' order_by_combined,
+            0 kit_flg,
+            0 cube_rem_flg,
+            0.0 totvol,
+            0.0 totwgt,
+            0.0 caswgt,
+            0.0 extvol,
+            0.0 intvol,
+            nvl(pckwrk_hdr.start_pal_flg, 0) start_pal_flg,
+            nvl(pckwrk_hdr.thresh_pck_flg, 0) thresh_pck_flg,
+            locmst.pck_zone_id src_pck_zone_id,
+            pckwrk_hdr.schbat,
+            pckwrk_dtl.ordnum,
+            pckwrk_dtl.ordlin, 
+            pckwrk_dtl.ordsln,
+            pckwrk_dtl.wkonum,
+            pckwrk_dtl.wkolin,
+            pckwrk_dtl.subnum,
+            pckwrk_dtl.prtnum,
+            pckwrk_dtl.stcust,
+            pckwrk_hdr.list_id,
+            pcklst.pcklst_rule_id,
+            pcklst_rule.pcklst_rule_name,
+            pckwrk_hdr.asset_typ,
+            CAST(pd1.untqty as INT) pd1_qty,
+            pd1.len pd1_len,
+            pd1.wid pd1_wid,
+            pd1.hgt pd1_hgt,
+            pd1.grswgt pd1_grswgt,
+            CAST(pd2.untqty as INT) pd2_qty,
+            pd2.len pd2_len,
+            pd2.wid pd2_wid,
+            pd2.hgt pd2_hgt,
+            pd2.grswgt pd2_grswgt
+       from pckwrk_hdr
+       join pckwrk_dtl
+         on (pckwrk_dtl.wrkref = pckwrk_hdr.wrkref and pckwrk_dtl.wh_id = pckwrk_hdr.wh_id)
+       join prtftp_dtl pd1
+         on (pd1.prtnum = pckwrk_hdr.prtnum 
+        and pd1.prt_client_id = pckwrk_hdr.prt_client_id 
+        and pd1.wh_id = pckwrk_hdr.wh_id
+        and pd1.ftpcod = pckwrk_hdr.ftpcod
+        and pd1.stk_flg = 1)
+       join prtftp_dtl pd2
+         on pd1.ftpcod = pd2.ftpcod
+        and pckwrk_hdr.wh_id = pd2.wh_id
+        and pckwrk_hdr.prt_client_id = pd2.prt_client_id
+        and pckwrk_hdr.prtnum = pd2.prtnum
+        and pd2.cas_flg = 1
+       left
+       join locmst
+         on pckwrk_hdr.srcloc = locmst.stoloc
+        and pckwrk_hdr.wh_id = locmst.wh_id 
+       left
+       join pcklst
+         on (pckwrk_hdr.list_id = pcklst.list_id)
+       left
+       join pcklst_rule
+         on (pcklst.pcklst_rule_id = pcklst_rule.pcklst_rule_id)
+      where pckwrk_hdr.wrkref = @new_wrkref]
+
+]]>
+</local-syntax>
+</command>

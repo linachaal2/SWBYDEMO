@@ -1,0 +1,22 @@
+<action>
+  <id>usrUnmarkShorts</id>
+  <name>Unmark Short</name>
+  <description>Unmark Short as no longer processed</description>
+  <type>ACTION</type>
+  <ws>
+     <method>GET</method>
+	 <href>/usrUnmarkShorts</href>
+  </ws>
+  <impl>
+     <command>unmark usr short</command>
+	 <arguments>
+         <argument name="rplref" type="string" required="true"  description="Replenishment Reference" />
+         <argument name="prtnum" type="string" required="true"  description="Item Number" />
+         <argument name="lotnum" type="string" required="true"  description="Lot Number" />
+         <argument name="marked" type="string" required="no"  description="Marked" />
+     </arguments>
+  </impl>
+  <auth>
+     <opt>optOpen</opt>
+  </auth>
+</action>

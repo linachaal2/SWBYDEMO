@@ -1,0 +1,29 @@
+<trigger>
+  <name>log_usr_seamles_ship_load_event</name>
+  <on-command>dispatch trailer</on-command>
+  <description>log_usr_seamles_ship_load_event</description>
+  <fire-sequence>3001</fire-sequence>
+  <local-syntax>
+<![CDATA[
+/* Trigger: dispatch trailer - log_usr_seamles_ship_load_event
+ * Temporary fix for issue where srtseqis taken from the stack causing the policy not to be found.
+ * Version history:
+ * v01, 2019-08-09  Salem Hamze  Initial version.
+ * 
+ */
+get cached policy
+ where polcod = 'LOG-SHIP-LOAD-EVENT'
+   and polvar = 'LOG-SHIP-LOAD-EVENT-DEFERRED'
+   and polval = 'LOG-SHIP-LOAD-EVENT-DEFERRED-ENABLED'
+   and srtseq = ''
+   and colnam=''
+   and colval=''
+   and wh_id = @wh_id
+|
+if (@rtnum1 = 0)
+{
+    log ship load event
+}
+]]>
+</local-syntax>
+</trigger>

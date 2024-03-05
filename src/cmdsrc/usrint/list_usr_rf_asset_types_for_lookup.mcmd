@@ -1,0 +1,24 @@
+<command>
+  <name>list usr rf asset types for lookup</name>
+  <description>list usr rf asset types for lookup</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* list usr rf asset types for lookup
+ * Lists the asset types for lookup in rf.
+ * Version history:
+ *  2018-11-22  Salem Hamze     Initial version
+ */
+[select asset_typ.asset_typ,
+        nvl(dscmst.short_dsc, dscmst.lngdsc) as dsc
+   from asset_typ
+  inner
+   join dscmst
+     on dscmst.colnam = 'asset_typ'
+    and dscmst.locale_id = nvl(@locale_id, @@locale_id)
+    and asset_typ.asset_typ = dscmst.colval
+  where @*
+  order by asset_typ]
+]]>
+</local-syntax>
+</command>

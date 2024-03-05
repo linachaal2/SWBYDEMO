@@ -1,0 +1,29 @@
+[select wh_id
+   from wh]
+|
+if (@wh_id = '1')
+{
+    [update locmst
+        set rescod = null
+      where mov_zone_id in (10077, 10078, 10079, 10080, 10081, 10082)
+        and wh_id = @wh_id]
+    |
+    [select wh_id,
+            stoloc
+       from locmst
+      where mov_zone_id in (10077, 10078, 10079, 10080, 10081, 10082)
+        and wh_id = @wh_id]
+    |
+    validate location
+     where wh_id = @wh_id
+       and stoloc = @stoloc
+    |
+    if (@action)
+    {
+        execute server command
+         where cmd = @action catch(@?)
+    }
+};
+commit;
+/ 
+exit

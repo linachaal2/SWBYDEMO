@@ -1,0 +1,10 @@
+======================================================
+Rollout: USR-RFH-WM.00188.DEV.GFF-CFG-111_ADJUSTMENTS_MOBILE_FORMS_V03
+Generation timestamp: 2023-09-20 15:32:12
+======================================================
+
+Release Notes:
+
+-V01: Adjusted mobile menu texts in 2 languages
+-v02: additional translations
+-v03: additional hold related translations

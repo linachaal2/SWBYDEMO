@@ -1,0 +1,7 @@
+pko_flds_default_id,colnam,wh_id,aud_typ,srtseq,id_fld_flg,bc_fld_flg,ins_dt,last_upd_dt,ins_user_id,last_upd_user_id,auto_fill_flg,vis_flg
+10000,"prtnum","----","PACK",0,1,1,"","","","",0,1
+10001,"prt_client_id","----","PACK",1,1,0,"","","","",0,1
+10002,"prtnum","----","AUDIT",0,1,0,"","","","",0,1
+10003,"prt_client_id","----","AUDIT",1,1,0,"","","","",0,1
+10006,"prtnum","3","PACK",0,1,1,"20181210102501","20181210102501","SUPER","SUPER",0,1
+10007,"prt_client_id","3","PACK",1,1,0,"20181210102501","20181210102501","SUPER","SUPER",0,1

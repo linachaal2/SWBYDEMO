@@ -1,0 +1,6 @@
+<trigger>
+<name>add parcel shipment activity</name>
+<on-command>postconsolidate shipment lines</on-command>
+<fire-sequence>2000</fire-sequence>
+<disable>yes</disable>
+</trigger>

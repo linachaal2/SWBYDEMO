@@ -1,0 +1,16 @@
+<trigger>
+  <name>raise usr ems event for short allocation</name>
+  <on-command>register pick group allocation complete</on-command>
+  <description>raise usr ems event for short allocation</description>
+  <fire-sequence>90010</fire-sequence>
+  <local-syntax>
+<![CDATA[
+
+raise usr ems event for short allocation 
+where schbat = @schbat
+  
+and pckgr1 = @pckgr1
+]]>
+</local-syntax>
+  <enable>yes</enable>
+</trigger>

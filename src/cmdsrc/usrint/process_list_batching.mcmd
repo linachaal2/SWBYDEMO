@@ -1,0 +1,244 @@
+<command>
+
+<name>process list batching</name>
+
+<description>Process List Batching</description>
+
+<type>Local Syntax</type>
+
+<local-syntax>
+<![CDATA[
+/* process list batching
+ * standard command does not support asset slots so picks from different slots were combined into the same pick
+ * Version history:
+ *  2022-01-07 Radina Ivanova    Initial version
+ *  2022-09-16 Radina Ivanova    Remove and recreate the qvlwrk records
+ *                               so that they match the total quantity of the combined pick,
+ *                               otherwise this causes a no rows affected error
+ *                               when adding a pick to an existing list containing combined picks
+ */
+
+    validate stack variable not null
+        where name = 'list_id'
+    |
+    /* Check whether the Rule's combine list flag is enabled */
+    get pick list rule from pick list
+        where list_id = @list_id 
+          and cmb_list_flg = 1 catch (-1403)
+    |        
+    if (@? != -1403)
+    {
+        get warehouse id
+            where @+wh_id
+        |
+        /* Check whether the Rule's Enforce List Sequence flag is enabled */
+        get pick list rule from pick list
+            where list_id = @list_id 
+              and cnf_mtused_prt = 1 catch (-1403)
+        |
+        if (@? = 0)
+        {
+            publish data
+                where enforce_list_seq = 1
+        }
+        else
+        {
+            publish data
+                where enforce_list_seq = 0
+        }
+        /* Go to the pckwrk_hdr table to combine identical picks 
+         * using one combination code and those pick works need to meet
+         */
+
+        /* The consolidations of picks should be  based upon the existence
+         * of a subucc on the pckwrk_dtl record, If the subucc is null on 
+         * the pckwrk_dtl then only the pick would be consider for consolidation.
+         * It should only consolidate same lodlvl picks otherwise it will cause
+         * allocation issue, for example case pick and detail pick consolidate together
+         * most like will cause the case pick can not be performed as the total qty is not
+         * x number of untcas now and allocation for next order will fail.
+         */
+        |
+        [select list_id,
+                prtnum,
+                prt_client_id,
+                pckwrk_view.wh_id,
+                lotnum,
+                orgcod,
+                revlvl,
+                lodlvl,
+                pck_uom,
+                srcare,
+                srcloc,
+                asset_slot,
+                min(cmbcod) new_cmbcod
+           from pckwrk_view
+          where pckwrk_view.list_id = @list_id
+            and pckwrk_view.wh_id = @wh_id
+            and pckwrk_view.pallet_pos is null
+            and pckwrk_view.pallet_id is null
+            and pckwrk_view.unique_pallet_id is null
+            and pckwrk_view.lodlvl <> 'L'
+            and pckwrk_view.subucc is null
+          group by list_id,
+                   prtnum,
+                   prt_client_id,
+                   pckwrk_view.wh_id,
+                   lotnum,
+                   orgcod,
+                   revlvl,
+                   lodlvl,
+                   pck_uom,
+                   srcare,
+                   srcloc,
+                   asset_slot
+         having count(wrkref) > 1] catch(-1403) >> res
+        |
+        if (@? != -1403)
+        {
+            remove qvl for list
+             where list_id = @list_id
+            |
+            publish data combination
+              where res = @res
+            |
+            /* If the picks that are going to be combined
+             * are not sharing same movement path
+             * then do not combine the picks.
+             */
+            [select count(1) totcnt
+               from pckmov p1, 
+                    pckmov p2
+              where p1.cmbcod  = @new_cmbcod
+                and p1.seqnum  = p2.seqnum
+                and p1.stoloc != p2.stoloc
+                and p2.cmbcod in (select distinct cmbcod
+                                    from pckwrk_view
+                                   where list_id = @list_id
+                                     and wh_id   = @wh_id
+                                     and cmbcod != @new_cmbcod)]
+            |
+            if (@totcnt = 0)
+            {
+                /* We select a wrkref as a main wrkref
+                 * for this group.
+                 */
+                [select wrkref new_wrkref
+                   from pckwrk_view
+                  where cmbcod = @new_cmbcod
+                    and rownum < 2]
+                |
+                [select @new_cmbcod new_cmbcod,
+                        cmbcod,
+                        pckwrk_view.*
+                   from pckwrk_view
+                  where list_id = @list_id
+                    and srcare  = @srcare
+                    and @+prtnum
+                    and @+prt_client_id
+                    and @+wh_id
+                    and @+lotnum
+                    and @+orgcod
+                    and @+revlvl
+                    and @+lodlvl
+                    and @+pck_uom
+                    and @+srcloc
+                    and @+asset_slot
+                    and pckwrk_view.subucc is null] catch(-1403)
+                |
+                if (@new_cmbcod != @cmbcod)
+                {
+                    /* Update the pick move table to delete the records
+                     * related to the dropped cmbcod.
+                     */
+                    [update pckwrk_dtl
+                        set cmbcod = @new_cmbcod
+                      where wrkref = @wrkref
+                        and wrkref_dtl = @wrkref_dtl] catch(-1403)
+                    |
+                    [select 'x'
+                       from pckmov
+                      where cmbcod = @cmbcod] catch (-1403)
+                    |
+                    if (@? = 0)
+                    {
+                        [delete from pckmov
+                          where cmbcod = @cmbcod] catch(-1403)
+                    }
+                }
+                |
+                if (@new_wrkref != @wrkref)
+                {
+                    [update pckwrk_dtl
+                        set wrkref = @new_wrkref
+                      where wrkref = @wrkref
+                        and wrkref_dtl = @wrkref_dtl] catch(-1403)
+                    |
+                    /* Shift qty to new wrkref as we shift dtl to this wrkref */
+                    [update pckwrk_hdr
+                        set pckqty = pckqty + @dtl_pckqty,
+                            appqty = appqty + @dtl_appqty
+                      where wrkref = @new_wrkref] catch(-1403)
+                    |
+                    [update pckwrk_hdr
+                        set pckqty = pckqty - @dtl_pckqty,
+                            appqty = appqty - @dtl_appqty
+                      where wrkref = @wrkref] catch(-1403)                
+                    |
+                    [select 'x' 
+                       from pckwrk_dtl
+                      where wrkref = @wrkref] catch(-1403)
+                    |
+                    if (@? = -1403)
+                    {
+                        [delete from pckwrk_hdr
+                          where wrkref = @wrkref] catch(-1403)
+                    }
+                }
+                |
+                if (@enforce_list_seq = 1)
+                {
+                    [update pckwrk_hdr
+                        set list_conf_flg = 1
+                      where list_id = @list_id
+                        and wrkref in 
+                            (select wrkref from pckwrk_dtl 
+                                where bto_dlv_seq is not null
+                                  and @+ship_id)
+                        and @+prtnum
+                        and @+prt_client_id
+                        and @+wh_id
+                        and @+lotnum
+                        and @+orgcod
+                        and @+revlvl
+                        and @+lodlvl
+                        and @+pck_uom
+                        and @+asset_slot] catch(-1403)
+                }
+            }
+            ;
+            add qvl for list
+            where list_id = @list_id
+        }
+    }
+
+]]>
+</local-syntax>
+
+<documentation>
+
+<remarks>
+<![CDATA[
+    <p>
+     This command will be called from a trigger on process pick list release. 
+    </p>
+]]>
+</remarks>
+
+<exception value="eOK">Normal successful completion</exception>
+
+<seealso cref="move inventory"> </seealso>
+
+</documentation>
+
+</command>

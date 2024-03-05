@@ -1,0 +1,5 @@
+<trigger>
+  <name>auto update shipment line</name>
+  <on-command>change order line</on-command>
+  <disable>yes</disable>
+</trigger>

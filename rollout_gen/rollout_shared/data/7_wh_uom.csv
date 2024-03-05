@@ -1,0 +1,5 @@
+wh_id,uomcod,default_shp_release_flg,default_wko_release_flg,default_bulk_pick_flg,ins_dt,ins_user_id,moddte,mod_usr_id
+"7","CS",1,1,1,"20180607144232","HAMZES","20180830141113","940028"
+"7","EA",1,1,1,"20180502131300","SUPER","20180607144254","HAMZES"
+"7","IP",1,1,1,"20200124085047","939161","20200124085057","939161"
+"7","PA",1,1,1,"20180424162038","SHAMZE","20180517164634","HAMZES"

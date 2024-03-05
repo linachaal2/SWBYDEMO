@@ -1,0 +1,37 @@
+<trigger>
+  <name>create usr work flow</name>
+  <on-command>create order line note</on-command>
+  <description>create usr work flow</description>
+  <fire-sequence>1000</fire-sequence>
+  <local-syntax>
+<![CDATA[
+/* trigger on create order note line
+ * create work flow default services to activate workflows based on the set policies 
+ *
+ * Version history:
+ *  2023-01-10  Marco Schouwenaar   Initial version.
+ */  
+[select poldat_view.rtstr1 flow,
+        poldat_view.rtstr2 rate
+   from poldat_view
+  where poldat_view.polcod = 'USR-ORDER-VAS-NOTE'
+    and poldat_view.polvar = 'WORKFLOW'
+    and poldat_view.polval = @nottyp
+    and poldat_view.wh_id = @wh_id] catch(-1403)
+|
+if (@? = 0)
+{
+    create default service
+      where wh_id = @wh_id
+       and def_serv_cod = 'ORDNUMLIN'
+       and ordnum = @ordnum
+       and ordlin = @ordlin
+       and ordsln = @ordsln
+       and client_id = @client_id
+       and serv_id = @flow
+       and serv_rate_id = @rate
+}
+]]>
+</local-syntax>
+  <enable>yes</enable>
+</trigger>

@@ -1,0 +1,51 @@
+<command>
+  <name>update usr logic map stack values</name>
+  <description>update usr logic map stack values</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* update usr logic map stack values
+ * Version history:
+ *  2020-12-10  Radina Ivanova    Initial version. 
+ */
+
+[[
+res.next();
+MocaResults endRes = new SimpleResults();
+for (int i =0; i< res.getColumnCount() ; i++)
+{
+    if (res.getColumnName(i).equals("use_location") ||
+        res.getColumnName(i).equals("add_to_lodnum") ||
+        res.getColumnName(i).equals("start_scan") ||
+        res.getColumnName(i).equals("add_scan") ||
+        res.getColumnName(i).equals("new_train") ||
+        res.getColumnName(i).equals("allocate_location") ||
+        res.getColumnName(i).equals("auto_deposit") ||
+        res.getColumnName(i).equals("finish_scan") ||
+        res.getColumnName(i).equals("finish_asset_typ") ||
+        res.getColumnName(i).equals("show_error") ||
+        res.getColumnName(i).equals("show_message") ||
+        res.getColumnName(i).equals("show_confirmation") ||
+        res.getColumnName(i).equals("show_parms") ||
+        res.getColumnName(i).equals("open_rf_frm") ||
+        res.getColumnName(i).equals("open_rf_frm_parms_cmd") ||
+        res.getColumnName(i).equals("i_have_confirmation"))
+    {
+        endRes.addColumn(res.getColumnName(i), res.getColumnType(i));
+        if (endRes.getRowCount() == 0)
+        {
+            endRes.addRow();
+        }
+        endRes.setValue(res.getColumnName(i), res.getValue(i));
+    }
+}
+if (endRes.getRowCount() > 0)
+{
+    return endRes;
+}
+]]
+
+]]>
+</local-syntax>
+  <argument name="res" required="yes" datatype="string">Result set</argument>
+</command>

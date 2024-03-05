@@ -1,0 +1,45 @@
+{
+    "columns": {
+        "time_frame": {
+            "type": "java.lang.String",
+            "alias": "time_frame"
+        },
+        "pck_zone_id": {
+            "type": "java.lang.Integer",
+            "alias": "pck_zone_id"
+        },
+        "pck_zone_cod": {
+            "type": "java.lang.String",
+            "alias": "pck_zone_cod"
+        },
+        "zone_description": {
+            "type": "java.lang.String",
+            "alias": "zone_description"
+        },
+        "total_picked":{
+            "type": "java.lang.Integer",
+            "alias": "total_picked"
+        },
+        "picked_headers":{
+            "type": "java.lang.Integer",
+            "alias": "picked_headers"
+        },
+        "picked":{
+            "type": "java.lang.Integer",
+            "alias": "picked"
+        },
+        "picked_pallet_picks":{
+            "type": "java.lang.Integer",
+            "alias": "picked_pallet_picks"
+        },
+        "picked_pallet_move":{
+            "type": "java.lang.Integer",
+            "alias": "picked_pallet_move"
+        },
+        "users":{
+            "type": "java.lang.Integer",
+            "alias": "users"
+        }
+
+    }
+}

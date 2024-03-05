@@ -1,0 +1,232 @@
+<command>
+
+<name>get pick list select criteria summary</name>
+
+<description>Get Pick List Selection Criteria Summary for Rule</description>
+
+<type>Local Syntax</type>
+
+<local-syntax>
+<![CDATA[
+/* get pick list select criteria summary
+ * Version history:
+ *  2021-07-15 Radina Ivanova    Initial version
+ */
+    validate stack variable not null
+            where name = 'pcklst_rule_id'
+    |
+    validate key exists
+        where key   = 'pcklst_rule_id'
+          and table = 'pcklst_rule'
+    |
+    [[
+        import com.redprairie.moca.*;
+        import com.redprairie.moca.util.*;
+        MocaContext ctx = MocaUtils.currentContext();
+        MocaResults detail = moca.newResults();
+        MocaResults res = moca.newResults();
+        res.addColumn("pcklst_rule_id",MocaType.INTEGER);
+        res.addColumn("select_cri_where_clause",MocaType.STRING);
+        Integer rule_id = null;
+        String where_clause_string = "";
+        // Item Family select where string
+        String its_where_string = "";
+        int validate_flg = 0;
+
+        // Get the stack variable validate_flg, converting it to int
+        MocaValue value = ctx.getStackVariable("validate_flg");
+        if (value != null) {
+            validate_flg = value.asInt();
+        }
+
+        /* Retrieve the details of pick list rule selection criteria*/
+        if (exclude_condition.equals("1"))
+        {
+            detail = moca.executeInline("""{
+                                           convert list where string = @field_list and type = 'L'
+                                           |
+                                           [select seqnum, seqnum - 1 prev_seqnum
+                                              from pcklst_select_cri
+                                             where pcklst_rule_id = @pcklst_rule_id
+                                             and operator = '='
+                                               and field_name = @retstr] catch(-1403)} >> res
+                                            |
+                                            convert column results to string where colnam = 'seqnum' and res = @res
+                                            |
+                                            publish data where seqnum_list = @result_string
+                                            |
+                                            convert column results to string where colnam = 'prev_seqnum' and res = @res
+                                            |
+                                            publish data where prev_seqnum_list = @result_string
+                                            |
+                                            if (@seqnum_list != '' and @prev_seqnum_list != '')
+                                            {
+                                                [select pcklst_rule_id,
+                                                       pcklst_select_cri_id,
+                                                       seqnum,
+                                                       log_opr,
+                                                       table_nam,
+                                                       field_name,
+                                                       operator,
+                                                       value
+                                                    from pcklst_select_cri
+                                                    where pcklst_rule_id = @pcklst_rule_id
+                                                      and seqnum not in (@seqnum_list:raw)
+                                                      and seqnum not in (@prev_seqnum_list:raw)
+                                                    order by seqnum ASC]
+                                            }
+                                            else
+                                            {
+                                                [select pcklst_rule_id,
+                                                       pcklst_select_cri_id,
+                                                       seqnum,
+                                                       log_opr,
+                                                       table_nam,
+                                                       field_name,
+                                                       operator,
+                                                       value
+                                                    from pcklst_select_cri
+                                                    where pcklst_rule_id = @pcklst_rule_id
+                                                    order by seqnum ASC]
+                                            }""" );
+        }
+        else
+        {
+            detail = moca.executeInline("""[select pcklst_rule_id,
+                                                   pcklst_select_cri_id,
+                                                   seqnum,
+                                                   log_opr,
+                                                   table_nam,
+                                                   field_name,
+                                                   operator,
+                                                   value
+                                                from pcklst_select_cri
+                                                where pcklst_rule_id = @pcklst_rule_id
+                                                order by seqnum ASC]""" );
+        }
+
+        while (detail.next())
+        {
+            /* builds the selection criteria where clause */
+            if (detail.getValue("log_opr") != null)
+            {
+                where_clause_string += detail.getString("log_opr") + " ";
+            }
+            if (rule_id == null && detail.getValue("pcklst_rule_id") != null)
+            {
+                rule_id = detail.getInt("pcklst_rule_id")
+            }
+            if (detail.getValue("table_nam") != null && detail.getString("table_nam").equals("prtfam_set_hdr"))
+            {
+                /* If the table name is prtfam_set_hdr which means we need a very special selection criteria:
+                 * For example, if the item family set is AB which including item family A, B. then we
+                 * expect system returning picks from orders which at least has picks from these
+                 * 2 item families available for list planning.
+                 */
+                its_where_string = " and psh." + detail.getString("field_name") + "" +  detail.getValue("operator") + "'" + detail.getValue("value") + "'";
+                where_clause_string += " not exists (select 'z'"+
+                                       "                   from prtfam_set_dtl psd,"+
+                                       "                        prtfam_set_hdr psh"+
+                                       "                  where psd.prtfam_set_id = psh.prtfam_set_id"+
+                                       its_where_string+
+                                       "                    and psd.prtfam not in (select pf.prtfam"+
+                                       "                                             from pckwrk_view pv,"+
+                                       "                                                  prtmst_view pm,"+
+                                       "                                                  prtfam pf"+
+                                       "                                            where pv.prtnum = pm.prtnum"+
+                                       "                                              and pm.prtfam = pf.prtfam"+
+                                       "                                              and pm.wh_id = pv.wh_id"+
+                                       "                                              and pv.ordnum = pckwrk_view.ordnum"+
+                                       "                                              and pv.wh_id = pckwrk_view.wh_id))";
+                continue;
+            }
+            if (detail.getValue("table_nam") != null)
+            {
+                if(validate_flg == 1)
+                {
+                    where_clause_string += "@";
+                }
+                where_clause_string += detail.getString("table_nam") + ".";
+            }
+            if (detail.getValue("field_name") != null)
+            {
+                where_clause_string += detail.getString("field_name");
+            }
+            String operator_string = detail.getValue("operator");
+            if (operator_string != null)
+            {
+                where_clause_string += " " +  operator_string;
+            }
+            if (detail.getValue("value") != null)
+            {
+                /* do not add the quotes for IN operator */
+                if (operator_string != null &&
+                    (operator_string.equalsIgnoreCase("in") ||
+                    operator_string.equalsIgnoreCase("not in") ||
+                    operator_string.equalsIgnoreCase("between")))
+                {
+                    where_clause_string += " " + detail.getString("value");
+                }
+                else
+                {
+                    where_clause_string += " '" + detail.getString("value") + "'";
+                }
+            }
+            where_clause_string += " ";
+        }
+
+        /* return results */
+        if(where_clause_string.length() > 0)
+        {
+            /* To prevent bad configuration circumventing hard coded
+             * criteria, we will wrap each select criteria clause in
+             * parentheses.  This will force all logical operations to
+             * be evaluated only within the context of the selection
+             * criteria.
+             */
+            where_clause_string = "(" + where_clause_string + ")";
+            res.addRow();
+            res.setIntValue("pcklst_rule_id", rule_id);
+            res.setStringValue("select_cri_where_clause", where_clause_string);
+        }
+        return res;
+    ]]
+]]>
+
+</local-syntax>
+
+<argument name="pcklst_rule_id" required="yes" datatype="integer">Pick List Rule Identifier</argument>
+<argument name="validate_flg" datatype="integer">Validation flag. Set to 1 when called from validate_pick_list_select_criteria to validate the select criteria. Else set to 0 to return the selection criteria where clause</argument>
+
+<documentation>
+
+<remarks>
+<![CDATA[
+    <p>
+    This command will build a string for each selection criteria of a pick list rule.
+    Example :
+
+        grpopr  table_nam   field_name      operator    value
+                Item        ItemNumber      =           ANTACID
+        AND     Order       OrderType       =           INTL
+        OR      Order       OrderType       !=          C
+
+    String after command runs:
+    the return string will be ' Item.ItemNumber = 'ANTACID' AND Order.OrderType = 'INTL' OR Order.OrderType != 'C''.
+    </p>
+]]>
+</remarks>
+
+<exception value="eOK">Normal successful completion</exception>
+<exception value="eMISSING_ARG">Required arguments are missing</exception>
+<exception value="eINVALID_ARG">An argument was found with an invalid value</exception>
+<exception value="eDB_NO_ROWS_AFFECTED">No data found</exception>
+
+<seealso cref="create pick list select criteria"></seealso>
+<seealso cref="remove pick list select criteria"></seealso>
+<seealso cref="change pick list select criteria"></seealso>
+<seealso cref="list pick list select criteria"></seealso>
+
+</documentation>
+
+</command>

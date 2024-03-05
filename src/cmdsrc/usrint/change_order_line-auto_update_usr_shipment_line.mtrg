@@ -1,0 +1,318 @@
+<trigger>
+  <name>auto update usr shipment line</name>
+  <on-command>change order line</on-command>
+  <description />
+  <fire-sequence>2100</fire-sequence>
+  <local-syntax>
+<![CDATA[
+/* change order line - auto update usr shipment line
+ *
+ * overrule of original trigger to be able to alter orderlines which are not connected to a closed shipment
+ * adjust shorts so that the order is closed and not visible anymore in the active order tab.
+ * added closed status in the statement of ship_id != ''
+ * 
+ * Version history:
+ * 2021-02-23 Marco Schouwenaar   Initial version
+ */
+get cached policy
+  where polcod = 'ORDER-PROCESSING'
+    and polvar = 'MISCELLANEOUS'
+    and polval = 'PROP-ORDLIN-QTY-INC-TO-SHIP'
+    and wh_id = @wh_id catch(-1403)
+    |
+    /* Process only if this policy is set.and there is increase in order quantity */
+    if(to_number(@orig_ordqty) < to_number(@ordqty) and @rtnum1 = 1)
+    {
+        /* If the shipment is staged, we need to change the shipment     */
+        /* status to InProgress to support change in order line quantity */
+        /* If there is no shipment line for the current order line,      */
+        /* skip the execution                                            */
+        /* If shipment line status is other than P and I, change the line*/
+        /* status to In Progress                                         */
+        [select shp.ship_id,
+                shp.stgdte,
+                shp.shpsts,
+                shp.stop_id,
+                shplin.ship_line_id,
+                shplin.schbat,
+                shplin.inpqty,
+                shplin.stgqty,
+                shplin.shpqty,
+                shplin.linsts,
+                shplin.pckqty
+           from shipment shp,
+                shipment_line shplin
+          where shp.ship_id = shplin.ship_id
+            and shplin.wh_id  = @wh_id
+            and shplin.ordnum = @ordnum
+            and shplin.ordlin = @ordlin
+            and shplin.linsts != 'B' ] catch(-1403) >> resShipLine
+         |
+         if(rowcount(@resShipLine) > 0)
+         {
+             publish top rows
+                 where res   = @resShipLine
+                   and count = '1'
+             |
+             /* If staging date exists, change the shipment status to
+              * In Progress. Calling Change Shipment only when the
+              * shipment status is not Loading Loaded and Complete
+              */
+             if(@stgdte and @shpsts != 'D' and
+                @shpsts != 'C' and @shpsts != 'L')
+             {
+                 change shipment status
+                     where wh_id   = @wh_id
+                       and ship_id = @ship_id
+                       and shpsts  = 'I'
+                       and stgdte  = ''
+                 |
+                 change shipment line
+                     where pckqty  = @ordqty - (@inpqty + @stgqty + @shpqty)
+                       and wh_id   = @wh_id
+                       and ship_id = @ship_id
+                       and ship_line_id = @ship_line_id
+                       and schbat  = @schbat
+                       and ordnum  = @ordnum
+                       and ordlin  = @ordlin
+                       and linsts  = 'I'
+                       and ignore_status = 1
+                 |
+                 /* If stop is complete, change the flag back to 0 */
+                 [select stop_cmpl_flg
+                    from stop
+                   where stop_id = @stop_id] catch(-1403)
+                 |
+                 if(@stop_cmpl_flg = 1)
+                 {
+                     [update stop
+                         set stop_cmpl_flg = 0
+                       where stop_id = @stop_id]
+                 }
+             }
+             |
+             /* update the shipment line with the change in order quantity */
+             /* Setting ignore_status to allow the command to change the   */
+             /* line which is in progress                                  */
+             if(@linsts != 'C')
+             {
+                 change shipment line
+                     where pckqty  = @ordqty - (@inpqty + @stgqty + @shpqty)
+                       and wh_id   = @wh_id
+                       and ship_id = @ship_id
+                       and ship_line_id = @ship_line_id
+                       and schbat  = @schbat
+                       and ordnum  = @ordnum
+                       and ordlin  = @ordlin
+                       and linsts  = @linsts
+                       and ignore_status = 1
+             }
+             |
+             /* Update the pick quantity and reserve quantity as we have to */
+             /* 0 as we have created the shipment line for it               */
+             [update ord_line
+                 set pckqty = 0,
+                     rsvqty = 0
+               where client_id = @client_id
+                 and ordnum    = @ordnum
+                 and ordlin    = @ordlin
+                 and ordsln    = @ordsln
+                 and wh_id     = @wh_id]
+         }
+    }
+    else if(to_number(@orig_ordqty) > to_number(@ordqty))
+    {
+        /*
+         * If there is no shipment line for the current order line,
+         * skip the execution
+         * If shipment line status is Planned modify shipment line
+         * and if it is In progress then the order qty should match
+         * with the inventory qty
+         * and when shipment is staged, system will not allow to modify.
+         */
+
+          [select ship_id,
+                  ship_line_id,
+                  schbat,
+                  linsts,
+                  pckqty,
+                  inpqty,
+                  stgqty,
+                  shpqty
+             from shipment_line
+            where wh_id  = @wh_id
+              and ordnum = @ordnum
+              and ordlin = @ordlin
+              and linsts != 'B'] catch(-1403)
+          |
+          /*
+           * Shipment line is pending, meaning we don't have any picks or
+           * replenishments to worry about.
+           */
+          if(@linsts = 'P')
+          {
+                 change shipment line
+                     where pckqty  = @ordqty
+                       and wh_id   = @wh_id
+                       and ship_id = @ship_id
+                       and ship_line_id = @ship_line_id
+                       and schbat  = @schbat
+                       and ordnum  = @ordnum
+                       and ordlin  = @ordlin
+                       and ignore_status = 1
+          }
+          /*
+           * Shipment line is in progress.  Let's take a closer look and
+           * try to figure out what we can and cannot do in this case.
+           *
+           * We need to confirm that the new quantity that we are
+           * setting on the shipment line does not drop below the sum
+           * of any picks that have been issued, regardless of whether
+           * or not they are pending or complete.
+           */
+          else if(@linsts = 'I')
+          {
+              [select pckqty,
+                      rplref
+                 from rplwrk
+                where ship_line_id = @ship_line_id] catch(-1403)
+              |
+              /* Modified the code to consider picks on Hold */
+              [select (select count(ship_line_id)
+                         from pckwrk_view
+                        where ship_line_id = @ship_line_id
+                          and wh_id   = @wh_id
+                          and client_id = @client_id) tot_pck_cnt,
+                      (select count(pcksts)
+                         from pckwrk_view
+                        where ship_line_id = @ship_line_id
+                          and pcksts in ('P','H')
+                          and wh_id   = @wh_id
+                          and client_id = @client_id) pnd_pck_cnt,
+                      (select sum(dtl_pckqty)
+                         from pckwrk_view
+                        where ordnum = @ordnum
+                          and ordlin = @ordlin
+                          and wh_id = @wh_id
+                          and client_id = @client_id
+                          and wrktyp != 'K') tot_pck_qty
+                 from dual] catch(-1403)
+              |
+              if(@rplref != "" and to_number(@tot_pck_cnt) = to_number(@pnd_pck_cnt))
+              {
+                  if((to_number(@orig_ordqty) - to_number(@pckqty))
+                      = to_number(@ordqty))
+                  {
+                      cancel replenishment
+                          where rplref = @rplref
+                      |
+                      /*
+                       * If the order and in progress quantity are the same the pckqty needs to be set
+                       * to zero since all the picks have been created.
+                       */
+                      if (to_number(@ordqty) = to_number(@inpqty))
+                      {
+                          change shipment line
+                              where pckqty  = 0
+                                and wh_id   = @wh_id
+                                and ship_id = @ship_id
+                                and ship_line_id = @ship_line_id
+                                and schbat  = @schbat
+                                and ordnum  = @ordnum
+                                and ordlin  = @ordlin
+                                and ignore_status = 1
+                      }
+                      else
+                      {
+                          change shipment line
+                              where pckqty  = @ordqty
+                                and wh_id   = @wh_id
+                                and ship_id = @ship_id
+                                and ship_line_id = @ship_line_id
+                                and schbat  = @schbat
+                                and ordnum  = @ordnum
+                                and ordlin  = @ordlin
+                                and ignore_status = 1 
+                      }
+                  }
+                  else
+                  {
+                      /*eINT_CANT_REDUCE_ORDQTY_BELOW_SHORTQTY*/
+                      set return status
+                          where status = 11565
+                  }
+              }
+              else if(to_number(@tot_pck_cnt) = to_number(@pnd_pck_cnt))
+              {
+                  /*
+                   * All of the picks for this shipment line were pending,
+                   * so cancel the entire pick group for this shipment line
+                   */
+                  cancel pick groups
+                      where chgmod = 'U'
+                        and ship_line_id = @ship_line_id
+                        and wh_id = @wh_id
+                        and cancod = 'CANCEL-NO-REALLOC'
+                        and palctl_flg = 0 catch(-1403)
+                  |
+                  change shipment line
+                      where pckqty  = @ordqty
+                        and wh_id   = @wh_id
+                        and ship_id = @ship_id
+                        and ship_line_id = @ship_line_id
+                        and schbat  = @schbat
+                        and ordnum  = @ordnum
+                        and ordlin  = @ordlin
+                        and ignore_status = 1
+              }
+              else if(to_number(@pnd_pck_cnt) = 0)
+              {
+                  /*
+                   * If we are here then we are trying to reduce the order
+                   * line quantity, but we have some picks that are in different
+                   * statuses. This is OK as long as the quantity
+                   * doesn't drop below the sum of any existing picks for
+                   * that order line.  If everything checks out, we'll
+                   * update the shipment line.
+                   *
+                   * This means that for a shipment line with multiple picks in
+                   * different statuses, the order line quantity cannot be reduced
+                   * until the picks that need to be canceled have been canceled.
+                   */
+                   if(to_number(@ordqty) < to_number(@tot_pck_qty))
+                   {
+                       /*eINT_CANT_REDUCE_ORDQTY_BELOW_SHORTQTY*/
+                       set return status
+                           where status = 11565
+                   }
+                   else
+                   {
+                       change shipment line
+                        where pckqty  = @ordqty - (@inpqty + @stgqty + @shpqty)
+                          and wh_id   = @wh_id
+                          and ship_id = @ship_id
+                          and ship_line_id = @ship_line_id
+                          and schbat  = @schbat
+                          and ordnum  = @ordnum
+                          and ordlin  = @ordlin
+                          and ignore_status = 1
+                   }
+              }
+              else
+              {
+                  /*eINT_CANT_REMOVE_ORDLINE_SHIPMENT_INPROGRESS*/
+                  set return status
+                      where status = 11566
+              }
+          }
+          else if(@ship_id != "" and @linsts != 'C')
+          {
+              /*eINT_CANT_REMOVE_ORDLINE_SHIPMENT_INPROGRESS*/
+              set return status
+                  where status = 11566
+          }
+    }
+]]>
+</local-syntax>
+  <enable>yes</enable>
+</trigger>

@@ -1,0 +1,95 @@
+<command>
+
+<name>get rf uomcod based on qty</name>
+
+<description>Get RF UOM code and uomqty based on total quantity</description>
+
+<type>Local Syntax</type>
+
+<local-syntax>
+<![CDATA[
+
+    /* This command will return the UOM code and Total UOM 
+     * quantity for a part based on total quantity.
+     */
+
+    /* Check required arguments */
+    
+    validate stack variable not null
+       where name = 'prtnum'
+    |
+    validate stack variable not null
+       where name = 'prt_client_id'
+    |
+    validate stack variable not null
+       where name = 'wh_id'
+    |
+    validate stack variable not null
+        where name = 'ftpcod'
+    |
+    validate stack variable not null
+       where name = 'totqty'
+    |
+    [select uomcod rcv_uomcod,
+            untqty rcv_uomqty,
+            for_sort
+       from (select uomcod,
+                    untqty,
+                    '1' for_sort
+               from prtftp_dtl
+              where prtnum = @prtnum
+                and prt_client_id = @prt_client_id
+                and wh_id = @wh_id
+                and ftpcod = @ftpcod
+                  and uomcod not in (select rtstr1 from poldat_view where  poldat_view.wh_id=@wh_id and poldat_view.polcod='USR-RF-FORM' and poldat_view.polvar='DSP_UOM' and poldat_view.polval='SKIP' and poldat_view.rtnum1=1 )
+                and mod(@totqty, prtftp_dtl.untqty) = 0
+                and rcv_flg = 1
+         UNION
+            select uomcod,
+                   untqty,
+                   '2' for_sort
+                from prtftp_dtl
+              where prtnum = @prtnum
+                and prt_client_id = @prt_client_id
+                and wh_id = @wh_id
+                and ftpcod = @ftpcod
+                and uomcod not in (select rtstr1 from poldat_view where  poldat_view.wh_id=@wh_id and poldat_view.polcod='USR-RF-FORM' and poldat_view.polvar='DSP_UOM' and poldat_view.polval='SKIP' and poldat_view.rtnum1=1 )
+                and mod(@totqty, prtftp_dtl.untqty) = 0
+                and rcv_flg = 0) rcv_uom
+       order by for_sort,
+                rcv_uomqty desc] >> res
+    |
+    publish top rows
+     where rows = 1
+       and resultset = @res
+    |
+    /* We will calculate the Total UOM quantity */
+    publish data
+      where uomqty = int(@totqty / @rcv_uomqty)
+        and uomcod = @rcv_uomcod
+
+]]>
+</local-syntax>
+
+<documentation>
+
+<remarks>
+<![CDATA[
+    <p> This command is used to get UOM  and quantity for a specific 
+        part footprint for QUANTITY CAPTURE RF screen.
+         2020-06-22 Marco Schouwenaar custom override to skip the UOM on the policies USR-RF-FORM, DSP_UOM, SKIP
+    </p>
+]]>
+</remarks>
+
+<argument name="wh_id" required="yes" datatype="string"></argument>
+<argument name="prt_client_id" required="yes" datatype="string"></argument>
+<argument name="prtnum" required="yes" datatype="string"></argument>
+<argument name="ftpcod" datatype="string"></argument>
+<argument name="totqty" datatype="int"></argument>
+
+<exception value="eOK">Normal successful completion</exception>
+
+</documentation>
+
+</command>

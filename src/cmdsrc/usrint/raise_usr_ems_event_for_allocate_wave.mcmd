@@ -1,0 +1,105 @@
+<command>
+  <name>raise usr ems event for allocate wave</name>
+  <description>raise usr ems event for allocate wave</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* raise usr ems event for allocate wave
+ * The wave is set to run in auto allocation. If there is pckwrk generated
+ * for this wave, RFH would like to receive an email with the details. 
+ * A policy USR-ALLOC-WAVE is configured (EMS) to enable/disable 
+ * the process of generating this EMS events
+ *
+ * Version history:
+ *  2018-09-17  Salem en Tim     Initial version.
+ *  2018-10-17  Salem Hamze      Fixed typo, @+shipment_line.pckgrp1 to @+shipment_line.pckgr1
+ *  2018-10-18  Salem Hamze      Added pick insert date filter, added if(@? = 0).
+ */
+publish data
+ where evt_nam = 'USR-ALLOC-WAVE'
+|
+/* The EMS definition must be primed in EMS. This means, making sure
+ * there is a record for this evt_name. Its also details the message (EMS event)
+ * that will be sent to the subscribers.
+ */
+get ems source system
+|
+if (@primer_flg and @primer_flg = 1)
+{
+    publish data
+     where evt_msg = 'Wave @schbat has just completed with the following work:
+                            Warehouse: @wh_id
+                            Wave: @schbat
+                            Pickgroup: @pckgr1
+                            Nbr of Shipment(s): @no_ship_id
+                            Nbr of Order(s): @no_ordnum
+                            Nbr of Pick task(s): @no_wrkref
+                            Qty to be picked: @sum_pckqty
+                            Shortage?: @has_shorts'
+       and evt_subj = 'Wave (@schbat) has run and generated (@no_wrkref) picktasks.'
+       and evt_qual = 'wh_id, schbat, pckgr1, no_ship_id, no_ordnum, 
+                       no_wrkref, sum_pckqty, has_shorts'
+       and evt_grp = 'AUTO-ALLOCATION'
+       and evt_pri = '1'
+       and evt_nam = @evt_nam
+       and src_sys = @src_sys
+       and lngdsc = 'Completion of the wave with the following summary.'
+}
+else
+{
+    get ems event information
+     where evt_nam = @evt_nam
+    |
+    if (@enabled = 1)
+    {
+        [select shipment_line.schbat,
+                shipment_line.pckgr1,
+                count(distinct shipment_line.ship_id) as no_ship_id,
+                count(distinct shipment_line.ordnum) as no_ordnum,
+                count(distinct pckwrk_hdr.wrkref) as no_wrkref,
+                sum(pckwrk_dtl.pckqty) as sum_pckqty,
+                max(pckwrk_dtl.ins_dt) as max_pck_insdte,
+                max(decode(rplwrk.rplref, null, 'No', 'Yes')) as has_shorts
+           from shipment_line
+          inner
+           join ord
+             on ord.client_id = shipment_line.client_id
+            and ord.wh_id = shipment_line.wh_id
+            and ord.ordnum = shipment_line.ordnum
+           left
+           join pckwrk_dtl
+             on pckwrk_dtl.ship_line_id = shipment_line.ship_line_id
+           left
+           join pckwrk_hdr
+             on pckwrk_hdr.wrkref = pckwrk_dtl.wrkref
+           left
+           join rplwrk
+             on rplwrk.ship_line_id = shipment_line.ship_line_id
+          where shipment_line.schbat = @schbat
+            and @+shipment_line.pckgr1
+            and (pckwrk_dtl.ins_dt >= @allocate_wave_start:date or rplwrk.adddte >= @allocate_wave_start:date)
+          group by shipment_line.schbat,
+                shipment_line.pckgr1] catch(-1403)
+        |
+        if (@? = 0)
+        {
+            log ems event
+             where evt_nam = @evt_nam
+               and key_val = @schbat || '|' || @pckgr1 || '|' || @max_pck_insdte
+            /*om een berichtje uniek te maken*/
+               and wh_id = @wh_id
+               and pckgr1 = @pckgr1
+               and schbat = @schbat
+               and no_ship_id = @no_ship_id
+               and no_ordnum = @no_ordnum
+               and no_wrkref = @no_wrkref
+               and sum_pckqty = @sum_pckqty
+               and has_shorts = @has_shorts
+        }
+    }
+}
+]]>
+</local-syntax>
+  <argument name="schbat" required="yes" datatype="string">schbat</argument>
+  <argument name="pckgr1" datatype="string">pckgr1</argument>
+</command>

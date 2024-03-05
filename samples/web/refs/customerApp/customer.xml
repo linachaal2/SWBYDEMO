@@ -1,0 +1,22 @@
+<!-- Sets several key variables -->
+<project project-dir="."
+         js-dir="${project-dir}/src/js"
+         app-id="${appId}"
+         hf-compliant="true">
+
+<!-- Process javascript files -->
+  <target name="SamplePage"
+          type="js"
+          source-dir="${js-dir}/SamplePage">
+    <include name="samplePage.js" />
+  </target>
+
+<!-- Process database YAML files -->
+  <target name="database"
+          type="load"
+          source-dir="${project-dir}/db">
+      <include name="messages" />
+      <include name="menu" />
+  </target>
+
+</project>

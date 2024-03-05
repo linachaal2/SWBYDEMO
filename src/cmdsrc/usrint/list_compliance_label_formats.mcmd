@@ -1,0 +1,108 @@
+<command>
+
+<name>list compliance label formats</name>
+
+<description>Returns the Compliance label formats</description>
+
+<type>Local Syntax</type>
+<argument name="inventoryId" required="yes" datatype="string">
+Inventory Identifier
+</argument>
+<argument name="warehouseId" required="yes" datatype="string">
+Warehouse ID
+</argument> 
+<argument name="filterByClause" datatype="string">
+Filter By Clause
+</argument> 
+<local-syntax>
+<![CDATA[
+/* list compliance label formats
+ * Customized command so that labels can be printed for dispatched inventory moved to hist tables
+ * Version history:
+ *  2021-07-29  Radina Ivanova  Initial version.
+ */
+/* Only print the document if it is a ship staging location. */
+    publish data where filterByClause = nvl(@filterByClause, '1 = 1')
+    |
+    publish data where locale_id = nvl(@locale_id, @@locale_id)
+    |
+	{
+        get lbl translated inventory identifier
+            where identifier = @inventoryId
+              and wh_id = @wh_id
+        |
+	    publish data where colnam = @colnam
+	} catch(10323)
+	|
+    if (@? = 0)
+    {
+        [select distinct exitpnt from exitpnt where @filterByClause:raw]
+        |
+        execute server command 
+            where command =  "get documents to print for inventory " ||
+           "where exitpnt ='" || @exitpnt ||
+           "' and " || @colnam || " = '" || @inventoryId ||
+           "' and wh_id = '" || @wh_id || "'"
+    }
+    else
+    {
+        [select distinct 'x'
+           from invlod_hist
+          where lodnum = @inventoryId] catch(-1403)
+        |
+        if (@? = 0)
+        {
+            [select distinct exitpnt from exitpnt where @filterByClause:raw]
+            |
+            get lbl document format
+            where exitpnt = @exitpnt
+        }
+        else
+        {
+            set return status where status = 10323
+        }
+
+    }
+    |
+    if (@doc_typ_cod = 'L')
+    {
+        [select lblfmt.lblfmt, lblfmt.def_printer, dscmst.lngdsc, @doc_typ doc_typ, @docqty docqty, @colnam invkey
+           from doc_lblfmt 
+           join lblfmt 
+             on lblfmt.lblfmt = doc_lblfmt.lblfmt
+           join dscmst
+             on dscmst.colnam = 'lblfmt'
+            and dscmst.colval = lblfmt.lblfmt
+            and @+dscmst.locale_id   
+          where doc_lblfmt.lblfmt = @docfmt
+            and doc_lblfmt.doc_typ = @doc_typ]
+    }
+]]>
+</local-syntax>
+
+<documentation>
+
+<remarks>
+<![CDATA[
+  <p>
+  Returns the Compliance label formats
+  </p>
+]]>
+</remarks>
+
+<retcol name="def_printer" type="String">Default Printer</retcol>
+<retcol name="docqty" type="Integer">Document Quantity</retcol>
+<retcol name="lngdsc" type="String">Label Format Long Description</retcol>
+<retcol name="doc_typ" type="String">Document Type</retcol>
+<retcol name="lblfmt" type="String">Label Format</retcol>
+
+<exception value="eOK">Normal successful completion</exception>
+<exception value="eDB_NO_ROWS_AFFECTED (510)">No Data Found</exception>
+<exception value="eINT_INVALID_INVENTORY_IDENTIFIER (10323)">Invalid Inventory ID</exception>
+<exception value="eMCS_REQUIRED_ARG (507)">Missing Required Argument</exception>
+
+<seealso cref="list exitpoints having label formats"></seealso>
+
+</documentation>
+
+</command>

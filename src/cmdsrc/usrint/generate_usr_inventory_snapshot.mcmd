@@ -1,0 +1,70 @@
+<command>
+  <name>generate usr inventory snapshot</name>
+  <description>generate usr inventory snapshot</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* generate usr inventory snapshot
+ * used to fill the custom inventory snapshot table, called by a job
+ * Version history:
+ *  2021-08-25  Radina Ivanova  Initial version.
+ */
+    validate stack variable not null 
+       where name = 'wh_id'
+    |
+    generate next number
+       where numcod = 'snap_gen_num'
+    |
+    publish data where snap_gen_num = @nxtnum
+    |
+    [select dscmst.lngdsc sto_zone_descr,
+            rcvinv.supnum,
+            rcvinv.invtyp,
+            inventory_view.lodnum,
+            inventory_view.stoloc,
+            sum(inventory_view.untqty) untqty
+       from inventory_view
+       join locmst
+         on inventory_view.stoloc = locmst.stoloc
+        and inventory_view.wh_id = locmst.wh_id
+       join loc_typ
+         on loc_typ.loc_typ_id = locmst.loc_typ_id
+       join sto_zone
+         on sto_zone.sto_zone_id = locmst.sto_zone_id
+        and sto_zone.wh_id = locmst.wh_id
+       join dscmst
+         on colnam = 'sto_zone_cod|wh_id'
+        and colval = sto_zone.sto_zone_cod || '|' || @wh_id
+        and locale_id = nvl(nvl(@locale_id, @@locale_id), 'US_ENGLISH')
+       join rcvlin
+         on inventory_view.rcvkey = rcvlin.rcvkey
+       join rcvinv
+         on rcvlin.invnum = rcvinv.invnum
+        and rcvlin.supnum = rcvinv.supnum
+        and rcvlin.client_id = rcvinv.client_id
+        and rcvlin.trknum = rcvinv.trknum
+        and rcvlin.wh_id = rcvinv.wh_id
+      where loc_typ.loc_typ = 'STO'
+        and inventory_view.wh_id = @wh_id
+      group by dscmst.lngdsc,
+            rcvinv.supnum,
+            rcvinv.invtyp,
+            inventory_view.lodnum,
+            inventory_view.stoloc] catch(-1403)
+    |
+    if (@? = 0)
+    {
+        generate next number
+           where numcod = 'inv_snap_id'
+        |
+        publish data where inv_snap_id = @nxtnum
+        |
+        create record
+         where table = 'usr_inv_snap'
+           and gendte = sysdate
+    }
+    
+]]>
+</local-syntax>
+  <argument name="wh_id" required="yes" datatype="string">Warehouse ID</argument>
+</command>

@@ -1,0 +1,104 @@
+<command>
+  <name>list usr details for ready for list locations</name>
+  <description>list usr details for ready for list locations</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* list usr details for ready for list locations
+ *
+ * Version history:
+ *  2023-05-26  Radina Ivanova - Initial version
+ *  2023-10-19  Radina Ivanova   Performance improvement for the check from dlytrn
+ *  2023-11-22  Radina Ivanova   Make sure the join from dlytrn doesn't take records from previous LPNs from the same location
+ */
+    publish data where wh_id = nvl(@wh_id, @@wh_id)
+    |
+    if (@wh_id = '')
+    {
+        [select wh_id
+           from wh]
+    }
+    |
+    publish data
+      where filterByClause = nvl(@filterByClause, [1=1])
+        and sortOrderClause = nvl(@sortOrderClause, 'pckwrk_view.srcloc,late_shpdte')
+    |
+[/*#limit=@offset,@limit,true*/
+ select pckwrk_view.srcloc,
+        nvl(wrkque.oprcod, pckwrk_view.oprcod) oprcod,
+        dscmst.lngdsc pcksts,
+        pckwrk_view.list_id,
+        sum(pckwrk_view.dtl_pckqty) pckqty,
+        sum(pckwrk_view.dtl_appqty) picked_qty,
+        pckwrk_view.prtnum,
+        pckwrk_view.lotnum,
+        pckwrk_view.schbat,
+        pckwrk_view.ship_id,
+        pckwrk_view.ordnum,
+        pckwrk_view.rtcust,
+        min(ord_line.early_shpdte) early_shpdte,
+        min(ord_line.late_shpdte) late_shpdte,
+        wrkque.effpri
+   from pckwrk_view
+   join dscmst
+     on dscmst.colnam = 'pcksts'
+    and dscmst.colval = pckwrk_view.pcksts
+    and locale_id = nvl(@@locale_id, 'US_ENGLISH')
+   left
+   join wrkque
+     on (pckwrk_view.list_id = wrkque.list_id or pckwrk_view.wrkref = wrkque.wrkref)
+   left
+   join ord_line
+     on pckwrk_view.ordnum = ord_line.ordnum
+    and pckwrk_view.client_id = ord_line.client_id
+    and pckwrk_view.ordlin = ord_line.ordlin
+    and pckwrk_view.ordsln = ord_line.ordsln
+    and pckwrk_view.wh_id = ord_line.wh_id
+   left
+   join ord
+     on pckwrk_view.ordnum = ord.ordnum
+    and pckwrk_view.client_id = ord.client_id
+    and pckwrk_view.wh_id = ord.wh_id
+   join invlod
+     on invlod.stoloc = pckwrk_view.srcloc
+    and invlod.wh_id = pckwrk_view.wh_id
+   left
+   join (select lodnum,
+                frstol,
+                ordnum
+           from dlytrn
+          where (oprcod = 'LPCK' and actcod = 'LSTPCK' or oprcod = 'PALMOV' and actcod = 'PALPCK' or oprcod = 'PCK' and actcod = 'PALPCK')
+          group by lodnum,
+                frstol,
+                ordnum) dlytrn
+     on dlytrn.lodnum = invlod.lodnum
+    and dlytrn.frstol = pckwrk_view.srcloc
+    and dlytrn.ordnum = pckwrk_view.ordnum
+    and pckwrk_view.appqty > 0
+  where exists(select 'x'
+                 from pckwrk_view p2
+                where p2.pcksts = 'L'
+                  and p2.srcloc = pckwrk_view.srcloc)
+    and (pckwrk_view.appqty = 0 or dlytrn.frstol is not null)
+    and pckwrk_view.wh_id = @wh_id
+    and @filterByClause:raw
+  group by pckwrk_view.srcloc,
+        pckwrk_view.pcksts,
+        dscmst.lngdsc,
+        invlod.lodnum,
+        wrkque.oprcod,
+        pckwrk_view.oprcod,
+        pckwrk_view.list_id,
+        pckwrk_view.prtnum,
+        pckwrk_view.lotnum,
+        pckwrk_view.schbat,
+        pckwrk_view.ship_id,
+        pckwrk_view.ordnum,
+        pckwrk_view.rtcust,
+        wrkque.effpri
+  order by @sortOrderClause:raw]
+     
+]]>
+</local-syntax>
+<argument name="wh_id" required="no" datatype="string">Warehouse ID</argument>
+</command>

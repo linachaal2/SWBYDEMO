@@ -1,0 +1,43 @@
+<command>
+  <name>remove usr delivery gln</name>
+  <description>remove usr delivery gln</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* remove usr delivery gln
+ *
+ * Version history:
+ *  2020-04-22  Radina Ivanova - Initial version
+ *  2022-02-18	Raoul Scholten - Adjusted command due to changing primary key usr_delivery_gln table
+ */
+    publish data where wh_id = nvl(@wh_id, @@wh_id)
+    |
+    if (@wh_id = '')
+    {
+        get warehouse id
+    }
+    |
+    [select uc_delivery_id fr_value
+       from usr_delivery_gln
+      where gln = @gln
+        and wh_id = @wh_id
+		and uc_delivery_id = @uc_delivery_id]
+    |
+    remove record
+     where table = 'usr_delivery_gln' >> res
+    |
+    write daily transaction
+    where actcod = 'USR-GLN-SETUP'
+      and var_nam = @gln
+      and fr_value = @fr_value
+      and to_value = ''
+      and wh_id = @wh_id
+    |
+    publish data combination
+      where res = @res
+     
+]]>
+</local-syntax>
+<argument name="gln" required="yes" datatype="string">GLN</argument>
+<argument name="wh_id" required="no" datatype="string">Warehouse ID</argument>
+</command>

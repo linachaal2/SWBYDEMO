@@ -1,0 +1,104 @@
+pcklst_rule_id,pcklst_rule_name,wh_id,client_id,re_list_flg,allow_split_flg,list_typ,one_pass_only,assign_slot_flg,asset_typ,valid_flg,cnf_mtused_prt,cmdtxt,opr_cod,pick_ord_by,max_start_picks,drop_at_wrkzone_change,frc_pickup_prev,rsm_lst_pck_prev_opr,cmb_list_flg,prevent_pck_cons,pick_to_lvl,wa_fit_cri,ins_dt,last_upd_dt,ins_user_id,last_upd_user_id,max_assets,is_purged
+1,"RBG_L201_ZONE_PICK_LIST_RULE","3","RFH",0,0,"ORD","B",0,"1",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20200318152851","20200617122624","939370","943378",1,0
+2,"RBG_D_ZONE_PICK_LIST_RULE","3","RFH",0,0,"ORD","B",0,"1",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20200928114140","20220418173408","939370","939370",1,0
+3,"RBG_A_ZONE_PICK_LIST_RULE","3","RFH",0,0,"ORD","B",0,"1",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20211110112757","20211110113100","940409","940409",1,0
+4,"SHELVE_120CM_D_ZONE","3","RFH",1,0,"ORD","B",0,"19-H1200",1,0,"","","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20220120125855","20230609095129","939370","938673",1,0
+5,"TROLLEY_1S_D_ZONE","3","RFH",1,0,"ORD","B",1,"1-1S",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20220120132206","20230609085527","939370","938673",1,0
+6,"RBG_D_ZONE_ODD_SIZE_PICK_LIST_RULE","3","RFH",0,0,"ORD","B",0,"",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20220418173828","20220418174218","939370","939370",1,0
+7,"RBG_B_ZONE_PICK_LIST_RULE","3","RFH",0,0,"ORD","B",0,"1",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20220418175102","20220418175127","939370","939370",1,0
+8,"RBG_B_ZONE_ODD_SIZE_PICK_LIST_RULE","3","RFH",0,0,"ORD","B",0,"",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20220418175225","20220418175254","939370","939370",1,0
+9,"RBG_E_ZONE_PICK_LIST_RULE","3","RFH",0,0,"ORD","B",0,"1",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20220418175402","20220418175422","939370","939370",1,0
+10,"SHELVE_120CM_A_ZONE","3","RFH",1,0,"ORD","B",0,"19-H1200",1,0,"","","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20220418180135","20230609094950","939370","938673",1,0
+11,"TROLLEY_1S_A_ZONE","3","RFH",1,0,"ORD","B",1,"1-1S",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20220418180438","20230609085832","939370","938673",1,0
+12,"SHELVE_120CM_B_ZONE","3","RFH",1,0,"ORD","B",0,"19-H1200",1,0,"","","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20220418180915","20230609095024","939370","938673",1,0
+13,"TROLLEY_1S_B_ZONE","3","RFH",1,0,"ORD","B",1,"1-1S",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20220418181030","20230609085803","939370","938673",1,0
+14,"SHELVE_120CM_L_ZONE","3","RFH",1,0,"ORD","B",0,"19-H1200",1,0,"","","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20220418181858","20230609095302","939370","938673",1,0
+15,"TROLLEY_1S_L_ZONE","3","RFH",1,0,"ORD","B",1,"1-1S",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20220418182112","20230609084853","939370","938673",1,0
+16,"SHELVE_120CM_E_ZONE","3","RFH",1,0,"ORD","B",0,"19-H1200",1,0,"","","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20220418182326","20230609095234","939370","938673",1,0
+17,"TROLLEY_1S_E_ZONE","3","RFH",1,0,"ORD","B",1,"1-1S",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20220418182441","20230609085457","939370","938673",1,0
+18,"RBG_P_ZONE_ODD_SIZE_PICK_LIST_RULE","3","RFH",0,0,"ORD","B",0,"",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20221010123055","20221010123055","939370","939370",1,0
+19,"RBG_P_ZONE_PICK_LIST_RULE","3","RFH",0,0,"ORD","B",0,"1",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20221010123137","20221010123138","939370","939370",1,0
+20,"RBG_R_ZONE_ODD_SIZE_PICK_LIST_RULE","3","RFH",0,0,"ORD","B",0,"",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20221010123213","20221010123213","939370","939370",1,0
+21,"RBG_R_ZONE_PICK_LIST_RULE","3","RFH",0,0,"ORD","B",0,"1",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20221010123239","20221010123239","939370","939370",1,0
+22,"RBG_C_ZONE_PICK_LIST_RULE","3","RFH",0,0,"ORD","B",0,"1",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20221010123304","20221010123304","939370","939370",1,0
+23,"SHELVE_120CM_P_ZONE","3","RFH",1,0,"ORD","B",0,"19-H1200",1,0,"","","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20221010123901","20230609095333","939370","938673",1,0
+24,"TROLLEY_1S_P_ZONE","3","RFH",1,0,"ORD","B",1,"1-1S",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20221010123936","20230609084828","939370","938673",1,0
+25,"SHELVE_120CM_R_ZONE","3","RFH",1,0,"ORD","B",0,"19-H1200",1,0,"","","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20221010124040","20230609095435","939370","938673",1,0
+26,"TROLLEY_1S_R_ZONE","3","RFH",1,0,"ORD","B",1,"1-1S",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20221010124146","20230609084805","939370","938673",1,0
+27,"SHELVE_120CM_C_ZONE","3","RFH",1,0,"ORD","B",0,"19-H1200",1,0,"","","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20221010124245","20230609095057","939370","938673",1,0
+28,"TROLLEY_1S_C_ZONE","3","RFH",1,0,"ORD","B",1,"1-1S",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20221010124317","20230609085704","939370","938673",1,0
+29,"SHELVE_80CM_A_ZONE","3","RFH",1,0,"ORD","B",0,"19-H800",1,0,"","","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230112133722","20230609093725","939370","938673",1,0
+30,"SHELVE_80CM_B_ZONE","3","RFH",1,0,"ORD","B",0,"19-H800",1,0,"","","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230112135313","20230609093639","939370","938673",1,0
+31,"SHELVE_80CM_C_ZONE","3","RFH",1,0,"ORD","B",0,"19-H800",1,0,"","","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230112135348","20230609093603","939370","938673",1,0
+32,"SHELVE_80CM_D_ZONE","3","RFH",1,0,"ORD","B",0,"19-H800",1,0,"","","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230112135418","20230609093520","939370","938673",1,0
+33,"SHELVE_80CM_E_ZONE","3","RFH",1,0,"ORD","B",0,"19-H800",1,0,"","","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230112135449","20230609093438","939370","938673",1,0
+34,"SHELVE_80CM_L_ZONE","3","RFH",1,0,"ORD","B",0,"19-H800",1,0,"","","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230112135529","20230609093411","939370","938673",1,0
+35,"SHELVE_80CM_P_ZONE","3","RFH",1,0,"ORD","B",0,"19-H800",1,0,"","","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230112135600","20230609093201","939370","938673",1,0
+36,"SHELVE_80CM_R_ZONE","3","RFH",1,0,"ORD","B",0,"19-H800",1,0,"","","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230112135629","20230609093129","939370","938673",1,0
+37,"SHELVE_60CM_A_ZONE","3","RFH",1,0,"ORD","B",0,"19-H600",1,0,"","","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230112161341","20230609094841","939370","938673",1,0
+38,"SHELVE_60CM_B_ZONE","3","RFH",1,0,"ORD","B",0,"19-H600",1,0,"","","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230112161413","20230609094814","939370","938673",1,0
+39,"SHELVE_60CM_C_ZONE","3","RFH",1,0,"ORD","B",0,"19-H600",1,0,"","","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230112161448","20230609094744","939370","938673",1,0
+40,"SHELVE_60CM_D_ZONE","3","RFH",1,0,"ORD","B",0,"19-H600",1,0,"","","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230112161538","20230609094625","939370","938673",1,0
+41,"SHELVE_60CM_E_ZONE","3","RFH",1,0,"ORD","B",0,"19-H600",1,0,"","","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230112161614","20230609094551","939370","938673",1,0
+42,"SHELVE_60CM_L_ZONE","3","RFH",1,0,"ORD","B",0,"19-H600",1,0,"","","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230112161655","20230609094136","939370","938673",1,0
+43,"SHELVE_60CM_P_ZONE","3","RFH",1,0,"ORD","B",0,"19-H600",1,0,"","","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230112161726","20230609094017","939370","938673",1,0
+44,"SHELVE_60CM_R_ZONE","3","RFH",1,0,"ORD","B",0,"19-H600",1,0,"","","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230112161759","20230609093900","939370","938673",1,0
+45,"TROLLEY_2S_A_ZONE","3","RFH",1,0,"ORD","B",1,"1-2S",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230112161849","20230609084743","939370","938673",1,0
+46,"TROLLEY_2S_B_ZONE","3","RFH",1,0,"ORD","B",1,"1-2S",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230112161924","20230609084705","939370","938673",1,0
+47,"TROLLEY_2S_C_ZONE","3","RFH",1,0,"ORD","B",1,"1-2S",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230112161954","20230609084643","939370","938673",1,0
+48,"TROLLEY_2S_D_ZONE","3","RFH",1,0,"ORD","B",1,"1-2S",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230112162023","20230609084613","939370","938673",1,0
+49,"TROLLEY_2S_E_ZONE","3","RFH",1,0,"ORD","B",1,"1-2S",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230112162048","20230609084423","939370","938673",1,0
+50,"TROLLEY_2S_L_ZONE","3","RFH",1,0,"ORD","B",1,"1-2S",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230112162123","20230609084357","939370","938673",1,0
+51,"TROLLEY_2S_P_ZONE","3","RFH",1,0,"ORD","B",1,"1-2S",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230112162150","20230609084335","939370","938673",1,0
+52,"TROLLEY_2S_R_ZONE","3","RFH",1,0,"ORD","B",1,"1-2S",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230112162225","20230609084314","939370","938673",1,0
+53,"TROLLEY_3S_A_ZONE","3","RFH",1,0,"ORD","B",1,"1-3S",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230112171100","20230609084125","939370","938673",1,0
+54,"TROLLEY_3S_B_ZONE","3","RFH",1,0,"ORD","B",1,"1-3S",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230112171127","20230609081916","939370","938673",1,0
+55,"TROLLEY_3S_C_ZONE","3","RFH",1,0,"ORD","B",1,"1-3S",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230112171156","20230609081852","939370","938673",1,0
+56,"TROLLEY_3S_D_ZONE","3","RFH",1,0,"ORD","B",1,"1-3S",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230112171240","20230609081816","939370","938673",1,0
+57,"TROLLEY_3S_E_ZONE","3","RFH",1,0,"ORD","B",1,"1-3S",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230112171308","20230609081751","939370","938673",1,0
+58,"TROLLEY_3S_L_ZONE","3","RFH",1,0,"ORD","B",1,"1-3S",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230112171331","20230609081722","939370","938673",1,0
+59,"TROLLEY_3S_P_ZONE","3","RFH",1,0,"ORD","B",1,"1-3S",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230112171356","20230609081636","939370","938673",1,0
+60,"TROLLEY_3S_R_ZONE","3","RFH",1,0,"ORD","B",1,"1-3S",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230112171420","20230608152120","939370","938673",1,0
+61,"TROLLEY_0S_A_ZONE","3","RFH",1,0,"ORD","B",0,"1-0S",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230112183538","20230609091253","939370","938673",1,0
+62,"TROLLEY_0S_B_ZONE","3","RFH",1,0,"ORD","B",0,"1-0S",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230112183642","20230609091147","939370","938673",1,0
+63,"TROLLEY_0S_C_ZONE","3","RFH",1,0,"ORD","B",0,"1-0S",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230113125700","20230609091213","939370","938673",1,0
+64,"TROLLEY_0S_D_ZONE","3","RFH",1,0,"ORD","B",0,"1-0S",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230113125927","20230609091716","939370","938673",1,0
+65,"TROLLEY_0S_E_ZONE","3","RFH",1,0,"ORD","B",0,"1-0S",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230113130054","20230609090239","939370","938673",1,0
+66,"TROLLEY_0S_L_ZONE","3","RFH",1,0,"ORD","B",0,"1-0S",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230113130238","20230609090159","939370","938673",1,0
+67,"TROLLEY_0S_P_ZONE","3","RFH",1,0,"ORD","B",0,"1-0S",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230113130406","20230609090119","939370","938673",1,0
+68,"TROLLEY_0S_R_ZONE","3","RFH",1,0,"ORD","B",0,"1-0S",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230113130553","20230609085928","939370","938673",1,0
+69,"RBG_A_ZONE_Z1-0S","3","RFH",0,0,"ORD","B",0,"Z1-0S",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230720140727","20230720140727","938673","938673",1,0
+70,"RBG_B_ZONE_Z1-0S","3","RFH",0,0,"ORD","B",0,"Z1-0S",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230720140727","20230720140727","938673","938673",1,0
+71,"RBG_C_ZONE_Z1-0S","3","RFH",0,0,"ORD","B",0,"Z1-0S",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230720140727","20230720140727","938673","938673",1,0
+72,"RBG_D_ZONE_Z1-0S","3","RFH",0,0,"ORD","B",0,"Z1-0S",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230720140727","20230720140727","938673","938673",1,0
+73,"RBG_E_ZONE_Z1-0S","3","RFH",0,0,"ORD","B",0,"Z1-0S",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230720140727","20230720140727","938673","938673",1,0
+74,"RBG_L201_ZONE_Z1-0S","3","RFH",0,0,"ORD","B",0,"Z1-0S",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230720140727","20230720140727","938673","938673",1,0
+75,"RBG_P_ZONE_Z1-0S","3","RFH",0,0,"ORD","B",0,"Z1-0S",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230720140727","20230720140727","938673","938673",1,0
+76,"RBG_R_ZONE_Z1-0S","3","RFH",0,0,"ORD","B",0,"Z1-0S",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230720140727","20230720140727","938673","938673",1,0
+77,"RBG_A_ZONE_Z1-1S","3","RFH",0,0,"ORD","B",0,"Z1-1S",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230720140733","20230720140733","938673","938673",1,0
+78,"RBG_B_ZONE_Z1-1S","3","RFH",0,0,"ORD","B",0,"Z1-1S",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230720140733","20230720140733","938673","938673",1,0
+79,"RBG_C_ZONE_Z1-1S","3","RFH",0,0,"ORD","B",0,"Z1-1S",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230720140733","20230720140733","938673","938673",1,0
+80,"RBG_D_ZONE_Z1-1S","3","RFH",0,0,"ORD","B",0,"Z1-1S",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230720140733","20230720140733","938673","938673",1,0
+81,"RBG_E_ZONE_Z1-1S","3","RFH",0,0,"ORD","B",0,"Z1-1S",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230720140733","20230720140733","938673","938673",1,0
+82,"RBG_L201_ZONE_Z1-1S","3","RFH",0,0,"ORD","B",0,"Z1-1S",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230720140733","20230720140733","938673","938673",1,0
+83,"RBG_P_ZONE_Z1-1S","3","RFH",0,0,"ORD","B",0,"Z1-1S",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230720140733","20230720140733","938673","938673",1,0
+84,"RBG_R_ZONE_Z1-1S","3","RFH",0,0,"ORD","B",0,"Z1-1S",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230720140733","20230720140733","938673","938673",1,0
+85,"RBG_A_ZONE_Z1-2S","3","RFH",0,0,"ORD","B",0,"Z1-2S",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230720140736","20230720140736","938673","938673",1,0
+86,"RBG_B_ZONE_Z1-2S","3","RFH",0,0,"ORD","B",0,"Z1-2S",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230720140737","20230720140737","938673","938673",1,0
+87,"RBG_C_ZONE_Z1-2S","3","RFH",0,0,"ORD","B",0,"Z1-2S",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230720140737","20230720140737","938673","938673",1,0
+88,"RBG_D_ZONE_Z1-2S","3","RFH",0,0,"ORD","B",0,"Z1-2S",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230720140737","20230720140737","938673","938673",1,0
+89,"RBG_E_ZONE_Z1-2S","3","RFH",0,0,"ORD","B",0,"Z1-2S",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230720140737","20230720140737","938673","938673",1,0
+90,"RBG_L201_ZONE_Z1-2S","3","RFH",0,0,"ORD","B",0,"Z1-2S",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230720140737","20230720140737","938673","938673",1,0
+91,"RBG_P_ZONE_Z1-2S","3","RFH",0,0,"ORD","B",0,"Z1-2S",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230720140737","20230720140737","938673","938673",1,0
+92,"RBG_R_ZONE_Z1-2S","3","RFH",0,0,"ORD","B",0,"Z1-2S",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230720140737","20230720140737","938673","938673",1,0
+93,"RBG_A_ZONE_Z1-3S","3","RFH",0,0,"ORD","B",0,"Z1-3S",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230720140741","20230720140741","938673","938673",1,0
+94,"RBG_B_ZONE_Z1-3S","3","RFH",0,0,"ORD","B",0,"Z1-3S",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230720140741","20230720140741","938673","938673",1,0
+95,"RBG_C_ZONE_Z1-3S","3","RFH",0,0,"ORD","B",0,"Z1-3S",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230720140741","20230720140741","938673","938673",1,0
+96,"RBG_D_ZONE_Z1-3S","3","RFH",0,0,"ORD","B",0,"Z1-3S",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230720140741","20230720140741","938673","938673",1,0
+97,"RBG_E_ZONE_Z1-3S","3","RFH",0,0,"ORD","B",0,"Z1-3S",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230720140741","20230720140741","938673","938673",1,0
+98,"RBG_L201_ZONE_Z1-3S","3","RFH",0,0,"ORD","B",0,"Z1-3S",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230720140741","20230720140741","938673","938673",1,0
+99,"RBG_P_ZONE_Z1-3S","3","RFH",0,0,"ORD","B",0,"Z1-3S",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230720140741","20230720140741","938673","938673",1,0
+100,"RBG_R_ZONE_Z1-3S","3","RFH",0,0,"ORD","B",0,"Z1-3S",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230720140741","20230720140741","938673","938673",1,0
+102,"RBG_A_ZONE_ODD_SIZE_PICK_LIST_RULE","3","RFH",0,0,"ORD","B",0,"",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20231005203930","20231005203931","939370","939370",1,0
+103,"RBG_C_ZONE_ODD_SIZE_PICK_LIST_RULE","3","RFH",0,0,"ORD","B",0,"",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20231005204023","20231005204023","939370","939370",1,0
+104,"RBG_E_ZONE_ODD_SIZE_PICK_LIST_RULE","3","RFH",0,0,"ORD","B",0,"",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20231005204048","20231005204048","939370","939370",1,0

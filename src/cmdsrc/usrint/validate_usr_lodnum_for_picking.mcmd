@@ -1,0 +1,90 @@
+<command>
+  <name>validate usr lodnum for picking</name>
+  <description>validate usr lodnum for picking</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* validate usr lodnum for picking
+ * First check if value scanned is according to mask before leaving the scan field, 
+ * if asset typ is empty, try to get asset type from given list_id (if applicable)
+ *
+ * Version history:
+ *  2023-01-04  Marco Schouwenaar     Initial version
+*/
+if (@asset_typ is null)
+{ 
+    [select asset_typ lst_asset 
+       from pcklst 
+      where pcklst.list_id = @list_id] catch(-1403)
+    |
+    if (@lst_asset is null)
+    {
+        [select pv1.rtstr2 as lst_asset 
+           from poldat_view pv1 
+          where pv1.wh_id  = @wh_id 
+            and pv1.polcod = 'USR-RF-FORM' 
+            and pv1.polvar = 'ASSET_IDENTIFY' 
+            and pv1.polval = 'DEF_ASSET_TYP' 
+            and pv1.rtstr1 = @frm_id 
+            and pv1.rtnum1 = 1] catch(-1403)
+    }
+    |
+    publish data where asset_typ=@lst_asset
+}
+|
+{
+    /* Check the masks which indicate that the user is finished with scanning the load. */
+    [select pv2.rtstr2 as mask_typ
+       from poldat_view pv2 
+      where pv2.wh_id  = @wh_id
+        and pv2.polcod = 'USR-RF-FORM'
+        and pv2.polvar = 'ASSET_IDENTIFY'
+        and pv2.polval = 'MASK_ASSET_TYP'
+        and pv2.rtstr1 = @asset_typ
+        and pv2.rtnum1 = 1]  catch(-1403)  
+    |
+    [select masks.rtstr1 as pol_scan_id_mask,
+            masks.rtstr2 as pol_scan_id_mask_type,
+            masks.rtnum2 as pol_scan_id_mask_dsp_len
+       from poldat_view masks
+      where masks.wh_id = @wh_id
+        and masks.polcod = 'USR-RF-FORM'
+        and masks.polvar = 'USR_IDENTIFY_LOAD'
+        and masks.polval = 'SCAN_ID_MASK'
+        and masks.rtnum1 = 1
+        and masks.rtstr2 = @mask_typ
+      order by masks.srtseq]catch(-1403)
+    |
+    get session variable
+     where name = 'mask_found' catch(-1403)
+    |
+    /* No match yet so try to match the next mask. */
+    if (@? = -1403)    {
+        /* The masks support moca variables so translate these first. */
+        execute server command
+         where cmd = 'publish data where pol_scan_mask_id_trans=' || @pol_scan_id_mask
+        |
+        /* Check if the scanned value matches the mask using Groovy, this just returns a boolean true or false. */
+        [[pick_to_id!= null && pol_scan_mask_id_trans != null && pick_to_id.matches(pol_scan_mask_id_trans); ]]
+        |
+        if (@result = 1)
+        {
+            /* If we found a match we want to stop and not try to match all the other masks. */
+            save session variable
+             where name = 'mask_found'
+               and value = 1
+        }
+    }
+} catch(@?)
+|
+get session variable
+   where name = 'mask_found' catch(-1403)
+|
+if (@?!=0)
+{
+    set return status
+     where status = 90004
+}
+]]>
+</local-syntax>
+</command>

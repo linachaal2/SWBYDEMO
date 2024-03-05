@@ -1,0 +1,28 @@
+<command>
+  <name>list usr delivery multidrop</name>
+  <description>list usr delivery multidrop</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* list usr delivery multidrop
+ *
+ * Version history:
+ *  2020-04-30  Radina Ivanova - Initial version
+ */
+    publish data where wh_id = nvl(@wh_id, @@wh_id)
+    |
+    if (@wh_id = '')
+    {
+        get warehouse id
+    }
+    |
+    [select *
+       from usr_delivery
+      where uc_delivery_id = -1
+        and dst_mov_zone_id = -1
+        and wh_id = @wh_id
+      order by seqnum]
+     
+]]>
+</local-syntax>
+</command>

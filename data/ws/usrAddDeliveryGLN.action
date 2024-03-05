@@ -1,0 +1,17 @@
+<action>
+  <id>usrAddDeliveryGLN</id>
+  <name>usrAddDeliveryGLN</name>
+  <description>Add Delivery GLN</description>
+  <type>ADD</type>
+  <ws>
+     <method>POST</method>
+	 <href>/usrAddDeliveryGLN</href>
+  </ws>
+  <impl>
+     <command>create usr delivery gln</command>
+  </impl>
+  <auth>
+     <opt>optOpen</opt>
+  </auth>
+  <primary>true</primary>
+</action>

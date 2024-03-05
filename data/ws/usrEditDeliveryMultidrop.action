@@ -1,0 +1,22 @@
+<action>
+  <id>usrEditDeliveryMultidrop</id>
+  <name>usrEditDeliveryMultidrop</name>
+  <description>Edit Delivery Multidrop</description>
+  <type>EDIT</type>
+  <ws>
+     <method>PUT</method>
+	 <href>usrEditDeliveryMultidrop/{pk}</href>
+  </ws>
+  <impl>
+     <command>change usr delivery multidrop</command>
+     <arguments>
+        <argument name="seqnum" type="int" required="true" location="path" />
+        <argument name="stoloc" type="string" required="true" />
+        <argument name="frstol" type="string"  />
+     </arguments>
+  </impl>
+  <auth>
+     <opt>optOpen</opt>
+  </auth>
+  <primary>true</primary>
+</action>

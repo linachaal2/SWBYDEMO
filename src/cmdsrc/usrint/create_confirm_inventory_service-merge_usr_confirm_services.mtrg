@@ -1,0 +1,122 @@
+<trigger>
+  <name>merge usr confirm services</name>
+  <on-command>create confirm inventory service</on-command>
+  <description>Merge records when unwanted multiple entries</description>
+  <fire-sequence>10</fire-sequence>
+  <local-syntax>
+<![CDATA[
+/* Trigger to merge double entries in confirmation services
+ *
+ * Version history:
+ *  2020-01-01 Marco Schouwenaar   Initial version
+ *  2023-02-22 Marco Schouwenaar   Added serv_id as parameter instead of fixed
+ *  2023-02-22 Marco Schouwenaar   Add uc_inv_code from order/order line if work flow is a VAS action
+ */
+[select nvl(ord_line_note.uc_inv_code, ord_note.uc_inv_code) uc_inv_code
+   from ord
+   join poldat_view
+     on poldat_view.polcod = 'USR-ORDER-VAS-NOTE'
+    and poldat_view.polvar = 'WORKFLOW'
+    and poldat_view.wh_id = ord.wh_id
+    and poldat_view.rtstr1 = @serv_id
+   left
+   join ord_note
+     on ord.ordnum = ord_note.ordnum
+    and ord.wh_id = ord_note.wh_id
+    and ord.client_id = ord_note.client_id
+    and ord_note.nottyp = poldat_view.polval
+   left
+   join ord_line
+     on ord.client_id = ord_line.client_id
+    and ord.ordnum = ord_line.ordnum
+    and ord.wh_id = ord_line.wh_id
+    and @ordlin = ord_line.ordlin
+    and @ordsln = ord_line.ordsln
+   left
+   join ord_line_note
+     on ord_line.ordnum = ord_line_note.ordnum
+    and ord_line.ordlin = ord_line_note.ordlin
+    and ord_line.ordsln = ord_line_note.ordsln
+    and ord_line.wh_id = ord_line_note.wh_id
+    and ord_line.client_id = ord_line_note.client_id
+    and ord_line_note.nottyp = poldat_view.polval
+  where ord.ordnum = @ordnum
+    and ord.client_id = @client_id
+    and ord.wh_id = @wh_id] catch(-1403)
+|
+if (@? = 0)
+{
+    [update cnfrm_inv_serv
+        set cnfrm_inv_serv.uc_inv_code = @uc_inv_code
+      where cnfrm_inv_serv.cnfrm_serv_id = @cnfrm_serv_id]
+}
+|
+[select 'x'
+   from poldat_view
+  where wh_id = @wh_id
+    and polcod = 'USR-RF-FORM'
+    and polvar = 'MERGE-FLOW'
+    and polval = @exitpnt_typ
+    and rtstr2 = @serv_id
+    and rtnum1 = 1] catch(-1403)
+|
+if (@? = 0)
+    /* policy active so check if there is a need to update*/
+{
+    [select count(cnfrm_inv_serv.cnfrm_serv_id) as count,
+            cnfrm_inv_serv.uc_inv_code as uc_inv_code
+       from cnfrm_inv_serv
+      where cnfrm_inv_serv.invtid = @invtid
+        and cnfrm_inv_serv.serv_id = @serv_id
+      group by uc_inv_code] catch(-1403)
+    /* check number of records if only one no need to change the stuff */
+    |
+    if (@count > 1)
+        /* confirmed, so check if there are merged records to update */
+    {
+        /* check on existing merged record */
+        publish data
+         where merge_id = 'M' || @cnfrm_serv_id
+           and merged_qty = 0
+        |
+        [select cnfrm_serv_id as merge_id,
+                untqty as merged_qty
+           from cnfrm_inv_serv
+          where cnfrm_inv_serv.invtid = @invtid
+            and cnfrm_inv_serv.cnfrm_serv_id != @cnfrm_serv_id
+            and cnfrm_inv_serv.cnfrm_serv_id like 'M%'
+            and cnfrm_inv_serv.serv_id = @serv_id
+            and nvl(cnfrm_inv_serv.uc_inv_code,'-') = nvl(@uc_inv_code,'-')] catch(-1403)
+        |
+        if (@? = -1403)
+            /* new merge record needed, so create one */
+        {
+            [insert
+               into cnfrm_inv_serv(cnfrm_serv_id, invtid, lodlvl, wh_id, serv_id, serv_req_flg, exitpnt_typ, exitpnt, srtseq, cmpflg, client_id, prtnum, prt_client_id, untqty, ordnum, ordlin, ordsln, ship_id, alt_idn, dstloc, adddte, moddte, mod_usr_id, devcod, uc_inv_code)
+             values (@merge_id, @invtid, @lodlvl, @wh_id, @serv_id, @serv_req_flg, @exitpnt_typ, @exitpnt, @srtseq, @cmpflg, @client_id, '', '', 0, @ordnum, @ordlin, @ordsln, '', @alt_idn, @dstloc, to_date(@adddte), to_date(@moddte), @mod_usr_id, @devcod, @uc_inv_code)]
+            /* insert to merge record */
+        }
+        |
+        [select *
+           from cnfrm_inv_serv
+          where cnfrm_inv_serv.invtid = @invtid
+            and cnfrm_inv_serv.cnfrm_serv_id != @merge_id
+            and cnfrm_inv_serv.serv_id = @serv_id
+            and nvl(cnfrm_inv_serv.uc_inv_code,'-') = nvl(@uc_inv_code,'-')]
+        |
+        [update cnfrm_inv_serv
+            set cnfrm_inv_serv.invtid = @merge_id
+          where cnfrm_inv_serv.cnfrm_serv_id = @cnfrm_serv_id]
+        |
+        publish data
+         where merged_qty = @merged_qty + @unt_qty
+        |
+        [update cnfrm_inv_serv
+            set cnfrm_inv_serv.untqty = @merged_qty
+          where cnfrm_inv_serv.cnfrm_serv_id = @merge_id]
+    }
+}
+]]>
+</local-syntax>
+  <enable>yes</enable>
+</trigger>

@@ -1,0 +1,20 @@
+<trigger>
+  <name>process usr background service usr-pst-rcv-lpn</name>
+  <on-command>complete usr rf identify load</on-command>
+  <description>process usr background service usr-pst-rcv-lpn</description>
+  <fire-sequence>90000</fire-sequence>
+  <local-syntax>
+<![CDATA[
+/* process usr background service usr-pst-rcv-lpn
+ * Processes the background services for the post receive exit point USR-PST-RCV-LPN.
+ * Version history:
+ *  2018-09-14  Salem Hamze  Initial version.
+ */
+process usr background services
+ where exitpnt = 'USR-PST-RCV-LPN'
+   and wh_id = @wh_id
+   and lodnum = @lodnum
+]]>
+</local-syntax>
+  <enable>yes</enable>
+</trigger>

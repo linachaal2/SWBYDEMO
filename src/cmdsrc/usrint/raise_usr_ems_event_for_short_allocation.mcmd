@@ -1,0 +1,139 @@
+<command>
+  <name>raise usr ems event for short allocation</name>
+  <description>raise usr ems event for short allocation</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* raise usr ems event for short allocation
+ * The wave is set to run in auto allocation. If there is a shortage for a given order, 
+ * then there is a request to generate an ems event. A policy USR-SHORT-ALLOC is configured
+ * (EMS) to enable/disable the process of generating EMS events. 
+ *
+ * Version history:
+ *  2018-09-11  Salem en Tim     Initial version.
+ *  2018-10-17  Salem Hamze      Fixed typo, @+shipment_line.pckgrp1 to @+shipment_line.pckgr1
+ *  2018-10-18  Salem Hamze      Added short insert date filter.
+ */
+publish data
+ where evt_nam = 'USR-SHORT-ALLOC'
+|
+/* The EMS definition must be primed in EMS. This means, making sure
+ * there is a record for this evt_name. Its also details the message (EMS event)
+ * that will be sent to the subscribers.
+ */
+get ems source system
+|
+if (@primer_flg and @primer_flg = 1)
+{
+    publish data
+     where evt_msg = 'The following wave has shortages: 
+                            Warehouse: @wh_id
+                            Wave: @schbat
+                            Pickgroup: @pckgr1_list
+                            Shipment(s): @ship_id_list
+                            Order(s) with shortage: @ordnum_list
+                            Order Type(s): @ordtyp_list'
+       and evt_subj = 'Wave (@schbat) has shortages and could not fully allocate'
+       and evt_qual = 'wh_id, schbat, pckgr1_list, ship_id_list, ordnum_list, ordtyp_list'
+       and evt_grp = 'AUTO-ALLOCATION'
+       and evt_pri = '1'
+       and evt_nam = @evt_nam
+       and src_sys = @src_sys
+       and lngdsc = 'Automatic wave allocation has run but could not fully allocate.'
+}
+else
+{
+    get ems event information
+     where evt_nam = @evt_nam
+    |
+    if (@enabled = 1)
+    {
+        publish data
+         where schbat = @schbat
+           and pckgr1 = @pckgr1
+        |
+        [select shipment_line.schbat,
+                shipment_line.pckgr1,
+                shipment_line.ship_id,
+                shipment_line.ordnum,
+                ord.ordtyp
+           from shipment_line
+          inner
+           join ord
+             on ord.client_id = shipment_line.client_id
+            and ord.wh_id = shipment_line.wh_id
+            and ord.ordnum = shipment_line.ordnum
+          inner
+           join rplwrk
+             on rplwrk.ship_line_id = shipment_line.ship_line_id
+          where shipment_line.schbat = @schbat
+            and @+shipment_line.pckgr1
+            and rplwrk.adddte >= @allocate_wave_start:date] catch(-1403) >> res_data
+        |
+        if (@? = 0)
+        {
+            /* convert all column output, from cells to list and 
+               make sure that unique results are being produced
+               not required for schbat and pckgr1 since they are 
+               being pulled from the stack, should be 1 value*/
+            convert usr column results to string
+             where resultset = @res_data
+               and colnam = 'ship_id'
+               and separator = ','
+               and distinct = 1
+            |
+            publish data
+             where ship_id_list = @result_string
+            |
+            convert usr column results to string
+             where resultset = @res_data
+               and colnam = 'ordnum'
+               and separator = ','
+               and distinct = 1
+            |
+            publish data
+             where ordnum_list = @result_string
+            |
+            convert usr column results to string
+             where resultset = @res_data
+               and colnam = 'ordtyp'
+               and separator = ','
+               and distinct = 1
+            |
+            publish data
+             where ordtyp_list = @result_string
+            |
+            convert usr column results to string
+             where resultset = @res_data
+               and colnam = 'pckgr1'
+               and separator = ','
+               and distinct = 1
+            |
+            publish data
+             where pckgr1_list = @result_string
+            |
+            /* publish all results*/
+            publish data
+             where schbat = @schbat
+               and pckgr1_list = @pckgr1_list
+               and ship_id_list = @ship_id_list
+               and ordnum_list = @ordnum_list
+               and ordtyp_list = @ordtyp_list
+            |
+            log ems event
+             where evt_nam = @evt_nam
+               and key_val = @schbat || '|' || @ship_id_list || '|' || @ordnum_list
+               and wh_id = @wh_id
+               and schbat = @schbat
+               and pckgr1_list = @pckgr1_list
+               and ship_id_list = @ship_id_list
+               and ordnum_list = @ordnum_list
+               and ordtyp_list = @ordtyp_list
+        }
+    }
+}
+]]>
+</local-syntax>
+  <argument name="schbat" required="yes" datatype="string">schbat</argument>
+  <argument name="pckgr1" datatype="string">pckgr1</argument>
+</command>

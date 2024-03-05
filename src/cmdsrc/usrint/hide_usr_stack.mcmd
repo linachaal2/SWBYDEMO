@@ -1,0 +1,75 @@
+<command>
+  <name>hide usr stack</name>
+  <description>hide usr stack</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* hide usr stack
+ * Command which hides all the variables currently on the stack except the ones specified in exclude_variables.
+ * Version history:
+ *  2018-09-07  Salem Hamze  Initial version.
+ */
+dump stack >> res_stack
+|
+get command columns
+ where res = @res_stack >> res_stack_columns
+|
+convert column results to string
+ where res = @res_stack_columns
+   and column = 'var_nam'
+   and separator = ','
+|
+[[
+        EditableResults hidden = moca.newResults();
+        String stack_variables_list = moca.getVariable('result_string');
+        String stack_excludes_list = moca.getVariable('exclude_variables');
+        String[] stack_variables = null;
+        String[] stack_excludes = null;
+        
+        /* Create arrays from the comma separated lists given. */
+        if(stack_variables_list != null && stack_variables_list.length() > 0){
+            stack_variables = stack_variables_list.split(','); 
+            
+            if(stack_excludes_list != null && stack_excludes_list.length() > 0){
+                stack_excludes = stack_excludes_list.split(','); 
+            }
+        }
+
+        if(stack_variables != null && stack_variables.length > 0){   
+            /* Add the stack variables we want to hide to a new resultset. */
+            for(int i=0; i< stack_variables.length; i++){
+                boolean in_excludes = false;
+                
+                /* If it is in the excludes then mark to exclude it. */
+                if(stack_excludes != null){
+                    for(int e=0; e< stack_excludes.length; e++){
+                        if(stack_variables[i].equals(stack_excludes[e])){
+                            in_excludes = true;
+                            break;
+                        }
+                    }                
+                }
+                
+                /* Add the column to the resultset as hidden if it is not in the excludes. */
+                if(in_excludes == false){
+                    hidden.addColumn(stack_variables[i], MocaType.OBJECT);
+                }
+                
+            }
+            
+            /* Add a row to te resultset. */
+            hidden.addRow();
+            
+            /* Set the values to hidden to "remove" then form the stack, the same as the command "hide stack variable" does. */
+            for(int c=0; c< hidden.getColumnCount(); c++){
+                hidden.setValue(c, MocaConstants.HIDDEN);
+            }
+        }
+        
+        /* Return the resultset. */
+        return hidden;
+]]
+]]>
+</local-syntax>
+  <argument name="exclude_variables" datatype="string">Comma separated list of variables which do not need to be hidden.</argument>
+</command>

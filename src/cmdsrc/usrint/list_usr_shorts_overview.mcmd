@@ -1,0 +1,200 @@
+<command>
+  <name>list usr shorts overview</name>
+  <description>list usr shorts overview</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* list usr shorts overview
+ *
+ * Version history:
+ *  2023-08-16  Radina Ivanova - Initial version
+ */
+    publish data where wh_id = nvl(@wh_id, @@wh_id)
+    |
+    if (@wh_id = '')
+    {
+        [select wh_id
+           from wh]
+    }
+    |
+    publish data where filterByClause = nvl(@filterByClause, [1=1])
+    |
+    [/*#limit=@offset,@limit,true*/
+    select rplwrk.rplref,
+            rplwrk.waybil marked,
+            rplwrk.ordnum,
+            rplwrk.ordlin,
+            rplwrk.ordsln,
+            rplwrk.wkonum,
+            rplwrk.wkolin,
+            rplwrk.schbat,
+            rplwrk.pckqty,
+            rplwrk.prtnum,
+            decode(nvl(invtbl.invcnt, 0), 0, 'OUTSTK', '') rsncod,
+            prtdsc.lngdsc item_desc,
+            to_char(nvl(shipment.late_shpdte, ord_line.late_shpdte), 'YYYY-MM-DD HH24:MI') late_shpdte,
+            to_char(nvl(shipment.early_shpdte, ord_line.early_shpdte), 'YYYY-MM-DD HH24:MI') early_shpdte,
+            lotnum.lotnum,
+            ord.ordtyp,
+            nvl(ord_line.ordqty, wkodtl.linqty) ordqty,
+            dscmst.lngdsc ordtyp_desc,
+            1 reallocateFlag
+       from (select rplwrk.rplref,
+                    rplwrk.wh_id,
+                    rplwrk.ship_id,
+                    rplwrk.schbat,
+                    rplwrk.waybil,
+                    rplwrk.pckqty,
+                    rplwrk.prtnum,
+                    rplwrk.prt_client_id,
+                    rplwrk.rule_nam,
+                    rplwrk.wkonum,
+                    rplwrk.wkorev,
+                    rplwrk.wkolin,
+                    rplwrk.ordnum,
+                    rplwrk.ordlin,
+                    rplwrk.ordsln,
+                    rplwrk.client_id
+               from rplwrk
+              where rplwrk.rplsts != 'C' /* Completed */
+                and rplwrk.rplsts != 'D' /* Pending Deposit */
+             union
+            /* Query replenishments for short whose allocated quantity is part matched short quantity */
+             select rplwrk.rplref,
+                    rplwrk.wh_id,
+                    rplwrk.ship_id,                    
+                    rplwrk.schbat,
+                    rplwrk.waybil,
+                    rplwrk.pckqty - subrpls.alcqty pckqty,
+                    rplwrk.prtnum,
+                    rplwrk.prt_client_id,
+                    rplwrk.rule_nam,
+                    rplwrk.wkonum,
+                    rplwrk.wkorev,
+                    rplwrk.wkolin,
+                    rplwrk.ordnum,
+                    rplwrk.ordlin,
+                    rplwrk.ordsln,
+                    rplwrk.client_id
+               from rplwrk
+         inner join (select parantrplwrk.rplref,
+                            sum(subrplwork.alcqty) alcqty
+                       from rplwrk parantrplwrk
+                  left join rplwrk subrplwork
+                         on parantrplwrk.rplref = subrplwork.parref
+                      where parantrplwrk.parref is null
+                        and parantrplwrk.rplsts = 'D'
+                      group by parantrplwrk.rplref,
+                            parantrplwrk.pckqty
+                     having parantrplwrk.pckqty - sum(subrplwork.alcqty) > 0) subrpls
+                 on subrpls.rplref = rplwrk.rplref
+              where rplwrk.rplsts = 'D') rplwrk
+       left join shipment
+         on shipment.ship_id = rplwrk.ship_id
+       left join ord_line
+         on rplwrk.ordnum = ord_line.ordnum
+        and rplwrk.ordlin = ord_line.ordlin
+        and rplwrk.ordsln = ord_line.ordsln
+        and rplwrk.client_id = ord_line.client_id
+        and rplwrk.wh_id = ord_line.wh_id
+       left join ord
+         on ord.ordnum = ord_line.ordnum
+        and ord.client_id = ord_line.client_id
+        and ord.wh_id = ord_line.wh_id
+       left join wkodtl
+         on rplwrk.wkonum = wkodtl.wkonum
+        and rplwrk.wkolin = wkodtl.wkolin
+        and rplwrk.wkorev = wkodtl.wkorev
+        and rplwrk.client_id = wkodtl.client_id
+        and rplwrk.wh_id = wkodtl.wh_id
+        and wkodtl.seqnum = 0
+       left join prtdsc
+         on prtdsc.colval = rplwrk.prtnum || '|' || rplwrk.client_id || '|' || rplwrk.wh_id
+        and prtdsc.colnam = 'prtnum|prt_client_id|wh_id_tmpl'
+        and prtdsc.locale_id = nvl(@locale_id, @@locale_id)
+       left join
+            (select invdtl.prtnum,
+                    invdtl.prt_client_id,
+                    count(prtnum) invcnt
+               from invdtl,
+                    invsub,
+                    invlod,
+                    locmst,
+                    loc_typ
+              where invdtl.subnum     = invsub.subnum
+                and invsub.lodnum     = invlod.lodnum
+                and invlod.stoloc     = locmst.stoloc
+                and invlod.wh_id      = locmst.wh_id
+                and locmst.loc_typ_id = loc_typ.loc_typ_id
+                and loc_typ.fwiflg    = 1
+                and invlod.wh_id      = nvl(@wh_id, @@wh_id)
+              group by prtnum,
+                       prt_client_id) invtbl
+         on invtbl.prtnum        = rplwrk.prtnum
+        and invtbl.prt_client_id = rplwrk.prt_client_id
+       left join (select value lotnum,
+                         wh_id,
+                         row_number() over(partition by wh_id,rule_nam order by value asc) as seqnum,
+                         rule_nam
+                  from alloc_rule_dtl
+                  where field_name = 'lotnum') lotnum
+         on lotnum.rule_nam = rplwrk.rule_nam
+        and lotnum.wh_id = rplwrk.wh_id
+        and lotnum.seqnum = 1
+       left join dscmst
+         on dscmst.colval = ord.ordtyp || '|' || rplwrk.wh_id
+        and dscmst.colnam = 'ordtyp|wh_id'
+        and dscmst.locale_id = nvl(@locale_id, @@locale_id)
+      where @filterByClause:raw
+        and @+rplwrk.wh_id
+   order by rplwrk.ordnum,
+            rplwrk.ordlin,
+			rplwrk.wkonum,
+			rplwrk.wkolin] >> res
+    |
+    convert column results to string where res = @res and column = 'rplref' and separator = '|'
+    |
+    publish data where rplref = @result_string
+    |
+    convert column results to string where res = @res and column = 'pckqty' and separator = '|'
+    |
+    publish data where segqty = @result_string
+    |
+    execute server command
+      where cmd = "list short reasons
+                  WHERE rplref = '" || @rplref || "'
+                    AND wh_id = '" || @wh_id || "'
+                    AND segqty = '" || @segqty || "'"
+       and inline = 0 >> resReasons
+    |
+    [[
+        res.addColumn("rsncod_desc", MocaType.STRING);
+        res.addColumn("rsndtl", MocaType.STRING);
+        while (res.next() && resReasons.next())
+        {
+            if (resReasons.getString("rplref").equals(res.getString("rplref")))
+            {
+                res.setValue("rsncod", resReasons.getString("rsncod"));
+                res.setValue("rsndtl", resReasons.getString("rsndtl"));
+                
+                try
+                {
+                    resDesc = moca.executeCommand("[select lngdsc from dscmst " +
+                                                  "  where colnam = 'rsncod' " +
+                                                  "  and colval = '" + resReasons.getString("rsncod") + "' " +
+                                                  "  and locale_id = nvl(@locale_id, @@locale_id)]");
+                   
+                    if (resDesc.next())
+                    {
+                        res.setValue("rsncod_desc", resDesc.getString("lngdsc"));
+                    }
+                } 
+                catch(MocaException ) {}
+            }
+        }
+        return res;
+    ]]
+]]>
+</local-syntax>
+<argument name="wh_id" required="no" datatype="string">Warehouse ID</argument>
+</command>

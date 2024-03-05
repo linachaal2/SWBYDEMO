@@ -1,0 +1,20 @@
+<command>
+  <name>list usr rf invoice types for lookup</name>
+  <description>list usr rf invoice types for lookup</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* list usr rf invoice types for lookup
+ * Lists the invoice types for lookup in rf.
+ * Version history:
+ *  2018-10-31  Salem Hamze     Initial version
+ */
+list invoice types
+ where @*
+|
+publish data
+ where invtyp = @invtyp
+   and dsc = nvl(@short_dsc, @lngdsc)
+]]>
+</local-syntax>
+</command>

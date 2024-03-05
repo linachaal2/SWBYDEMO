@@ -1,0 +1,47 @@
+<trigger>
+  <name>update usr pckmov overrule</name>
+  <on-command>process rf reserving location for next step</on-command>
+  <description>update mov_zone_id for overrule location</description>
+  <fire-sequence>10</fire-sequence>
+  <local-syntax>
+<![CDATA[
+/*
+ * Trigger to update the pckmov with the correct movement zone when another location is selected using the matrix outside the original pick move zone
+ * This trigger is only activated when the pick method is using the location reservation other then all
+ * 30-04-2020 Marco Schouwenaar Initial version
+ * 01-05-2020 Marco Schouwenaar revised version for multilist pick (including details check)
+ */
+[select mov_zone_id dest_zone_id from locmst where stoloc=@dstloc] catch(-1403)
+|
+if (@?=0)
+{
+    [select cmbcod   from pckwrk_dtl,       invdtl id,       invsub ivs,        invlod il where pckwrk_dtl.wrkref = id.wrkref    and id.subnum = ivs.subnum   and ivs.lodnum = il.lodnum and il.lodnum = @invlodnum] catch(-1403)
+    |
+    if (@?=-1403) /* if no lodnum found, try subnum*/
+    {
+    [select cmbcod   from pckwrk_dtl,       invdtl id,       invsub ivs,        invlod il where pckwrk_dtl.wrkref = id.wrkref    and id.subnum = ivs.subnum   and ivs.lodnum = il.lodnum and il.lodnum in (select invs.lodnum from invsub invs where invs.subnum=@invlodnum)] catch(-1403)
+    }
+    |
+    if (@?=-1403) /* if no subnum found, try dtlnum*/
+    {
+    [select cmbcod   from pckwrk_dtl,       invdtl id,       invsub ivs,        invlod il where pckwrk_dtl.wrkref = id.wrkref    and id.subnum = ivs.subnum   and ivs.lodnum = il.lodnum and il.lodnum in (select invs.lodnum from invsub invs, invdtl invd where invs.subnum=invd.subnum and invd.dtlnum=@invlodnum)] catch(-1403)
+    }
+    |
+    if (@?=0) /* if identifier found, retrieve original movement zone of pckwork*/
+    {  
+       [select mov_zone_id pckmov_zone_id from  pckmov where stoloc=@dstloc and cmbcod = @cmbcod] catch(-1403)
+       | 
+       if (@?=0)
+      {
+         if (@dest_zone_id != @pckmov_zone_id ) /* update pick movement zone to the correct one of the location if it differs*/
+         {
+             [update pckmov set mov_zone_id = @dest_zone_id  where stoloc=@dstloc and cmbcod = @cmbcod] catch(-1403)
+         }
+
+      }
+   }
+}
+]]>
+</local-syntax>
+  <enable>yes</enable>
+</trigger>

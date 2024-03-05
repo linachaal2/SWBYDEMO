@@ -1,0 +1,22 @@
+[select * from invdtl]catch (-1403)
+|
+if (@?=0)
+{
+   format date where date=nvl(@fifdte, sysdate) and fmt_str='yyyyMMdd000000' 
+   |
+   [update invdtl set fifdte=to_date(@fmt_dte) where dtlnum=@dtlnum]catch(-1403)
+}
+;
+[select * from invsum]
+|
+format date where date=nvl(@olddte, sysdate) and fmt_str='yyyyMMdd000000' 
+|
+[update invsum set olddte=to_date(@fmt_dte) where invsum.stoloc = @stoloc and prtnum = @prtnum and wh_id = @wh_id and prt_client_id = @prt_client_id] catch(-1403)
+|
+format date where date=nvl(@newdte, sysdate) and fmt_str='yyyyMMdd000000' 
+|
+[update invsum set newdte=to_date(@fmt_dte) where invsum.stoloc = @stoloc and prtnum = @prtnum and wh_id = @wh_id and prt_client_id = @prt_client_id] catch(-1403)
+;
+commit;
+/
+exit

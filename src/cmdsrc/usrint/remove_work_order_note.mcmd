@@ -1,0 +1,17 @@
+<command>
+  <name>remove work order note</name>
+  <description>remove work order note</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* Wrapper on create work order note to avoid bug BY (WMD-258206 / 04762757). 
+ * only allow create via interface to avoid issues with assigning to a production line (notes are merged (deleted and created again)
+ * 2023-05-05 Marco Schouwenaar   initial version
+ */
+if (@snd_if=1)
+{
+^remove work order note
+}
+]]>
+</local-syntax>
+</command>

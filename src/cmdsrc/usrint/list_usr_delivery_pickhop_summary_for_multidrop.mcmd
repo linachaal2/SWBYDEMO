@@ -1,0 +1,34 @@
+<command>
+  <name>list usr delivery pickhop summary for multidrop</name>
+  <description>list usr delivery pickhop summary for multidrop</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* list usr delivery pickhop summary for multidrop
+ *
+ * Version history:
+ *  2021-04-16  Radina Ivanova - Initial version
+ */
+    publish data where wh_id = nvl(@wh_id, @@wh_id)
+    |
+    if (@wh_id = '')
+    {
+        get warehouse id
+    }
+    |
+    [select distinct usr_delivery.stoloc,
+                     dscmst.lngdsc
+       from usr_delivery
+       join mov_zone
+         on usr_delivery.dst_mov_zone_id = mov_zone.mov_zone_id
+       join dscmst
+         on dscmst.colnam = 'mov_zone_cod|wh_id'
+        and dscmst.colval = mov_zone.mov_zone_cod || '|' || @wh_id
+        and locale_id = nvl(@@locale_id, 'US_ENGLISH')
+      where uc_delivery_id != -1
+        and dst_mov_zone_id != -1
+        and @*]
+     
+]]>
+</local-syntax>
+</command>

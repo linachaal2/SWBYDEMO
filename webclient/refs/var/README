@@ -1,0 +1,15 @@
+
+For deploying the var REFS app into a REFS environment:
+
+* Shutdown the local REFS environment if it is already running.
+
+* Setup sample app in the var folder. 
+    servicesApp folder can be copied from LESDIR/samples/web/refs into the var folder as a starting point for your custom app.
+
+* From a command line where environment is bootstrapped, change directory into the servicesApp folder.
+
+* Run ant to deploy the app to the REFS folder (REFSDIR must be set).
+
+* Run REFS database migration to load the custom app data
+
+* Start the REFS environment.

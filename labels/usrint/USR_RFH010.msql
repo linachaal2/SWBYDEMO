@@ -1,0 +1,33 @@
+/* USR-RFH010.msql
+ * USR-RFH010 case label layout for production
+ * Version history:
+ *  2023-04-14  Marco Schouwenaar  Initial version.
+ *  2023-05-09  Marco Schouwenaar  Added reprint action
+ */
+[select les_mls_cat.mls_text fustcode_dsc from les_mls_cat where les_mls_cat.mls_id = 'Fustcode' and les_mls_cat.locale_id = @locale_id ] catch (-1403)
+|
+[select les_mls_cat.mls_text fustdet_dsc from les_mls_cat where les_mls_cat.mls_id = 'Fustdetails' and les_mls_cat.locale_id = @locale_id ] catch (-1403)
+|
+[select les_mls_cat.mls_text SKU_desc from les_mls_cat where les_mls_cat.mls_id = 'SKU' and les_mls_cat.locale_id = @locale_id ] catch (-1403)
+|
+[select les_mls_cat.mls_text lblSupplier from les_mls_cat where les_mls_cat.mls_id = 'lblSupplier' and les_mls_cat.locale_id = @locale_id ] catch (-1403)
+|
+[select les_mls_cat.mls_text content from les_mls_cat where les_mls_cat.mls_id = 'uc_case_content' and les_mls_cat.locale_id = @locale_id ] catch (-1403)
+|
+[select les_mls_cat.mls_text SKU_txt_dsc from les_mls_cat where les_mls_cat.mls_id = 'uc_desc' and les_mls_cat.locale_id = @locale_id ] catch (-1403)
+|
+[select prtnum sku, prtdsc.short_dsc sku_dsc, wkohdr.lotnum,substr(wkohdr.lotnum,length(wkohdr.lotnum)-1) lotnum2, adrmst.adrnam sup_name, wkohdr_note.nottxt cst_pkg, wkohdr.inv_attr_str2 , wkohdr.inv_attr_int2, @fustcode_dsc fustcode_dsc, @fustdet_dsc fustdet_dsc, @SKU_desc SKU_desc, @lblSupplier lblSupplier, @content content, @SKU_txt_dsc SKU_txt_dsc
+   from wkohdr
+   left
+   join prtdsc
+   on (prtdsc.colnam = 'prtnum|prt_client_id|wh_id_tmpl' and prtdsc.locale_id = @locale_id and prtdsc.colval = wkohdr.prtnum || '|' || wkohdr.prt_client_id || '|' || wkohdr.wh_id)
+   left
+   join supmst
+   on (supmst.supnum = wkohdr.uc_supnum and supmst.client_id = wkohdr.client_id)
+   left
+   join adrmst 
+   on (adrmst.adr_id = supmst.adr_id)
+   left
+   join wkohdr_note
+   on(wkohdr_note.wkonum = wkohdr.wkonum and wkohdr_note.wkorev = wkohdr.wkorev and wkohdr_note.wh_id = wkohdr.wh_id and wkohdr_note.client_id = wkohdr.client_id and wkohdr_note.uc_nottyp='CUSTOM_PACKAGE')
+   where wkohdr.wkonum=@wkonum ]

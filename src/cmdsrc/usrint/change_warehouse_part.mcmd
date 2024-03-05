@@ -1,0 +1,45 @@
+<command>
+  <name>change warehouse part</name>
+  <description>change warehouse part</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+validate stack variable not null
+ where name = 'wh_id'
+|
+/* Policy check */
+get cached policy
+ where polcod = 'USR-RECEIVING'
+   and polvar = 'WH-PART'
+   and polval = 'UPDATE'
+   and @+wh_id catch(-1403)
+|
+/* Check on policy rtnum1 value: 0=original command, 1 = do update with new transaction to avoid update lock when multiple operators are working, other =skip update */
+if (@? = 0 and @rtnum1 > 0 and @original != 1)
+{
+    if (@rtnum1 = 1)
+    {
+        execute server command with new transaction
+         where cmd = "change warehouse part where original=1"
+    }
+}
+else
+{
+    ^change warehouse part
+}
+]]>
+</local-syntax>
+  <argument name="prtnum" datatype="string" />
+  <argument name="prt_client_id" datatype="string" />
+  <argument name="wh_id" datatype="string" />
+  <documentation>
+<remarks></remarks>
+<exception value="eOK">Normal successful completion</exception>
+<exception value="eAPP_MISSING_ARG">Required argument was missing from specified parameters.</exception>
+<exception value="eDB_NO_ROWS_AFFECTED">Specified part not found</exception>
+<seealso cref="create warehouse part"></seealso>
+<seealso cref="list warehouse parts"></seealso>
+<seealso cref="remove warehouse part"></seealso>
+
+</documentation>
+</command>

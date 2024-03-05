@@ -1,0 +1,202 @@
+<trigger>
+  <name>update usr prcare</name>
+  <on-command>change work order</on-command>
+  <description>update usr prcare and auto allocation</description>
+  <fire-sequence>0</fire-sequence>
+  <local-syntax>
+<![CDATA[
+/* update usr production area work order
+ * trigger on change work order as the production line will be leading for the produciton area
+ * Version history:
+ *  2023-03-16  Marco Schouwenaar  Initial version.
+ *  2023-04-25  Marco Schouwenaar  Added auto allocation in case of connecting to a production line
+ */
+[select prcare
+   from prdlin_mst 
+ where prdlin_mst.prdlin = @prdlin
+    and prdlin_mst.wh_id = @wh_id] catch(-1403)
+|
+if (@?=0)
+{
+    [update wkohdr 
+        set prcare=@prcare
+      where wkohdr.wkonum = @wkonum
+        and wkohdr.wkorev = @wkorev
+        and wkohdr.wh_id = @wh_id 
+        and wkohdr.client_id = @client_id] catch(-1403)
+    |
+    hide stack variable where name='wkolin'
+    |
+    hide stack variable where name='inv_attr_str1'
+    |
+    hide stack variable where name='inv_attr_str2'
+    |
+    hide stack variable where name='inv_attr_str3'
+    |
+    hide stack variable where name='inv_attr_str4'
+    |
+    hide stack variable where name='inv_attr_str5'
+    |
+    hide stack variable where name='inv_attr_str6'
+    |
+    hide stack variable where name='inv_attr_str7'
+    |
+    hide stack variable where name='inv_attr_str8'
+    |
+    hide stack variable where name='inv_attr_str9'
+    |
+    hide stack variable where name='inv_attr_str10'
+    |
+    hide stack variable where name='inv_attr_str11'
+    |
+    hide stack variable where name='inv_attr_str12'
+    |
+    hide stack variable where name='inv_attr_str13'
+    |
+    hide stack variable where name='inv_attr_str14'
+    |
+    hide stack variable where name='inv_attr_str15'
+    |
+    hide stack variable where name='inv_attr_str16'
+    |
+    hide stack variable where name='inv_attr_str17'
+    |
+    hide stack variable where name='inv_attr_str18'
+    |
+    hide stack variable where name='inv_attr_int1'
+    |
+    hide stack variable where name='inv_attr_int2'
+    |
+    hide stack variable where name='inv_attr_int3'
+    |
+    hide stack variable where name='inv_attr_int4'
+    |
+    hide stack variable where name='inv_attr_int5'
+    |
+    hide stack variable where name='inv_attr_flt1'
+    |
+    hide stack variable where name='inv_attr_flt2'
+    |
+    hide stack variable where name='inv_attr_flt3'
+    |
+    hide stack variable where name='inv_attr_dte1'
+    |
+    hide stack variable where name='inv_attr_dte2'
+    |
+    get destination for work order detail 
+      where wh_id=@wh_id 
+        and wkonum=@wkonum 
+        and wkorev=@wkorev 
+        and client_id=@client_id >> dst_results
+    |
+    convert usr column results to string 
+      where colnam='dstloc' 
+        and separator = ',' 
+        and resultset = @dst_results
+        and distinct = 1
+    |
+    list work orders and details for allocation 
+      where wh_id=@wh_id
+        and wkonum=@wkonum
+        and wkorev=@wkorev
+        and client_id=@client_id
+        and unasg_wko = 0 >> detail_results
+    |
+    if(rowcount(@detail_results)>0)
+    {
+        convert column results to string 
+          where colnam='wkonum' 
+            and separator = '|' 
+            and resultset = @detail_results          
+        |
+        publish data 
+          where wkonum_list=@result_string
+        |
+        convert column results to string 
+          where colnam='wkorev' 
+            and separator = '|' 
+            and resultset = @detail_results
+        |
+        publish data 
+          where wkorev_list=@result_string
+        |
+        convert column results to string 
+          where colnam='client_id' 
+            and separator = '|' 
+            and resultset = @detail_results          
+        |
+        publish data 
+          where client_id_list=@result_string
+        |
+        convert column results to string 
+          where colnam='wkolin' 
+            and separator = '|' 
+            and resultset = @detail_results
+        |        
+        publish data 
+          where wkolin_list=@result_string         
+        |
+        list uoms for immediate release 
+          where wrkmod='WRKORD' 
+            and wh_id=@wh_id >> uom_results
+        |
+        convert column results to string 
+          where colnam='uomcod' 
+            and separator=',' 
+            and resultset=@uom_results
+        |
+        publish data 
+          where imr_uom_list=@result_string
+        |
+        [select * from codmst where codmst.colnam='lodlvl'] catch(-1403) >> pcksts_uom_results
+        |
+        convert column results to string 
+          where colnam='codval' 
+            and separator=',' 
+            and resultset=@pcksts_uom_results
+        |
+        publish data 
+          where pcksts_uom=@result_string 
+        |  
+        allocate work order 
+          where wkonum_list = @wkonum_list
+            and client_id_list = @client_id_list
+            and wkorev_list = @wkorev_list
+            and wkolin_list = @wkolin_list
+            and wh_id = @wh_id 
+            and pcksts_uom = @pcksts_uom
+            and imr_uom_list = @imr_uom_list 
+            and def_stgloc_list = @def_stgloc_list 
+            and start_alc_flg_list = '0' 
+            and bulk_pck_flg_list = '0' 
+            and rrlflg_list = '0' 
+            and batcod = null
+            and appqty = null
+            and numppk = null 
+            and schbat = null 
+            and comflg = 1 catch(@?)
+        |
+        if (@?=0)
+        {
+            [update wkohdr 
+                set alcdte=sysdate
+              where wkohdr.wkonum = @wkonum
+                and wkohdr.wkorev = @wkorev
+                and wkohdr.wh_id = @wh_id 
+                and wkohdr.client_id = @client_id] catch(-1403)
+        }
+        else
+        {
+            [update wkohdr 
+                set alcdte=null
+              where wkohdr.wkonum = @wkonum
+                and wkohdr.wkorev = @wkorev
+                and wkohdr.wh_id = @wh_id 
+                and wkohdr.client_id = @client_id] catch(-1403)
+        }
+    }
+}
+]]>
+</local-syntax>
+  <enable>yes</enable>
+</trigger>

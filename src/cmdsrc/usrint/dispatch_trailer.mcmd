@@ -1,0 +1,211 @@
+<command>
+  <name>dispatch trailer</name>
+  <description>dispatch trailer</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* Override due to deferred execution process order line ship qty for stop - this will caused ord_line.shpqty will be doubled */
+
+[select trlr_id
+       from trlr
+      where trlr_id = @trlr_id
+        and trlr_cod = /*#nobind*/ 'SHIP' /*#bind*/] catch(-1403)
+    |
+    if (@? = 0)
+    {
+        publish data
+            where file_name = 'ShipmentIssuesAtDispatch_' || @trlr_id || '_' || sysdate || '.log'
+              and path = '$LESDIR/log'
+        |
+        {
+            /* Find shipment lines where the shpqty does not match actual iventory shipped */
+            [select sl.ship_line_id,
+                    sl.ship_id,
+                    sl.shpqty,
+                    sl.stgqty,
+                    sum(inv.untqty) as untqty,
+                    /*#nobind*/
+                    abs((sum(inv.untqty) - (sl.shpqty))) as update_qty,
+                    /*#bind*/
+                    sl.ordnum,
+                    sl.client_id,
+                    sl.ordlin,
+                    sl.ordsln,
+                    sl.moddte
+               from all_inventory_view inv
+                    join shipment_line sl
+                      on sl.ship_line_id = inv.ship_line_id
+                    join shipment sh
+                      on sh.ship_id = sl.ship_id
+                    join stop st
+                      on st.stop_id = sh.stop_id
+                    join car_move cm
+                      on cm.car_move_id = st.car_move_id
+                    join trlr tr
+                      on tr.trlr_id = cm.trlr_id
+                    join locmst lm
+                      on lm.stoloc = inv.stoloc
+                     and lm.wh_id = inv.wh_id
+                    join loc_typ lt
+                      on lt.loc_typ_id = lm.loc_typ_id
+              where /*#nobind*/ (inv.stoloc like 'TRL%' or lm.arecod = 'SHIP' or lt.shpflg = 1) /*#bind*/
+                and tr.trlr_stat = /*#nobind*/ 'D' /*#bind*/
+                and tr.trlr_cod = /*#nobind*/ 'SHIP' /*#bind*/
+                and tr.trlr_id = @trlr_id
+              group by sl.ship_line_id,
+                       sl.ship_id,
+                       sl.ordnum,
+                       sl.client_id,
+                       sl.ordlin,
+                       sl.ordsln,
+                       sl.shpqty,
+                       sl.stgqty,
+                       sl.moddte
+             having (sl.shpqty) != sum(inv.untqty)] catch(-1403)
+            |
+            if (@update_qty > 0)
+            {
+                sprintf data
+                    where format = 'Bad Shipped Quantity - Ship Line ID: %s, Ship ID: %s, Shipped Qty: %d, Staged Qty: %d, Inventory Qty: %d, Update Qty: %d, Order Number: %s, Order Line: %d'
+                      and args = 'ship_line_id,ship_id,shpqty,stgqty,untqty,update_qty,ordnum,ordlin'
+                      and output_column = 'outputvalue'
+                |
+                /*Update ship qty in shipment line and order line table based on unit qty from inventory history table */
+                [update shipment_line
+                    set shpqty = @untqty
+                  where ship_line_id = @ship_line_id
+                    and ship_id = @ship_id
+                    and ordnum = @ordnum
+                    and ordlin = @ordlin] catch(-1403)
+                /*| Removed due to deferred execution process order line ship qty for stop
+                [update ord_line
+                    set shpqty = shpqty + @untqty
+                  where ordnum = @ordnum
+                    and ordlin = @ordlin
+                    and ordsln = @ordsln
+                    and wh_id = @wh_id
+                    and client_id = @client_id] catch(-1403)*/
+                |
+                write output file
+                    where filename = @file_name
+                      and path = @path
+                      and mode = 'a'
+                      and newline = 'Y'
+                      and data = @outputvalue
+            }
+        } >> tmp
+        |
+        {
+            /* Check for shipment lines where the line status is not correct */
+            [select sl.ship_line_id,
+                    sl.ship_id,
+                    sl.shpqty,
+                    sum(inv.untqty) as untqty,
+                    sl.ordnum,
+                    sl.ordlin,
+                    sl.linsts
+               from all_inventory_view inv
+                    join shipment_line sl
+                      on sl.ship_line_id = inv.ship_line_id
+                    join shipment sh
+                      on sh.ship_id = sl.ship_id
+                    join stop st
+                      on st.stop_id = sh.stop_id
+                    join car_move cm
+                      on cm.car_move_id = st.car_move_id
+                    join trlr tr
+                      on tr.trlr_id = cm.trlr_id
+                    join locmst lm
+                      on lm.stoloc = inv.stoloc
+                     and lm.wh_id = inv.wh_id
+                    join loc_typ lt
+                      on lt.loc_typ_id = lm.loc_typ_id
+              where /*#nobind*/ (inv.stoloc like 'TRL%' or lm.arecod = 'SHIP' or lt.shpflg = 1) /*#bind*/
+                and tr.trlr_stat = /*#nobind*/ 'D' /*#bind*/
+                and tr.trlr_cod = /*#nobind*/ 'SHIP' /*#bind*/
+
+                and tr.trlr_id = @trlr_id
+              group by sl.ship_line_id,
+                       sl.ship_id,
+                       sl.ordnum,
+                       sl.ordlin,
+                       sl.shpqty,
+                       sl.linsts
+             having (sl.shpqty) = sum(inv.untqty)
+                and (sl.linsts) != /*#nobind*/ 'C' /*#bind*/] catch(-1403)
+            |
+            if (@? = 0)
+            {
+                sprintf data
+                    where format = 'Bad Shipment Line Status - Ship Line ID: %s, Ship ID: %s, Shipped Qty: %d, Inventory Qty: %d, Order Number: %s, Order Line: %d, Line Status: %s'
+                      and args = 'ship_line_id,ship_id,shpqty,untqty,ordnum,ordlin,linsts'
+                      and output_column = 'outputvalue'
+                |
+                /* Update shipment line status which has correct shpqty*/
+                [update shipment_line
+                    set linsts = /*#nobind*/ 'C' /*#bind*/
+                  where ship_line_id = @ship_line_id
+                    and ship_id = @ship_id
+                    and ordnum = @ordnum
+                    and ordlin = @ordlin] catch(-1403)
+                |
+                write output file
+                    where filename = @file_name
+                      and path = @path
+                      and mode = 'a'
+                      and newline = 'Y'
+                      and data = @outputvalue
+            }
+        } >> tmp
+        |
+        {
+            /* Check for shipments where the status is not correct */
+            [select sh.ship_id,
+                    sh.shpsts
+               from shipment_line sl
+                    join shipment sh
+                      on sh.ship_id = sl.ship_id
+                    join stop st
+                      on st.stop_id = sh.stop_id
+                    join car_move cm
+                      on cm.car_move_id = st.car_move_id
+                    join trlr tr
+                      on tr.trlr_id = cm.trlr_id
+              where tr.trlr_id = @trlr_id
+                and sl.linsts = /*#nobind*/ 'C' /*#bind*/
+                and sh.shpsts != /*#nobind*/ 'C' /*#bind*/
+              group by sh.ship_id,
+                       sh.shpsts] catch(-1403)
+            |
+            if (@? = 0)
+            {
+                sprintf data
+                    where format = 'Bad Shipment Status - Ship ID: %s, Ship Status: %s'
+                      and args = 'ship_id,shpsts'
+                      and output_column = 'outputvalue'
+                |
+                /* Update shipment status */
+                [update shipment
+                    set shpsts = /*#nobind*/ 'C' /*#bind*/
+                  where ship_id = @ship_id] catch(-1403)
+                |
+                write output file
+                    where filename = @file_name
+                      and path = @path
+                      and mode = 'a'
+                      and newline = 'Y'
+                      and data = @outputvalue
+            }
+        }
+        |
+        publish data
+            where trlr_id = @trlr_id
+    }
+    else
+    {
+        publish data
+            where trlr_id = @trlr_id
+    }
+]]>
+</local-syntax>
+</command>

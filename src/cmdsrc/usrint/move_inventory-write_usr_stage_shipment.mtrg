@@ -1,0 +1,145 @@
+<trigger>
+<name>write_usr_stage_shipment</name>
+<on-command>move inventory</on-command>
+<fire-sequence>9450</fire-sequence>
+
+<local-syntax>
+<![CDATA[
+	/* This trigger is not necessary during auto ASN receiving process.*/
+	if(@allowAutoRcv is null)
+	{
+		/* If we're moving to a truck or a staging movement zone, see if we can autostage */
+		[select loc_typ.shpflg, loc_typ.stgflg, loc_typ.prod_flg,
+				locmst.mov_zone_id dst_mov_zone_id
+		   from locmst,
+				loc_typ
+		  where loc_typ.loc_typ_id = locmst.loc_typ_id
+			and locmst.stoloc = @dstloc
+			and locmst.wh_id  = @wh_id]
+		|
+		if (@shpflg = 1 or @stgflg = 1 or @prod_flg = 1) 
+		{
+			get cached policy
+			  where polcod = 'SHIPPING'
+				and polvar = 'MISCELLANEOUS'
+				and polval = 'ALLOW-AUTO-STAGING'
+				and colnam = 'rtnum1'
+				and colval = @dst_mov_zone_id catch (-1403)
+			|
+			if (@? = 0)
+			{
+				publish data
+					where autstg = 1 
+			}
+			else
+			{
+				publish data
+					where autstg = 0
+			} 
+			|
+			/* invdtl_pck records need to be removed even on
+			 * cross docking the picks to a production lane.
+			 */
+			/* Check if the autstg policy is set or not. If it is set
+			 * then we will stage the shipment automatically,
+			 * other wise we need to do it manually from shpdckopr.
+			 */
+
+			if (@autstg = 1)
+			{
+            create deferred execution
+              where exec_typ = 'USR1'
+              and deferred_cmd = 'write stage shipment where ' ||
+              ' autflg = ''' || @autstg || '''' ||
+              ' and wh_id = ''' || @wh_id || '''' ||
+              ' and srclod = ''' || @srclod || '''' ||
+              ' and dst_mov_zone_id = ''' || @dst_mov_zone_id || ''''||
+              ' and devcod = ''' || nvl(@devcod,@@devcod) || ''''||
+              ' and tostol = ''' || @dstloc || ''''||
+			  ' and usr_id = ''' || nvl(@usr_id,@@usr_id)|| ''''
+            }
+			/*
+			 * If bola number is out of range,
+			 * not allow load to trailer
+			 */
+			else if (@autstg != 1 and @shpflg = 1)
+			{
+				[select shipment.ship_id
+				   from invsub,
+						invdtl,
+						shipment_line,
+						shipment
+				  where invsub.subnum = invdtl.subnum
+					and shipment_line.ship_line_id = invdtl.ship_line_id
+					and shipment.bola_num is null
+					and shipment_line.ship_id = shipment.ship_id
+					and invsub.lodnum = nvl(@dstlod,@lodnum)
+					and rownum < 2
+				]catch(-1403)
+				|
+				if (@? = 0)
+				{
+				  validate bola number configuration for shipment
+					 where ship_id= @ship_id
+				}
+			}
+			|
+			/* if inventory has been moved to staging lane, we should remove
+			 * associated invdtl_pck records.
+			 */
+			{
+				[select invdtl_pck.dtlnum invdtl_pck_dtlnum
+				   from invdtl_pck
+				   join pckwrk_view
+					 on invdtl_pck.wrkref = pckwrk_view.wrkref
+				   join invdtl
+					 on invdtl_pck.dtlnum = invdtl.dtlnum
+				   join invsub
+					 on invdtl.subnum = invsub.subnum
+				  where pckwrk_view.appqty <> 0
+					and pckwrk_view.dst_mov_zone_id = @dst_mov_zone_id
+					and (pckwrk_view.dstloc is null or pckwrk_view.dstloc = @dstloc)
+					and invsub.lodnum = nvl(@dstlod,@lodnum)] catch(@?)
+				|
+				if(@? = 0)
+				{
+					[delete from invdtl_pck
+					  where dtlnum = @invdtl_pck_dtlnum] catch(@?)
+				}
+			}
+		}
+	}
+
+]]>
+</local-syntax>
+
+<documentation>
+<remarks>
+<![CDATA[
+  <p>
+  This trigger is used to allow shipments to automatically be staged.
+  </p>
+  <p>
+  This trigger will only fire if inventory is being deposited to a staging
+  lane, or fluid loaded onto a trailer.
+  If either of this is occurring, then the system will determine if
+  the shipment may be staged via the "stage shipment" command.
+  In order to support auto-staging, the zone that the inventory is being
+  deposited to must be defined in the policy
+  SHIPPING/MISCELLANEOUS/ALLOW-AUTO-STAGING
+  </p>
+
+  <p>
+  Note, we are going to catch any errors
+  that occur when trying to stage the shipment.  Since staging a shipment
+  is outside of actually doing the pick, we want to make sure the user
+  can deposit the inventory, even though it won't be able to stage.
+  </p>
+]]>
+</remarks>
+
+<seealso cref="move inventory"></seealso>
+<seealso cref="write stage shipment"></seealso>
+
+</documentation>
+</trigger>

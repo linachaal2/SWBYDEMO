@@ -1,0 +1,80 @@
+<command>
+  <name>list columns for inventory consolidation criteria</name>
+  <description>list columns for inventory consolidation criteria</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* list columns for inventory consolidation criteria
+ * User version which does not exclude subnum from the available consolidation criteria list.
+ * Version history:
+ *  2018-01-15  Salem Hamze  Initial version.
+ */
+/* Add all the columns which user can configure for consolidation
+ * to the result set (columns except DTLNUM and SUBNUM)
+ */
+publish data
+ where cols_always_to_exclude = ", dtlnum, last_upd_dt, last_upd_user_id, u_version, ins_dt, ins_user_id, dlv_dte, dscrp_reacod"
+|
+/* Check if CUSTOMS addon is installed.
+ */
+list policies
+ where polcod = 'SYSTEM-INFORMATION'
+   and polvar = 'MISCELLANEOUS'
+   and polval = 'ADDON_ID'
+   and rtstr1 = 'CUSTOMS'
+   and wh_id = @wh_id catch(-1403)
+|
+if (@? = 0)
+{
+    publish data
+     where cstms_cols_to_exclude = ""
+}
+else
+{
+    publish data
+     where cstms_cols_to_exclude = ", cstms_cnsgnmnt_id, cstms_cmmdty_cod, cstms_crncy, cstms_cst, cstms_typ, cstms_vat_cod, rttn_id, cstms_bond_flg, dty_stmp_flg, dflt_orgcod,dty_stmp_trk_flg"
+}
+|
+/* Check if 3PL is installed.
+ */
+list policies
+ where polcod = 'THIRD-PARTY-LOGISTICS'
+   and polvar = 'INSTALLED'
+   and polval = 'INSTALLED'
+   and wh_id = '----'
+|
+if (@rtnum1 = 0)
+{
+    publish data
+     where 3pl_cols_to_exclude = ", prt_client_id"
+}
+else
+{
+    publish data
+     where 3pl_cols_to_exclude = ""
+}
+|
+/* Get the UDIA columns which are not enabled in the system */
+get user defined inventory attributes variable configuration
+ where enabled = 0 >> res
+|
+[[
+        import com.redprairie.moca.*;
+        import com.redprairie.moca.util.*;
+        udia_cols_to_exclude = "";
+        while(res.next())
+        {
+            udia_cols_to_exclude += "," + res.getValue("var_nam") ;
+        }
+        return udia_cols_to_exclude;
+    ]]
+|
+/* Get the columns from invdtl */
+list table columns for lookup
+ where table_names = 'invdtl'
+   and show_dtls = nvl(@show_dtls, 1)
+   and hide_tables = 1
+   and excluded_fields = @cols_always_to_exclude || @cstms_cols_to_exclude || @3pl_cols_to_exclude || @udia_cols_to_exclude
+]]>
+</local-syntax>
+</command>

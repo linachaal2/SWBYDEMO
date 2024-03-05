@@ -1,0 +1,343 @@
+<command>
+  <name>check usr inventory mix</name>
+  <description>check usr inventory mix</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* check usr inventory mix
+ * Checks inventory mixing rules for the indicated level (e.g. train, lpn).
+ * Version history:
+ *  2020-01-07  Salem Hamze   Initial version.
+ */
+/* The main idea behind the command is that in all mixing rules you would compare certain fields for a (list of) source load and a (list of) destination load.
+ * For lpn level the source and destination load(s) would be the same, in the case where you are merging multiple loads you would just pass a list.
+ * For train level the source load(s) are the loads you will move to a location and the destination load(s) is the open load on the location.
+ * The command only returns the record for the lowest diff_typ mixing rule. 
+ * E.g. If there is a required(diff_typ=1) and an optional(diff_typ=2) mismatch we only want to return the required mismatch.
+ * E.g. If there is a NO required(diff_typ=1) but there is an optional(diff_typ=2) mismatch we will return the optional mismatch.
+ */
+get warehouse id
+|
+/* We support either lodnum or lodnum_list, when only lodnum is passed we just set lodnum_list to it. */
+publish data
+ where srclod_list = nvl(@srclod_list, @srclod)
+|
+publish data
+ where dstlod_list = nvl(@dstlod_list, @dstlod)
+|
+publish data
+ where dstloc = nvl(@dstloc, @stoloc)
+|
+/* Check/set everything for comparing on train level. */
+if (@invmix_rule = 'train')
+{
+    validate stack variable not null
+     where name = 'srclod_list'
+    |
+    validate stack variable not null
+     where name = 'dstloc'
+    |
+    validate stack variable not null
+     where name = 'wh_id'
+    |
+    publish data
+     where polcod = 'USR-INVENTORY'
+       and polvar = 'TRAIN-INVMIX-RULE'
+}
+/* Check/set everything for comparing on lpn level. */
+else if (@invmix_rule = 'lpn')
+{
+    validate stack variable not null
+     where name = 'srclod_list'
+    |
+    validate stack variable not null
+     where name = 'dstlod_list'
+    |
+    validate stack variable not null
+     where name = 'dstloc'
+    |
+    publish data
+     where polcod = 'USR-INVENTORY'
+       and polvar = 'LPN-INVMIX-RULE'
+}
+/* Give an error if no valid invmix_rule level is given. */
+else
+{
+    set return status
+     where status = 999
+       and message = 'invmix_rule not valid, should be train or lpn'
+}
+|
+{
+    {
+        /* Get the movement zone because the mixing rules can be configured per movement zone. */
+        [select mov_zone.mov_zone_cod
+           from locmst
+          inner
+           join mov_zone
+             on mov_zone.mov_zone_id = locmst.mov_zone_id
+          where locmst.wh_id = @wh_id
+            and locmst.stoloc = @dstloc] catch(-1403)
+        |
+        /* Get the mixing columns from the policies. */
+        [select rtstr1,
+                rtstr2,
+                rtnum1,
+                rtnum2,
+                srtseq
+           from poldat_view
+          where wh_id = @wh_id
+            and polcod = @polcod
+            and polvar = @polvar
+            and polval = @mov_zone_cod
+            and rtnum1 = 1] catch(-1403)
+        |
+        if (@? = 0)
+        {
+            /* For each mixing rule column create some variables which we will use to build the dynamic query. */
+            publish data
+             where alias_colnam = 'col_' || @srtseq
+               and alias_colnam_diff_flg = @alias_colnam || '_diff_flg'
+               and alias_colnam_diff_typ = @alias_colnam || '_diff_typ'
+               and alias_colnam_diff_mls_id = @alias_colnam || '_diff_mls_id'
+               and select_expr = @rtstr2 || ' as ' || @alias_colnam
+               and where_expr = 'srclod.' || @alias_colnam || ' <> dstlod.' || @alias_colnam
+               and select_diff_flg_expr = 'max(case when ' || @where_expr || ' then 1 else 0 end) as ' || @alias_colnam_diff_flg
+               and select_diff_typ_expr = '''' || decode(@rtnum2, 2, 2, 1) || '''' || ' as ' || @alias_colnam_diff_typ
+               and select_diff_mls_id_expr = '''' || @rtstr1 || '''' || ' as ' || @alias_colnam_diff_mls_id
+               and select_diff_expr = @select_diff_flg_expr || ',' || @select_diff_typ_expr || ',' || @select_diff_mls_id_expr
+        }
+    } >> res_mixing_cols
+    |
+    if (rowcount(@res_mixing_cols) > 0)
+    {
+        /* We have a result set with a row for each of the mixing rules columns, we need to concatenate those into a string with all the columns so we can use it in sql. */
+        convert usr column results to string
+         where resultset = @res_mixing_cols
+           and colnam = 'select_expr'
+           and distinct = 1
+           and separator = ','
+        |
+        publish data
+         where select_string = @result_string
+        |
+        convert usr column results to string
+         where resultset = @res_mixing_cols
+           and colnam = 'select_diff_expr'
+           and distinct = 1
+           and separator = ','
+        |
+        publish data
+         where select_diff_string = @result_string
+        |
+        convert usr column results to string
+         where resultset = @res_mixing_cols
+           and colnam = 'where_expr'
+           and distinct = 1
+           and separator = ' or '
+        |
+        publish data
+         where where_string = '(' || @result_string || ')'
+        |
+        /* Publish a flag which indicates we found mixing rules and publish the concatenated sql column strings. */
+        publish data
+         where res_mixing_cols = @res_mixing_cols
+           and has_invmix_rules_flg = 1
+           and select_string = @select_string
+           and select_diff_string = @select_diff_string
+           and where_string = @where_string
+    }
+}
+|
+/* If there are mixing rules then we validate if the inventory is allowed to be mixed. */
+if (@has_invmix_rules_flg = 1)
+{
+    if (@invmix_rule = 'train')
+    {
+        /* Get last LPN of last open train in location */
+        [select max(invlod.lodnum) as train_lodnum
+           from invlod
+          where invlod.wh_id = @wh_id
+            and invlod.stoloc = @dstloc
+            and invlod.uc_train_id is not null
+            and invlod.uc_train_loc_seq = (select max(uc_train_loc_seq)
+                                             from invlod
+                                            where wh_id = @wh_id
+                                              and stoloc = @dstloc
+                                              and uc_train_id is not null
+                                              and (uc_train_cls_flg = 0 or uc_train_cls_flg is null))] catch(-1403)
+        |
+        /* For trains we check the source load(s) given against the last load of the last open LPN on the location. */
+        publish data
+         where srclod_list = @srclod_list
+           and dstlod_list = @train_lodnum
+    }
+    else if (@invmix_rule = 'lpn')
+    {
+        /* For LPNs we check the source load(s) given against the source load(s) given. */
+        publish data
+         where srclod_list = @srclod_list
+           and dstlod_list = @dstlod_list
+    }
+    |
+    /* Prepare the load lists for use in the query. */
+    {
+        convert list
+         where string = @srclod_list
+           and type = 'S'
+           and separator = ',' catch(@?)
+        |
+        if (@? = 0)
+        {
+            publish data
+             where srclod_list = @retstr
+        }
+        |
+        convert list
+         where string = @dstlod_list
+           and type = 'S'
+           and separator = ',' catch(@?)
+        |
+        if (@? = 0)
+        {
+            publish data
+             where dstlod_list = @retstr
+        }
+        |
+        publish data
+         where srclod_list = nvl(@srclod_list, 'null')
+           and dstlod_list = nvl(@dstlod_list, 'null')
+    }
+    |
+    /* Execute the query to check if any inventory breaks the mixing rules. */
+    [with mix_invlod as (select invlod.lodnum,
+                                @select_string:raw
+                           from invlod
+                          inner
+                           join invsub
+                             on invsub.lodnum = invlod.lodnum
+                          inner
+                           join invdtl
+                             on invdtl.subnum = invsub.subnum
+                          inner
+                           join prtmst
+                             on prtmst.prtnum = invdtl.prtnum
+                            and prtmst.wh_id_tmpl = invlod.wh_id
+                            and prtmst.prt_client_id = invdtl.prt_client_id
+                          inner
+                           join prtfam
+                             on prtfam.prtfam = prtmst.prtfam
+                           left outer
+                           join rcvlin
+                             on rcvlin.rcvkey = invdtl.rcvkey
+                           left outer
+                           join rcvinv
+                             on rcvinv.trknum = rcvlin.trknum
+                            and rcvinv.supnum = rcvlin.supnum
+                            and rcvinv.invnum = rcvlin.invnum
+                            and rcvinv.wh_id = rcvlin.wh_id
+                            and rcvinv.client_id = rcvlin.client_id)
+     select sign(count(*)) as diff_flg,
+            @select_diff_string:raw
+       from mix_invlod srclod
+      cross
+       join mix_invlod dstlod
+      where srclod.lodnum in (@srclod_list:raw)
+        and dstlod.lodnum in (@dstlod_list:raw)
+        and @where_string:raw] >> res_mix_diff
+    |
+    publish data combination
+     where res = @res_mix_diff
+}
+|
+/* If there is a difference process the results. */
+if (@diff_flg = 1)
+{
+    /* The query returns indicates per column if it breaks the mixing rule, we want it per diff_typ (1=required or 2=optional). */
+    publish data
+     where session_variable_prefix = 'col_total_diff_'
+    |
+    /* Clear session variable for when we use this command multiple times in one session. The string 1,2 in convert list are the possible diff_types. */
+    {
+        convert list
+         where string = '1,2'
+           and separator = ','
+           and type = 'L'
+        |
+        save session variable
+         where name = @session_variable_prefix || @retstr
+           and value = ''
+    }
+    |
+    {
+        /* Go through the mixing rules columns. */
+        publish data combination
+         where res = @res_mixing_cols
+        |
+        /* For each column check publish the results. */
+        execute server command
+         where cmd = 'publish data where col_diff_flg=@' || @alias_colnam_diff_flg || ' and col_diff_typ=@' || @alias_colnam_diff_typ || ' and col_diff_mls_id=@' || @alias_colnam_diff_mls_id
+        |
+        /* If the inventory broke the mixing rule then add it to the list for that diff_typ */
+        if (@col_diff_flg = 1)
+        {
+            get mls text
+             where locale_id = nvl(@@locale_id, 'US_ENGLISH')
+               and mls_id = @col_diff_mls_id catch(-1403)
+            |
+            publish data
+             where session_variable_name = @session_variable_prefix || @col_diff_typ
+            |
+            get session variable
+             where name = @session_variable_name catch(-1403, 510)
+            |
+            save session variable
+             where name = @session_variable_name
+               and value = @value || iif(@value = '', '', ',') || nvl(@mls_text, @mls_id)
+        };
+        noop
+    }
+    |
+    /* Now we have a list of for each diff_typ which had a mixing rule mismatch, we will only return the record for the lowest diff_typ mixing rule. 
+     * E.g. If there is a required(diff_typ=1) and an optional(diff_typ=2) mismatch we only want to return the required mismatch.
+     * E.g. If there is a NO required(diff_typ=1) but there is an optional(diff_typ=2) mismatch we will return the optional mismatch.
+     */
+    {
+        {
+            list session variables
+            |
+            if (@name like @session_variable_prefix || '%' and @value != '')
+            {
+                filter rows
+                 where moca_filter_level = 2
+            }
+        } >> res_session_variables
+        |
+        sort result set
+         where result_set = @res_session_variables
+           and sort_list = 'name asc' catch(@?) >> res_session_variables
+        |
+        publish top rows
+         where resultset = @res_session_variables
+           and rows = 1
+    }
+    |
+    if (@name != null)
+    {
+        publish data
+         where diff_flg = 1
+           and diff_typ = substr(@name, length(@session_variable_prefix) + 1)
+           and diff_list = @value
+    }
+}
+/* Publish the results and if there was no different return diff_flg=0 and diff_typ=0. */
+|
+publish data
+ where diff_flg = nvl(@diff_flg, 0)
+   and diff_typ = nvl(@diff_typ, 0)
+   and diff_list = @diff_list
+]]>
+</local-syntax>
+  <argument name="invmix_rule" required="yes" datatype="string">Either train or lpn.</argument>
+  <argument name="srclod_list" alias="srclod" required="yes" datatype="string" />
+</command>

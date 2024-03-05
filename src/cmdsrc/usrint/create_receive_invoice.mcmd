@@ -1,0 +1,53 @@
+<command>
+  <name>create receive invoice</name>
+  <description>create receive invoice wrapper</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* Wrapper on original create receive invoice command.
+ * get the actual supnum from the uc_supnum field on the work order header
+ *
+ * Version history:
+ *  2023-03-30 Radina Ivanova    Initial version
+ *  2023-05-08 Marco Schouwenaar Skip return supplier
+ */
+if (@supnum!='RET')
+{
+[select uc_supnum supnum_wko,
+        1 wko_flg
+   from wkohdr
+  where wkonum = @trknum
+    and wkorev = @invnum
+    and client_id = @client_id
+    and wh_id = @wh_id] catch(-1403)
+}
+|
+publish data where supnum=nvl(@supnum_wko,@supnum)
+|
+^create receive invoice catch(-1) >> res
+|
+if (@? = 0)
+{
+    publish data combination where res = @res
+}
+else
+{
+    if (@wko_flg = 1)
+    {
+        [select *
+           from rcvinv
+          where @+trknum
+            and @+invnum
+            and @+supnum
+            and @+client_id
+            and @+wh_id]
+    }
+    else
+    {
+        set return status where status = -1
+    }
+}
+
+]]>
+</local-syntax>
+</command>

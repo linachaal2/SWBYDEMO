@@ -1,0 +1,25 @@
+[select wh_id
+   from wh
+  where wh_id = '1'] catch(-1403)
+|
+if (@? = 0)
+{
+[delete from dscmst where colnam = 'wrkzon|wh_id' and colval = 'WZ-2-H245|1'] catch(-1403);
+[delete from pcklst_break_on_cri  where pcklst_rule_id in ('39')] catch(-1403);
+[delete from pcklst_select_cri where pcklst_rule_id in ('41','42','43','44')] catch(-1403);
+[delete from mov_path where dst_mov_zone_id = 10018] catch(-1403);
+[delete from dscmst where colnam = 'dst_mov_zone_id|lodlvl|src_mov_zone_id' and colval like '10018%'] catch(-1403);
+[delete from poldat where polcod = 'USR-INTEGRATOR' and polvar = 'TRANSACTIONS' and polval = 'SEND_STATUS' and rtnum2=10018] catch(-1403);
+[delete from wh_serv_exitpnt_mov_zone where serv_id = 'USR-SEND-STATUS' and dst_mov_zone_id=10018] catch(-1403);
+[delete from poldat where polcod = 'SHIPPING' and polvar = 'MISCELLANEOUS' and polval = 'ALLOW-AUTO-STAGING' and rtnum1=10018] catch(-1403);
+[delete from poldat where polcod = 'MOVE-INVENTORY' and polvar = 'MOVE-RESTRICTIONS' and rtstr1 like '10018%'] catch(-1403);
+[delete from usr_delivery where 1=1] catch(-1403);
+[delete from usr_delivery_gln where 1=1] catch(-1403);
+[delete from usr_gln_location where 1=1] catch(-1403);
+[delete from locmst where stoloc = 'H135-006-01']  catch(-1403);
+[delete from dscmst where colnam = 'mov_zone_cod|wh_id' and colval = 'H135-M-04-U|1']  catch(-1403);
+}
+;
+commit;
+/
+exit

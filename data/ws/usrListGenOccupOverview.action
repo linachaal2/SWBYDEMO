@@ -1,0 +1,16 @@
+<action>
+  <id>usrListGenOccupOverview</id>
+  <name>usrListGenOccupOverview</name>
+  <description>List General Occupation Overview</description>
+  <type>LIST</type>
+  <ws>
+     <method>GET</method>
+	 <href>/usrListGenOccupOverview</href>
+  </ws>
+  <impl>
+     <command>list usr general occupation overview</command>
+  </impl>
+  <auth>
+     <opt>optOpen</opt>
+  </auth>
+</action>

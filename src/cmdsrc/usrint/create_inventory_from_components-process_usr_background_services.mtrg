@@ -1,0 +1,21 @@
+<trigger>
+  <name>process usr background services</name>
+  <on-command>create inventory from components</on-command>
+  <description>process usr background services</description>
+  <fire-sequence>9000</fire-sequence>
+  <local-syntax>
+<![CDATA[
+/* process usr background services
+ * Processes the background services for the exit point "Work Order Process"
+ * Background service triggered as the exit point "Work Order Process"
+ *
+ * Version history:
+ *  2023-07-12  Radina Ivanova  Initial version.
+ */
+process usr background services
+ where exitpnt = 'WKOPROCESS'
+   and wh_id = @wh_id
+]]>
+</local-syntax>
+  <enable>yes</enable>
+</trigger>

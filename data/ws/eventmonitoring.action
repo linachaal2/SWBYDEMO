@@ -1,0 +1,19 @@
+<action>
+  <id>eventmonitoring</id>
+  <name>eventmonitoring</name>
+  <description>monitor event queue</description>
+  <type>LIST</type>
+  <ws>
+     <method>GET</method>
+	 <href>/eventmonitoring</href>
+  </ws>
+  <impl>
+     <command>get usr event status</command>
+  	 <!--arguments>
+		<argument name ="wh_id" type="string" location="body" required="false" description="Vestiging Code"/>
+	 </arguments-->
+  </impl>
+  <auth>
+     <opt>optOpen</opt>
+  </auth>
+</action>

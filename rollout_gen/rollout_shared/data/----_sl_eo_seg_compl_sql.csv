@@ -1,0 +1,3622 @@
+eo_id,eo_ver,eo_seg_id,retr_mthd_id,retr_mthd_impl_genid,compl_sql,compl_sql_len,ins_dt,last_upd_dt,ins_user_id,last_upd_user_id
+"ADDR_CHANGE","2009.2","ADDR_CHANGE","SL_DUMMY_RM","SYS_DCS","SELECT
+	'x' "dummy"
+from dual
+
+",31,"20210202173002","20230523112142","SLIMP_I","SLIMP"
+"ADDR_CREATE","2009.2","ADDR_CREATE","SL_DUMMY_RM","SYS_DCS","SELECT
+	'x' "dummy"
+from dual
+
+",31,"20210202173002","20230523112143","SLIMP_I","SLIMP"
+"ADDR_DELETE","2009.2","ADDR_DELETE","SL_DUMMY_RM","SYS_DCS","SELECT
+	'x' "dummy"
+from dual
+
+",31,"20210202173002","20230523112143","SLIMP_I","SLIMP"
+"APPT_DELETE_TO_CANONICAL","2017.2","APPT_DELETE_SEG","GS1_DUMMY_RM","SYS_DCS","SELECT
+	'x' "dummy"
+from dual
+
+",31,"20210202173550","20210202173607","SLIMP_I","SLIMP_I"
+"APPT_UPDATE_TO_CANONICAL","2017.2","APPT_UPDATE","GS1_APPT_UPD_RM","SYS_DCS","SELECT
+	ext_appt_id "ext_appt_id",
+	wh_id "wh_id",
+	appt_typ "appt_typ",
+	trlr_cod "trlr_cod",
+	slot_id "slot_id",
+	carcod "carcod",
+	car_move_id "car_move_id",
+	to_char(start_dte,'YYYYMMDDHH24MISS') "start_dte",
+	to_char(end_dte,'YYYYMMDDHH24MISS') "end_dte"
+from appt where appt.appt_id=:i_c_appt_id and appt.wh_id=:i_c_wh_id
+
+",329,"20210202173543","20210202173543","SLIMP_I","SLIMP_I"
+"CAR_MOVE_CHANGE","2009.2","CAR_MOVE_CHANGE","SL_DUMMY_RM","SYS_DCS","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202173003","20230523112143","SLIMP_I","SLIMP"
+"CAR_MOVE_CREATE","2009.2","CAR_MOVE_CREATE","SL_DUMMY_RM","SYS_DCS","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202173003","20230523112144","SLIMP_I","SLIMP"
+"CAR_MOVE_DELETE","2009.2","CAR_MOVE_DELETE","SL_DUMMY_RM","SYS_DCS","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202173003","20230523112144","SLIMP_I","SLIMP"
+"CARRIER_CHANGE","2009.2","CARRIER_CHANGE","SL_DUMMY_RM","SYS_DCS","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202173004","20230523112145","SLIMP_I","SLIMP"
+"CARRIER_CREATE","2009.2","CARRIER_CREATE","SL_DUMMY_RM","SYS_DCS","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202173004","20230523112145","SLIMP_I","SLIMP"
+"CARRIER_DELETE","2009.2","CARRIER_DELETE","SL_DUMMY_RM","SYS_DCS","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202173004","20230523112146","SLIMP_I","SLIMP"
+"CARRIER_DTL_CHANGE","2009.2","CARRIER_DTL_CHANGE","SL_DUMMY_RM","SYS_DCS","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202173005","20230523112147","SLIMP_I","SLIMP"
+"CARRIER_DTL_CREATE","2009.2","CARRIER_DTL_CREATE","SL_DUMMY_RM","SYS_DCS","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202173005","20230523112147","SLIMP_I","SLIMP"
+"CARRIER_DTL_DELETE","2009.2","CARRIER_DTL_DELETE","SL_DUMMY_RM","SYS_DCS","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202173005","20230523112148","SLIMP_I","SLIMP"
+"CARRIER_MOVE_TO_CANONICAL","2020.1.0","CAR_MOVE_NOTE_SEG","GS1_CAR_MOVE_NOTE_SEG_RM","SYS_DCS","SELECT
+	nottyp "nottyp",
+	notlin "notlin",
+	nottxt "nottxt"
+from car_move_note cmn
+where cmn.car_move_id = :i_c_car_move_id
+
+",125,"20210202173429","20210202173429","SLIMP_I","SLIMP_I"
+"CARRIER_MOVE_TO_CANONICAL","2020.1.0","CAR_MOVE_SEG","GS1_CAR_MOVE_SEG_RM","SYS_DCS","SELECT
+	move_plan_id "move_plan_id",
+	car_move_id "car_move_id",
+	host_ext_id "host_ext_id",
+	doc_num "doc_num",
+	track_num "track_num",
+	carcod "carcod",
+	attn_cod "attn_cod",
+	tndr_sts "tndr_sts",
+	wh_sts "wh_sts",
+	trans_mode "trans_mode",
+	rate_serv_nam "rate_serv_nam",
+	wh_id "wh_id",
+	doc_num "car_docnum",
+	track_num "car_tracknum",
+	ctry_track_num "ctry_track_num",
+	tms_load_id "tms_load_id"
+from car_move cm
+where cm.trlr_id = :i_c_trlr_id
+
+",452,"20210202173429","20210202173430","SLIMP_I","SLIMP_I"
+"CARRIER_MOVE_TO_CANONICAL","2020.1.0","TRLR_SEG","GS1_TRLR_SEG_RM","SYS_DCS","SELECT
+	trlr_num "trlr_num",
+	sec_trlr_num "sec_trlr_num",
+	tractor_num "tractor_num",
+	trlr_typ "trlr_typ",
+	trlr_cod "trlr_cod",
+	trlr_seal1 "trlr_seal1",
+	trlr_seal2 "trlr_seal2",
+	trlr_seal3 "trlr_seal3",
+	trlr_seal4 "trlr_seal4",
+	driver_nam "driver_nam",
+	driver_lic_num "driver_lic_num",
+	to_char(close_dte,'YYYYMMDDHH24MISS') "close_dte",
+	to_char(dispatch_dte,'YYYYMMDDHH24MISS') "dispatch_dte",
+	trlr_size "trlr_size",
+	to_char(pend_dte,'YYYYMMDDHH24MISS') "pend_dte",
+	trlr_broker "trlr_broker"
+from trlr tr
+where tr.trlr_id = :i_c_trlr_id
+
+",552,"20210202173448","20210202173448","SLIMP_I","SLIMP_I"
+"CLIENT_CHANGE","2009.2","CLIENT_CHANGE","SL_DUMMY_RM","SYS_DCS","SELECT
+	'x' "dummy"
+from dual
+
+",31,"20210202173006","20230523112148","SLIMP_I","SLIMP"
+"CLIENT_CREATE","2009.2","CLIENT_CREATE","SL_DUMMY_RM","SYS_DCS","SELECT
+	'x' "dummy"
+from dual
+
+",31,"20210202173006","20230523112148","SLIMP_I","SLIMP"
+"CLIENT_DELETE","2009.2","CLIENT_DELETE","SL_DUMMY_RM","SYS_DCS","SELECT
+	'x' "dummy"
+from dual
+
+",31,"20210202173006","20230523112149","SLIMP_I","SLIMP"
+"CLOSE-WORK-ORDER","2009.2","DTL","CLOSE-WKODTL-RM","SYS_DCS","SELECT
+	wkd.prtnum "prtnum",
+	nvl(wkd.prt_client_id, '----') "prt_client_id",
+	nvl(wkd.lotnum, '----') "lotnum",
+	wkd.sup_lotnum "sup_lotnum",
+	nvl(wkd.revlvl,'----') "revlvl",
+	nvl(wkd.orgcod,'----') "orgcod",
+	wkd.invsts_prg "invsts_prg",
+	supnum "supnum",
+	nvl(wkd.rule_nam, '----') "rule_nam",
+	to_char(nvl(wkd.mandte, sysdate),'YYYYMMDDHH24MISS') "mandte",
+	to_char(nvl(wkd.expire_dte, sysdate),'YYYYMMDDHH24MISS') "expire_dte",
+	wkd.inv_attr_str1 "inv_attr_str1",
+	wkd.inv_attr_str2 "inv_attr_str2",
+	wkd.inv_attr_str3 "inv_attr_str3",
+	wkd.inv_attr_str4 "inv_attr_str4",
+	wkd.inv_attr_str5 "inv_attr_str5",
+	wkd.inv_attr_str6 "inv_attr_str6",
+	wkd.inv_attr_str7 "inv_attr_str7",
+	wkd.inv_attr_str8 "inv_attr_str8",
+	wkd.inv_attr_str9 "inv_attr_str9",
+	wkd.inv_attr_str10 "inv_attr_str10",
+	wkd.inv_attr_str11 "inv_attr_str11",
+	wkd.inv_attr_str12 "inv_attr_str12",
+	wkd.inv_attr_str13 "inv_attr_str13",
+	wkd.inv_attr_str14 "inv_attr_str14",
+	wkd.inv_attr_str15 "inv_attr_str15",
+	wkd.inv_attr_str16 "inv_attr_str16",
+	wkd.inv_attr_str17 "inv_attr_str17",
+	wkd.inv_attr_str18 "inv_attr_str18",
+	wkd.inv_attr_int1 "inv_attr_int1",
+	wkd.inv_attr_int2 "inv_attr_int2",
+	wkd.inv_attr_int3 "inv_attr_int3",
+	wkd.inv_attr_int4 "inv_attr_int4",
+	wkd.inv_attr_int5 "inv_attr_int5",
+	wkd.inv_attr_flt1 "inv_attr_flt1",
+	wkd.inv_attr_flt2 "inv_attr_flt2",
+	wkd.inv_attr_flt3 "inv_attr_flt3",
+	to_char(wkd.inv_attr_dte1,'YYYYMMDDHH24MISS') "inv_attr_dte1",
+	to_char(wkd.inv_attr_dte2,'YYYYMMDDHH24MISS') "inv_attr_dte2"
+from wkodtl  wkd,
+        prtmst_view pm
+where wkd.prt_client_id = pm.prt_client_id
+    and wkd.prtnum = pm.prtnum
+    and pm.prdflg = 1
+    and wkd.prt_client_id = :i_c_prt_client_id
+    and wkd.client_id =:i_c_client_id
+    and wkd.wkonum = :i_c_wkonum
+    and wkd.wkorev = :i_c_wkorev
+    and wkd.wkolin = :i_c_wkolin
+    and wkd.wh_id  = :i_c_wh_id
+    and pm.wh_id  = :i_c_wh_id
+    and wkd.seqnum = 0
+
+",1923,"20210202173006","20230426153215","SLIMP_I","SLIMP"
+"CLOSE-WORK-ORDER","2009.2","DTL_QTY","CLOSE-WKODTL-QTY-RM","SYS_DCS","SELECT
+	wkd.wkolin "wkolin",
+	sum(wkd.linqty) "linqty",
+	sum(wkd.tot_dlvqty) "tot_dlvqty",
+	(sum(wkd.linqty) - sum(wkd.tot_dlvqty)) "adjqty"
+from wkodtl  wkd,
+        prtmst_view pm
+where wkd.prt_client_id = pm.prt_client_id
+    and wkd.prtnum = pm.prtnum
+    and pm.prdflg = 1
+    and wkd.prt_client_id = :i_c_prt_client_id
+    and wkd.client_id =:i_c_client_id
+    and wkd.wkonum = :i_c_wkonum
+    and wkd.wkorev = :i_c_wkorev
+    and wkd.wh_id = :i_c_wh_id
+    and pm.wh_id = :i_c_wh_id
+
+GROUP BY wkd.wkolin
+",511,"20210202173006","20230426153215","SLIMP_I","SLIMP"
+"CLOSE-WORK-ORDER","2009.2","HDR","DCS_DUMMY_RM","SYS_DCS","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202173006","20230523112627","SLIMP_I","SLIMP"
+"CUST_CHANGE","2009.2","CUST_CHANGE","SL_DUMMY_RM","SYS_DCS","SELECT
+	'x' "dummy"
+from dual
+
+",31,"20210202173007","20230523112149","SLIMP_I","SLIMP"
+"CUST_CREATE","2009.2","CUST_CREATE","SL_DUMMY_RM","SYS_DCS","SELECT
+	'x' "dummy"
+from dual
+
+",31,"20210202173008","20230523112150","SLIMP_I","SLIMP"
+"CUST_DELETE","2009.2","CUST_DELETE","SL_DUMMY_RM","SYS_DCS","SELECT
+	'x' "dummy"
+from dual
+
+",31,"20210202173008","20230523112150","SLIMP_I","SLIMP"
+"DSUP-CLOSE-PROD-LINE","2009.2","CLOSE-PROD-LINE","DCS_DUMMY_RM","SYS_DCS","SELECT
+	'x' "dummy"
+from dual
+
+",31,"20210202173009","20230523112627","SLIMP_I","SLIMP"
+"HEARTBEAT_INITIATE","V2013.2","DUMMY","SL_DUMMY_RM","SYS_DCS","SELECT
+	'x' "dummy"
+from dual
+
+",31,"20210202173010","20230523112151","SLIMP_I","SLIMP"
+"INDUCTION","V2013.2","INVDTL_SEG","INVDTL_RM","SYS_DCS","SELECT
+	invdtl.subnum "subnum",
+	dtlnum "dtlnum",
+	untqty "untqty",
+	prtnum "prtnum",
+	prt_client_id "prt_client_id",
+	ftpcod "ftpcod",
+	untcas "untcas",
+	untpak "untpak",
+	lotnum "lotnum",
+	sup_lotnum "sup_lotnum",
+	revlvl "revlvl",
+	orgcod "orgcod",
+	catch_qty "catch_qty",
+	to_char(mandte,'YYYYMMDDHH24MISS') "mandte",
+	to_char(expire_dte,'YYYYMMDDHH24MISS') "expire_dte",
+	supnum "supnum",
+	invsts "invsts",
+	cstms_bond_flg "cstms_bond_flg",
+	dty_stmp_flg "dty_stmp_flg",
+	cnsg_flg "cnsg_flg",
+	inv_attr_str1 "inv_attr_str1",
+	inv_attr_str2 "inv_attr_str2",
+	inv_attr_str3 "inv_attr_str3",
+	inv_attr_str4 "inv_attr_str4",
+	inv_attr_str5 "inv_attr_str5",
+	inv_attr_str6 "inv_attr_str6",
+	inv_attr_str7 "inv_attr_str7",
+	inv_attr_str8 "inv_attr_str8",
+	inv_attr_str9 "inv_attr_str9",
+	inv_attr_str10 "inv_attr_str10",
+	inv_attr_str11 "inv_attr_str11",
+	inv_attr_str12 "inv_attr_str12",
+	inv_attr_str13 "inv_attr_str13",
+	inv_attr_str14 "inv_attr_str14",
+	inv_attr_str15 "inv_attr_str15",
+	inv_attr_str16 "inv_attr_str16",
+	inv_attr_str17 "inv_attr_str17",
+	inv_attr_str18 "inv_attr_str18",
+	inv_attr_int1 "inv_attr_int1",
+	inv_attr_int2 "inv_attr_int2",
+	inv_attr_int3 "inv_attr_int3",
+	inv_attr_int4 "inv_attr_int4",
+	inv_attr_int5 "inv_attr_int5",
+	inv_attr_flt1 "inv_attr_flt1",
+	inv_attr_flt2 "inv_attr_flt2",
+	inv_attr_flt3 "inv_attr_flt3",
+	to_char(inv_attr_dte1,'YYYYMMDDHH24MISS') "inv_attr_dte1",
+	to_char(inv_attr_dte2,'YYYYMMDDHH24MISS') "inv_attr_dte2"
+from invdtl, invsub
+ where invsub.subnum = invdtl.subnum
+   and invsub.lodnum = :i_c_lodnum
+
+",1560,"20210202173010","","SLIMP_I",""
+"INDUCTION","V2013.2","INVLOD_SEG","MOVE_REQ_RM","SYS_DCS","SELECT
+	lodhgt "lodhgt",
+	lodwgt "lodwgt",
+	asset_typ "asset_typ",
+	bundled_flg "bundled_flg",
+	distro_palopn_flg "distro_palopn_flg",
+	load_attr1_flg "load_attr1_flg",
+	load_attr2_flg "load_attr2_flg",
+	load_attr3_flg "load_attr3_flg",
+	load_attr4_flg "load_attr4_flg",
+	load_attr5_flg "load_attr5_flg"
+from invlod
+ where lodnum = :i_c_lodnum
+
+",345,"20210202173010","","SLIMP_I",""
+"INV_CNSG_CHNG","2012.1","CONSIGNMENT","DCS_DUMMY_RM","SYS_DCS","SELECT
+	'x' "dummy"
+from dual
+
+",31,"20210202173010","20230523112627","SLIMP_I","SLIMP"
+"INV-ADJ","2009.2","ADJUST","INV-ADJ","SYS_DCS","SELECT
+	prtmst.stkuom "stkuom",
+	prtmst.catch_unttyp "catch_unttyp"
+from prtmst_view prtmst where prtnum=:i_c_prtnum and prt_client_id=:i_c_prt_client_id    and prdflg = 1 and wh_id = :i_c_wh_id
+
+",196,"20210202173010","20230426153417","SLIMP_I","SLIMP"
+"INV-ADJ","2009.2","HOLD","DCS_DUMMY_RM","SYS_DCS","SELECT
+	'x' "dummy"
+from dual
+
+",31,"20210202173010","20230523112627","SLIMP_I","SLIMP"
+"INV-ADJ-WO","2009.2","ADJUST","INV-ADJ-WO","SYS_DCS","SELECT
+	pm.stkuom "stkuom",
+	wkh.wkonum "ordnum",
+	'I' "ordtyp",
+	wkh.accnum "cponum",
+	wkh.prjnum "cpotyp",
+	pm.prt_client_id "prt_client_id",
+	wkh.prjnum "prjnum",
+	wkh.accnum "accnum",
+	pm.catch_unttyp "catch_unttyp"
+from prtmst_view pm,
+       wkohdr wkh
+where pm.prtnum = :i_c_prtnum
+    and pm.prt_client_id = :i_c_prt_client_id
+    and wkh.wkonum =  :i_c_wkonum
+    and wkh.wkorev = :i_c_wkorev
+    and wkh.client_id =:i_c_client_id
+    and pm.prdflg = 1
+    and pm.wh_id = :i_c_wh_id
+    and wkh.wh_id =:i_c_wh_id
+
+",523,"20210202173011","20230426153341","SLIMP_I","SLIMP"
+"INV-ADJ-WO","2009.2","ADJ-WO-ORIG","ADJ_WKO_ORIG_RM","SYS_DCS","SELECT
+	wkd.wh_id "orig_sitnam",
+	wkd.prt_client_id "orig_prt_client_id",
+	wkd.prtnum "orig_prtnum",
+	wkd.invsts_prg "orig_invsts_prg",
+	wkd.lotnum "orig_lotnum",
+	wkd.sup_lotnum "orig_sup_lotnum",
+	wkd.revlvl "orig_revlvl",
+	wkd.orgcod "orig_orgcod",
+	wkd.supnum "orig_supnum",
+	wkd.inv_attr_str1 "orig_inv_attr_str1",
+	wkd.inv_attr_str2 "orig_inv_attr_str2",
+	wkd.inv_attr_str3 "orig_inv_attr_str3",
+	wkd.inv_attr_str4 "orig_inv_attr_str4",
+	wkd.inv_attr_str5 "orig_inv_attr_str5",
+	wkd.inv_attr_str6 "orig_inv_attr_str6",
+	wkd.inv_attr_str7 "orig_inv_attr_str7",
+	wkd.inv_attr_str8 "orig_inv_attr_str8",
+	wkd.inv_attr_str9 "orig_inv_attr_str9",
+	wkd.inv_attr_str10 "orig_inv_attr_str10",
+	wkd.inv_attr_str11 "orig_inv_attr_str11",
+	wkd.inv_attr_str12 "orig_inv_attr_str12",
+	wkd.inv_attr_str13 "orig_inv_attr_str13",
+	wkd.inv_attr_str14 "orig_inv_attr_str14",
+	wkd.inv_attr_str15 "orig_inv_attr_str15",
+	wkd.inv_attr_str16 "orig_inv_attr_str16",
+	wkd.inv_attr_str17 "orig_inv_attr_str17",
+	wkd.inv_attr_str18 "orig_inv_attr_str18",
+	wkd.inv_attr_int1 "orig_inv_attr_int1",
+	wkd.inv_attr_int2 "orig_inv_attr_int2",
+	wkd.inv_attr_int3 "orig_inv_attr_int3",
+	wkd.inv_attr_int4 "orig_inv_attr_int4",
+	wkd.inv_attr_int5 "orig_inv_attr_int5",
+	wkd.inv_attr_flt1 "orig_inv_attr_flt1",
+	wkd.inv_attr_flt2 "orig_inv_attr_flt2",
+	wkd.inv_attr_flt3 "orig_inv_attr_flt3",
+	to_char(wkd.inv_attr_dte1,'YYYYMMDDHH24MISS') "orig_inv_attr_dte1",
+	to_char(wkd.inv_attr_dte2,'YYYYMMDDHH24MISS') "orig_inv_attr_dte2"
+from wkodtl wkd
+          where wkd.prt_client_id = :i_c_prt_client_id
+              and wkd.client_id =:i_c_client_id
+              and wkd.wkonum = :i_c_wkonum
+              and wkd.wkorev = :i_c_wkorev
+              and wkd.prtnum =  :i_c_prtnum
+              and wkd.seqnum = 0
+              and wkd.wkolin = :i_n_wkolin
+              and wkd.wh_id = :i_c_wh_id
+
+",1867,"20210202173011","20230426153345","SLIMP_I","SLIMP"
+"INV-ADJ-WO","2009.2","ADJ-WO-QTY","ADJ_WKO_QTY_RM","SYS_DCS","SELECT
+	wko.linqty "linqty",
+	wko.tot_dlvqty "tot_dlvqty"
+from (select sum(wkd.linqty) linqty,
+                   sum(wkd.tot_dlvqty) tot_dlvqty
+            from wkodtl wkd
+              where wkd.prt_client_id = :i_c_prt_client_id
+              and wkd.client_id =:i_c_client_id
+              and wkd.wkonum = :i_c_wkonum
+              and wkd.wkorev = :i_c_wkorev
+              and wkd.prtnum =  :i_c_prtnum
+              and wkd.wkolin = :i_n_wkolin
+              and wkd.wh_id = :i_c_wh_id) wko
+
+",500,"20210202173011","20230426153345","SLIMP_I","SLIMP"
+"INV-ADJ-WO","2009.2","CONTROL","SL_DUMMY_RM","SYS_DCS","SELECT
+	'x' "control"
+from dual
+
+",33,"20210202173010","20230523112151","SLIMP_I","SLIMP"
+"INV-ATTR-CHANGE","2011.1","ATTR_CHANGE","INV-ATTR-CHANGE","SYS_DCS","SELECT
+	prtmst.stkuom "stkuom",
+	prtmst.catch_unttyp "catch_unttyp"
+from prtmst_view prtmst where prtnum=:i_c_from_prtnum and prt_client_id=:i_c_from_prt_client_id    and wh_id = :i_c_wh_id
+
+",191,"20210202173011","20230523114023","SLIMP_I","SLIMP"
+"INVENTORY_ATTRIBUTE","V2013.2","INV_SEG","INVENTORY_ATTRIBUTE_RM","SYS_DCS","SELECT
+	invdtl.subnum "subnum",
+	dtlnum "dtlnum",
+	untqty "untqty",
+	prtnum "prtnum",
+	prt_client_id "prt_client_id",
+	ftpcod "ftpcod",
+	untcas "untcas",
+	untpak "untpak",
+	lotnum "lotnum",
+	sup_lotnum "sup_lotnum",
+	revlvl "revlvl",
+	orgcod "orgcod",
+	catch_qty "catch_qty",
+	to_char(mandte,'YYYYMMDDHH24MISS') "mandte",
+	to_char(expire_dte,'YYYYMMDDHH24MISS') "expire_dte",
+	supnum "supnum",
+	invsts "invsts",
+	cstms_bond_flg "cstms_bond_flg",
+	dty_stmp_flg "dty_stmp_flg",
+	cnsg_flg "cnsg_flg",
+	inv_attr_str1 "inv_attr_str1",
+	inv_attr_str2 "inv_attr_str2",
+	inv_attr_str3 "inv_attr_str3",
+	inv_attr_str4 "inv_attr_str4",
+	inv_attr_str5 "inv_attr_str5",
+	inv_attr_str6 "inv_attr_str6",
+	inv_attr_str7 "inv_attr_str7",
+	inv_attr_str8 "inv_attr_str8",
+	inv_attr_str9 "inv_attr_str9",
+	inv_attr_str10 "inv_attr_str10",
+	inv_attr_str11 "inv_attr_str11",
+	inv_attr_str12 "inv_attr_str12",
+	inv_attr_str13 "inv_attr_str13",
+	inv_attr_str14 "inv_attr_str14",
+	inv_attr_str15 "inv_attr_str15",
+	inv_attr_str16 "inv_attr_str16",
+	inv_attr_str17 "inv_attr_str17",
+	inv_attr_str18 "inv_attr_str18",
+	inv_attr_int1 "inv_attr_int1",
+	inv_attr_int2 "inv_attr_int2",
+	inv_attr_int3 "inv_attr_int3",
+	inv_attr_int4 "inv_attr_int4",
+	inv_attr_int5 "inv_attr_int5",
+	inv_attr_flt1 "inv_attr_flt1",
+	inv_attr_flt2 "inv_attr_flt2",
+	inv_attr_flt3 "inv_attr_flt3",
+	to_char(inv_attr_dte1,'YYYYMMDDHH24MISS') "inv_attr_dte1",
+	to_char(inv_attr_dte2,'YYYYMMDDHH24MISS') "inv_attr_dte2"
+from invdtl, invsub
+where invsub.subnum = invdtl.subnum
+and invsub.lodnum = :i_c_lodnum
+
+",1556,"20210202173011","","SLIMP_I",""
+"INVENTORY_RECONCILIATION","9.0","DUMMY","DCS_DUMMY_RM","SYS_DCS","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202173011","20230523112627","SLIMP_I","SLIMP"
+"INV-MOV","2009.2","INV-MOV-SEG","INV-ADJ","SYS_DCS","SELECT
+	prtmst.stkuom "stkuom"
+from prtmst_view prtmst where prtnum=:i_c_prtnum and prt_client_id=:i_c_prt_client_id    and prdflg = 1 and wh_id = :i_c_wh_id
+
+",159,"20210202173011","20230426153417","SLIMP_I","SLIMP"
+"INV-RCV","2012.1","CMPDTL","INV_RCV CMPDTL","SYS_DCS","SELECT
+	cmpkey "cmpkey",
+	sub_cmpkey "sub_cmpkey",
+	prtnum "prtnum",
+	prt_client_id "prt_client_id",
+	orgcod "orgcod",
+	revlvl "revlvl",
+	lotnum "lotnum",
+	supnum "supnum",
+	subnum "subnum",
+	dtlnum "dtlnum",
+	invsts "invsts",
+	:i_c_trnqty "cmpqty",
+	wh_id "wh_id",
+	inv_attr_str1 "inv_attr_str1",
+	inv_attr_str2 "inv_attr_str2",
+	inv_attr_str3 "inv_attr_str3",
+	inv_attr_str4 "inv_attr_str4",
+	inv_attr_str5 "inv_attr_str5",
+	inv_attr_str6 "inv_attr_str6",
+	inv_attr_str7 "inv_attr_str7",
+	inv_attr_str8 "inv_attr_str8",
+	inv_attr_str9 "inv_attr_str9",
+	inv_attr_str10 "inv_attr_str10",
+	inv_attr_str11 "inv_attr_str11",
+	inv_attr_str12 "inv_attr_str12",
+	inv_attr_str13 "inv_attr_str13",
+	inv_attr_str14 "inv_attr_str14",
+	inv_attr_str15 "inv_attr_str15",
+	inv_attr_str16 "inv_attr_str16",
+	inv_attr_str17 "inv_attr_str17",
+	inv_attr_str18 "inv_attr_str18",
+	inv_attr_int1 "inv_attr_int1",
+	inv_attr_int2 "inv_attr_int2",
+	inv_attr_int3 "inv_attr_int3",
+	inv_attr_int4 "inv_attr_int4",
+	inv_attr_int5 "inv_attr_int5",
+	inv_attr_flt1 "inv_attr_flt1",
+	inv_attr_flt2 "inv_attr_flt2",
+	inv_attr_flt3 "inv_attr_flt3",
+	to_char(inv_attr_dte1,'YYYYMMDDHH24MISS') "inv_attr_dte1",
+	to_char(inv_attr_dte2,'YYYYMMDDHH24MISS') "inv_attr_dte2"
+from cmpdtl where cmpkey = :i_c_cmpkey
+
+",1275,"20210202173011","20210216133030","SLIMP_I","SLIMP"
+"INV-RCV","2012.1","CMPHDR","INV_RCV CMPHDR","SYS_DCS","SELECT
+	wkonum "wkonum",
+	wkorev "wkorev",
+	cmpkey "cmpkey",
+	prtnum "prtnum",
+	prt_client_id "prt_client_id",
+	orgcod "orgcod",
+	revlvl "revlvl",
+	lotnum "lotnum",
+	subnum "subnum",
+	dtlnum "dtlnum",
+	invsts "invsts",
+	untqty "untqty",
+	prdlin "prdlin",
+	sub_cmpflg "sub_cmpflg",
+	to_char(prddte,'YYYYMMDDHH24MISS') "prddte",
+	inv_attr_str1 "inv_attr_str1",
+	inv_attr_str2 "inv_attr_str2",
+	inv_attr_str3 "inv_attr_str3",
+	inv_attr_str4 "inv_attr_str4",
+	inv_attr_str5 "inv_attr_str5",
+	inv_attr_str6 "inv_attr_str6",
+	inv_attr_str7 "inv_attr_str7",
+	inv_attr_str8 "inv_attr_str8",
+	inv_attr_str9 "inv_attr_str9",
+	inv_attr_str10 "inv_attr_str10",
+	inv_attr_str11 "inv_attr_str11",
+	inv_attr_str12 "inv_attr_str12",
+	inv_attr_str13 "inv_attr_str13",
+	inv_attr_str14 "inv_attr_str14",
+	inv_attr_str15 "inv_attr_str15",
+	inv_attr_str16 "inv_attr_str16",
+	inv_attr_str17 "inv_attr_str17",
+	inv_attr_str18 "inv_attr_str18",
+	inv_attr_int1 "inv_attr_int1",
+	inv_attr_int2 "inv_attr_int2",
+	inv_attr_int3 "inv_attr_int3",
+	inv_attr_int4 "inv_attr_int4",
+	inv_attr_int5 "inv_attr_int5",
+	inv_attr_flt1 "inv_attr_flt1",
+	inv_attr_flt2 "inv_attr_flt2",
+	inv_attr_flt3 "inv_attr_flt3",
+	to_char(inv_attr_dte1,'YYYYMMDDHH24MISS') "inv_attr_dte1",
+	to_char(inv_attr_dte2,'YYYYMMDDHH24MISS') "inv_attr_dte2",
+	wh_id "wh_id"
+from cmphdr where wkonum= :i_c_trknum and cmpkey =nvl(:i_c_cmpkey,cmpkey)
+ and wh_id = :i_c_wh_id
+
+",1411,"20210202173011","20210216133032","SLIMP_I","SLIMP"
+"INV-RCV","2012.1","HDR","INV-RCV HDR","SYS_DCS","SELECT
+	rcvinv.sadnum "sadnum",
+	rcvinv.waybil "waybil",
+	rcvinv.orgref "orgref",
+	rcvinv.ret_ref1 "ret_ref1",
+	rcvinv.ret_ref2 "ret_ref2",
+	rcvinv.ret_ref3 "ret_ref3",
+	rcvinv.doc_num "doc_num",
+	rcvinv.track_num "track_num",
+	rethdr.rmanum "rmanum"
+from rcvinv left outer join rethdr on rcvinv.invnum = rethdr.rmanum and rcvinv.wh_id  = rethdr.wh_id where trknum= :i_c_trknum
+and supnum= :i_c_supnum
+and invnum= :i_c_invnum
+and rcvinv.client_id = :i_c_client_id
+and rcvinv.wh_id = :i_c_wh_id
+and (rcvinv.trknum||'-'||rcvinv.client_id||'-'||rcvinv.supnum||'-'||rcvinv.invnum ||'-'||rcvinv.wh_id) in
+(select distinct trknum||'-'||client_id||'-'||supnum||'-'||invnum ||'-'||wh_id
+from rcvlin
+where
+trknum= :i_c_trknum
+and supnum= :i_c_supnum
+and invnum= :i_c_invnum
+and client_id = :i_c_client_id
+and wh_id = :i_c_wh_id
+and rcvqty>0)
+
+",834,"20210202173011","20210216133106","SLIMP_I","SLIMP"
+"INV-RCV","2012.1","WKO","GET_WKO","SYS_DCS","SELECT
+	wkonum "wkonum",
+	wkorev "wkorev",
+	accnum "accnum",
+	prtnum "prtnum",
+	orgcod "orgcod",
+	revlvl "revlvl",
+	lotnum "lotnum",
+	invsts "invsts",
+	prd_tol_pct "prd_tol_pct",
+	prdlin "prdlin",
+	plan_seq "plan_seq",
+	to_char(sch_begdte,'YYYYMMDDHH24MISS') "sch_begdte",
+	to_char(sch_enddte,'YYYYMMDDHH24MISS') "sch_enddte",
+	speed "speed",
+	inv_attr_str1 "inv_attr_str1",
+	inv_attr_str2 "inv_attr_str2",
+	inv_attr_str3 "inv_attr_str3",
+	inv_attr_str4 "inv_attr_str4",
+	inv_attr_str5 "inv_attr_str5",
+	inv_attr_str6 "inv_attr_str6",
+	inv_attr_str7 "inv_attr_str7",
+	inv_attr_str8 "inv_attr_str8",
+	inv_attr_str9 "inv_attr_str9",
+	inv_attr_str10 "inv_attr_str10",
+	inv_attr_str11 "inv_attr_str11",
+	inv_attr_str12 "inv_attr_str12",
+	inv_attr_str13 "inv_attr_str13",
+	inv_attr_str14 "inv_attr_str14",
+	inv_attr_str15 "inv_attr_str15",
+	inv_attr_str16 "inv_attr_str16",
+	inv_attr_str17 "inv_attr_str17",
+	inv_attr_str18 "inv_attr_str18",
+	inv_attr_int1 "inv_attr_int1",
+	inv_attr_int2 "inv_attr_int2",
+	inv_attr_int3 "inv_attr_int3",
+	inv_attr_int4 "inv_attr_int4",
+	inv_attr_int5 "inv_attr_int5",
+	inv_attr_flt1 "inv_attr_flt1",
+	inv_attr_flt2 "inv_attr_flt2",
+	inv_attr_flt3 "inv_attr_flt3",
+	to_char(inv_attr_dte1,'YYYYMMDDHH24MISS') "inv_attr_dte1",
+	to_char(inv_attr_dte2,'YYYYMMDDHH24MISS') "inv_attr_dte2"
+from wkohdr where  wkonum = :i_c_trknum
+
+",1353,"20210202173011","20210216133127","SLIMP_I","SLIMP"
+"INV-SCR-WO","2009.2","INV-SCR-WO","INV-ADJ","SYS_DCS","SELECT
+	prtmst.stkuom "stkuom"
+from prtmst_view prtmst where prtnum=:i_c_prtnum and prt_client_id=:i_c_prt_client_id    and prdflg = 1 and wh_id = :i_c_wh_id
+
+",159,"20210202173011","20230426153506","SLIMP_I","SLIMP"
+"INV-STS","2009.2","HOLD","DCS_DUMMY_RM","SYS_DCS","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202173011","20230523112627","SLIMP_I","SLIMP"
+"INV-STS","2009.2","STATUS","INV-ADJ","SYS_DCS","SELECT
+	prtmst.stkuom "stkuom",
+	to_char(sysdate,'YYYYMMDDHH24MISS') "adddte"
+from prtmst_view prtmst where prtnum=:i_c_prtnum and prt_client_id=:i_c_prt_client_id    and prdflg = 1 and wh_id = :i_c_wh_id
+
+",206,"20210202173011","20230426153417","SLIMP_I","SLIMP"
+"LABEL_RESPONSE","V2013.2","LBL_RES_SEG","SL_DUMMY_RM","SYS_DCS","SELECT
+	'x' "dummy"
+from dual
+
+",31,"20210202173012","20230523112152","SLIMP_I","SLIMP"
+"LENS_WH_INTRANSIT_SYNC","2009.2","CONTROL","SL_DUMMY_RM","SYS_DCS","SELECT
+	'x' "control"
+from dual
+
+",33,"20210202173012","20230523112152","SLIMP_I","SLIMP"
+"LENS_WH_SYNC","2009.2","CONTROL","SL_DUMMY_RM","SYS_DCS","SELECT
+	'x' "control"
+from dual
+
+",33,"20210202173012","20230523112152","SLIMP_I","SLIMP"
+"LENS-WH-SUBSCRIBE","2009.2","LENS-WH-SUBSCRIBE","LENS-WH-SUBSCRIBE RM","SYS_DCS","SELECT
+	wh.lens_sitnam "lens_sitnam",
+	sl_sys_def.host_port "sitprt",
+	sl_sys_def.host_nam "sitnam",
+	adrmst.adrln1 "adrln1",
+	adrmst.adrln2 "adrln2",
+	adrmst.adrln3 "adrln3",
+	adrmst.adrcty "adrcty",
+	adrmst.adrstc "adrstc",
+	adrmst.adrpsz "adrpsz",
+	adrmst.phnnum "phnnum",
+	adrmst.faxnum "faxnum",
+	wh.lens_customer_id "lens_customer_id",
+	wh.lens_cust_client_id "lens_cust_client_id",
+	adrmst.rgncod "rgncod"
+from adrmst,
+        wh,
+        sl_sys_def
+where adrmst.adr_id = wh.adr_id
+    and wh.wh_id = :i_c_wh_id
+     and sl_sys_def.sys_id = 'DCS'
+
+",555,"20210202173012","","SLIMP_I",""
+"LENS-WH-UNSUBSCRIBE","2009.2","LENS-WH-UNSUBCRIBE","LENS-WH-UNSUBSCRIBE RM","SYS_DCS","SELECT
+	'x' "dummy"
+from dual
+
+",31,"20210202173013","","SLIMP_I",""
+"LOAD_DETAIL","V2013.2","DUMMY","SL_DUMMY_RM","SYS_DCS","SELECT
+	'x' "dummy"
+from dual
+
+",31,"20210202173013","20230523112153","SLIMP_I","SLIMP"
+"LOAD_DETAIL","V2013.2","LOAD_DTL_SEG","LOAD_DTL_RM","SYS_DCS","SELECT
+	prtnum "prtnum",
+	prt_client_id "prt_client_id",
+	untcas "untcas",
+	invsts "invsts",
+	:i_c_sys_absent_ind_char "hstacc",
+	untqty "untqty",
+	orgcod "orgcod",
+	revlvl "revlvl",
+	lotnum "lotnum",
+	sup_lotnum "sup_lotnum",
+	invlod.stoloc "dstloc",
+	invlod.lodnum "lodnum",
+	invdtl.subnum "subnum",
+	dtlnum "dtlnum",
+	:i_c_sys_absent_ind_char "usr_id",
+	:i_c_sys_absent_ind_char "actcod",
+	:i_c_sys_absent_ind_char "movref",
+	ftpcod "ftpcod",
+	untpak "untpak",
+	to_char(fifdte,'YYYYMMDDHH24MISS') "fifdte",
+	to_char(mandte,'YYYYMMDDHH24MISS') "mandte",
+	age_pflnam "age_pflnam",
+	catch_qty "catch_qty",
+	to_char(expire_dte,'YYYYMMDDHH24MISS') "expire_dte",
+	lodtag "lodtag",
+	subtag "subtag",
+	phyflg "phyflg",
+	:i_c_sys_absent_ind_char "plat_id",
+	supnum "supnum",
+	cnsg_flg "cnsg_flg",
+	invlod.asset_typ "asset_typ",
+	invsub.asset_typ "sub_asset_typ",
+	inv_attr_str1 "inv_attr_str1",
+	inv_attr_str2 "inv_attr_str2",
+	inv_attr_str3 "inv_attr_str3",
+	inv_attr_str4 "inv_attr_str4",
+	inv_attr_str5 "inv_attr_str5",
+	inv_attr_str6 "inv_attr_str6",
+	inv_attr_str7 "inv_attr_str7",
+	inv_attr_str8 "inv_attr_str8",
+	inv_attr_str9 "inv_attr_str9",
+	inv_attr_str10 "inv_attr_str10",
+	inv_attr_str11 "inv_attr_str11",
+	inv_attr_str12 "inv_attr_str12",
+	inv_attr_str13 "inv_attr_str13",
+	inv_attr_str14 "inv_attr_str14",
+	inv_attr_str15 "inv_attr_str15",
+	inv_attr_str16 "inv_attr_str16",
+	inv_attr_str17 "inv_attr_str17",
+	inv_attr_str18 "inv_attr_str18",
+	inv_attr_int1 "inv_attr_int1",
+	inv_attr_int2 "inv_attr_int2",
+	inv_attr_int3 "inv_attr_int3",
+	inv_attr_int4 "inv_attr_int4",
+	inv_attr_int5 "inv_attr_int5",
+	inv_attr_flt1 "inv_attr_flt1",
+	inv_attr_flt2 "inv_attr_flt2",
+	inv_attr_flt3 "inv_attr_flt3",
+	to_char(inv_attr_dte1,'YYYYMMDDHH24MISS') "inv_attr_dte1",
+	to_char(inv_attr_dte2,'YYYYMMDDHH24MISS') "inv_attr_dte2",
+	cstms_cnsgnmnt_id "cstms_cnsgnmnt_id",
+	cstms_bond_flg "cstms_bond_flg",
+	dty_stmp_flg "dty_stmp_flg",
+	load_attr1_flg "load_attr1_flg",
+	load_attr2_flg "load_attr2_flg",
+	load_attr3_flg "load_attr3_flg",
+	load_attr4_flg "load_attr4_flg",
+	load_attr5_flg "load_attr5_flg"
+from invdtl, invsub, invlod
+ where invsub.subnum = invdtl.subnum
+   and invsub.lodnum = invlod.lodnum
+   and invlod.lodnum = :i_c_lodnum
+
+",2238,"20210202173013","","SLIMP_I",""
+"LOAD_ERROR","V2013.2","DUMMY","SL_DUMMY_RM","SYS_DCS","SELECT
+	'x' "dumfld"
+from dual
+
+",32,"20210202173013","20230523112153","SLIMP_I","SLIMP"
+"MASTER_RCPT_COMPL_TO_CANONICAL","2019.1.1","MASTER_RCPT","CANONICAL_MASTER_RCPT_RM","SYS_DCS","SELECT
+	trknum "trknum",
+	wh_id "wh_id",
+	trkref "trkref",
+	grswgt "grswgt",
+	numpal "numpal",
+	numcas "numcas",
+	to_char(shpdte,'YYYYMMDDHH24MISS') "shpdte",
+	to_char(expdte,'YYYYMMDDHH24MISS') "expdte",
+	devcod "devcod",
+	lblflg "lblflg",
+	trnspt "trnspt",
+	frtcst "frtcst",
+	to_char(clsdte,'YYYYMMDDHH24MISS') "clsdte",
+	to_char(arcdte,'YYYYMMDDHH24MISS') "arcdte",
+	arc_src "arc_src",
+	crncy_code "crncy_code",
+	to_char(lms_plan_dte,'YYYYMMDDHH24MISS') "lms_plan_dte",
+	lm_goal_seconds "lm_goal_seconds",
+	tms_load_id "tms_load_id"
+from rcvtrk where trknum=:i_c_trknum and wh_id=:i_c_wh_id
+
+",595,"20210202173511","20210202173512","SLIMP_I","SLIMP_I"
+"MASTER_RCPT_COMPLETE","2009.2","MASTER_RCPT","MASTER_RCPT_RM","SYS_DCS","SELECT
+	trknum "trknum",
+	wh_id "wh_id",
+	trkref "trkref",
+	grswgt "grswgt",
+	numpal "numpal",
+	numcas "numcas",
+	to_char(shpdte,'YYYYMMDDHH24MISS') "shpdte",
+	to_char(expdte,'YYYYMMDDHH24MISS') "expdte",
+	devcod "devcod",
+	lblflg "lblflg",
+	trnspt "trnspt",
+	frtcst "frtcst",
+	to_char(clsdte,'YYYYMMDDHH24MISS') "clsdte",
+	to_char(arcdte,'YYYYMMDDHH24MISS') "arcdte",
+	arc_src "arc_src",
+	crncy_code "crncy_code",
+	to_char(lms_plan_dte,'YYYYMMDDHH24MISS') "lms_plan_dte",
+	lm_goal_seconds "lm_goal_seconds"
+from rcvtrk where trlr_id = :i_c_trlr_id
+
+",550,"20210202173014","","SLIMP_I",""
+"MASTER_RCPT_COMPLETE","2009.2","RCPT_INVOICE","RCPT_INVOICE_RM","SYS_DCS","SELECT
+	trknum "trknum",
+	invtyp "invtyp",
+	invnum "invnum",
+	client_id "client_id",
+	supnum "supnum",
+	doc_num "doc_num",
+	track_num "track_num",
+	sadnum "sadnum",
+	ret_ref1 "ret_ref1",
+	ret_ref2 "ret_ref2",
+	ret_ref3 "ret_ref3",
+	orgref "orgref"
+from rcvinv where rcvinv.trknum = :i_c_trknum
+
+",295,"20210202173014","","SLIMP_I",""
+"MASTER_RCPT_COMPLETE","2009.2","RCPT_INVOICE_LINE","RCPT_INVOICE_LINE_RM","SYS_DCS","SELECT
+	trknum "trknum",
+	supnum "supnum",
+	invnum "invnum",
+	invlin "invlin",
+	invsln "invsln",
+	prtnum "prtnum",
+	client_id "client_id",
+	rcvsts "rcvsts",
+	lotnum "lotnum",
+	sup_lotnum "sup_lotnum",
+	revlvl "revlvl",
+	orgcod "orgcod",
+	expqty "expqty",
+	rcvqty "rcvqty",
+	rcvkey "rcvkey",
+	inv_attr_str1 "inv_attr_str1",
+	inv_attr_str2 "inv_attr_str2",
+	inv_attr_str3 "inv_attr_str3",
+	inv_attr_str4 "inv_attr_str4",
+	inv_attr_str5 "inv_attr_str5",
+	inv_attr_str6 "inv_attr_str6",
+	inv_attr_str7 "inv_attr_str7",
+	inv_attr_str8 "inv_attr_str8",
+	inv_attr_str9 "inv_attr_str9",
+	inv_attr_str10 "inv_attr_str10",
+	inv_attr_str11 "inv_attr_str11",
+	inv_attr_str12 "inv_attr_str12",
+	inv_attr_str13 "inv_attr_str13",
+	inv_attr_str14 "inv_attr_str14",
+	inv_attr_str15 "inv_attr_str15",
+	inv_attr_str16 "inv_attr_str16",
+	inv_attr_str17 "inv_attr_str17",
+	inv_attr_str18 "inv_attr_str18",
+	inv_attr_int1 "inv_attr_int1",
+	inv_attr_int2 "inv_attr_int2",
+	inv_attr_int3 "inv_attr_int3",
+	inv_attr_int4 "inv_attr_int4",
+	inv_attr_int5 "inv_attr_int5",
+	inv_attr_flt1 "inv_attr_flt1",
+	inv_attr_flt2 "inv_attr_flt2",
+	inv_attr_flt3 "inv_attr_flt3",
+	to_char(inv_attr_dte1,'YYYYMMDDHH24MISS') "inv_attr_dte1",
+	to_char(inv_attr_dte2,'YYYYMMDDHH24MISS') "inv_attr_dte2",
+	cstms_cnsgnmnt_id "cstms_cnsgnmnt_id"
+from rcvlin where trknum = :i_c_trknum and supnum = :i_c_supnum and invnum  = :i_c_invnum and client_id = :i_c_client_id and wh_id  = :i_c_wh_id
+
+",1446,"20210202173014","","SLIMP_I",""
+"MASTER_RCPT_COMPLETE","2009.2","RCV_TRLR","RCV_TRLR_RM","SYS_DCS","SELECT
+	carcod "carcod",
+	trlr_num "trlr_num",
+	trlr_stat "trlr_stat",
+	trlr_typ "trlr_typ",
+	trlr_size "trlr_size",
+	refrig_flg "refrig_flg",
+	trlr_broker "trlr_broker",
+	trlr_seal1 "trlr_seal1",
+	trlr_seal2 "trlr_seal2",
+	trlr_seal3 "trlr_seal3",
+	trlr_seal4 "trlr_seal4",
+	stoloc "stoloc",
+	yard_loc "yard_loc",
+	yard_stat "yard_stat",
+	trlr_wgt "trlr_wgt",
+	driver_nam "driver_nam",
+	driver_lic_num "driver_lic_num",
+	to_char(close_dte,'YYYYMMDDHH24MISS') "close_dte",
+	to_char(pend_dte,'YYYYMMDDHH24MISS') "pend_dte",
+	to_char(dispatch_dte,'YYYYMMDDHH24MISS') "dispatch_dte",
+	autogen_flg "autogen_flg",
+	hot_flg "hot_flg",
+	trlr_cod "trlr_cod",
+	turn_flg "turn_flg",
+	delv_flg "delv_flg",
+	appt_id "appt_id",
+	to_char(arrdte,'YYYYMMDDHH24MISS') "arrdte",
+	client_id "client_id",
+	sec_trlr_num "sec_trlr_num",
+	tractor_num "tractor_num",
+	trlr_cond "trlr_cond",
+	pal_slot_flg "pal_slot_flg",
+	stoloc_wh_id "stoloc_wh_id",
+	yard_loc_wh_id "yard_loc_wh_id",
+	orig_trlr_num "orig_trlr_num",
+	trlr_ref "trlr_ref",
+	min_trlr_axle_pos "min_trlr_axle_pos",
+	max_trlr_axle_pos "max_trlr_axle_pos",
+	front_axle_pos "front_axle_pos"
+from trlr where trlr_id = :i_c_trlr_id
+
+",1168,"20210202173014","","SLIMP_I",""
+"MOVE_STATUS_TO_TM","2009.2","CAR_MOVE_SEG","MOVE_STATUS_TO_TM_RM","SYS_DCS","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202173020","","SLIMP_I",""
+"MOVEMENT_REQUEST","V2013.2","MOVE_REQ_SEG","SL_DUMMY_RM","SYS_DCS","SELECT
+	'x' "dummy"
+from dual
+
+",31,"20210202173021","20230523112154","SLIMP_I","SLIMP"
+"ORD_LINE_CHANGE","9.1","ORD_LINE_CHANGE","SL_DUMMY_RM","SYS_DCS","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202173021","20230523112154","SLIMP_I","SLIMP"
+"ORD_LINE_CREATE","9.1","ORD_LINE_CREATE","SL_DUMMY_RM","SYS_DCS","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202173022","20230523112155","SLIMP_I","SLIMP"
+"ORD_LINE_DELETE","9.1","ORD_LINE_DELETE","SL_DUMMY_RM","SYS_DCS","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202173022","20230523112155","SLIMP_I","SLIMP"
+"ORD_LINE_OUB","9.1","ORD_LINE_SEG","SL_DUMMY_RM","SYS_DCS","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202173022","20230523112156","SLIMP_I","SLIMP"
+"ORDER_CHANGE","9.1","ORDER_CHANGE","DCS_DUMMY_RM","SYS_DCS","SELECT
+	'x' "dummy"
+from dual
+
+",31,"20210202173022","20230523112627","SLIMP_I","SLIMP"
+"ORDER_CREATE","9.1","ORDER_CREATE","DCS_DUMMY_RM","SYS_DCS","SELECT
+	'x' "dummy"
+from dual
+
+",31,"20210202173022","20230523112628","SLIMP_I","SLIMP"
+"ORDER_DELETE","9.1","ORDER_DELETE","DCS_DUMMY_RM","SYS_DCS","SELECT
+	'x' "dummy"
+from dual
+
+",31,"20210202173022","20230523112628","SLIMP_I","SLIMP"
+"ORDER_DELETE_TO_CANONICAL","2020.1.0","ORDER_DELETE_SEG","GS1_DUMMY_RM","SYS_DCS","SELECT
+	'x' "dummy"
+from dual
+
+",31,"20210202173535","20210202173607","SLIMP_I","SLIMP_I"
+"ORDER_OUB","2012.1","ORDER_SEG","DCS_DUMMY_RM","SYS_DCS","SELECT
+	'x' "dummy"
+from dual
+
+",31,"20210202173023","20230523112628","SLIMP_I","SLIMP"
+"PART_OUB","9.0","PART_DESC_OUB_SEG","PART_DESC_OUB_RM","SYS_DCS","SELECT
+	prtdsc.locale_id "locale_id",
+	prtdsc.short_dsc "short_dsc",
+	prtdsc.lngdsc "lngdsc"
+from prtdsc
+ where prtdsc.colnam = 'prtnum|prt_client_id|wh_id_tmpl'
+   and prtdsc.colval like :i_c_prtnum || '|' || nvl(:i_c_prt_client_id, '%') || '|' || nvl(:i_c_wh_id, '%')
+   and prtdsc.locale_id = nvl(:i_c_locale_id, locale_id)
+
+",328,"20210202173024","","SLIMP_I",""
+"PART_OUB","9.0","PART_OUB_SEG","PART_OUB_RM","SYS_DCS","SELECT
+	prtmst.prt_client_id "prt_client_id",
+	prtmst.comcod "comcod",
+	prtmst.subcfg "subcfg",
+	prtmst.scfpos "scfpos",
+	prtmst.dtlcfg "dtlcfg",
+	prtmst.dcfpos "dcfpos",
+	prtmst.typcod "typcod",
+	prtmst.prtfam "prtfam",
+	prtmst.lodlvl "lodlvl",
+	prtmst.orgflg "orgflg",
+	prtmst.revflg "revflg",
+	prtmst.lotflg "lotflg",
+	prtmst.untcst "untcst",
+	prtmst.reoqty "reoqty",
+	prtmst.reopnt "reopnt",
+	prtmst.stkuom "stkuom",
+	prtmst.abccod "abccod",
+	prtmst.fifwin "fifwin",
+	prtmst.velzon "velzon",
+	prtmst.rcvsts "rcvsts",
+	prtmst.rcvflg "rcvflg",
+	prtmst.prdflg "prdflg",
+	prtmst.ltlcls "ltlcls",
+	prtmst.wip_prtflg "wip_prtflg",
+	prtmst.dte_code "dte_code",
+	prtmst.age_pflnam "age_pflnam",
+	prtmst.catch_cod "catch_cod",
+	prtmst.catch_unttyp "catch_unttyp",
+	prtmst.catch_untwgt "catch_untwgt",
+	prtmst.catch_untcst "catch_untcst",
+	prtmst.min_catch_qty "min_catch_qty",
+	prtmst.max_catch_qty "max_catch_qty",
+	prtmst.cnzflg "cnzflg",
+	prtmst.cnzamt "cnzamt",
+	prtmst.timcod "timcod",
+	prtmst.stccod "stccod",
+	prtmst.parcel_flg "parcel_flg",
+	prtmst.hazmat_flg "hazmat_flg",
+	prtmst.nstcls "nstcls",
+	prtmst.insflg "insflg",
+	prtmst.ser_typ "ser_typ",
+	prtmst.ser_lvl "ser_lvl",
+	prtmst.wgtcod "wgtcod",
+	prtmst.lod_tag_encode "lod_tag_encode",
+	prtmst.sub_tag_encode "sub_tag_encode",
+	prtmst.co_prefix_len "co_prefix_len",
+	prtmst.time_to_warn_for_exp "time_to_warn_for_exp",
+	prtmst.prtadjflg "prtadjflg",
+	prtmst.cntbck_ena_flg "cntbck_ena_flg",
+	cnt_thr_cst "cnt_thr_cst",
+	prtstyle "prtstyle",
+	prtfit "prtfit",
+	prtcolor "prtcolor",
+	prtsize "prtsize",
+	prtmst.pck_steal_flg "pck_steal_flg",
+	crncy_code "crncy_code",
+	box_pck_flg "box_pck_flg",
+	prtmst.avg_catch "avg_catch",
+	dspuom "dspuom",
+	rptuom "rptuom",
+	ignore_con_flg "ignore_con_flg",
+	dept_cod "dept_cod",
+	:i_c_sys_absent_ind_char "abs_ordinv_win",
+	:i_c_sys_absent_ind_char "abs_ordinv_code",
+	thresh_pck_var "thresh_pck_var",
+	prtmst.dte_win_typ "dte_win_typ",
+	prtmst.cstms_itm_typ "cstms_itm_typ",
+	prtmst.cstms_crncy "cstms_crncy",
+	prtmst.dflt_orgcod "dflt_orgcod",
+	prtmst.cstms_vat_cod "cstms_vat_cod",
+	prtmst.dty_stmp_trk_flg "dty_stmp_trk_flg",
+	prtmst.cstms_cst "cstms_cst",
+	prtmst.cstms_cmmdty_cod "cstms_cmmdty_cod",
+	prtmst.attr_str1 "attr_str1",
+	prtmst.attr_str2 "attr_str2",
+	prtmst.attr_str3 "attr_str3",
+	prtmst.attr_str4 "attr_str4",
+	prtmst.attr_str5 "attr_str5",
+	prtmst.attr_str6 "attr_str6",
+	prtmst.attr_str7 "attr_str7",
+	prtmst.attr_str8 "attr_str8",
+	prtmst.attr_str9 "attr_str9",
+	prtmst.attr_str10 "attr_str10",
+	prtmst.attr_str11 "attr_str11",
+	prtmst.attr_str12 "attr_str12",
+	prtmst.attr_str13 "attr_str13",
+	prtmst.attr_str14 "attr_str14",
+	prtmst.attr_str15 "attr_str15",
+	prtmst.attr_str16 "attr_str16",
+	prtmst.attr_str17 "attr_str17",
+	prtmst.attr_str18 "attr_str18",
+	prtmst.attr_int1 "attr_int1",
+	prtmst.attr_int2 "attr_int2",
+	prtmst.attr_int3 "attr_int3",
+	prtmst.attr_int4 "attr_int4",
+	prtmst.attr_int5 "attr_int5",
+	prtmst.attr_flt1 "attr_flt1",
+	prtmst.attr_flt2 "attr_flt2",
+	prtmst.attr_flt3 "attr_flt3",
+	prtmst.attr_dte1 "attr_dte1",
+	prtmst.attr_dte2 "attr_dte2",
+	shelf_life "shelf_life",
+	shelf_timecode "shelf_timecode",
+	shp_res_lot "shp_res_lot",
+	prtmst.prthrcy "prthrcy",
+	prtmst.allow_xdktyp_rpl_flg "allow_xdktyp_rpl_flg",
+	prtmst.prt_class_name "prt_class_name"
+from prtmst_wh, prtmst_view prtmst
+ where prtmst.prtnum = :i_c_prtnum
+   and prtmst.prt_client_id = nvl(:i_c_prt_client_id, prtmst.prt_client_id)
+   and prtmst.wh_id = :i_c_wh_id
+   and prtmst_wh.wh_id = prtmst.wh_id
+   and prtmst_wh.prt_client_id = prtmst.prt_client_id
+   and prtmst_wh.prtnum = prtmst.prtnum
+
+",3611,"20210202173024","","SLIMP_I",""
+"PICK_CANCEL","V2013.2","DUMMY","SL_DUMMY_RM","SYS_DCS","SELECT
+	'x' "dummy"
+from dual
+
+",31,"20210202173026","20230523112156","SLIMP_I","SLIMP"
+"PICK_REQUEST","V2013.2","DUMMY","SL_DUMMY_RM","SYS_DCS","SELECT
+	'x' "dummy"
+from dual
+
+",31,"20210202173027","20230523112156","SLIMP_I","SLIMP"
+"PICK_REQUEST_TEST","V2013.2","DUMMY","SL_DUMMY_RM","SYS_DCS","SELECT
+	'x' "dummy"
+from dual
+
+",31,"20210202173027","20230523112157","SLIMP_I","SLIMP"
+"RCV_TRLR_CLOSE","2009.2","MASTER_RCPT","MASTER_RCPT_RM","SYS_DCS","SELECT
+	trknum "trknum",
+	wh_id "wh_id",
+	trkref "trkref",
+	grswgt "grswgt",
+	numpal "numpal",
+	numcas "numcas",
+	to_char(shpdte,'YYYYMMDDHH24MISS') "shpdte",
+	to_char(expdte,'YYYYMMDDHH24MISS') "expdte",
+	devcod "devcod",
+	lblflg "lblflg",
+	trnspt "trnspt",
+	frtcst "frtcst",
+	to_char(clsdte,'YYYYMMDDHH24MISS') "clsdte",
+	to_char(arcdte,'YYYYMMDDHH24MISS') "arcdte",
+	arc_src "arc_src",
+	crncy_code "crncy_code",
+	to_char(lms_plan_dte,'YYYYMMDDHH24MISS') "lms_plan_dte",
+	lm_goal_seconds "lm_goal_seconds"
+from rcvtrk where trlr_id = :i_c_trlr_id
+
+",550,"20210202173028","","SLIMP_I",""
+"RCV_TRLR_CLOSE","2009.2","RCV_TRLR","RCV_TRLR_RM","SYS_DCS","SELECT
+	carcod "carcod",
+	trlr_num "trlr_num",
+	trlr_stat "trlr_stat",
+	trlr_typ "trlr_typ",
+	trlr_size "trlr_size",
+	refrig_flg "refrig_flg",
+	trlr_broker "trlr_broker",
+	trlr_seal1 "trlr_seal1",
+	trlr_seal2 "trlr_seal2",
+	trlr_seal3 "trlr_seal3",
+	trlr_seal4 "trlr_seal4",
+	stoloc "stoloc",
+	yard_loc "yard_loc",
+	yard_stat "yard_stat",
+	trlr_wgt "trlr_wgt",
+	driver_nam "driver_nam",
+	driver_lic_num "driver_lic_num",
+	to_char(close_dte,'YYYYMMDDHH24MISS') "close_dte",
+	to_char(pend_dte,'YYYYMMDDHH24MISS') "pend_dte",
+	to_char(dispatch_dte,'YYYYMMDDHH24MISS') "dispatch_dte",
+	autogen_flg "autogen_flg",
+	hot_flg "hot_flg",
+	trlr_cod "trlr_cod",
+	turn_flg "turn_flg",
+	delv_flg "delv_flg",
+	appt_id "appt_id",
+	to_char(arrdte,'YYYYMMDDHH24MISS') "arrdte",
+	client_id "client_id",
+	sec_trlr_num "sec_trlr_num",
+	tractor_num "tractor_num",
+	trlr_cond "trlr_cond",
+	pal_slot_flg "pal_slot_flg",
+	stoloc_wh_id "stoloc_wh_id",
+	yard_loc_wh_id "yard_loc_wh_id",
+	orig_trlr_num "orig_trlr_num",
+	trlr_ref "trlr_ref",
+	min_trlr_axle_pos "min_trlr_axle_pos",
+	max_trlr_axle_pos "max_trlr_axle_pos",
+	front_axle_pos "front_axle_pos",
+	live_load_flg "live_load_flg"
+from trlr where trlr_id = :i_c_trlr_id
+
+",1200,"20210202173028","","SLIMP_I",""
+"RCVLIN_CHANGE","2009.2","RCVLIN_CHANGE","SL_DUMMY_RM","SYS_DCS","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202173028","20230523112157","SLIMP_I","SLIMP"
+"RCVLIN_CREATE","2009.2","RCVLIN_CREATE","SL_DUMMY_RM","SYS_DCS","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202173029","20230523112158","SLIMP_I","SLIMP"
+"RCVLIN_DELETE","2009.2","RCVLIN_DELETE","SL_DUMMY_RM","SYS_DCS","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202173029","20230523112158","SLIMP_I","SLIMP"
+"RECEIVE_RET","9.1","RECEIVE_RET","INV-RET","SYS_DCS","SELECT
+	rethdr.rmanum "rmanum",
+	rethdr.wh_id "wh_id",
+	rethdr.cstnum "cstnum",
+	rethdr.client_id "client_id",
+	RET_SRC_TYP "ret_src_typ",
+	carcod "carcod",
+	rethdr.ship_id "ship_id",
+	ret_ship_ref "ret_ship_ref",
+	rethdr.orig_ordnum "orig_ord_num",
+	retsts "retsts",
+	to_char(rethdr.ret_date,'YYYYMMDDHH24MISS') "ret_date",
+	rethdr.notes "notes",
+	sum(nvl(retdtl.expqty,0)) "exp_qty",
+	retdtl.lin_num "lin_num"
+from rethdr,
+         retdtl
+where rethdr.rmanum = retdtl.rmanum
+and retdtl.rmanum=:i_c_rmanum
+and retdtl.wh_id=:i_c_wh_id
+
+GROUP BY rethdr.rmanum,
+ rethdr.wh_id,
+ rethdr.cstnum,
+ rethdr.client_id,
+ RET_SRC_TYP,
+ carcod,
+ rethdr.ship_id,
+ ret_ship_ref,
+ rethdr.orig_ordnum,
+ retsts,
+ rethdr.ret_date,
+ rethdr.notes,
+ retdtl.lin_num
+",744,"20210202173029","","SLIMP_I",""
+"RECEIVE_RET","9.1","RECEIVE_RET_DTL","INV_RET_DTL","SYS_DCS","SELECT
+	retdtl.ser_num "ser_num",
+	retdtl.lotnum "lot_num",
+	retdtl.revlvl "revlvl",
+	retdtl.ret_itm_sts "ret_itm_sts",
+	retdtl.orgcod "orgcod",
+	retdtl.condcod "condcod",
+	retdtl.orig_carcod "orig_carcod",
+	retdtl.orig_ship_ref "orig_ship_ref",
+	retdtl.retcod "retcod",
+	retdtl.req_action "req_action",
+	retdtl.prtnum "prt_num",
+	retdtl.prt_client_id "prt_client_id",
+	retdtl.inv_attr_str1 "inv_attr_str1",
+	retdtl.inv_attr_str2 "inv_attr_str2",
+	retdtl.inv_attr_str3 "inv_attr_str3",
+	retdtl.inv_attr_str4 "inv_attr_str4",
+	retdtl.inv_attr_str5 "inv_attr_str5",
+	retdtl.inv_attr_str6 "inv_attr_str6",
+	retdtl.inv_attr_str7 "inv_attr_str7",
+	retdtl.inv_attr_str8 "inv_attr_str8",
+	retdtl.inv_attr_str9 "inv_attr_str9",
+	retdtl.inv_attr_str10 "inv_attr_str10",
+	retdtl.inv_attr_str11 "inv_attr_str11",
+	retdtl.inv_attr_str12 "inv_attr_str12",
+	retdtl.inv_attr_str13 "inv_attr_str13",
+	retdtl.inv_attr_str14 "inv_attr_str14",
+	retdtl.inv_attr_str15 "inv_attr_str15",
+	retdtl.inv_attr_str16 "inv_attr_str16",
+	retdtl.inv_attr_str17 "inv_attr_str17",
+	retdtl.inv_attr_str18 "inv_attr_str18",
+	retdtl.inv_attr_int1 "inv_attr_int1",
+	retdtl.inv_attr_int2 "inv_attr_int2",
+	retdtl.inv_attr_int3 "inv_attr_int3",
+	retdtl.inv_attr_int4 "inv_attr_int4",
+	retdtl.inv_attr_int5 "inv_attr_int5",
+	retdtl.inv_attr_flt1 "inv_attr_flt1",
+	retdtl.inv_attr_flt2 "inv_attr_flt2",
+	retdtl.inv_attr_flt3 "inv_attr_flt3",
+	to_char(retdtl.inv_attr_dte1,'YYYYMMDDHH24MISS') "inv_attr_dte1",
+	to_char(retdtl.inv_attr_dte2,'YYYYMMDDHH24MISS') "inv_attr_dte2",
+	sum(nvl(retdtl.idnqty,0)) "idn_qty",
+	to_char(retdtl.act_ret_date,'YYYYMMDDHH24MISS') "act_ret_date",
+	retdtl.sup_lotnum "sup_lotnum",
+	to_char(retdtl.expire_dte,'YYYYMMDDHH24MISS') "expire_dte",
+	to_char(retdtl.mandte,'YYYYMMDDHH24MISS') "mandte",
+	retdtl.seqnum "seqnum"
+from   retdtl
+where  retdtl.rmanum=:i_c_rmanum
+and retdtl.wh_id=:i_c_wh_id
+and retdtl.lin_num = :i_c_lin_num
+
+GROUP BY retdtl.ser_num,
+ retdtl.lotnum,
+ retdtl.revlvl,
+ retdtl.ret_itm_sts,
+ retdtl.orgcod,
+ retdtl.condcod,
+ retdtl.orig_carcod,
+ retdtl.orig_ship_ref,
+ retdtl.retcod,
+ retdtl.req_action,
+ retdtl.prtnum,
+ retdtl.prt_client_id,
+ retdtl.inv_attr_str1,
+ retdtl.inv_attr_str2,
+ retdtl.inv_attr_str3,
+ retdtl.inv_attr_str4,
+ retdtl.inv_attr_str5,
+ retdtl.inv_attr_str6,
+ retdtl.inv_attr_str7,
+ retdtl.inv_attr_str8,
+ retdtl.inv_attr_str9,
+ retdtl.inv_attr_str10,
+ retdtl.inv_attr_str11,
+ retdtl.inv_attr_str12,
+ retdtl.inv_attr_str13,
+ retdtl.inv_attr_str14,
+ retdtl.inv_attr_str15,
+ retdtl.inv_attr_str16,
+ retdtl.inv_attr_str17,
+ retdtl.inv_attr_str18,
+ retdtl.inv_attr_int1,
+ retdtl.inv_attr_int2,
+ retdtl.inv_attr_int3,
+ retdtl.inv_attr_int4,
+ retdtl.inv_attr_int5,
+ retdtl.inv_attr_flt1,
+ retdtl.inv_attr_flt2,
+ retdtl.inv_attr_flt3,
+ retdtl.inv_attr_dte1,
+ retdtl.inv_attr_dte2,
+ retdtl.act_ret_date,
+ retdtl.sup_lotnum,
+ retdtl.expire_dte,
+ retdtl.mandte,
+ retdtl.seqnum
+",2895,"20210202173029","20230523114023","SLIMP_I","SLIMP"
+"RECEIVE_RETURN_TO_CANONICAL","2017.2","RECEIVE_RETURN_DTL","CANONICAL_RETURN_DTL_RM","SYS_DCS","SELECT
+	lin_num "line_num",
+	idnqty "idn_qty",
+	expqty "exp_qty",
+	retdtl.prtnum "prtnum",
+	retdtl.condcod "cond_code",
+	invdtl.invsts "invsts"
+from retdtl,invdtl 
+where retdtl.rmanum=:i_c_rmanum 
+  and retdtl.wh_id=:i_c_wh_id
+  and retdtl.rcvkey =  invdtl.rcvkey
+  and retdtl.prtnum = invdtl.prtnum
+  and retdtl.prt_client_id = invdtl.prt_client_id
+
+",351,"20210202173408","20210202173408","SLIMP_I","SLIMP_I"
+"RECEIVE_RETURN_TO_CANONICAL","2017.2","RECEIVE_RETURN_HDR","CANONICAL_RETURNS_RM","SYS_DCS","SELECT
+	rethdr.rmanum "rmanum",
+	rethdr.wh_id "wh_id",
+	to_char(close_dte,'YYYYMMDDHH24MISS') "close_date",
+	client_id "client_id",
+	carcod "carcod",
+	cstnum "cstnum",
+	ret_src_typ "ret_src_typ",
+	ext_order_ref "ext_order_ref"
+from rethdr where rethdr.rmanum=:i_c_rmanum and rethdr.wh_id=:i_c_wh_id
+
+",300,"20210202173408","20210202173409","SLIMP_I","SLIMP_I"
+"RECEIVE_RETURN_TO_CANONICAL","2017.2","RECEIVE_RETURNS","RETURNS_DUMMY_RM","SYS_DCS","SELECT
+	:i_c_sys_absent_ind_char "dumfld"
+from dual
+
+",53,"20210202173409","","SLIMP_I",""
+"REMOVAL","V2013.2","DUMMY","SL_DUMMY_RM","SYS_DCS","SELECT
+	'x' "dummy"
+from dual
+
+",31,"20210202173029","20230523112159","SLIMP_I","SLIMP"
+"RIMLIN_CHANGE","2009.2","RIMLIN_CHANGE","SL_DUMMY_RM","SYS_DCS","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202173030","20230523112159","SLIMP_I","SLIMP"
+"RIMLIN_CREATE","2009.2","RIMLIN_CREATE","SL_DUMMY_RM","SYS_DCS","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202173030","20230523112200","SLIMP_I","SLIMP"
+"RIMLIN_DELETE","2009.2","RIMLIN_DELETE","SL_DUMMY_RM","SYS_DCS","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202173030","20230523112200","SLIMP_I","SLIMP"
+"RPS_WH_INVLVL","2009.2","CTRL","SL_DUMMY_RM","SYS_DCS","SELECT
+	'x' "dummy"
+from dual
+
+",31,"20210202173031","20230523112201","SLIMP_I","SLIMP"
+"RVS RCP","2020.1","CTRL_SEG","SL_DUMMY_RM","SYS_DCS","SELECT
+	'X' "dummy-dum"
+from dual
+
+ORDER BY 1 ",46,"20210202173031","20230523112201","SLIMP_I","SLIMP"
+"RVS RCP","2020.1","DTL","RVS-RCP DTL RM","SYS_DCS","SELECT
+	prtmst.stkuom "stkuom",
+	rcvlin.invlin "invlin",
+	rcvlin.invsln "invsln",
+	prtmst.catch_unttyp "catch_unttyp",
+	trlr.trlr_num "trlr_num",
+	trlr.carcod "carcod",
+	rcvlin.invnum "invnum",
+	rcvinv.po_num "ponum",
+	rcvlin.invlin "polin"
+from prtmst_view prtmst, rcvlin
+ join rcvtrk
+   on (rcvtrk.trknum = rcvlin.trknum
+          and rcvtrk.wh_id = rcvlin.wh_id)
+ join rcvinv
+   on (rcvinv.trknum = rcvlin.trknum
+          and rcvinv.invnum = rcvlin.invnum
+          and rcvinv.client_id = rcvlin.client_id
+          and rcvinv.wh_id = rcvlin.wh_id)
+ left outer join trlr
+  on trlr.trlr_id = rcvtrk.trlr_id
+where prtmst.prtnum=:i_c_prtnum
+   and prtmst.prt_client_id=:i_c_prt_client_id
+   and prtmst.prdflg = 1
+   and prtmst.wh_id = :i_c_wh_id
+   and prtmst.prtnum = rcvlin.prtnum
+   and prtmst.prt_client_id = rcvlin.prt_client_id
+   and rcvlin.invnum = :i_c_invnum
+   and rcvlin.supnum = :i_c_supnum
+   and rcvlin.rcvkey = :i_c_rcvkey
+   and rcvlin.wh_id = :i_c_wh_id
+
+",974,"20210202173031","","SLIMP_I",""
+"RVS RCP","2020.1","HDR","SL_DUMMY_RM","SYS_DCS","SELECT
+	'X' "dummy-hdr"
+from dual
+
+ORDER BY 1 ",46,"20210202173031","20230523112202","SLIMP_I","SLIMP"
+"SAL_VOC_PRC_CYCLE_COUNT_EO","2019.1","DATA","SL_DUMMY_RM","SYS_VOICE","SELECT
+	:I_N_ERROR_CODE "error_code",
+	:I_C_ERROR_DESCR "error_descr"
+from dual
+
+",81,"20210202172241","20210202172510","SLIMP_I","SLIMP_I"
+"SAL_VOI_PRC_PTS_PUT_EO","2012.2","DATA","SL_DUMMY_RM","SYS_VOICE","SELECT
+	:I_N_ERROR_CODE "error_code",
+	:I_C_ERROR_DESCR "error_descr"
+from dual
+
+",81,"20210202172511","20210202172511","SLIMP_I","SLIMP_I"
+"SEND CAR_INBOUND_QUALITY EO","2009.2","SEND CAR_INBOUND_QUALITY_HDR","SL_DUMMY_RM","SYS_DCS","SELECT
+	to_char(:i_c_request_dt,'YYYYMMDDHH24MISS') "request_dt",
+	:i_n_last_request_flg "last_request_flg",
+	:i_c_wh_id "wh_id",
+	:i_c_cube_name "cube_name"
+from dual
+
+",169,"20210202173032","20230523112202","SLIMP_I","SLIMP"
+"SEND DIMENSION EO","2009.2","SEND DIMENSION","SL_DUMMY_RM","SYS_DCS","SELECT
+	'x' "dummy"
+from dual
+
+",31,"20210202173032","20230523112202","SLIMP_I","SLIMP"
+"SEND INV_ACCURACY EO","2009.2","SEND INV_ACCURACY_HDR","SL_DUMMY_RM","SYS_DCS","SELECT
+	to_char(:i_c_request_dt,'YYYYMMDDHH24MISS') "request_dt",
+	:i_n_last_request_flg "last_request_flg",
+	:i_c_wh_id "wh_id",
+	:i_c_cube_name "cube_name"
+from dual
+
+",169,"20210202173032","20230523112203","SLIMP_I","SLIMP"
+"SEND INV_ON_HAND EO","2009.2","SEND INV_ON_HAND_HDR","SL_DUMMY_RM","SYS_DCS","SELECT
+	to_char(:i_c_request_dt,'YYYYMMDDHH24MISS') "request_dt",
+	:i_n_last_request_flg "last_request_flg",
+	:i_c_wh_id "wh_id",
+	:i_c_cube_name "cube_name"
+from dual
+
+",169,"20210202173032","20230523112203","SLIMP_I","SLIMP"
+"SEND INV_TURNS EO","2009.2","SEND INV_TURNS_HDR","SL_DUMMY_RM","SYS_DCS","SELECT
+	to_char(:i_c_request_dt,'YYYYMMDDHH24MISS') "request_dt",
+	:i_n_last_request_flg "last_request_flg",
+	:i_c_wh_id "wh_id",
+	:i_c_cube_name "cube_name"
+from dual
+
+",169,"20210202173033","20230523112204","SLIMP_I","SLIMP"
+"SEND LOC_UTIL EO","2009.2","SEND LOC_UTIL_HDR","SL_DUMMY_RM","SYS_DCS","SELECT
+	to_char(:i_c_request_dt,'YYYYMMDDHH24MISS') "request_dt",
+	:i_n_last_request_flg "last_request_flg",
+	:i_c_wh_id "wh_id",
+	:i_c_cube_name "cube_name"
+from dual
+
+",169,"20210202173033","20230523112204","SLIMP_I","SLIMP"
+"SEND LOC_UTIL_BY_CLIENT EO","2009.2","SEND LOC_UTIL_BY_CLIENT_HDR","SL_DUMMY_RM","SYS_DCS","SELECT
+	to_char(:i_c_request_dt,'YYYYMMDDHH24MISS') "request_dt",
+	:i_n_last_request_flg "last_request_flg",
+	:i_c_wh_id "wh_id",
+	:i_c_cube_name "cube_name"
+from dual
+
+",169,"20210202173033","20230523112205","SLIMP_I","SLIMP"
+"SEND ORD_EXCEPTIONS EO","2009.2","SEND ORD_EXCEPTIONS_HDR","SL_DUMMY_RM","SYS_DCS","SELECT
+	to_char(:i_c_request_dt,'YYYYMMDDHH24MISS') "request_dt",
+	:i_n_last_request_flg "last_request_flg",
+	:i_c_wh_id "wh_id",
+	:i_c_cube_name "cube_name"
+from dual
+
+",169,"20210202173034","20230523112205","SLIMP_I","SLIMP"
+"SEND OUTBOUND_ORDER EO","2009.2","SEND OUTBOUND_ORDER_HDR","SL_DUMMY_RM","SYS_DCS","SELECT
+	to_char(:i_c_request_dt,'YYYYMMDDHH24MISS') "request_dt",
+	:i_n_last_request_flg "last_request_flg",
+	:i_c_wh_id "wh_id",
+	:i_c_cube_name "cube_name"
+from dual
+
+",169,"20210202173034","20230523112206","SLIMP_I","SLIMP"
+"SEND PICK_EXCEPTIONS EO","2009.2","SEND PICK_EXCEPTIONS_HDR","SL_DUMMY_RM","SYS_DCS","SELECT
+	to_char(:i_c_request_dt,'YYYYMMDDHH24MISS') "request_dt",
+	:i_n_last_request_flg "last_request_flg",
+	:i_c_wh_id "wh_id",
+	:i_c_cube_name "cube_name"
+from dual
+
+",169,"20210202173034","20230523112206","SLIMP_I","SLIMP"
+"SEND VEN_INBOUND_QUALITY EO","2009.2","SEND VEN_INBOUND_QUALITY_HDR","SL_DUMMY_RM","SYS_DCS","SELECT
+	to_char(:i_c_request_dt,'YYYYMMDDHH24MISS') "request_dt",
+	:i_n_last_request_flg "last_request_flg",
+	:i_c_wh_id "wh_id",
+	:i_c_cube_name "cube_name"
+from dual
+
+",169,"20210202173034","20230523112206","SLIMP_I","SLIMP"
+"SHIP_LINE_CHANGE","2009.2","SHIP_LINE_CHANGE","SL_DUMMY_RM","SYS_DCS","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202173035","20230523112207","SLIMP_I","SLIMP"
+"SHIP_LINE_CREATE","2009.2","SHIP_LINE_CREATE","SL_DUMMY_RM","SYS_DCS","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202173035","20230523112207","SLIMP_I","SLIMP"
+"SHIP_LINE_DELETE","2009.2","SHIP_LINE_DELETE","SL_DUMMY_RM","SYS_DCS","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202173035","20230523112208","SLIMP_I","SLIMP"
+"SHIP_LOAD","2017.1","SHIPMENT_ORDER","SHIPMENT_ORDER_ACT_RM","SYS_DCS","SELECT
+	shl.ship_id "ship_id",
+	shl.ordnum "ordnum",
+	ord.client_id "client_id",
+	ord.btcust "btcust",
+	ord.rtcust "rtcust",
+	ord.stcust "stcust",
+	ord.cponum "cponum",
+	ord.ordtyp "ordtyp",
+	ord.dlvnum "dlvnum",
+	ord.dlvseq "dlvseq"
+from   ord, shipment_line shl
+where   ord.client_id = shl.client_id
+and ord.ordnum = shl.ordnum
+and          ord.wh_id = shl.wh_id
+and shl.ship_id = :i_c_ship_id
+
+GROUP BY shl.ship_id,
+ shl.ordnum,
+ ord.client_id,
+ ord.btcust,
+ ord.rtcust,
+ ord.stcust,
+ ord.cponum,
+ ord.ordtyp,
+ ord.dlvnum,
+ ord.dlvseq
+",538,"20210202173035","20210216132901","SLIMP_I","SLIMP"
+"SHIP_STATUS_TO_CANONICAL","2020.1.0","SHIPMENT","CANONICAL_SHIPMENT_STATUS_RM","SYS_DCS","SELECT
+	shp.ship_id "ship_id",
+	shp.host_ext_id "host_ext_id",
+	wh_id "wh_id",
+	shp.host_client_id "host_client_id",
+	shp.tms_move_id "tms_move_id",
+	shp.carcod "carcod"
+from shipment shp
+where shp.ship_id = :i_c_ship_id
+    and wh_id = :i_c_wh_id
+
+",249,"20210202173400","20210202173400","SLIMP_I","SLIMP_I"
+"SHIP-CANCEL","2013.2","SHIPMENT","SHIPMENT_INFO_RM","SYS_DCS","SELECT
+	shp.ship_id "ship_id",
+	shp.host_client_id "host_client_id",
+	shp.host_ext_id "host_ext_id",
+	shp.shpsts "shpsts",
+	shp.stop_id "stop_id",
+	shp.rt_adr_id "rt_adr_id",
+	shp.cargrp "cargrp",
+	shp.carcod "carcod",
+	shp.srvlvl "srvlvl",
+	shp.sddflg "sddflg",
+	shp.doc_num "doc_num",
+	shp.track_num "track_num",
+	shp.frtchg "frtchg",
+	shp.frtcod "frtcod",
+	shp.frtrte "frtrte",
+	to_char(shp.adddte,'YYYYMMDDHH24MISS') "adddte",
+	to_char(shp.alcdte,'YYYYMMDDHH24MISS') "alcdte",
+	to_char(shp.stgdte,'YYYYMMDDHH24MISS') "stgdte",
+	to_char(shp.loddte,'YYYYMMDDHH24MISS') "loddte",
+	to_char(shp.entdte,'YYYYMMDDHH24MISS') "entdte",
+	to_char(shp.early_shpdte,'YYYYMMDDHH24MISS') "early_shpdte",
+	to_char(shp.late_shpdte,'YYYYMMDDHH24MISS') "late_shpdte",
+	to_char(shp.early_dlvdte,'YYYYMMDDHH24MISS') "early_dlvdte",
+	to_char(shp.late_dlvdte,'YYYYMMDDHH24MISS') "late_dlvdte",
+	shp.dst_mov_zone_id "dst_mov_zone_id",
+	shp.dstloc "dstloc",
+	shp.rrlflg "rrlflg",
+	to_char(shp.moddte,'YYYYMMDDHH24MISS') "moddte",
+	shp.mod_usr_id "mod_usr_id",
+	shp.wave_set "wave_set",
+	export_typ "export_typ"
+from shipment shp
+where shp.ship_id = :i_c_ship_id
+
+",1142,"20210202173036","","SLIMP_I",""
+"SHIPMENT_CHANGE","2009.2","SHIPMENT_CHANGE","SL_DUMMY_RM","SYS_DCS","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202173036","20230523112208","SLIMP_I","SLIMP"
+"SHIPMENT_CREATE","2009.2","SHIPMENT_CREATE","SL_DUMMY_RM","SYS_DCS","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202173036","20230523112209","SLIMP_I","SLIMP"
+"SHIPMENT_DELETE","2009.2","SHIPMENT_DELETE","SL_DUMMY_RM","SYS_DCS","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202173037","20230523112209","SLIMP_I","SLIMP"
+"SHIPMENT_DELETE_TO_CANONICAL","2020.1.0","SHIPMENT_DELETE_SEG","GS1_DUMMY_RM","SYS_DCS","SELECT
+	'x' "dummy"
+from dual
+
+",31,"20210202173608","","SLIMP_I",""
+"SHIPMENT_LINE_COMMIT","2009.2","SHIPMENT_LINE_SEG","SL_DUMMY_RM","SYS_DCS","SELECT
+	:I_C_SHIP_ID "ship_id",
+	:I_C_HOST_SHIP_ID "host_ship_id",
+	:I_C_HOST_CLIENT_ID "host_client_id",
+	:I_C_ORDNUM "ordnum",
+	:I_C_ORDLIN "ordlin",
+	:I_C_ORDSLN "ordsln",
+	:I_C_ADR_ID "adr_id",
+	:I_C_PRTNUM "prtnum",
+	:I_C_ORGCOD "orgcod",
+	:I_C_REVLVL "revlvl",
+	:I_C_LOTNUM "lotnum",
+	:I_C_SUP_LOTNUM "sup_lotnum",
+	:I_C_INVSTS "invsts",
+	:I_C_COMSGN "comsgn",
+	:I_N_COMQTY "comqty",
+	:I_C_INVSTS_PRG "invsts_prg",
+	:I_C_INV_ATTR_STR1 "inv_attr_str1",
+	:I_C_INV_ATTR_STR2 "inv_attr_str2",
+	:I_C_INV_ATTR_STR3 "inv_attr_str3",
+	:I_C_INV_ATTR_STR4 "inv_attr_str4",
+	:I_C_INV_ATTR_STR5 "inv_attr_str5",
+	:I_C_INV_ATTR_STR6 "inv_attr_str6",
+	:I_C_INV_ATTR_STR7 "inv_attr_str7",
+	:I_C_INV_ATTR_STR8 "inv_attr_str8",
+	:I_C_INV_ATTR_STR9 "inv_attr_str9",
+	:I_C_INV_ATTR_STR10 "inv_attr_str10",
+	:I_C_INV_ATTR_STR11 "inv_attr_str11",
+	:I_C_INV_ATTR_STR12 "inv_attr_str12",
+	:I_C_INV_ATTR_STR13 "inv_attr_str13",
+	:I_C_INV_ATTR_STR14 "inv_attr_str14",
+	:I_C_INV_ATTR_STR15 "inv_attr_str15",
+	:I_C_INV_ATTR_STR16 "inv_attr_str16",
+	:I_C_INV_ATTR_STR17 "inv_attr_str17",
+	:I_C_INV_ATTR_STR18 "inv_attr_str18",
+	:I_N_INV_ATTR_INT1 "inv_attr_int1",
+	:I_N_INV_ATTR_INT2 "inv_attr_int2",
+	:I_N_INV_ATTR_INT3 "inv_attr_int3",
+	:I_N_INV_ATTR_INT4 "inv_attr_int4",
+	:I_N_INV_ATTR_INT5 "inv_attr_int5",
+	:I_N_INV_ATTR_FLT1 "inv_attr_flt1",
+	:I_N_INV_ATTR_FLT2 "inv_attr_flt2",
+	:I_N_INV_ATTR_FLT3 "inv_attr_flt3",
+	:I_C_RTTN_ID "rttn_id",
+	:I_N_CSTMS_BOND_FLG "cstms_bond_flg",
+	:I_N_DTY_STMP_FLG "dty_stmp_flg",
+	:I_C_ASSET_TYP "asset_typ",
+	:I_C_LOAD_ATTR1_CFG "load_attr1_cfg",
+	:I_C_LOAD_ATTR2_CFG "load_attr2_cfg",
+	:I_C_LOAD_ATTR3_CFG "load_attr3_cfg",
+	:I_C_LOAD_ATTR4_CFG "load_attr4_cfg",
+	:I_C_LOAD_ATTR5_CFG "load_attr5_cfg"
+from dual
+
+ORDER BY 1 , 4 , 5 , 6 ",1757,"20210202173037","20230523112210","SLIMP_I","SLIMP"
+"SHIPMENT_LINE_STAGE","2009.2","SHIPMENT_LINE_SEG","SL_DUMMY_RM","SYS_DCS","SELECT
+	:I_C_SHIP_ID "ship_id",
+	:I_C_HOST_SHIP_ID "host_ship_id",
+	:I_C_HOST_CLIENT_ID "host_client_id",
+	:I_C_ORDNUM "ordnum",
+	:I_C_ORDLIN "ordlin",
+	:I_C_ORDSLN "ordsln",
+	:I_C_PRTNUM "prtnum",
+	:I_C_ORGCOD "orgcod",
+	:I_C_ADR_ID "adr_id",
+	:I_C_REVLVL "revlvl",
+	:I_C_LOTNUM "lotnum",
+	:I_C_SUP_LOTNUM "sup_lotnum",
+	:I_C_INVSTS "invsts",
+	:I_C_STGSGN "stgsgn",
+	:I_N_STGQTY "stgqty",
+	:I_C_INVSTS_PRG "invsts_prg",
+	:I_C_INV_ATTR_STR1 "inv_attr_str1",
+	:I_C_INV_ATTR_STR2 "inv_attr_str2",
+	:I_C_INV_ATTR_STR3 "inv_attr_str3",
+	:I_C_INV_ATTR_STR4 "inv_attr_str4",
+	:I_C_INV_ATTR_STR5 "inv_attr_str5",
+	:I_C_INV_ATTR_STR6 "inv_attr_str6",
+	:I_C_INV_ATTR_STR7 "inv_attr_str7",
+	:I_C_INV_ATTR_STR8 "inv_attr_str8",
+	:I_C_INV_ATTR_STR9 "inv_attr_str9",
+	:I_C_INV_ATTR_STR10 "inv_attr_str10",
+	:I_C_INV_ATTR_STR11 "inv_attr_str11",
+	:I_C_INV_ATTR_STR12 "inv_attr_str12",
+	:I_C_INV_ATTR_STR13 "inv_attr_str13",
+	:I_C_INV_ATTR_STR14 "inv_attr_str14",
+	:I_C_INV_ATTR_STR15 "inv_attr_str15",
+	:I_C_INV_ATTR_STR16 "inv_attr_str16",
+	:I_C_INV_ATTR_STR17 "inv_attr_str17",
+	:I_C_INV_ATTR_STR18 "inv_attr_str18",
+	:I_N_INV_ATTR_INT1 "inv_attr_int1",
+	:I_N_INV_ATTR_INT2 "inv_attr_int2",
+	:I_N_INV_ATTR_INT3 "inv_attr_int3",
+	:I_N_INV_ATTR_INT4 "inv_attr_int4",
+	:I_N_INV_ATTR_INT5 "inv_attr_int5",
+	:I_N_INV_ATTR_FLT1 "inv_attr_flt1",
+	:I_N_INV_ATTR_FLT2 "inv_attr_flt2",
+	:I_N_INV_ATTR_FLT3 "inv_attr_flt3",
+	:I_C_RTTN_ID "rttn_id",
+	:I_N_CSTMS_BOND_FLG "cstms_bond_flg",
+	:I_N_DTY_STMP_FLG "dty_stmp_flg",
+	:I_C_ASSET_TYP "asset_typ",
+	:I_C_LOAD_ATTR1_CFG "load_attr1_cfg",
+	:I_C_LOAD_ATTR2_CFG "load_attr2_cfg",
+	:I_C_LOAD_ATTR3_CFG "load_attr3_cfg",
+	:I_C_LOAD_ATTR4_CFG "load_attr4_cfg",
+	:I_C_LOAD_ATTR5_CFG "load_attr5_cfg"
+from dual
+
+ORDER BY 50 , 1 , 4 , 5 , 6 ",1762,"20210202173037","20230523112210","SLIMP_I","SLIMP"
+"SHIPMENT_STATUS_CHANGE","9.1.1","DUMMY","SL_DUMMY_RM","SYS_DCS","SELECT
+	:i_c_sys_absent_ind_char "dummy"
+from dual
+
+",52,"20210202173038","20230523112211","SLIMP_I","SLIMP"
+"SHIPMENT_UPDATE_TO_CANONICAL","2020.1.0","SHIPMENT_SEG","CANONICAL_SPLIT_SHIPMENT_RM","SYS_DCS","SELECT
+	ship_id "ship_id",
+	wh_id "wh_id",
+	host_client_id "host_client_id",
+	carcod "carcod",
+	host_ext_id "host_ext_id",
+	rt_adr_id "rt_ext_id",
+	to_char(early_shpdte,'YYYYMMDDHH24MISS') "early_shpdte",
+	to_char(late_shpdte,'YYYYMMDDHH24MISS') "late_shpdte",
+	to_char(early_dlvdte,'YYYYMMDDHH24MISS') "ealry_dlvdte",
+	to_char(early_dlvdte,'YYYYMMDDHH24MISS') "early_dlvdte",
+	'+' "late_dlvdte",
+	tms_move_id "tms_move_id"
+from shipment
+where ship_id in (:i_c_parent_ship_id, :i_c_split_ship_id)
+  and wh_id = :i_c_wh_id
+
+",523,"20210202173559","20210202173559","SLIMP_I","SLIMP_I"
+"SIMPLE_HEAD_FOR_XML","V1.0","CONTROL","SL_DUMMY_RM","SYS_HOST","SELECT
+	'x' "dummy"
+from dual
+
+",31,"20210202173039","","SLIMP_I",""
+"SIMPLE_HEAD_FOR_XML","V1.0","CONTROL","SL_DUMMY_RM","SYS_SEAMLES","SELECT
+	'x' "dummy"
+from dual
+
+",31,"20210202173039","","SLIMP_I",""
+"SIMPLE_HEAD_FOR_XML","V1.0","CONTROL","SL_DUMMY_RM","SYS_SL_ACCUM","SELECT
+	'x' "dummy"
+from dual
+
+",31,"20210202173039","","SLIMP_I",""
+"SIMPLE_HEAD_FOR_XML","V1.0","CONTROL","SL_DUMMY_RM","SYS_SL_TEST_DEST","SELECT
+	'x' "dummy"
+from dual
+
+",31,"20210202173039","","SLIMP_I",""
+"SIMPLE_HEAD_FOR_XML","V1.0","CONTROL","SL_DUMMY_RM","SYS_SL_TEST_DEST_XML_EMAIL","SELECT
+	'x' "dummy"
+from dual
+
+",31,"20210202173039","","SLIMP_I",""
+"SIMPLE_HEAD_FOR_XML","V1.0","CONTROL","SL_DUMMY_RM","SYS_SL_TEST_DEST_XML_FILE","SELECT
+	'x' "dummy"
+from dual
+
+",31,"20210202173039","","SLIMP_I",""
+"SIMPLE_HEAD_FOR_XML","V1.0","CONTROL","SL_DUMMY_RM","SYS_SL_TEST_DEST_XML_HTTP","SELECT
+	'x' "dummy"
+from dual
+
+",31,"20210202173039","","SLIMP_I",""
+"SIMPLE_HEAD_FOR_XML","V1.0","CONTROL","SL_DUMMY_RM","SYS_SL_TEST_DEST_XML_PTR","SELECT
+	'x' "dummy"
+from dual
+
+",31,"20210202173039","","SLIMP_I",""
+"SIMPLE_HEAD_FOR_XML","V1.0","CONTROL","SL_DUMMY_RM","SYS_SL_TEST_SRC","SELECT
+	'x' "dummy"
+from dual
+
+",31,"20210202173039","","SLIMP_I",""
+"SIMPLE_HEAD_FOR_XML","V1.0","IFD_DEF","SL_GET_IFD_DEF","SYS_SEAMLES","SELECT
+	sl_ifd_def.ifd_id "ifd_id",
+	sl_ifd_def.ifd_ver "ifd_ver",
+	nvl(sl_ifd_def.ifd_tag,sl_ifd_def.ifd_id) "ifd_tag",
+	nvl(sl_ifd_def_grp.ifd_grp_tag,sl_ifd_def_grp.ifd_grp_id) "ifd_grp_tag"
+from sl_ifd_def_grp, sl_ifd_def
+where
+      sl_ifd_def_grp.ifd_grp_id = sl_ifd_def.ifd_grp_id
+and   sl_ifd_def.ifd_id = :i_c_ifd_id
+and   sl_ifd_def.ifd_ver = :i_c_ifd_ver
+
+",367,"20210202173039","","SLIMP_I",""
+"SL_GEN_I_IFD_MAIN","V1.0","EVENT","SL_DOC_GET_IIFD_EVENT","SYS_SL_DOC","SELECT
+	sl_i_ifd_evt_map.evt_id "evt_id"
+from sl_i_ifd_evt_map where ifd_id = :i_c_ifd_id and   ifd_ver = :i_c_ifd_ver and evt_id is not 
+
+GROUP BY sl_i_ifd_evt_map.evt_id
+",176,"20210202171448","","SLIMP_I",""
+"SL_GEN_I_IFD_MAIN","V1.0","IDENTIFICATION","SL_DOC_GET_IIFD_EVENT_IDENT","SYS_SL_DOC","SELECT
+	map.evt_id "evt_id",
+	map.sys_id "sys_id",
+	map.ifd_action "ifd_action",
+	action.fld_ifd_seg_id "fld_ifd_seg_id",
+	action.fld_ifd_fld_id "fld_ifd_fld_id",
+	action.fld_val "fld_val"
+FROM SL_I_IFD_EVT_MAP map LEFT OUTER JOIN 
+SL_I_IFD_ACTION_ID action ON action.IFD_ID = map.IFD_ID
+AND action.IFD_VER = map.IFD_VER
+AND action.IFD_ACTION = map.IFD_ACTION
+where map.evt_id||''= :i_c_evt_id 
+and   map.ifd_id = :i_c_ifd_id 
+and   map.ifd_ver = :i_c_ifd_ver 
+and   map.sys_id = :i_c_sys_id and map.evt_id is not 
+
+",520,"20210202171448","20210202171448","SLIMP_I","SLIMP_I"
+"SL_GEN_I_IFD_MAIN","V1.0","IFD_DEF","SL_DOC_GET_IFD_DEF","SYS_SL_DOC","SELECT
+	idef.ifd_id "ifd_id",
+	idef.ifd_ver "ifd_ver",
+	nvl(idef.ifd_tag,idef.ifd_id) "ifd_tag",
+	nvl(sl_ifd_def_grp.ifd_grp_tag,sl_ifd_def_grp.ifd_grp_id) "ifd_grp_tag",
+	layout.data_lay_cd "data_lay_cd",
+	'' "trg_sys_id"
+from  sl_sys_def sdef,
+ sl_i_sys_ifd_id sifd,
+                sl_sys_def isd,
+          sl_evt_def, 
+        sl_i_ifd_evt_map emap,
+ sl_ifd_def_grp,
+ sl_ifd_def idef,
+ sl_data_layout layout
+where   isd.sys_id = emap.sys_id
+and isd.ena_flg= decode(:i_c_ena_flg,'T','T',isd.ena_flg)
+and sl_evt_def.evt_id = emap.evt_id
+and emap.ena_flg=decode(:i_c_ena_flg,'T','T',emap.ena_flg)
+and   emap.sys_id = sifd.sys_id
+and sdef.ena_flg=decode(:i_c_ena_flg,'T','T',sdef.ena_flg)
+and sdef.sys_id = sifd.sys_id
+and   sifd.ena_flg= decode(:i_c_ena_flg,'T','T',sifd.ena_flg)
+and   sifd.ifd_id = emap.ifd_id
+and   sifd.ifd_ver = emap.ifd_ver
+and   idef.ifd_id = sifd.ifd_id
+and   idef.ifd_ver = sifd.ifd_ver
+and  layout.data_lay_id = idef.data_lay_id
+and   sl_ifd_def_grp.ifd_grp_id = idef.ifd_grp_id
+and          idef.ifd_grp_id not like 'SL\_%' escape '\'
+and   idef.ifd_id = nvl(:i_c_ifd_id, idef.ifd_id)
+and   idef.ifd_ver = nvl(:i_c_ifd_ver, idef.ifd_ver)
+and exists  /*verify at least one result IF is enabled */
+(select 'x'
+from sl_sys_def osys,
+ sl_o_ifd_sys_map oimap,
+ sl_ifd_def idef,
+ sl_eo_def eodef
+where osys.ena_flg=decode(:i_c_ena_flg,'T','T',osys.ena_flg)
+and  osys.sys_id = oimap.sys_id
+and oimap.ena_flg=decode(:i_c_ena_flg,'T','T',oimap.ena_flg)
+and  oimap.ifd_ver = idef.ifd_ver
+and  oimap.ifd_id = idef.ifd_id
+and  idef.eo_ver  = eodef.eo_ver
+and  idef.eo_id = eodef.eo_id
+and  eodef.evt_id = emap.evt_id)
+and not exists /*make sure no file based RMs exists */
+(select  'x'
+from   sl_ifd_def_grp,
+         sl_ifd_def,
+         sl_i_sys_ifd_id sifd,
+         sl_i_ifd_evt_map emap,
+         sl_evt_def, sl_eo_def,
+         sl_eo_col where exists
+ (select 'x' from sl_eo_col c_i
+ where c_i.eo_id=sl_eo_col.eo_id
+ and   c_i.eo_ver=sl_eo_col.eo_ver
+ and   c_i.eo_fld_id=sl_eo_col.eo_fld_id
+ and   c_i.retr_mthd_impl_genid like 'SEG%')
+and  sl_eo_col.retr_mthd_impl_genid like 'SYS%'
+and  sl_eo_col.eo_id not like 'SL%'
+and  sl_eo_col.eo_id = sl_eo_def.eo_id
+and  sl_eo_col.eo_ver = sl_eo_def.eo_ver
+and  sl_evt_def.evt_id = sl_eo_def.evt_id
+and  emap.sys_id  = substr(sl_eo_col.retr_mthd_impl_genid,5,30)
+and  emap.evt_id = sl_evt_def.evt_id
+and  emap.sys_id = sifd.sys_id
+and  sifd.ifd_id = emap.ifd_id
+and  sifd.ifd_ver = emap.ifd_ver
+and  sl_ifd_def.ifd_id = sifd.ifd_id
+and  sl_ifd_def.ifd_ver = sifd.ifd_ver
+and  idef.ifd_id = sl_ifd_def.ifd_id
+and  idef.ifd_ver = sl_ifd_def.ifd_ver
+and  sl_ifd_def_grp.ifd_grp_id = sl_ifd_def.ifd_grp_id
+group by sl_ifd_def.ifd_id, sl_ifd_def.ifd_ver)
+
+GROUP BY idef.ifd_id,
+ idef.ifd_ver,
+ nvl(idef.ifd_tag,idef.ifd_id),
+ nvl(sl_ifd_def_grp.ifd_grp_tag,sl_ifd_def_grp.ifd_grp_id),
+ layout.data_lay_cd
+UNION
+SELECT
+	idef.ifd_id "ifd_id",
+	idef.ifd_ver "ifd_ver",
+	nvl(idef.ifd_tag,idef.ifd_id) "ifd_tag",
+	nvl(sl_ifd_def_grp.ifd_grp_tag,sl_ifd_def_grp.ifd_grp_id) "ifd_grp_tag",
+	layout.data_lay_cd "data_lay_cd",
+	'' "trg_sys_id"
+from  sl_sys_def sdef,
+ sl_i_sys_ifd_id sifd,
+ sl_sys_def isd,
+ (select 'none' evt_id, 'none' evt_grp_id from dual) sl_evt_def,
+ sl_i_ifd_evt_map emap,
+ sl_ifd_def_grp,
+ sl_ifd_def idef,
+ sl_data_layout layout
+where   isd.sys_id = emap.sys_id
+and emap.evt_id is 
+and emap.ifd_action_alg_id is not 
+and isd.ena_flg= decode(:i_c_ena_flg,'T','T',isd.ena_flg)
+and emap.ena_flg=decode(:i_c_ena_flg,'T','T',emap.ena_flg)
+and   emap.sys_id = sifd.sys_id
+and sdef.ena_flg=decode(:i_c_ena_flg,'T','T',sdef.ena_flg)
+and sdef.sys_id = sifd.sys_id
+and   sifd.ena_flg= decode(:i_c_ena_flg,'T','T',sifd.ena_flg)
+and   sifd.ifd_id = emap.ifd_id
+and   sifd.ifd_ver = emap.ifd_ver
+and   idef.ifd_id = sifd.ifd_id
+and   idef.ifd_ver = sifd.ifd_ver
+and  layout.data_lay_id = idef.data_lay_id
+and   sl_ifd_def_grp.ifd_grp_id = idef.ifd_grp_id
+and          idef.ifd_grp_id not like 'SL\_%' escape '\'
+and   idef.ifd_id = nvl(:i_c_ifd_id, idef.ifd_id)
+and   idef.ifd_ver = nvl(:i_c_ifd_ver, idef.ifd_ver)
+
+GROUP BY idef.ifd_id,
+ idef.ifd_ver,
+ nvl(idef.ifd_tag,idef.ifd_id),
+ nvl(sl_ifd_def_grp.ifd_grp_tag,sl_ifd_def_grp.ifd_grp_id),
+ layout.data_lay_cd
+ORDER BY 4 , 1 , 2 ",4256,"20210202171448","20210202171448","SLIMP_I","SLIMP_I"
+"SL_GEN_I_IFD_MAIN","V1.0","RIFD","SL_DOC_GET_RIFD_FOR_EVT","SYS_SL_DOC","SELECT
+	sl_ifd_def.ifd_id "ifd_id",
+	sl_ifd_def.ifd_ver "ifd_ver",
+	:i_c_ifd_id "iifd_id",
+	:i_c_ifd_ver "iifd_ver",
+	layout.data_lay_cd "data_lay_cd",
+	nvl(sl_ifd_def_grp.ifd_grp_tag, sl_ifd_def_grp.ifd_grp_id) "ifd_grp_tag"
+from  sl_sys_def sd, 
+ sl_o_ifd_sys_map omap, 
+ sl_ifd_def_grp,
+ sl_ifd_def, sl_eo_def, 
+ sl_evt_def, sl_data_layout layout  
+where  sl_evt_def.evt_id= :i_c_evt_id  
+and  sl_eo_def.evt_id=sl_evt_def.evt_id  
+and  sl_ifd_def_grp.ifd_grp_id = sl_ifd_def.ifd_grp_id  
+and  sl_ifd_def.eo_id = sl_eo_def.eo_id  
+and  sl_ifd_def.eo_ver= sl_eo_def.eo_ver  
+and  sl_ifd_def.ifd_typ_cd='O' 
+and     sl_ifd_def.data_lay_id = layout.data_lay_id
+and  omap.ifd_id  = sl_ifd_def.ifd_id 
+and  omap.ifd_ver = sl_ifd_def.ifd_ver 
+and  omap.ena_flg = decode(:i_c_ena_flg,'T','T',omap.ena_flg) 
+and  omap.sys_id = sd.sys_id 
+and  sd.ena_flg = decode(:i_c_ena_flg,'T','T',sd.ena_flg)
+
+GROUP BY sl_ifd_def.ifd_id,
+ sl_ifd_def.ifd_ver,
+ layout.data_lay_cd,
+ nvl(sl_ifd_def_grp.ifd_grp_tag, sl_ifd_def_grp.ifd_grp_id)
+",1021,"20210202171448","20210202171448","SLIMP_I","SLIMP_I"
+"SL_GEN_I_IFD_MAIN","V1.0","RIFD_SYS","SL_DOC_GET_DEST_SYS_FOR_RIFD","SYS_SL_DOC","SELECT
+	sl_o_ifd_sys_map.sys_id "dest_sys_id"
+from  sl_o_ifd_sys_map   
+where  ifd_id= :i_c_ifd_id   
+and  ifd_ver= :i_c_ifd_ver
+
+ORDER BY 1 ",141,"20210202171449","","SLIMP_I",""
+"SL_GEN_I_IFD_MAIN","V1.0","SYSTEM","SL_DOC_GET_EVT_SYS","SYS_SL_DOC","SELECT
+	sl_i_ifd_evt_map.sys_id "sys_id"
+from sl_i_ifd_evt_map where ifd_id = :i_c_ifd_id and   ifd_ver = :i_c_ifd_ver and evt_id is not 
+
+GROUP BY sl_i_ifd_evt_map.sys_id
+",176,"20210202171449","","SLIMP_I",""
+"SL_GEN_I_IFD_PAGE","V1.0","DEF","SL_DOC_GET_IFD_DEF","SYS_SL_DOC","SELECT
+	idef.ifd_id "ifd_id",
+	idef.ifd_ver "ifd_ver",
+	nvl(idef.ifd_tag, idef.ifd_id) "ifd_tag",
+	nvl(sl_ifd_def_grp.ifd_grp_tag, sl_ifd_def_grp.ifd_grp_id) "ifd_grp_tag",
+	layout.data_lay_cd "data_lay_cd"
+from  sl_sys_def sdef,
+ sl_i_sys_ifd_id sifd,
+                sl_sys_def isd,
+          sl_evt_def, 
+        sl_i_ifd_evt_map emap,
+ sl_ifd_def_grp,
+ sl_ifd_def idef,
+ sl_data_layout layout
+where   isd.sys_id = emap.sys_id
+and isd.ena_flg= decode(:i_c_ena_flg,'T','T',isd.ena_flg)
+and sl_evt_def.evt_id = emap.evt_id
+and emap.ena_flg=decode(:i_c_ena_flg,'T','T',emap.ena_flg)
+and   emap.sys_id = sifd.sys_id
+and sdef.ena_flg=decode(:i_c_ena_flg,'T','T',sdef.ena_flg)
+and sdef.sys_id = sifd.sys_id
+and   sifd.ena_flg= decode(:i_c_ena_flg,'T','T',sifd.ena_flg)
+and   sifd.ifd_id = emap.ifd_id
+and   sifd.ifd_ver = emap.ifd_ver
+and   idef.ifd_id = sifd.ifd_id
+and   idef.ifd_ver = sifd.ifd_ver
+and  layout.data_lay_id = idef.data_lay_id
+and   sl_ifd_def_grp.ifd_grp_id = idef.ifd_grp_id
+and          idef.ifd_grp_id not like 'SL\_%' escape '\'
+and   idef.ifd_id = nvl(:i_c_ifd_id, idef.ifd_id)
+and   idef.ifd_ver = nvl(:i_c_ifd_ver, idef.ifd_ver)
+and exists  /*verify at least one result IF is enabled */
+(select 'x'
+from sl_sys_def osys,
+ sl_o_ifd_sys_map oimap,
+ sl_ifd_def idef,
+ sl_eo_def eodef
+where osys.ena_flg=decode(:i_c_ena_flg,'T','T',osys.ena_flg)
+and  osys.sys_id = oimap.sys_id
+and oimap.ena_flg=decode(:i_c_ena_flg,'T','T',oimap.ena_flg)
+and  oimap.ifd_ver = idef.ifd_ver
+and  oimap.ifd_id = idef.ifd_id
+and  idef.eo_ver  = eodef.eo_ver
+and  idef.eo_id = eodef.eo_id
+and  eodef.evt_id = emap.evt_id)
+and not exists /*make sure no file based RMs exists */
+(select  'x'
+from   sl_ifd_def_grp,
+         sl_ifd_def,
+         sl_i_sys_ifd_id sifd,
+         sl_i_ifd_evt_map emap,
+         sl_evt_def, sl_eo_def,
+         sl_eo_col where exists
+ (select 'x' from sl_eo_col c_i
+ where c_i.eo_id=sl_eo_col.eo_id
+ and   c_i.eo_ver=sl_eo_col.eo_ver
+ and   c_i.eo_fld_id=sl_eo_col.eo_fld_id
+ and   c_i.retr_mthd_impl_genid like 'SEG%')
+and  sl_eo_col.retr_mthd_impl_genid like 'SYS%'
+and  sl_eo_col.eo_id not like 'SL%'
+and  sl_eo_col.eo_id = sl_eo_def.eo_id
+and  sl_eo_col.eo_ver = sl_eo_def.eo_ver
+and  sl_evt_def.evt_id = sl_eo_def.evt_id
+and  emap.sys_id  = substr(sl_eo_col.retr_mthd_impl_genid,5,30)
+and  emap.evt_id = sl_evt_def.evt_id
+and  emap.sys_id = sifd.sys_id
+and  sifd.ifd_id = emap.ifd_id
+and  sifd.ifd_ver = emap.ifd_ver
+and  sl_ifd_def.ifd_id = sifd.ifd_id
+and  sl_ifd_def.ifd_ver = sifd.ifd_ver
+and  idef.ifd_id = sl_ifd_def.ifd_id
+and  idef.ifd_ver = sl_ifd_def.ifd_ver
+and  sl_ifd_def_grp.ifd_grp_id = sl_ifd_def.ifd_grp_id
+group by sl_ifd_def.ifd_id, sl_ifd_def.ifd_ver)
+
+GROUP BY idef.ifd_id,
+ idef.ifd_ver,
+ nvl(idef.ifd_tag, idef.ifd_id),
+ nvl(sl_ifd_def_grp.ifd_grp_tag, sl_ifd_def_grp.ifd_grp_id),
+ layout.data_lay_cd
+UNION
+SELECT
+	idef.ifd_id "ifd_id",
+	idef.ifd_ver "ifd_ver",
+	nvl(idef.ifd_tag, idef.ifd_id) "ifd_tag",
+	nvl(sl_ifd_def_grp.ifd_grp_tag, sl_ifd_def_grp.ifd_grp_id) "ifd_grp_tag",
+	layout.data_lay_cd "data_lay_cd"
+from  sl_sys_def sdef,
+ sl_i_sys_ifd_id sifd,
+ sl_sys_def isd,
+ (select 'none' evt_id, 'none' evt_grp_id from dual) sl_evt_def,
+ sl_i_ifd_evt_map emap,
+ sl_ifd_def_grp,
+ sl_ifd_def idef,
+ sl_data_layout layout
+where   isd.sys_id = emap.sys_id
+and emap.evt_id is 
+and emap.ifd_action_alg_id is not 
+and isd.ena_flg= decode(:i_c_ena_flg,'T','T',isd.ena_flg)
+and emap.ena_flg=decode(:i_c_ena_flg,'T','T',emap.ena_flg)
+and   emap.sys_id = sifd.sys_id
+and sdef.ena_flg=decode(:i_c_ena_flg,'T','T',sdef.ena_flg)
+and sdef.sys_id = sifd.sys_id
+and   sifd.ena_flg= decode(:i_c_ena_flg,'T','T',sifd.ena_flg)
+and   sifd.ifd_id = emap.ifd_id
+and   sifd.ifd_ver = emap.ifd_ver
+and   idef.ifd_id = sifd.ifd_id
+and   idef.ifd_ver = sifd.ifd_ver
+and  layout.data_lay_id = idef.data_lay_id
+and   sl_ifd_def_grp.ifd_grp_id = idef.ifd_grp_id
+and          idef.ifd_grp_id not like 'SL\_%' escape '\'
+and   idef.ifd_id = nvl(:i_c_ifd_id, idef.ifd_id)
+and   idef.ifd_ver = nvl(:i_c_ifd_ver, idef.ifd_ver)
+
+GROUP BY idef.ifd_id,
+ idef.ifd_ver,
+ nvl(idef.ifd_tag, idef.ifd_id),
+ nvl(sl_ifd_def_grp.ifd_grp_tag, sl_ifd_def_grp.ifd_grp_id),
+ layout.data_lay_cd
+",4209,"20210202171449","20210202171449","SLIMP_I","SLIMP_I"
+"SL_GEN_I_IFD_PAGE","V1.0","IDENT_ALGS","SL_DOC_GET_IFD_IDENT_ALG","SYS_SL_DOC","SELECT
+	sl_i_sys_ifd_id.sys_id "sys_id",
+	sl_i_sys_ifd_id.id_seg_alg_id "id_seg_alg_id",
+	sl_alg_def.alg_descr "id_seg_alg_descr"
+from sl_sys_def sdef, sl_alg_def, sl_i_sys_ifd_id 
+ where 
+ ifd_id = :i_c_ifd_id 
+ and ifd_ver = :i_c_ifd_ver
+ and sl_i_sys_ifd_id.ena_flg = decode(:i_c_ena_flg,'T','T',sl_i_sys_ifd_id.ena_flg)
+ and sdef.ena_flg=decode(:i_c_ena_flg,'T','T',sdef.ena_flg)
+ and sdef.sys_id = sl_i_sys_ifd_id.sys_id
+ and alg_id = id_seg_alg_id
+
+",455,"20210202171449","20210202171449","SLIMP_I","SLIMP_I"
+"SL_GEN_I_IFD_PAGE","V1.0","SEG_IDENT","SL_DOC_GET_IFD_SEG_IDENT","SYS_SL_DOC","SELECT
+	sl_i_sys_ifd_seg_id.sys_id "sys_id",
+	sl_i_sys_ifd_seg_id.ifd_fld_id "ifd_fld_id",
+	sl_i_sys_ifd_seg_id.fld_val "fld_val"
+from  sl_i_sys_ifd_seg_id 
+where  ifd_id = :i_c_ifd_id  
+and    ifd_ver = :i_c_ifd_ver  
+and  ifd_seg_id = :i_c_ifd_seg_id
+
+",254,"20210202171450","20210202171450","SLIMP_I","SLIMP_I"
+"SL_GEN_I_TRG_MAIN","V1.0","EVENT","SL_DOC_GET_ITRG_EVENT","SYS_SL_DOC","SELECT
+	sl_evt_def.evt_id "evt_id"
+from  sl_evt_def,           sl_i_sys_ifd_id sifd,          sl_i_ifd_evt_map emap  where emap.ifd_id  = :i_c_ifd_id  and  emap.ifd_ver = :i_c_ifd_ver  and  emap.evt_id = sl_evt_def.evt_id  and  emap.ena_flg=decode(:i_c_ena_flg, 'T', 'T', emap.ena_flg) and  emap.sys_id = sifd.sys_id  and  sifd.ifd_id = emap.ifd_id  and  sifd.ifd_ver = emap.ifd_ver  and  sifd.ena_flg=decode(:i_c_ena_flg, 'T', 'T', sifd.ena_flg)
+
+GROUP BY sl_evt_def.evt_id
+",475,"20210202171450","","SLIMP_I",""
+"SL_GEN_I_TRG_MAIN","V1.0","EVENT_VALIDATION","SL_DOC_GET_ITRG_EVT_VALIDATION","SYS_SL_DOC","SELECT
+	ad.alg_id "validation_alg_id"
+from  sl_alg_def ad,
+ sl_ifd_def id
+where ad.alg_id= id.pre_alg_id
+and id.ifd_id = :i_c_ifd_id
+and id.ifd_ver= :i_c_ifd_ver
+
+",163,"20210202171450","","SLIMP_I",""
+"SL_GEN_I_TRG_MAIN","V1.0","IFD_DEF","SL_DOC_GET_ITRG_IFD_DEF","SYS_SL_DOC","SELECT
+	sl_ifd_def.ifd_id "ifd_id",
+	sl_ifd_def.ifd_ver "ifd_ver",
+	nvl(sl_ifd_def.ifd_tag,sl_ifd_def.ifd_id) "ifd_tag",
+	nvl(sl_ifd_def_grp.ifd_grp_tag,sl_ifd_def_grp.ifd_grp_id) "ifd_grp_tag",
+	sl_data_layout.data_lay_cd "data_lay_cd",
+	sifd.sys_id "trg_sys_id"
+from  sl_ifd_def_grp,
+         sl_ifd_def,
+         sl_data_layout,
+         sl_sys_def sdef,
+         sl_i_sys_ifd_id sifd,
+         sl_i_ifd_evt_map emap,
+         sl_evt_def, 
+         sl_eo_def,
+         sl_eo_col
+where exists /*EOs with Inbound IFD RM */
+(select 'x' from 
+ sl_eo_col c_i 
+where  c_i.eo_id=sl_eo_col.eo_id
+and    c_i.eo_ver=sl_eo_col.eo_ver
+and    c_i.eo_fld_id=sl_eo_col.eo_fld_id
+and    c_i.retr_mthd_impl_genid like 'SEG%')
+and exists  /*verify at least one result IFD is enabled */
+(select 'x'
+from sl_sys_def osys,
+ sl_o_ifd_sys_map oimap,
+ sl_ifd_def idef,
+ sl_eo_def eodef
+where osys.ena_flg=decode(:i_c_ena_flg,'T','T',osys.ena_flg)
+and  osys.sys_id = oimap.sys_id
+and oimap.ena_flg=decode(:i_c_ena_flg,'T','T',oimap.ena_flg)
+and  oimap.ifd_ver = idef.ifd_ver
+and  oimap.ifd_id = idef.ifd_id
+and  idef.eo_ver  = eodef.eo_ver
+and  idef.eo_id = eodef.eo_id
+and  eodef.evt_id = emap.evt_id)
+and  sl_eo_col.retr_mthd_impl_genid like 'SYS%'
+and  sl_eo_col.eo_id not like 'SL%'
+and  sl_eo_col.eo_id = sl_eo_def.eo_id
+and  sl_eo_col.eo_ver = sl_eo_def.eo_ver
+and  sl_evt_def.evt_id = sl_eo_def.evt_id
+and  emap.sys_id  = substr(sl_eo_col.retr_mthd_impl_genid,5,30)
+and  emap.evt_id = sl_evt_def.evt_id
+and  emap.ena_flg= decode(:i_c_ena_flg,'T','T',emap.ena_flg)
+and  emap.sys_id = sifd.sys_id
+and  sdef.ena_flg=decode(:i_c_ena_flg,'T','T',sdef.ena_flg)
+and  sdef.sys_id = sifd.sys_id
+and  sifd.ena_flg=decode(:i_c_ena_flg,'T','T',sifd.ena_flg)
+and  sifd.ifd_id = emap.ifd_id
+and  sifd.ifd_ver = emap.ifd_ver
+and  sl_ifd_def.data_lay_id = sl_data_layout.data_lay_id
+and  sl_ifd_def.ifd_id = sifd.ifd_id
+and  sl_ifd_def.ifd_ver = sifd.ifd_ver
+and  sl_ifd_def.ifd_id = nvl(:i_c_ifd_id,  sl_ifd_def.ifd_id)
+and  sl_ifd_def.ifd_ver = nvl(:i_c_ifd_ver,  sl_ifd_def.ifd_ver)
+and  sl_ifd_def.ifd_grp_id = sl_ifd_def_grp.ifd_grp_id
+
+GROUP BY sl_ifd_def.ifd_id,
+ sl_ifd_def.ifd_ver,
+ nvl(sl_ifd_def.ifd_tag,sl_ifd_def.ifd_id),
+ nvl(sl_ifd_def_grp.ifd_grp_tag,sl_ifd_def_grp.ifd_grp_id),
+ sl_data_layout.data_lay_cd,
+ sifd.sys_id
+",2306,"20210202171450","20210202171451","SLIMP_I","SLIMP_I"
+"SL_GEN_I_TRG_MAIN","V1.0","RIFD","SL_DOC_GET_RIFD_FOR_EVT","SYS_SL_DOC","SELECT
+	sl_ifd_def.ifd_id "ifd_id",
+	sl_ifd_def.ifd_ver "ifd_ver",
+	'' "iifd_id",
+	'' "iifd_ver",
+	layout.data_lay_cd "data_lay_cd",
+	nvl(sl_ifd_def_grp.ifd_grp_tag, sl_ifd_def_grp.ifd_grp_id) "ifd_grp_tag"
+from  sl_sys_def sd, 
+ sl_o_ifd_sys_map omap, 
+ sl_ifd_def_grp,
+ sl_ifd_def, sl_eo_def, 
+ sl_evt_def, sl_data_layout layout  
+where  sl_evt_def.evt_id= :i_c_evt_id  
+and  sl_eo_def.evt_id=sl_evt_def.evt_id  
+and  sl_ifd_def_grp.ifd_grp_id = sl_ifd_def.ifd_grp_id  
+and  sl_ifd_def.eo_id = sl_eo_def.eo_id  
+and  sl_ifd_def.eo_ver= sl_eo_def.eo_ver  
+and  sl_ifd_def.ifd_typ_cd='O' 
+and     sl_ifd_def.data_lay_id = layout.data_lay_id
+and  omap.ifd_id  = sl_ifd_def.ifd_id 
+and  omap.ifd_ver = sl_ifd_def.ifd_ver 
+and  omap.ena_flg = decode(:i_c_ena_flg,'T','T',omap.ena_flg) 
+and  omap.sys_id = sd.sys_id 
+and  sd.ena_flg = decode(:i_c_ena_flg,'T','T',sd.ena_flg)
+
+GROUP BY sl_ifd_def.ifd_id,
+ sl_ifd_def.ifd_ver,
+ layout.data_lay_cd,
+ nvl(sl_ifd_def_grp.ifd_grp_tag, sl_ifd_def_grp.ifd_grp_id)
+",1002,"20210202171451","20210202171451","SLIMP_I","SLIMP_I"
+"SL_GEN_I_TRG_MAIN","V1.0","RIFD_SYS","SL_DOC_GET_DEST_SYS_FOR_RIFD","SYS_SL_DOC","SELECT
+	sl_o_ifd_sys_map.sys_id "dest_sys_id"
+from  sl_o_ifd_sys_map   
+where  ifd_id= :i_c_ifd_id   
+and  ifd_ver= :i_c_ifd_ver
+
+ORDER BY 1 ",141,"20210202171452","","SLIMP_I",""
+"SL_GEN_I_TRG_MAIN","V1.0","SYSTEM","SL_DOC_GET_ITRG_SYS","SYS_SL_DOC","SELECT
+	sys_id "sys_id"
+from    sl_i_ifd_evt_map  
+where  ifd_id= :i_c_ifd_id  
+and      ifd_ver = :i_c_ifd_ver  
+and      evt_id = :i_c_evt_id
+
+GROUP BY sys_id
+",161,"20210202171452","","SLIMP_I",""
+"SL_GEN_INDEX","V1.0","I_IFD_INDEX","SL_DOC_GET_IFD_DEF","SYS_SL_DOC","SELECT
+	sifd.sys_id "trg_sys",
+	sl_evt_def.evt_grp_id "evt_grp_id",
+	idef.ifd_id "ifd_id",
+	idef.ifd_ver "ifd_ver",
+	emap.evt_id "evt_id"
+from  sl_sys_def sdef,
+ sl_i_sys_ifd_id sifd,
+                sl_sys_def isd,
+          sl_evt_def, 
+        sl_i_ifd_evt_map emap,
+ sl_ifd_def_grp,
+ sl_ifd_def idef,
+ sl_data_layout layout
+where   isd.sys_id = emap.sys_id
+and isd.ena_flg= decode(:i_c_ena_flg,'T','T',isd.ena_flg)
+and sl_evt_def.evt_id = emap.evt_id
+and emap.ena_flg=decode(:i_c_ena_flg,'T','T',emap.ena_flg)
+and   emap.sys_id = sifd.sys_id
+and sdef.ena_flg=decode(:i_c_ena_flg,'T','T',sdef.ena_flg)
+and sdef.sys_id = sifd.sys_id
+and   sifd.ena_flg= decode(:i_c_ena_flg,'T','T',sifd.ena_flg)
+and   sifd.ifd_id = emap.ifd_id
+and   sifd.ifd_ver = emap.ifd_ver
+and   idef.ifd_id = sifd.ifd_id
+and   idef.ifd_ver = sifd.ifd_ver
+and  layout.data_lay_id = idef.data_lay_id
+and   sl_ifd_def_grp.ifd_grp_id = idef.ifd_grp_id
+and          idef.ifd_grp_id not like 'SL\_%' escape '\'
+and   idef.ifd_id = nvl(:i_c_ifd_id, idef.ifd_id)
+and   idef.ifd_ver = nvl(:i_c_ifd_ver, idef.ifd_ver)
+and exists  /*verify at least one result IF is enabled */
+(select 'x'
+from sl_sys_def osys,
+ sl_o_ifd_sys_map oimap,
+ sl_ifd_def idef,
+ sl_eo_def eodef
+where osys.ena_flg=decode(:i_c_ena_flg,'T','T',osys.ena_flg)
+and  osys.sys_id = oimap.sys_id
+and oimap.ena_flg=decode(:i_c_ena_flg,'T','T',oimap.ena_flg)
+and  oimap.ifd_ver = idef.ifd_ver
+and  oimap.ifd_id = idef.ifd_id
+and  idef.eo_ver  = eodef.eo_ver
+and  idef.eo_id = eodef.eo_id
+and  eodef.evt_id = emap.evt_id)
+and not exists /*make sure no file based RMs exists */
+(select  'x'
+from   sl_ifd_def_grp,
+         sl_ifd_def,
+         sl_i_sys_ifd_id sifd,
+         sl_i_ifd_evt_map emap,
+         sl_evt_def, sl_eo_def,
+         sl_eo_col where exists
+ (select 'x' from sl_eo_col c_i
+ where c_i.eo_id=sl_eo_col.eo_id
+ and   c_i.eo_ver=sl_eo_col.eo_ver
+ and   c_i.eo_fld_id=sl_eo_col.eo_fld_id
+ and   c_i.retr_mthd_impl_genid like 'SEG%')
+and  sl_eo_col.retr_mthd_impl_genid like 'SYS%'
+and  sl_eo_col.eo_id not like 'SL%'
+and  sl_eo_col.eo_id = sl_eo_def.eo_id
+and  sl_eo_col.eo_ver = sl_eo_def.eo_ver
+and  sl_evt_def.evt_id = sl_eo_def.evt_id
+and  emap.sys_id  = substr(sl_eo_col.retr_mthd_impl_genid,5,30)
+and  emap.evt_id = sl_evt_def.evt_id
+and  emap.sys_id = sifd.sys_id
+and  sifd.ifd_id = emap.ifd_id
+and  sifd.ifd_ver = emap.ifd_ver
+and  sl_ifd_def.ifd_id = sifd.ifd_id
+and  sl_ifd_def.ifd_ver = sifd.ifd_ver
+and  idef.ifd_id = sl_ifd_def.ifd_id
+and  idef.ifd_ver = sl_ifd_def.ifd_ver
+and  sl_ifd_def_grp.ifd_grp_id = sl_ifd_def.ifd_grp_id
+group by sl_ifd_def.ifd_id, sl_ifd_def.ifd_ver)
+
+GROUP BY sifd.sys_id,
+ sl_evt_def.evt_grp_id,
+ idef.ifd_id,
+ idef.ifd_ver,
+ emap.evt_id
+UNION
+SELECT
+	sifd.sys_id "trg_sys",
+	sl_evt_def.evt_grp_id "evt_grp_id",
+	idef.ifd_id "ifd_id",
+	idef.ifd_ver "ifd_ver",
+	emap.evt_id "evt_id"
+from  sl_sys_def sdef,
+ sl_i_sys_ifd_id sifd,
+ sl_sys_def isd,
+ (select 'none' evt_id, 'none' evt_grp_id from dual) sl_evt_def,
+ sl_i_ifd_evt_map emap,
+ sl_ifd_def_grp,
+ sl_ifd_def idef,
+ sl_data_layout layout
+where   isd.sys_id = emap.sys_id
+and emap.evt_id is 
+and emap.ifd_action_alg_id is not 
+and isd.ena_flg= decode(:i_c_ena_flg,'T','T',isd.ena_flg)
+and emap.ena_flg=decode(:i_c_ena_flg,'T','T',emap.ena_flg)
+and   emap.sys_id = sifd.sys_id
+and sdef.ena_flg=decode(:i_c_ena_flg,'T','T',sdef.ena_flg)
+and sdef.sys_id = sifd.sys_id
+and   sifd.ena_flg= decode(:i_c_ena_flg,'T','T',sifd.ena_flg)
+and   sifd.ifd_id = emap.ifd_id
+and   sifd.ifd_ver = emap.ifd_ver
+and   idef.ifd_id = sifd.ifd_id
+and   idef.ifd_ver = sifd.ifd_ver
+and  layout.data_lay_id = idef.data_lay_id
+and   sl_ifd_def_grp.ifd_grp_id = idef.ifd_grp_id
+and          idef.ifd_grp_id not like 'SL\_%' escape '\'
+and   idef.ifd_id = nvl(:i_c_ifd_id, idef.ifd_id)
+and   idef.ifd_ver = nvl(:i_c_ifd_ver, idef.ifd_ver)
+
+GROUP BY sifd.sys_id,
+ sl_evt_def.evt_grp_id,
+ idef.ifd_id,
+ idef.ifd_ver,
+ emap.evt_id
+ORDER BY 1 , 2 , 3 , 4 , 5 ",3972,"20210202171447","20210202171447","SLIMP_I","SLIMP_I"
+"SL_GEN_INDEX","V1.0","I_TRG_INDEX","SL_DOC_GET_ITRG_IFD_DEF","SYS_SL_DOC","SELECT
+	sifd.sys_id "trg_sys",
+	sl_evt_def.evt_grp_id "evt_grp_id",
+	sifd.ifd_id "ifd_id",
+	sifd.ifd_ver "ifd_ver",
+	sl_eo_def.evt_id "evt_id"
+from  sl_ifd_def_grp,
+         sl_ifd_def,
+         sl_data_layout,
+         sl_sys_def sdef,
+         sl_i_sys_ifd_id sifd,
+         sl_i_ifd_evt_map emap,
+         sl_evt_def, 
+         sl_eo_def,
+         sl_eo_col
+where exists /*EOs with Inbound IFD RM */
+(select 'x' from 
+ sl_eo_col c_i 
+where  c_i.eo_id=sl_eo_col.eo_id
+and    c_i.eo_ver=sl_eo_col.eo_ver
+and    c_i.eo_fld_id=sl_eo_col.eo_fld_id
+and    c_i.retr_mthd_impl_genid like 'SEG%')
+and exists  /*verify at least one result IFD is enabled */
+(select 'x'
+from sl_sys_def osys,
+ sl_o_ifd_sys_map oimap,
+ sl_ifd_def idef,
+ sl_eo_def eodef
+where osys.ena_flg=decode(:i_c_ena_flg,'T','T',osys.ena_flg)
+and  osys.sys_id = oimap.sys_id
+and oimap.ena_flg=decode(:i_c_ena_flg,'T','T',oimap.ena_flg)
+and  oimap.ifd_ver = idef.ifd_ver
+and  oimap.ifd_id = idef.ifd_id
+and  idef.eo_ver  = eodef.eo_ver
+and  idef.eo_id = eodef.eo_id
+and  eodef.evt_id = emap.evt_id)
+and  sl_eo_col.retr_mthd_impl_genid like 'SYS%'
+and  sl_eo_col.eo_id not like 'SL%'
+and  sl_eo_col.eo_id = sl_eo_def.eo_id
+and  sl_eo_col.eo_ver = sl_eo_def.eo_ver
+and  sl_evt_def.evt_id = sl_eo_def.evt_id
+and  emap.sys_id  = substr(sl_eo_col.retr_mthd_impl_genid,5,30)
+and  emap.evt_id = sl_evt_def.evt_id
+and  emap.ena_flg= decode(:i_c_ena_flg,'T','T',emap.ena_flg)
+and  emap.sys_id = sifd.sys_id
+and  sdef.ena_flg=decode(:i_c_ena_flg,'T','T',sdef.ena_flg)
+and  sdef.sys_id = sifd.sys_id
+and  sifd.ena_flg=decode(:i_c_ena_flg,'T','T',sifd.ena_flg)
+and  sifd.ifd_id = emap.ifd_id
+and  sifd.ifd_ver = emap.ifd_ver
+and  sl_ifd_def.data_lay_id = sl_data_layout.data_lay_id
+and  sl_ifd_def.ifd_id = sifd.ifd_id
+and  sl_ifd_def.ifd_ver = sifd.ifd_ver
+and  sl_ifd_def.ifd_id = nvl(:i_c_ifd_id,  sl_ifd_def.ifd_id)
+and  sl_ifd_def.ifd_ver = nvl(:i_c_ifd_ver,  sl_ifd_def.ifd_ver)
+and  sl_ifd_def.ifd_grp_id = sl_ifd_def_grp.ifd_grp_id
+
+GROUP BY sifd.sys_id,
+ sl_evt_def.evt_grp_id,
+ sifd.ifd_id,
+ sifd.ifd_ver,
+ sl_eo_def.evt_id
+ORDER BY 1 , 2 , 3 , 4 , 5 ",2110,"20210202171447","20210202171448","SLIMP_I","SLIMP_I"
+"SL_GEN_INDEX","V1.0","O_SYS_INDEX","SL_DOC_GET_LS_EVT","SYS_SL_DOC","SELECT
+	sd.sys_id "trg_sys",
+	evt.evt_grp_id "evt_grp_id",
+	evt.evt_id "evt_id",
+	omap.ifd_id "ifd_id",
+	omap.ifd_ver "ifd_ver"
+from  sl_evt_def evt,
+ sl_sys_def sdo,
+ sl_o_ifd_sys_map omap,
+ sl_ifd_def idef,
+ sl_eo_def edef,
+ sl_sys_def_grp sdg,
+ sl_sys_def sd,
+ sl_eo_col col,
+ sl_sys_parm
+where substr(col.retr_mthd_impl_genid,5) = sd.sys_id
+and substr(col.retr_mthd_impl_genid,1,3) ='SYS'
+and sd.ena_flg = decode(:i_c_ena_flg,'T','T',sd.ena_flg)
+and sd.sys_grp_id =sdg.sys_grp_id
+and sdg.sys_grp_id like sl_sys_parm.sl_sys_parm_val
+and col.eo_id = edef.eo_id
+and col.eo_ver = edef.eo_ver
+and idef.eo_id = edef.eo_id
+and idef.eo_ver = edef.eo_ver
+and omap.ifd_id = idef.ifd_id
+and omap.ifd_ver = idef.ifd_ver
+and omap.ena_flg = decode(:i_c_ena_flg,'T','T',omap.ena_flg)
+and sdo.sys_id = omap.sys_id
+and sdo.ena_flg=decode(:i_c_ena_flg,'T','T',sdo.ena_flg)
+and evt.evt_id = edef.evt_id
+and evt.evt_id not like 'SL\_%' escape '\'
+and sl_sys_parm.sl_sys_parm_id= 'SL_DOC_LOGISTIX_SYS_GROUP'
+and evt.evt_id = nvl(:i_c_event_id, evt.evt_id)
+
+GROUP BY sd.sys_id,
+ evt.evt_grp_id,
+ evt.evt_id,
+ omap.ifd_id,
+ omap.ifd_ver
+ORDER BY 1 , 4 , 5 ",1137,"20210202171448","20210202171448","SLIMP_I","SLIMP_I"
+"SL_GEN_INDEX","V1.0","ROOT","SL_DOC_DUMMY_RM","SYS_SL_DOC","SELECT
+	'x' "dummy"
+from dual
+
+",31,"20210202171448","","SLIMP_I",""
+"SL_GEN_O_SYS_MAIN","V1.0","EVENT","SL_DOC_GET_LS_EVT","SYS_SL_DOC","SELECT
+	edef.evt_id "evt_id",
+	evt.evt_descr "evt_descr",
+	evt.evt_grp_id "evt_grp_id",
+	sdg.sys_grp_id "ls_sys_group",
+	sd.sys_id "sys_id"
+from  sl_evt_def evt,
+ sl_sys_def sdo,
+ sl_o_ifd_sys_map omap,
+ sl_ifd_def idef,
+ sl_eo_def edef,
+ sl_sys_def_grp sdg,
+ sl_sys_def sd,
+ sl_eo_col col,
+ sl_sys_parm
+where substr(col.retr_mthd_impl_genid,5) = sd.sys_id
+and substr(col.retr_mthd_impl_genid,1,3) ='SYS'
+and sd.ena_flg = decode(:i_c_ena_flg,'T','T',sd.ena_flg)
+and sd.sys_grp_id =sdg.sys_grp_id
+and sdg.sys_grp_id like sl_sys_parm.sl_sys_parm_val
+and col.eo_id = edef.eo_id
+and col.eo_ver = edef.eo_ver
+and idef.eo_id = edef.eo_id
+and idef.eo_ver = edef.eo_ver
+and omap.ifd_id = idef.ifd_id
+and omap.ifd_ver = idef.ifd_ver
+and omap.ena_flg = decode(:i_c_ena_flg,'T','T',omap.ena_flg)
+and sdo.sys_id = omap.sys_id
+and sdo.ena_flg=decode(:i_c_ena_flg,'T','T',sdo.ena_flg)
+and evt.evt_id = edef.evt_id
+and evt.evt_id not like 'SL\_%' escape '\'
+and sl_sys_parm.sl_sys_parm_id= 'SL_DOC_LOGISTIX_SYS_GROUP'
+and evt.evt_id = nvl(:i_c_event_id, evt.evt_id)
+
+GROUP BY edef.evt_id,
+ evt.evt_descr,
+ evt.evt_grp_id,
+ sdg.sys_grp_id,
+ sd.sys_id
+ORDER BY 3 , 1 ",1150,"20210202171452","20210202171452","SLIMP_I","SLIMP_I"
+"SL_GEN_O_SYS_MAIN","V1.0","LS_SYS","SL_DOC_GET_LS_EVT_SYS","SYS_SL_DOC","SELECT
+	sd.sys_id "sys_id",
+	sd.native_nam "native_nam"
+from  sl_evt_def evt, 
+ sl_eo_def def,  
+ sl_sys_def_grp sdg, 
+ sl_sys_def sd, 
+ sl_eo_col col 
+where  substr(col.retr_mthd_impl_genid,5) = sd.sys_id 
+and  substr(col.retr_mthd_impl_genid,1,3) ='SYS' 
+and  sd.ena_flg = decode(:i_c_ena_flg,'T', 'T', sd.ena_flg) 
+and  sd.sys_grp_id =sdg.sys_grp_id 
+and  sd.sys_id = nvl(:i_c_sys_id,sd.sys_id)
+and  sdg.sys_grp_id= :i_c_ls_sys_group
+and  col.eo_id = def.eo_id and col.eo_ver = def.eo_ver 
+and  evt.evt_id = def.evt_id and evt.evt_id = :i_c_evt_id
+
+GROUP BY sd.sys_id,
+ sd.native_nam
+",587,"20210202171452","20210202171452","SLIMP_I","SLIMP_I"
+"SL_GEN_O_SYS_MAIN","V1.0","RIFD","SL_DOC_GET_RIFD_FOR_EVT","SYS_SL_DOC","SELECT
+	sl_ifd_def.ifd_id "ifd_id",
+	sl_ifd_def.ifd_ver "ifd_ver",
+	'' "iifd_id",
+	'' "iifd_ver",
+	layout.data_lay_cd "data_lay_cd",
+	sl_ifd_def.ifd_grp_id "ifd_grp_id",
+	nvl(sl_ifd_def_grp.ifd_grp_tag, sl_ifd_def_grp.ifd_grp_id) "ifd_grp_tag"
+from  sl_sys_def sd, 
+ sl_o_ifd_sys_map omap, 
+ sl_ifd_def_grp,
+ sl_ifd_def, sl_eo_def, 
+ sl_evt_def, sl_data_layout layout  
+where  sl_evt_def.evt_id= :i_c_evt_id  
+and  sl_eo_def.evt_id=sl_evt_def.evt_id  
+and  sl_ifd_def_grp.ifd_grp_id = sl_ifd_def.ifd_grp_id  
+and  sl_ifd_def.eo_id = sl_eo_def.eo_id  
+and  sl_ifd_def.eo_ver= sl_eo_def.eo_ver  
+and  sl_ifd_def.ifd_typ_cd='O' 
+and     sl_ifd_def.data_lay_id = layout.data_lay_id
+and  omap.ifd_id  = sl_ifd_def.ifd_id 
+and  omap.ifd_ver = sl_ifd_def.ifd_ver 
+and  omap.ena_flg = decode(:i_c_ena_flg,'T','T',omap.ena_flg) 
+and  omap.sys_id = sd.sys_id 
+and  sd.ena_flg = decode(:i_c_ena_flg,'T','T',sd.ena_flg)
+
+GROUP BY sl_ifd_def.ifd_id,
+ sl_ifd_def.ifd_ver,
+ layout.data_lay_cd,
+ sl_ifd_def.ifd_grp_id,
+ nvl(sl_ifd_def_grp.ifd_grp_tag, sl_ifd_def_grp.ifd_grp_id)
+",1063,"20210202171452","20210202171452","SLIMP_I","SLIMP_I"
+"SL_GEN_O_SYS_MAIN","V1.0","RIFD_SYS","SL_DOC_GET_DEST_SYS_FOR_RIFD","SYS_SL_DOC","SELECT
+	sl_o_ifd_sys_map.sys_id "dest_sys_id"
+from  sl_o_ifd_sys_map   
+where  ifd_id= :i_c_ifd_id   
+and  ifd_ver= :i_c_ifd_ver
+
+ORDER BY 1 ",141,"20210202171453","","SLIMP_I",""
+"SL_GEN_STOCK_STATUS_MAP","V1.0","ROOT","SL_DOC_DUMMY_RM","SYS_SL_DOC","SELECT
+	'x' "dummy"
+from dual
+
+",31,"20210202171453","","SLIMP_I",""
+"SL_GEN_STOCK_STATUS_MAP","V1.0","STK_STS","SL_DOC_GET_STK_STS_LOC_MAP","SYS_SL_DOC","SELECT
+	sl_es_sap_loc_map.es_hst_stk_sts "hst_stk_sts",
+	sl_es_sap_loc_map.es_hst_loc "hst_loc",
+	sl_es_sap_loc_map.es_wms_stk_sts "wms_stk_sts"
+from sl_es_sap_loc_map
+
+ORDER BY 1 , 2 , 3 ",188,"20210202171453","20210202171453","SLIMP_I","SLIMP_I"
+"SL_IFD_FAIL","V1.0","SL_IFD_FAIL","SL_DUMMY_RM","SYS_DCS","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202173136","20230523112603","SLIMP_I","SLIMP"
+"SL_IFD_FAIL","V1.0","SL_IFD_FAIL","SL_DUMMY_RM","SYS_DUTY","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202173136","","SLIMP_I",""
+"SL_IFD_FAIL","V1.0","SL_IFD_FAIL","SL_DUMMY_RM","SYS_DW","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202173137","","SLIMP_I",""
+"SL_IFD_FAIL","V1.0","SL_IFD_FAIL","SL_DUMMY_RM","SYS_HOST","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202173137","","SLIMP_I",""
+"SL_IFD_FAIL","V1.0","SL_IFD_FAIL","SL_DUMMY_RM","SYS_HOST_TEST_XML","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202173137","","SLIMP_I",""
+"SL_IFD_FAIL","V1.0","SL_IFD_FAIL","SL_DUMMY_RM","SYS_HUB","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202173137","","SLIMP_I",""
+"SL_IFD_FAIL","V1.0","SL_IFD_FAIL","SL_DUMMY_RM","SYS_LENS","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202173137","","SLIMP_I",""
+"SL_IFD_FAIL","V1.0","SL_IFD_FAIL","SL_DUMMY_RM","SYS_LM","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202173138","20210216134145","SLIMP_I","SLIMP"
+"SL_IFD_FAIL","V1.0","SL_IFD_FAIL","SL_DUMMY_RM","SYS_RPS","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202173138","","SLIMP_I",""
+"SL_IFD_FAIL","V1.0","SL_IFD_FAIL","SL_DUMMY_RM","SYS_SCARD","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202173138","","SLIMP_I",""
+"SL_IFD_FAIL","V1.0","SL_IFD_FAIL","SL_DUMMY_RM","SYS_SEAMLES","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202171454","20210202172922","SLIMP_I","SLIMP_I"
+"SL_IFD_FAIL","V1.0","SL_IFD_FAIL","SL_DUMMY_RM","SYS_SL_ACCUM","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202171454","20210202172923","SLIMP_I","SLIMP_I"
+"SL_IFD_FAIL","V1.0","SL_IFD_FAIL","SL_DUMMY_RM","SYS_SL_DEST_FAIL","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202171454","20210202172923","SLIMP_I","SLIMP_I"
+"SL_IFD_FAIL","V1.0","SL_IFD_FAIL","SL_DUMMY_RM","SYS_SL_DEST_SUCC","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202171454","20210202172924","SLIMP_I","SLIMP_I"
+"SL_IFD_FAIL","V1.0","SL_IFD_FAIL","SL_DUMMY_RM","SYS_SL_DOC","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202171454","","SLIMP_I",""
+"SL_IFD_FAIL","V1.0","SL_IFD_FAIL","SL_DUMMY_RM","SYS_SL_TEST_DEST","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202171454","20210202172925","SLIMP_I","SLIMP_I"
+"SL_IFD_FAIL","V1.0","SL_IFD_FAIL","SL_DUMMY_RM","SYS_SL_TEST_DEST_SL2_USING_XML","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202171454","20210202172925","SLIMP_I","SLIMP_I"
+"SL_IFD_FAIL","V1.0","SL_IFD_FAIL","SL_DUMMY_RM","SYS_SL_TEST_DEST_TABLE","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202171454","20210202172926","SLIMP_I","SLIMP_I"
+"SL_IFD_FAIL","V1.0","SL_IFD_FAIL","SL_DUMMY_RM","SYS_SL_TEST_DEST_XML_EMAIL","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202171454","20210202172927","SLIMP_I","SLIMP_I"
+"SL_IFD_FAIL","V1.0","SL_IFD_FAIL","SL_DUMMY_RM","SYS_SL_TEST_DEST_XML_FILE","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202171454","20210202172927","SLIMP_I","SLIMP_I"
+"SL_IFD_FAIL","V1.0","SL_IFD_FAIL","SL_DUMMY_RM","SYS_SL_TEST_DEST_XML_HTTP","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202171454","20210202172928","SLIMP_I","SLIMP_I"
+"SL_IFD_FAIL","V1.0","SL_IFD_FAIL","SL_DUMMY_RM","SYS_SL_TEST_DEST_XML_MOCA","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202171454","20210202172929","SLIMP_I","SLIMP_I"
+"SL_IFD_FAIL","V1.0","SL_IFD_FAIL","SL_DUMMY_RM","SYS_SL_TEST_DEST_XML_PTR","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202171454","20210202172929","SLIMP_I","SLIMP_I"
+"SL_IFD_FAIL","V1.0","SL_IFD_FAIL","SL_DUMMY_RM","SYS_SL_TEST_SRC","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202171454","20210202172930","SLIMP_I","SLIMP_I"
+"SL_IFD_FAIL","V1.0","SL_IFD_FAIL","SL_DUMMY_RM","SYS_TM","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202173138","","SLIMP_I",""
+"SL_IFD_FAIL_INB_IFD","V1.0","DATA","SL_GET_IFD_DATA_DTL","SYS_SL_TEST_SRC","SELECT
+	ifd_data_dtl_seq "ifd_data_dtl_seq",
+	ifd_seg_id "ifd_seg_id",
+	ifd_seg_data "ifd_seg_data"
+from sl_ifd_data_dtl where ifd_data_seq = :i_n_sl_in_ifd_data_seq
+
+ORDER BY 1 ",178,"20210202171454","20210202172932","SLIMP_I","SLIMP_I"
+"SL_IFD_SUCC","V1.0","SL_IFD_SUCC","SL_DUMMY_RM","SYS_DCS","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202173141","20230523112212","SLIMP_I","SLIMP"
+"SL_IFD_SUCC","V1.0","SL_IFD_SUCC","SL_DUMMY_RM","SYS_DUTY","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202173141","","SLIMP_I",""
+"SL_IFD_SUCC","V1.0","SL_IFD_SUCC","SL_DUMMY_RM","SYS_DW","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202173141","","SLIMP_I",""
+"SL_IFD_SUCC","V1.0","SL_IFD_SUCC","SL_DUMMY_RM","SYS_HOST","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202173141","","SLIMP_I",""
+"SL_IFD_SUCC","V1.0","SL_IFD_SUCC","SL_DUMMY_RM","SYS_HOST_TEST_XML","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202173141","","SLIMP_I",""
+"SL_IFD_SUCC","V1.0","SL_IFD_SUCC","SL_DUMMY_RM","SYS_HUB","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202173142","","SLIMP_I",""
+"SL_IFD_SUCC","V1.0","SL_IFD_SUCC","SL_DUMMY_RM","SYS_LENS","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202173142","","SLIMP_I",""
+"SL_IFD_SUCC","V1.0","SL_IFD_SUCC","SL_DUMMY_RM","SYS_LM","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202173142","20210216134138","SLIMP_I","SLIMP"
+"SL_IFD_SUCC","V1.0","SL_IFD_SUCC","SL_DUMMY_RM","SYS_RPS","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202173142","","SLIMP_I",""
+"SL_IFD_SUCC","V1.0","SL_IFD_SUCC","SL_DUMMY_RM","SYS_SCARD","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202173142","","SLIMP_I",""
+"SL_IFD_SUCC","V1.0","SL_IFD_SUCC","SL_DUMMY_RM","SYS_SEAMLES","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202171454","20210202172922","SLIMP_I","SLIMP_I"
+"SL_IFD_SUCC","V1.0","SL_IFD_SUCC","SL_DUMMY_RM","SYS_SL_ACCUM","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202171454","20210202172923","SLIMP_I","SLIMP_I"
+"SL_IFD_SUCC","V1.0","SL_IFD_SUCC","SL_DUMMY_RM","SYS_SL_DEST_FAIL","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202171455","20210202172924","SLIMP_I","SLIMP_I"
+"SL_IFD_SUCC","V1.0","SL_IFD_SUCC","SL_DUMMY_RM","SYS_SL_DEST_SUCC","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202171455","20210202172924","SLIMP_I","SLIMP_I"
+"SL_IFD_SUCC","V1.0","SL_IFD_SUCC","SL_DUMMY_RM","SYS_SL_DOC","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202171455","","SLIMP_I",""
+"SL_IFD_SUCC","V1.0","SL_IFD_SUCC","SL_DUMMY_RM","SYS_SL_TEST_DEST","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202171455","20210202172925","SLIMP_I","SLIMP_I"
+"SL_IFD_SUCC","V1.0","SL_IFD_SUCC","SL_DUMMY_RM","SYS_SL_TEST_DEST_SL2_USING_XML","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202171455","20210202172926","SLIMP_I","SLIMP_I"
+"SL_IFD_SUCC","V1.0","SL_IFD_SUCC","SL_DUMMY_RM","SYS_SL_TEST_DEST_TABLE","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202171455","20210202172926","SLIMP_I","SLIMP_I"
+"SL_IFD_SUCC","V1.0","SL_IFD_SUCC","SL_DUMMY_RM","SYS_SL_TEST_DEST_XML_EMAIL","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202171455","20210202172927","SLIMP_I","SLIMP_I"
+"SL_IFD_SUCC","V1.0","SL_IFD_SUCC","SL_DUMMY_RM","SYS_SL_TEST_DEST_XML_FILE","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202171455","20210202172928","SLIMP_I","SLIMP_I"
+"SL_IFD_SUCC","V1.0","SL_IFD_SUCC","SL_DUMMY_RM","SYS_SL_TEST_DEST_XML_HTTP","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202171455","20210202172928","SLIMP_I","SLIMP_I"
+"SL_IFD_SUCC","V1.0","SL_IFD_SUCC","SL_DUMMY_RM","SYS_SL_TEST_DEST_XML_MOCA","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202171455","20210202172929","SLIMP_I","SLIMP_I"
+"SL_IFD_SUCC","V1.0","SL_IFD_SUCC","SL_DUMMY_RM","SYS_SL_TEST_DEST_XML_PTR","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202171455","20210202172930","SLIMP_I","SLIMP_I"
+"SL_IFD_SUCC","V1.0","SL_IFD_SUCC","SL_DUMMY_RM","SYS_SL_TEST_SRC","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202171455","20210202172930","SLIMP_I","SLIMP_I"
+"SL_IFD_SUCC","V1.0","SL_IFD_SUCC","SL_DUMMY_RM","SYS_TM","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202173143","","SLIMP_I",""
+"SL_IFD_SUCC_INB_IFD","V1.0","DATA","SL_GET_IFD_DATA_DTL","SYS_SL_TEST_SRC","SELECT
+	ifd_data_dtl_seq "ifd_data_dtl_seq",
+	ifd_seg_id "ifd_seg_id",
+	ifd_seg_data "ifd_seg_data"
+from sl_ifd_data_dtl where ifd_data_seq = :i_n_sl_in_ifd_data_seq
+
+ORDER BY 1 ",178,"20210202171455","20210202172932","SLIMP_I","SLIMP_I"
+"SL_SYS_COMM_FAIL","V1.0","SL_SYS_COMM_FAIL","SL_DUMMY_RM","SYS_DCS","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202173145","20230523112212","SLIMP_I","SLIMP"
+"SL_SYS_COMM_FAIL","V1.0","SL_SYS_COMM_FAIL","SL_DUMMY_RM","SYS_DUTY","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202173145","","SLIMP_I",""
+"SL_SYS_COMM_FAIL","V1.0","SL_SYS_COMM_FAIL","SL_DUMMY_RM","SYS_DW","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202173146","","SLIMP_I",""
+"SL_SYS_COMM_FAIL","V1.0","SL_SYS_COMM_FAIL","SL_DUMMY_RM","SYS_HOST","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202173146","","SLIMP_I",""
+"SL_SYS_COMM_FAIL","V1.0","SL_SYS_COMM_FAIL","SL_DUMMY_RM","SYS_HOST_TEST_XML","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202173146","","SLIMP_I",""
+"SL_SYS_COMM_FAIL","V1.0","SL_SYS_COMM_FAIL","SL_DUMMY_RM","SYS_HUB","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202173146","","SLIMP_I",""
+"SL_SYS_COMM_FAIL","V1.0","SL_SYS_COMM_FAIL","SL_DUMMY_RM","SYS_LENS","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202173146","","SLIMP_I",""
+"SL_SYS_COMM_FAIL","V1.0","SL_SYS_COMM_FAIL","SL_DUMMY_RM","SYS_LM","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202173147","20210216134139","SLIMP_I","SLIMP"
+"SL_SYS_COMM_FAIL","V1.0","SL_SYS_COMM_FAIL","SL_DUMMY_RM","SYS_RPS","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202173147","","SLIMP_I",""
+"SL_SYS_COMM_FAIL","V1.0","SL_SYS_COMM_FAIL","SL_DUMMY_RM","SYS_SCARD","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202173147","","SLIMP_I",""
+"SL_SYS_COMM_FAIL","V1.0","SL_SYS_COMM_FAIL","SL_DUMMY_RM","SYS_SEAMLES","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202171455","20210202172922","SLIMP_I","SLIMP_I"
+"SL_SYS_COMM_FAIL","V1.0","SL_SYS_COMM_FAIL","SL_DUMMY_RM","SYS_SL_ACCUM","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202171455","20210202172923","SLIMP_I","SLIMP_I"
+"SL_SYS_COMM_FAIL","V1.0","SL_SYS_COMM_FAIL","SL_DUMMY_RM","SYS_SL_DEST_FAIL","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202171455","20210202172924","SLIMP_I","SLIMP_I"
+"SL_SYS_COMM_FAIL","V1.0","SL_SYS_COMM_FAIL","SL_DUMMY_RM","SYS_SL_DEST_SUCC","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202171455","20210202172924","SLIMP_I","SLIMP_I"
+"SL_SYS_COMM_FAIL","V1.0","SL_SYS_COMM_FAIL","SL_DUMMY_RM","SYS_SL_DOC","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202171455","","SLIMP_I",""
+"SL_SYS_COMM_FAIL","V1.0","SL_SYS_COMM_FAIL","SL_DUMMY_RM","SYS_SL_TEST_DEST","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202171455","20210202172925","SLIMP_I","SLIMP_I"
+"SL_SYS_COMM_FAIL","V1.0","SL_SYS_COMM_FAIL","SL_DUMMY_RM","SYS_SL_TEST_DEST_SL2_USING_XML","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202171455","20210202172926","SLIMP_I","SLIMP_I"
+"SL_SYS_COMM_FAIL","V1.0","SL_SYS_COMM_FAIL","SL_DUMMY_RM","SYS_SL_TEST_DEST_TABLE","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202171456","20210202172926","SLIMP_I","SLIMP_I"
+"SL_SYS_COMM_FAIL","V1.0","SL_SYS_COMM_FAIL","SL_DUMMY_RM","SYS_SL_TEST_DEST_XML_EMAIL","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202171456","20210202172927","SLIMP_I","SLIMP_I"
+"SL_SYS_COMM_FAIL","V1.0","SL_SYS_COMM_FAIL","SL_DUMMY_RM","SYS_SL_TEST_DEST_XML_FILE","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202171456","20210202172928","SLIMP_I","SLIMP_I"
+"SL_SYS_COMM_FAIL","V1.0","SL_SYS_COMM_FAIL","SL_DUMMY_RM","SYS_SL_TEST_DEST_XML_HTTP","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202171456","20210202172928","SLIMP_I","SLIMP_I"
+"SL_SYS_COMM_FAIL","V1.0","SL_SYS_COMM_FAIL","SL_DUMMY_RM","SYS_SL_TEST_DEST_XML_MOCA","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202171456","20210202172929","SLIMP_I","SLIMP_I"
+"SL_SYS_COMM_FAIL","V1.0","SL_SYS_COMM_FAIL","SL_DUMMY_RM","SYS_SL_TEST_DEST_XML_PTR","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202171456","20210202172930","SLIMP_I","SLIMP_I"
+"SL_SYS_COMM_FAIL","V1.0","SL_SYS_COMM_FAIL","SL_DUMMY_RM","SYS_SL_TEST_SRC","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202171456","20210202172930","SLIMP_I","SLIMP_I"
+"SL_SYS_COMM_FAIL","V1.0","SL_SYS_COMM_FAIL","SL_DUMMY_RM","SYS_TM","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202173147","","SLIMP_I",""
+"SL_TEST_HEAD_FOR_XML","V1.0","CONTROL","SL_DUMMY_RM","SYS_DCS","SELECT
+	'x' "dummy"
+from dual
+
+",31,"20210202173150","20230523112213","SLIMP_I","SLIMP"
+"SL_TEST_HEAD_FOR_XML","V1.0","CONTROL","SL_DUMMY_RM","SYS_DUTY","SELECT
+	'x' "dummy"
+from dual
+
+",31,"20210202173150","","SLIMP_I",""
+"SL_TEST_HEAD_FOR_XML","V1.0","CONTROL","SL_DUMMY_RM","SYS_DW","SELECT
+	'x' "dummy"
+from dual
+
+",31,"20210202173150","","SLIMP_I",""
+"SL_TEST_HEAD_FOR_XML","V1.0","CONTROL","SL_DUMMY_RM","SYS_HOST","SELECT
+	'x' "dummy"
+from dual
+
+",31,"20210202173150","","SLIMP_I",""
+"SL_TEST_HEAD_FOR_XML","V1.0","CONTROL","SL_DUMMY_RM","SYS_HOST_TEST_XML","SELECT
+	'x' "dummy"
+from dual
+
+",31,"20210202173150","","SLIMP_I",""
+"SL_TEST_HEAD_FOR_XML","V1.0","CONTROL","SL_DUMMY_RM","SYS_HUB","SELECT
+	'x' "dummy"
+from dual
+
+",31,"20210202173151","","SLIMP_I",""
+"SL_TEST_HEAD_FOR_XML","V1.0","CONTROL","SL_DUMMY_RM","SYS_LENS","SELECT
+	'x' "dummy"
+from dual
+
+",31,"20210202173151","","SLIMP_I",""
+"SL_TEST_HEAD_FOR_XML","V1.0","CONTROL","SL_DUMMY_RM","SYS_LM","SELECT
+	'x' "dummy"
+from dual
+
+",31,"20210202173151","20210216134139","SLIMP_I","SLIMP"
+"SL_TEST_HEAD_FOR_XML","V1.0","CONTROL","SL_DUMMY_RM","SYS_RPS","SELECT
+	'x' "dummy"
+from dual
+
+",31,"20210202173151","","SLIMP_I",""
+"SL_TEST_HEAD_FOR_XML","V1.0","CONTROL","SL_DUMMY_RM","SYS_SCARD","SELECT
+	'x' "dummy"
+from dual
+
+",31,"20210202173151","","SLIMP_I",""
+"SL_TEST_HEAD_FOR_XML","V1.0","CONTROL","SL_DUMMY_RM","SYS_SEAMLES","SELECT
+	'x' "dummy"
+from dual
+
+",31,"20210202171456","20210202172922","SLIMP_I","SLIMP_I"
+"SL_TEST_HEAD_FOR_XML","V1.0","CONTROL","SL_DUMMY_RM","SYS_SL_ACCUM","SELECT
+	'x' "dummy"
+from dual
+
+",31,"20210202171456","20210202172923","SLIMP_I","SLIMP_I"
+"SL_TEST_HEAD_FOR_XML","V1.0","CONTROL","SL_DUMMY_RM","SYS_SL_DEST_FAIL","SELECT
+	'x' "dummy"
+from dual
+
+",31,"20210202171456","20210202172924","SLIMP_I","SLIMP_I"
+"SL_TEST_HEAD_FOR_XML","V1.0","CONTROL","SL_DUMMY_RM","SYS_SL_DEST_SUCC","SELECT
+	'x' "dummy"
+from dual
+
+",31,"20210202171456","20210202172925","SLIMP_I","SLIMP_I"
+"SL_TEST_HEAD_FOR_XML","V1.0","CONTROL","SL_DUMMY_RM","SYS_SL_DOC","SELECT
+	'x' "dummy"
+from dual
+
+",31,"20210202171456","","SLIMP_I",""
+"SL_TEST_HEAD_FOR_XML","V1.0","CONTROL","SL_DUMMY_RM","SYS_SL_TEST_DEST","SELECT
+	'x' "dummy"
+from dual
+
+",31,"20210202171456","20210202172925","SLIMP_I","SLIMP_I"
+"SL_TEST_HEAD_FOR_XML","V1.0","CONTROL","SL_DUMMY_RM","SYS_SL_TEST_DEST_SL2_USING_XML","SELECT
+	'x' "dummy"
+from dual
+
+",31,"20210202171456","20210202172926","SLIMP_I","SLIMP_I"
+"SL_TEST_HEAD_FOR_XML","V1.0","CONTROL","SL_DUMMY_RM","SYS_SL_TEST_DEST_TABLE","SELECT
+	'x' "dummy"
+from dual
+
+",31,"20210202171456","20210202172927","SLIMP_I","SLIMP_I"
+"SL_TEST_HEAD_FOR_XML","V1.0","CONTROL","SL_DUMMY_RM","SYS_SL_TEST_DEST_XML_EMAIL","SELECT
+	'x' "dummy"
+from dual
+
+",31,"20210202171456","20210202172927","SLIMP_I","SLIMP_I"
+"SL_TEST_HEAD_FOR_XML","V1.0","CONTROL","SL_DUMMY_RM","SYS_SL_TEST_DEST_XML_FILE","SELECT
+	'x' "dummy"
+from dual
+
+",31,"20210202171456","20210202172928","SLIMP_I","SLIMP_I"
+"SL_TEST_HEAD_FOR_XML","V1.0","CONTROL","SL_DUMMY_RM","SYS_SL_TEST_DEST_XML_HTTP","SELECT
+	'x' "dummy"
+from dual
+
+",31,"20210202171456","20210202172929","SLIMP_I","SLIMP_I"
+"SL_TEST_HEAD_FOR_XML","V1.0","CONTROL","SL_DUMMY_RM","SYS_SL_TEST_DEST_XML_MOCA","SELECT
+	'x' "dummy"
+from dual
+
+",31,"20210202171456","20210202172929","SLIMP_I","SLIMP_I"
+"SL_TEST_HEAD_FOR_XML","V1.0","CONTROL","SL_DUMMY_RM","SYS_SL_TEST_DEST_XML_PTR","SELECT
+	'x' "dummy"
+from dual
+
+",31,"20210202171456","20210202172930","SLIMP_I","SLIMP_I"
+"SL_TEST_HEAD_FOR_XML","V1.0","CONTROL","SL_DUMMY_RM","SYS_SL_TEST_SRC","SELECT
+	'x' "dummy"
+from dual
+
+",31,"20210202171456","20210202172931","SLIMP_I","SLIMP_I"
+"SL_TEST_HEAD_FOR_XML","V1.0","CONTROL","SL_DUMMY_RM","SYS_TM","SELECT
+	'x' "dummy"
+from dual
+
+",31,"20210202173152","","SLIMP_I",""
+"SL_TEST_HEAD_FOR_XML","V1.0","IFD_DEF","SL_GET_IFD_DEF","SYS_SEAMLES","SELECT
+	sl_ifd_def.ifd_id "ifd_id",
+	sl_ifd_def.ifd_ver "ifd_ver",
+	nvl(sl_ifd_def.ifd_tag,sl_ifd_def.ifd_id) "ifd_tag",
+	nvl(sl_ifd_def_grp.ifd_grp_tag,sl_ifd_def_grp.ifd_grp_id) "ifd_grp_tag"
+from sl_ifd_def_grp, sl_ifd_def
+where
+      sl_ifd_def_grp.ifd_grp_id = sl_ifd_def.ifd_grp_id
+and   sl_ifd_def.ifd_id = :i_c_ifd_id
+and   sl_ifd_def.ifd_ver = :i_c_ifd_ver
+
+",367,"20210202171456","20210202172932","SLIMP_I","SLIMP_I"
+"SL_TEST_HEAD_FOR_XML","V1.0","IFD_FLD","SL_GET_IFD_FLD","SYS_SEAMLES","SELECT
+	ifd_seg_id "ifd_fld_id",
+	nvl(ifd_fld_tag,ifd_fld_id) "ifd_fld_tag",
+	data_typ_cd "data_typ_cd"
+from sl_ifd_fld
+where ifd_id = :i_c_ifd_id
+and   ifd_ver = :i_c_ifd_ver
+and   ifd_seg_id = :i_c_ifd_seg_id
+
+",212,"20210202171457","20210202172932","SLIMP_I","SLIMP_I"
+"SL_TEST_HEAD_FOR_XML","V1.0","IFD_SEG","SL_GET_IFD_SEG","SYS_SEAMLES","SELECT
+	ifd_seg_id "ifd_seg_id",
+	nvl(ifd_seg_tag,ifd_seg_id) "ifd_seg_tag"
+from sl_ifd_seg
+where ifd_id = :i_c_ifd_id
+and   ifd_ver = :i_c_ifd_ver
+
+",149,"20210202171457","20210202172932","SLIMP_I","SLIMP_I"
+"SL_TEST_OUT_FROM_EO_EO","V1.0","SL_EO_DEF","SL_TEST_GET_EODEF_RM","SYS_SL_TEST_SRC","SELECT
+	eo_id "eo_id",
+	eo_ver "eo_ver",
+	evt_id "evt_id"
+from sl_eo_def where evt_id = :i_c_e_evt_id
+
+",103,"20210202171457","20210202172932","SLIMP_I","SLIMP_I"
+"SL_TEST_OUT_FROM_EO_EO","V1.0","SL_EO_FLD","SL_TEST_GET_EOFLD_RM","SYS_SL_TEST_SRC","SELECT
+	eo_fld_id "eo_fld_id",
+	data_typ_cd "data_typ_cd"
+from sl_eo_fld where eo_id = :i_c_eo_id and eo_ver = :i_c_eo_ver and eo_seg_id = :i_c_eo_seg_id
+
+",155,"20210202171457","20210202172932","SLIMP_I","SLIMP_I"
+"SL_TEST_OUT_FROM_EO_EO","V1.0","SL_EO_SEG","SL_TEST_GET_EOSEG_RM","SYS_SL_TEST_SRC","SELECT
+	eo_seg_id "eo_seg_id",
+	parent_eo_seg_id "parent_eo_seg_id",
+	retr_mthd_id "retr_mthd_id",
+	eo_seg_ordr "eo_seg_ordr",
+	u_version "u_version",
+	to_char(last_upd_dt,'YYYYMMDDHH24MISS') "last_upd_dt"
+from sl_eo_seg where eo_id = :i_c_eo_id and eo_ver = :i_c_eo_ver
+
+",272,"20210202171457","20210202172932","SLIMP_I","SLIMP_I"
+"SL_TEST_OUT_FROM_EO_EO","V1.0","SL_TEST_DT","SL_TEST_GET_DT_RM","SYS_SL_TEST_SRC","SELECT
+	to_char(to_date(:test_dt,'YYYYMMDDHH24MISS'),'YYYYMMDDHH24MISS') "sl_test_dt"
+from dual where to_date('19991109000000','YYYYMMDDHH24MISS') = to_date(:i_d_test_dt,'YYYYMMDDHH24MISS')
+
+",191,"20210202171457","20210202172932","SLIMP_I","SLIMP_I"
+"SL_TEST_OUT_FROM_EO_EO","V1.0","SL_TEST_NUM","SL_TEST_GET_NUM_RM","SYS_SL_TEST_SRC","SELECT
+	CAST(:test_num AS FLOAT) "sl_test_num"
+from dual where 1 = :i_n_test_num
+
+",82,"20210202171457","20210202172932","SLIMP_I","SLIMP_I"
+"STOP_CHANGE","2009.2","STOP_CHANGE","SL_DUMMY_RM","SYS_DCS","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202173040","20230523112213","SLIMP_I","SLIMP"
+"STOP_CREATE","2009.2","STOP_CREATE","SL_DUMMY_RM","SYS_DCS","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202173040","20230523112214","SLIMP_I","SLIMP"
+"STOP_DELETE","2009.2","STOP_DELETE","SL_DUMMY_RM","SYS_DCS","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202173040","20230523112214","SLIMP_I","SLIMP"
+"TRAILER_CHANGE","2009.2","TRAILER_CHANGE","SL_DUMMY_RM","SYS_DCS","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202173041","20230523112215","SLIMP_I","SLIMP"
+"TRAILER_CREATE","2009.2","TRAILER_CREATE","SL_DUMMY_RM","SYS_DCS","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202173041","20230523112215","SLIMP_I","SLIMP"
+"TRAILER_DELETE","2009.2","TRAILER_DELETE","SL_DUMMY_RM","SYS_DCS","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202173041","20230523112216","SLIMP_I","SLIMP"
+"TRLR_CHANGE","2009.2","TRLR_CHANGE","TRLR_CHANGE_RM","SYS_DCS","SELECT
+	trlr.carcod "carcod",
+	trlr.trlr_num "trlr_num",
+	trlr.trlr_stat "trlr_stat",
+	trlr.trlr_typ "trlr_typ",
+	trlr.trlr_size "trlr_size",
+	trlr.refrig_flg "refrig_flg",
+	trlr.trlr_broker "trlr_broker",
+	trlr.trlr_seal1 "trlr_seal1",
+	trlr.trlr_seal2 "trlr_seal2",
+	trlr.trlr_seal4 "trlr_seal3",
+	trlr.trlr_seal4 "trlr_seal4",
+	trlr.yard_loc "yard_loc",
+	trlr.yard_stat "yard_stat",
+	trlr.trlr_wgt "trlr_wgt",
+	trlr.driver_nam "driver_nam",
+	trlr.driver_lic_num "driver_lic_num",
+	to_char(trlr.close_dte,'YYYYMMDDHH24MISS') "close_dte",
+	to_char(trlr.pend_dte,'YYYYMMDDHH24MISS') "pend_dte",
+	to_char(trlr.dispatch_dte,'YYYYMMDDHH24MISS') "dispatch_dte",
+	trlr.hot_flg "hot_flg",
+	trlr.trlr_cod "trlr_cod",
+	trlr.turn_flg "turn_flg",
+	trlr.appt_id "appt_id",
+	to_char(trlr.arrdte,'YYYYMMDDHH24MISS') "arrdte",
+	trlr.client_id "client_id",
+	trlr.tractor_num "tractor_num",
+	trlr.trlr_cond "trlr_cond",
+	trlr.live_load_flg "live_load_flg"
+from trlr
+where trlr.trlr_id = :i_c_trlr_id
+    and trlr.autogen_flg = 0
+
+",1014,"20210202173041","","SLIMP_I",""
+"UC_CLOSE_WORK_ORDER","2009.2","CTRL","UC_SL_DUMMY_RM","SYS_DCS","SELECT
+	'x' "dummy"
+from dual
+
+",31,"20230523145117","","938673",""
+"UC_CLOSE_WORK_ORDER","2009.2","HDR","USR_WO_DATA","SYS_DCS","SELECT
+	uc_guid_hst "uc_guid_hst"
+from wkohdr wkh
+ where wkh.wkonum= :i_c_wkonum
+    and wkh.wkorev=:i_c_wkorev
+    and wkh.client_id =:i_c_client_id
+    and wkh.wh_id =:i_c_wh_id
+
+",181,"20230412140037","20230523113607","SLIMP","SLIMP"
+"UC_INVENTORY_ADJUST","V2013.2","CTRL","UC_SL_DUMMY_RM","SYS_DCS","SELECT
+	'x' "dummy"
+from dual
+
+",31,"20230523145209","","938673",""
+"UC_INVENTORY_ADJUST_WO","V2013.2","CTRL","UC_SL_DUMMY_RM","SYS_DCS","SELECT
+	'x' "dummy"
+from dual
+
+",31,"20230523113348","20230523114023","SLIMP","SLIMP"
+"UC_INVENTORY_ADJUST_WO","V2013.2","INV_SEG","USR_WO-INV-ADJ","SYS_DCS","SELECT
+	subnum "subnum",
+	:i_c_sys_absent_ind_char "catch_unttyp",
+	dtlnum "dtlnum",
+	:i_c_sys_absent_ind_char "dtl_totqty",
+	:i_c_sys_absent_ind_char "hldnum",
+	:i_c_sys_absent_ind_char "hldpfx",
+	prtnum "prtnum",
+	prt_client_id "prt_client_id",
+	ftpcod "ftpcod",
+	untcas "untcas",
+	untpak "untpak",
+	lotnum "lotnum",
+	sup_lotnum "sup_lotnum",
+	revlvl "revlvl",
+	orgcod "orgcod",
+	catch_qty "catch_qty",
+	to_char(mandte,'YYYYMMDDHH24MISS') "mandte",
+	to_char(expire_dte,'YYYYMMDDHH24MISS') "expire_dte",
+	supnum "supnum",
+	invsts "invsts",
+	cstms_bond_flg "cstms_bond_flg",
+	dty_stmp_flg "dty_stmp_flg",
+	cnsg_flg "cnsg_flg",
+	inv_attr_str1 "inv_attr_str1",
+	inv_attr_str2 "inv_attr_str2",
+	inv_attr_str3 "inv_attr_str3",
+	inv_attr_str4 "inv_attr_str4",
+	inv_attr_str5 "inv_attr_str5",
+	inv_attr_str6 "inv_attr_str6",
+	inv_attr_str7 "inv_attr_str7",
+	inv_attr_str8 "inv_attr_str8",
+	inv_attr_str9 "inv_attr_str9",
+	inv_attr_str10 "inv_attr_str10",
+	inv_attr_str11 "inv_attr_str11",
+	inv_attr_str12 "inv_attr_str12",
+	inv_attr_str13 "inv_attr_str13",
+	inv_attr_str14 "inv_attr_str14",
+	inv_attr_str15 "inv_attr_str15",
+	inv_attr_str16 "inv_attr_str16",
+	inv_attr_str17 "inv_attr_str17",
+	inv_attr_str18 "inv_attr_str18",
+	inv_attr_int1 "inv_attr_int1",
+	inv_attr_int2 "inv_attr_int2",
+	inv_attr_int3 "inv_attr_int3",
+	inv_attr_int4 "inv_attr_int4",
+	inv_attr_int5 "inv_attr_int5",
+	inv_attr_flt1 "inv_attr_flt1",
+	inv_attr_flt2 "inv_attr_flt2",
+	inv_attr_flt3 "inv_attr_flt3",
+	inv_attr_dte1 "inv_attr_dte1",
+	inv_attr_dte2 "inv_attr_dte2",
+	lodnum "lodnum",
+	load_attr1_flg "load_attr1_flg",
+	load_attr2_flg "load_attr2_flg",
+	load_attr3_flg "load_attr3_flg",
+	load_attr4_flg "load_attr4_flg",
+	load_attr5_flg "load_attr5_flg",
+	prcare "arecod",
+	prdlin "stoloc",
+	uc_guid_hst "uc_guid_hst",
+	-1 "inv_hist_id"
+from (select ivd.*, ivl.lodnum, ivl.loducc, ivl.asset_typ, ivl.load_attr1_flg, ivl.load_attr2_flg, ivl.load_attr3_flg, ivl.load_attr4_flg, ivl.load_attr5_flg, ivl.completed_receiving_date, 
+           wkh.wkonum, wkh.wkorev, wkh.client_id, wkh.prcare, wkh.prdlin, wkh.prjnum, wkh.accnum, wkh.uc_guid_hst
+   from invdtl ivd,invsub ivs, invlod ivl, wkohdr wkh
+ where ivd.subnum = ivs.subnum
+    and ivl.lodnum = ivs.lodnum
+    and ivl.lodnum = :i_c_lodnum
+    and (ivs.subnum = :i_c_subnum
+        or nvl(:i_c_subnum,'-')='-')
+    and nvl(ivd.u_version,0)!=1
+    and nvl(ivd.u_version,0)!=2
+    and ivd.cmpkey is not 
+    and ivd.rcvkey is not 
+    and ivl.wh_id=wkh.wh_id
+    and ivd.prtnum = wkh.prtnum 
+    and ivd.prt_client_id = wkh.prt_client_id
+    and wkh.wkonum= :i_c_wkonum
+    and wkh.wkorev=:i_c_wkorev
+    and wkh.client_id =:i_c_client_id
+    and wkh.wh_id =:i_c_wh_id ) fp
+
+",2706,"20230412140126","20230523113643","SLIMP","SLIMP"
+"UC_INVENTORY_ATTRIBUTE","V2013.2","CTRL","UC_SL_DUMMY_RM","SYS_DCS","SELECT
+	'x' "dummy"
+from dual
+
+",31,"20230523145302","","938673",""
+"UC_INVENTORY_CONS_WO","V2013.2","CTRL","UC_SL_DUMMY_RM","SYS_DCS","SELECT
+	'x' "dummy"
+from dual
+
+",31,"20230523113348","20230523114023","SLIMP","SLIMP"
+"UC_INVENTORY_CONS_WO","V2013.2","INV_SEG","USR_WOLIN-INV-CONS","SYS_DCS","SELECT
+	subnum "subnum",
+	dtlnum "dtlnum",
+	prtnum "prtnum",
+	prt_client_id "prt_client_id",
+	lotnum "lotnum",
+	sup_lotnum "sup_lotnum",
+	revlvl "revlvl",
+	orgcod "orgcod",
+	supnum "supnum",
+	invsts "invsts",
+	inv_attr_str1 "inv_attr_str1",
+	inv_attr_str2 "inv_attr_str2",
+	inv_attr_str3 "inv_attr_str3",
+	inv_attr_str4 "inv_attr_str4",
+	inv_attr_str5 "inv_attr_str5",
+	inv_attr_str6 "inv_attr_str6",
+	inv_attr_str7 "inv_attr_str7",
+	inv_attr_str8 "inv_attr_str8",
+	inv_attr_str9 "inv_attr_str9",
+	inv_attr_str10 "inv_attr_str10",
+	inv_attr_str11 "inv_attr_str11",
+	inv_attr_str12 "inv_attr_str12",
+	inv_attr_str13 "inv_attr_str13",
+	inv_attr_str14 "inv_attr_str14",
+	inv_attr_str15 "inv_attr_str15",
+	inv_attr_str16 "inv_attr_str16",
+	inv_attr_str17 "inv_attr_str17",
+	inv_attr_str18 "inv_attr_str18",
+	inv_attr_int1 "inv_attr_int1",
+	inv_attr_int2 "inv_attr_int2",
+	inv_attr_int3 "inv_attr_int3",
+	inv_attr_int4 "inv_attr_int4",
+	inv_attr_int5 "inv_attr_int5",
+	inv_attr_flt1 "inv_attr_flt1",
+	inv_attr_flt2 "inv_attr_flt2",
+	inv_attr_flt3 "inv_attr_flt3",
+	inv_attr_dte1 "inv_attr_dte1",
+	inv_attr_dte2 "inv_attr_dte2",
+	:i_c_sys_absent_ind_char "stoloc",
+	uc_guid_hst "uc_guid_hst",
+	uc_guid_lin "uc_guid_lin",
+	wkolin "wkolin"
+from (select cmpdtl.*, wkohdr.uc_guid_hst, wkodtl.uc_guid_lin, wkodtl.wkolin from cmpdtl
+join cmphdr 
+  on (cmphdr.cmpkey = cmpdtl.cmpkey)
+ left join wkohdr
+  on (wkohdr.wkonum = cmphdr.wkonum and wkohdr.wkorev = cmphdr.wkorev and wkohdr.wh_id = cmphdr.wh_id and wkohdr.client_id = cmphdr.client_id)
+ left join wkodtl
+ on (wkodtl.wkonum = wkohdr.wkonum and wkodtl.client_id = wkohdr.client_id and wkodtl.wkorev = wkohdr.wkorev and wkodtl.wh_id = wkohdr.wh_id and wkodtl.prtnum = cmpdtl.prtnum and wkodtl.prt_client_id = cmpdtl.prt_client_id and wkodtl.lotnum = cmpdtl.lotnum and linqty>0 )  
+where cmpdtl.cmpkey = :i_c_cmpkey 
+   and cmpdtl.prtnum = :i_c_prtnum
+   and cmpdtl.prt_client_id = :i_c_prt_client_id
+   and cmpdtl.wh_id  = :i_c_wh_id
+   and nvl(cmpdtl.lotnum, '----') = :i_c_lotnum    
+   and nvl(cmpdtl.revlvl, '----') = :i_c_revlvl    
+   and nvl(cmpdtl.orgcod, '----') = :i_c_orgcod
+   and cmpdtl.subnum = :i_c_subnum
+   and cmpdtl.dtlnum = :i_c_dtlnum
+   and cmpdtl.invsts = :i_c_invsts) cons
+
+",2241,"20230412140253","20230523113849","SLIMP","SLIMP"
+"UC_INVENTORY_SCR_WO","V2013.2","CTRL","UC_SL_DUMMY_RM","SYS_DCS","SELECT
+	'x' "dummy"
+from dual
+
+",31,"20230523113348","20230523114023","SLIMP","SLIMP"
+"UC_INVENTORY_SCR_WO","V2013.2","INV_SEG","USR_WOLIN-INV-ADJ","SYS_DCS","SELECT
+	prdlin "stoloc",
+	uc_guid_hst "uc_guid_hst",
+	uc_guid_lin "uc_guid_lin"
+from (select wkh.prdlin, wkh.uc_guid_hst, wkd.uc_guid_lin 
+   from wkohdr wkh, wkodtl wkd
+ where wkd.wkonum= wkh.wkonum
+    and wkd.wkorev = wkh.wkorev
+    and wkd.client_id = wkh.client_id
+    and wkd.wh_id = wkh.wh_id
+    and wkd.wkolin = :i_c_wkolin
+    and wkd.seqnum = :i_c_seqnum
+    and wkh.wkonum= :i_c_wkonum
+    and wkh.wkorev=:i_c_wkorev
+    and wkh.client_id =:i_c_client_id
+    and wkh.wh_id =:i_c_wh_id) wko
+
+",503,"20230412140212","20230523113701","SLIMP","SLIMP"
+"UC_INV-RCV","2012.1","CTRL","UC_SL_DUMMY_RM","SYS_DCS","SELECT
+	'x' "dummy"
+from dual
+
+",31,"20230523113348","20230523113905","SLIMP","SLIMP"
+"UC_LOAD_STATUS","2017.1","CTRL","DCS_DUMMY_RM","SYS_DCS","SELECT
+	'x' "dummy"
+from dual
+
+",31,"20230523113348","20230523113905","SLIMP","SLIMP"
+"UC_LOAD_STATUS","2017.1","CTRL","UC_SL_DUMMY_RM","SYS_DCS","SELECT
+	'x' "dummy"
+from dual
+
+",31,"20230523154620","","938673",""
+"UC_LOAD_STATUS","2017.1","SHIPMENT_ORDER","SHIPMENT_ORDER_ACT_RM_USR","SYS_DCS","SELECT
+	shl.ship_id "ship_id",
+	shl.ordnum "ordnum",
+	ord.client_id "client_id",
+	ord.btcust "btcust",
+	ord.rtcust "rtcust",
+	ord.stcust "stcust",
+	ord.cponum "cponum",
+	ord.ordtyp "ordtyp",
+	ord.dlvnum "dlvnum",
+	ord.dlvseq "dlvseq",
+	ord.uc_guid_hst "uc_guid_hst"
+from ord, shipment_line shl
+where ord.client_id = shl.client_id
+and ord.ordnum = shl.ordnum
+and ord.wh_id = shl.wh_id
+and shl.ship_id = :i_c_ship_id
+and shl.ordnum= :i_c_ordnum
+
+GROUP BY shl.ship_id,
+ shl.ordnum,
+ ord.client_id,
+ ord.btcust,
+ ord.rtcust,
+ ord.stcust,
+ ord.cponum,
+ ord.ordtyp,
+ ord.dlvnum,
+ ord.dlvseq,
+ ord.uc_guid_hst
+",603,"20210216132745","20230523114000","SLIMP","SLIMP"
+"UC_SHIP_LOAD","2017.1","DUMMY","SL_DUMMY_RM","SYS_DCS","SELECT
+	:i_c_sys_absent_ind_char "dummy"
+from dual
+
+",52,"20210216132910","20230512232458","SLIMP","SLIMP"
+"UC_SHIP_LOAD","2017.1","DUMMY","UC_SL_DUMMY_RM","SYS_DCS","SELECT
+	'x' "dummy"
+from dual
+
+",52,"20230519151816","20230523113905","938673","SLIMP"
+"UC_SHIP_LOAD","2017.1","SHIPMENT_ORDER","SHIPMENT_ORDER_ACT_RM","SYS_DCS","SELECT
+	shl.ship_id "ship_id",
+	shl.ordnum "ordnum",
+	ord.client_id "client_id",
+	ord.btcust "btcust",
+	ord.rtcust "rtcust",
+	ord.stcust "stcust",
+	ord.cponum "cponum",
+	ord.ordtyp "ordtyp",
+	ord.dlvnum "dlvnum",
+	ord.dlvseq "dlvseq",
+	ord.uc_guid_hst "uc_guid_hst"
+from   ord, shipment_line shl
+where   ord.client_id = shl.client_id
+and ord.ordnum = shl.ordnum
+and          ord.wh_id = shl.wh_id
+and shl.ship_id = :i_c_ship_id
+
+GROUP BY shl.ship_id,
+ shl.ordnum,
+ ord.client_id,
+ ord.btcust,
+ ord.rtcust,
+ ord.stcust,
+ ord.cponum,
+ ord.ordtyp,
+ ord.dlvnum,
+ ord.dlvseq,
+ ord.uc_guid_hst
+",588,"20210216132919","20210216132919","SLIMP","SLIMP"
+"UC_SL_IFD_FAILL","V1.0","CTRL","SL_DUMMY_RM","SYS_DCS","SELECT
+	'x' "dummy"
+from dual
+
+",31,"20230523113348","","SLIMP",""
+"UC_SL_IFD_FAILL","V1.0","CTRL","UC_SL_DUMMY_RM","SYS_DCS","SELECT
+	'x' "dummy"
+from dual
+
+",31,"20230523113351","20230523113905","SLIMP","SLIMP"
+"UC_SL_IFD_SUCC","V1.0","CTRL","UC_SL_DUMMY_RM","SYS_DCS","SELECT
+	'x' "dummy"
+from dual
+
+",31,"20230523113348","20230523114023","SLIMP","SLIMP"
+"WO_DTL_CHANGE","2009.2","WO_DTL_CHANGE","SL_DUMMY_RM","SYS_DCS","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202173042","20230523112217","SLIMP_I","SLIMP"
+"WO_DTL_CREATE","2009.2","WO_DTL_CREATE","SL_DUMMY_RM","SYS_DCS","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202173043","20230523112217","SLIMP_I","SLIMP"
+"WO_DTL_DELETE","2009.2","WO_DTL_DELETE","SL_DUMMY_RM","SYS_DCS","SELECT
+	'X' "dummy"
+from dual
+
+",31,"20210202173043","20230523112218","SLIMP_I","SLIMP"

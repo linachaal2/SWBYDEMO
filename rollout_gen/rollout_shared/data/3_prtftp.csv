@@ -1,0 +1,5 @@
+prtnum,ftpcod,prt_client_id,wh_id,caslvl,nstlen,nstwid,nsthgt,pal_stck_hgt,def_asset_typ,defftp_flg,stkmtd,load_attr1_cfg,load_attr2_cfg,load_attr3_cfg,load_attr4_cfg,load_attr5_cfg,rcvftp_flg,level_units,ins_dt,last_upd_dt,ins_user_id,last_upd_user_id
+"000011-038-030","580-320-430-CS","RFH","3",9999,0.1,0.1,0.1,1,"",0,"1","","","","","",0,0,"20210812091243","20210812091243","939161","939161"
+"000011-038-030","DEFAULT","RFH","3",9999,0.0,0.0,0.0,0,"",1,"","","","","","",0,0,"20210812091224","20211008105043","slDownload_0","SLDOWNLOAD_0"
+"DUMMYITEM","DEFAULT","RFH","----",1,0.0,0.0,0.0,0,"",1,"","","","","","",0,0,"20181031093447","20181031093447","939370","939370"
+"DUMMYITEM","DEFAULT","RFH","3",1,0.0,0.0,0.0,0,"",1,"","","","","","",0,0,"20181031093447","20181031093447","939370","939370"

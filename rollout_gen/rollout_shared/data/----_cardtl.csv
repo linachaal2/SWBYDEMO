@@ -1,0 +1,3 @@
+carcod,srvlvl,srvlvl_nam,cartyp,unt_ins_val,rel_val,rel_val_unt_typ,sddflg,intl_flg,fluid_load_flg,bundle_flg,booking_rqd_flg,mod_usr_id,moddte,shp_stg_ovrd_flg,single_pkg_shp_flg,max_wgt,max_vol,max_val,crncy_code
+"Parcel","Parcel","","S",0,0,"",0,0,0,0,0,"","",0,0,0,0,0,""
+"RFH","001","","L",0.0,0.0,"",0,1,1,0,0,"938673","20181003153327",0,0,0.0,0.0,0.0,""

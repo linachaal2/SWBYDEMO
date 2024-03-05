@@ -1,0 +1,4 @@
+task_id,role_id,name,task_typ,cmd_line,run_dir,log_file,restart,auto_start,start_delay,grp_nam
+BATCH_MANAGER,,Batch Task Manager,T,com.redprairie.sal.batch.BatchTaskManager,$LESDIR/log,$LESDIR/log/BatchTaskManager.log,0,0,0,sal_data
+VOC_LUT,,Voice Server - LUT,T,"com.redprairie.moca.socket.SocketServerTask -p 5200 -c ""sl_jsock proc_inb_thread vcstd where sys_id='VOICE' and run_tran_flg='T' and xml_flg='F'""",,,0,1,0,dcs_data
+VOC_ODR,,Voice Server - ODR,T,"com.redprairie.moca.socket.SocketServerTask -p 5202 -c ""sl_jsock proc_inb_thread vcodr where sys_id='VOICE' and run_tran_flg='T' and xml_flg='F'""",,,0,1,0,dcs_data

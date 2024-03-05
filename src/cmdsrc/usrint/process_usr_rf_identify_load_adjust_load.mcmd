@@ -1,0 +1,197 @@
+<command>
+  <name>process usr rf identify load adjust load</name>
+  <description>process usr rf identify load adjust load</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* process usr rf identify load adjust load
+ * Processes an adjustment done in the USR_IDENTIFY_LOAD_ADJ_LOD screen. [UsrIdentifyLoadAdjLod.java]
+ * This will not yet do the actual adjust but will just store it so we can do it when the user actually confirms the receipt of the load.
+ * Version history:
+ * V01, 2018-10-26  Salem Hamze         Initial version.
+ * V02, 2018-11-09  Marco Schouwenaar   Adjustment on valid auction date input
+ * V03, 2018-11-27  Stephan Doens		added fr_asset_qty / to_asset_qty 
+ */
+get warehouse id
+|
+publish data
+ where devcod = nvl(@devcod, @@devcod)
+|
+{
+    list usr rf identify load adjust load information
+     where devcod = @devcod
+    |
+    publish data
+     where org_inv_attr_str7 = @org_inv_attr_str7
+       and fr_inv_attr_str7 = @inv_attr_str7
+       and org_inv_attr_str10 = @org_inv_attr_str10
+       and fr_inv_attr_str10 = @inv_attr_str10
+       and org_inv_attr_str11 = @org_inv_attr_str11
+       and fr_inv_attr_str11 = @inv_attr_str11
+       and org_inv_attr_dte1 = @org_inv_attr_dte1
+       and fr_inv_attr_dte1 = @inv_attr_dte1
+       and org_load_attr1_flg = @org_load_attr1_flg
+       and fr_load_attr1_flg = @load_attr1_flg
+       and org_asset_qty = @org_asset_qty
+       and fr_asset_qty = @asset_qty
+}
+|
+{
+    /* Store the changed values in the device context so we can commit it later. */
+    if (@fr_inv_attr_str7 != @inv_attr_str7)
+    {
+        /* If this detail was adjusted before just remove the value. */
+        pop device context value
+         where devcod = @devcod
+           and wh_id = @wh_id
+           and dev_varnam = 'USR_IDENTIFY_LOAD_ADJ_LOD'
+           and value like 'INV_ATTR_STR7:%' catch(@?)
+        |
+        /* Only add the value if it is not the original value, if it is the original value we don't need to adjust anything. */
+        if (@org_inv_attr_str7 != @inv_attr_str7)
+        {
+            /* Add the value to the device context. */
+            push device context value
+             where devcod = @devcod
+               and wh_id = @wh_id
+               and dev_varnam = 'USR_IDENTIFY_LOAD_ADJ_LOD'
+               and value = 'INV_ATTR_STR7:' || @inv_attr_str7
+        }
+    };
+
+    /* Store the changed values in the device context so we can commit it later. */
+    if (@fr_inv_attr_str10 != @inv_attr_str10)
+    {
+        /* If this detail was adjusted before just remove the value. */
+        pop device context value
+         where devcod = @devcod
+           and wh_id = @wh_id
+           and dev_varnam = 'USR_IDENTIFY_LOAD_ADJ_LOD'
+           and value like 'INV_ATTR_STR10:%' catch(@?)
+        |
+        /* Only add the value if it is not the original value, if it is the original value we don't need to adjust anything. */
+        if (@org_inv_attr_str10 != @inv_attr_str10)
+        {
+            /* Add the value to the device context. */
+            push device context value
+             where devcod = @devcod
+               and wh_id = @wh_id
+               and dev_varnam = 'USR_IDENTIFY_LOAD_ADJ_LOD'
+               and value = 'INV_ATTR_STR10:' || @inv_attr_str10
+        }
+    };
+
+    /* Store the changed values in the device context so we can commit it later. */
+    if (@fr_inv_attr_str11 != @inv_attr_str11)
+    {
+        /* If this detail was adjusted before just remove the value. */
+        pop device context value
+         where devcod = @devcod
+           and wh_id = @wh_id
+           and dev_varnam = 'USR_IDENTIFY_LOAD_ADJ_LOD'
+           and value like 'INV_ATTR_STR11:%' catch(@?)
+        |
+        /* Only add the value if it is not the original value, if it is the original value we don't need to adjust anything. */
+        if (@org_inv_attr_str11 != @inv_attr_str11)
+        {
+            /* Add the value to the device context. */
+            push device context value
+             where devcod = @devcod
+               and wh_id = @wh_id
+               and dev_varnam = 'USR_IDENTIFY_LOAD_ADJ_LOD'
+               and value = 'INV_ATTR_STR11:' || @inv_attr_str11
+        }
+    };
+
+    /* Store the changed values in the device context so we can commit it later. */
+    if (@fr_inv_attr_dte1 != @inv_attr_dte1)
+    {
+        /* If this detail was adjusted before just remove the value. */
+        pop device context value
+         where devcod = @devcod
+           and wh_id = @wh_id
+           and dev_varnam = 'USR_IDENTIFY_LOAD_ADJ_LOD'
+           and value like 'INV_ATTR_DTE1:%' catch(@?)
+        |
+        /* Only add the value if it is not the original value, if it is the original value we don't need to adjust anything. */
+        if (@org_inv_attr_dte1 != @inv_attr_dte1)
+        {
+            /* Add the value to the device context. */
+            push device context value
+             where devcod = @devcod
+               and wh_id = @wh_id
+               and dev_varnam = 'USR_IDENTIFY_LOAD_ADJ_LOD'
+               and value = 'INV_ATTR_DTE1:' || @inv_attr_dte1
+        }
+    };
+
+    /* Store the changed values in the device context so we can commit it later. */
+    if (@fr_load_attr1_flg != @load_attr1_flg)
+    {
+        /* If this detail was adjusted before just remove the value. */
+        pop device context value
+         where devcod = @devcod
+           and wh_id = @wh_id
+           and dev_varnam = 'USR_IDENTIFY_LOAD_ADJ_LOD'
+           and value like 'LOAD_ATTR1_FLG:%' catch(@?)
+        |
+        /* Only add the value if it is not the original value, if it is the original value we don't need to adjust anything. */
+        if (@org_load_attr1_flg != @load_attr1_flg)
+        {
+            /* Add the value to the device context. */
+            push device context value
+             where devcod = @devcod
+               and wh_id = @wh_id
+               and dev_varnam = 'USR_IDENTIFY_LOAD_ADJ_LOD'
+               and value = 'LOAD_ATTR1_FLG:' || @load_attr1_flg
+        }
+    };
+
+    /* Store the changed values in the device context so we can commit it later. */
+    if (int(@fr_asset_qty) != int(@asset_qty))
+    {
+        /* If this detail was adjusted before just remove the value. */
+        {
+            pop device context value
+             where devcod = @devcod
+               and wh_id = @wh_id
+               and dev_varnam = 'USR_IDENTIFY_LOAD_ADJ_LOD'
+               and value like 'ASSET_QTY:%' catch(@?);
+            pop device context value
+             where devcod = @devcod
+               and wh_id = @wh_id
+               and dev_varnam = 'USR_IDENTIFY_LOAD_ADJ_LOD'
+               and value like 'ASSET_QTY_REACOD:%' catch(@?)
+        }
+        |
+        /* Only add the value if it is not the original value, if it is the original value we don't need to adjust anything. */
+        if (int(@org_asset_qty) != int(@asset_qty))
+        {
+            /* Add the value to the device context. */
+            {
+                push device context value
+                 where devcod = @devcod
+                   and wh_id = @wh_id
+                   and dev_varnam = 'USR_IDENTIFY_LOAD_ADJ_LOD'
+                   and value = 'ASSET_QTY:' || int(@asset_qty);
+                push device context value
+                 where devcod = @devcod
+                   and wh_id = @wh_id
+                   and dev_varnam = 'USR_IDENTIFY_LOAD_ADJ_LOD'
+                   and value = 'ASSET_QTY_REACOD:' || 'LYRS.CHNG'
+            }
+        }
+    };
+};
+
+/* Don't return anything becasue we won't do anything with it on the RF. */
+noop
+]]>
+</local-syntax>
+  <argument name="inv_attr_str7" required="yes" datatype="string">inv_attr_str7</argument>
+  <argument name="inv_attr_str10" required="yes" datatype="string">inv_attr_str10</argument>
+  <argument name="inv_attr_str11" required="yes" datatype="string">inv_attr_str11</argument>
+  <argument name="inv_attr_dte1" required="yes" datatype="string">inv_attr_dte1</argument>
+  <argument name="load_attr1_flg" required="yes" datatype="string">load_attr1_flg</argument>
+  <argument name="asset_qty" required="yes" datatype="string">asset_qty</argument>
+</command>

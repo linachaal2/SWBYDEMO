@@ -1,0 +1,17 @@
+<action>
+  <id>usrAddGLNLocation</id>
+  <name>usrAddGLNLocation</name>
+  <description>Add GLN Location</description>
+  <type>ADD</type>
+  <ws>
+     <method>POST</method>
+	 <href>/usrAddGLNLocation</href>
+  </ws>
+  <impl>
+     <command>create usr gln location</command>
+  </impl>
+  <auth>
+     <opt>optOpen</opt>
+  </auth>
+  <primary>true</primary>
+</action>

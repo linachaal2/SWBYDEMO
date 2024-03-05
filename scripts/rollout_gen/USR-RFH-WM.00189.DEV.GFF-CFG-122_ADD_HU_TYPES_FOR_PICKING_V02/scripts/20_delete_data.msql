@@ -1,0 +1,25 @@
+[select wh_id from wh]
+|
+if (@wh_id = '1') 
+{
+[delete from pcklst_break_on_cri  where pcklst_rule_id in ('36','37','38','12','5','9','6','28','1')]catch(-1403);
+}
+|
+if (@wh_id = '2') 
+{
+  [delete from pcklst_break_on_cri  where pcklst_rule_id in ('35','2','114','21','122','130','138','22','8','11','14','17','98','99','23','26','3','1')]catch(-1403);
+}
+|
+if (@wh_id = '3') 
+{
+[delete from pcklst_break_on_cri  where pcklst_rule_id in ('3','7','22','2','9','1','19','21')]catch(-1403);
+}
+|
+if (@wh_id = '7') 
+{
+[delete from pcklst_break_on_cri  where pcklst_rule_id in ('1','11','12')]catch(-1403);
+}
+|
+commit;
+/
+exit

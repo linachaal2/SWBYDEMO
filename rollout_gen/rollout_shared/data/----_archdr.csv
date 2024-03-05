@@ -1,0 +1,364 @@
+arc_nam,arc_table,list_cmd,max_rows,sts_fil,purge_flg,post_arc_cmd,action_on_dup
+"ARCHIVE_SYS_AUDITS","SYS_AUDIT","if (@daysold = '') { [select rtnum1 DaysOld from poldat where polcod = 'SYSTEM-AUDITING' and polvar = 'INTERACTIVE-AUDITING' and polval = 'AUDIT-DAYS-TO-KEEP' and srtseq = 0] } | list system audit records where daysold = @daysold",0,"",0,"purge system audit records where daysold = @daysold","I"
+"ASYNC-RESOURCE","ASYNC_GROUP","if (dbtype = 'ORACLE') { [select async_group.*, async_group.rowid from async_group where ins_dt < sysdate - /*=moca_util.days(*/ 30 /*=)*/ ] } else { [select * from async_group where ins_dt < sysdate - /*=moca_util.days(*/ 30 /*=)*/] }",0,"",0,"purge asynchronous resources where @+async_group_id","I"
+"BILL-OF-MATERIALS","BOMHDR","if (dbtype = 'ORACLE') { [select bomhdr.*, bomhdr.rowid from bomhdr where bomcod = 'G' and moca_util.date_diff_days(sysdate,untdte) < 0] } else { [select * from bomhdr where bomcod = 'G' and moca_util.date_diff_days(sysdate,untdte) < 0] }",0,"",0,"purge bom where bomnum = @bomnum and client_id = @client_id and wh_id = @wh_id","E"
+"BILL-TRAN","BILL_TRAN","if (dbtype = 'ORACLE') { [select bill_tran.*, bill_tran.rowid from bill_tran where trndte < sysdate  and interfaced_flg = 1] } else { [select * from bill_tran where trndte < sysdate  and interfaced_flg = 1] }",0,"",0,"publish data where wh_id = nvl(nvl(@wh_id, @wh_id_tmpl), '----')
+        |
+get cached policy where polcod = 'USR-ARCHIVING' and polvar = 'KEEP-DATA' and polval = 'DAYS' and wh_id=@wh_id
+|
+if (@trndte < (sysdate - @rtnum2) and @rtnum1=1)
+{
+  [select rtstr1 archive from poldat_view 
+    where polcod = 'ARCHIVE-SYSTEM'
+       and polvar = 'MISCELLANEOUS'
+       and polval = 'REMOTE-HOST'
+       and wh_id =@wh_id]  catch(-1403)
+|
+remote(@archive)
+{
+ [select 1 from bill_tran where  tran_key = @tran_key] catch(-1403)
+} >> res
+|
+if (rowcount(@res) > 0)
+{
+  purge billing transaction where tran_key = @tran_key
+}
+}
+","R"
+"CANCELLED-ORDERS","ORD","if (dbtype = 'ORACLE'){[select ord.rowid ,ord.*  from ord where ordnum in (select ordnum from ord_line ol group by ol.ordnum having count(ol.ordnum) = (select count(ordnum) from ord_line where ordnum = ol.ordnum and cancelled_flg=1 and moca_util.date_diff_days(entdte, sysdate)  > @days_old))]} else {[select ord.* from ord where ordnum in (select ordnum from ord_line ol group by ol.ordnum having count(ol.ordnum) = (select count(ordnum) from ord_line where ordnum = ol.ordnum and cancelled_flg=1 and moca_util.date_diff_days(entdte, sysdate)  > @days_old))]}",0,"",0,"publish data where wh_id = nvl(nvl(@wh_id, @wh_id_tmpl), '----')
+        |
+get cached policy where polcod = 'USR-ARCHIVING' and polvar = 'KEEP-DATA' and polval = 'DAYS' and wh_id=@wh_id
+|
+if (@entdte < (sysdate - @rtnum2) and @rtnum1=1)
+{
+  [select rtstr1 archive from poldat_view 
+    where polcod = 'ARCHIVE-SYSTEM'
+       and polvar = 'MISCELLANEOUS'
+       and polval = 'REMOTE-HOST'
+       and wh_id =@wh_id] catch(-1403)
+|
+remote(@archive)
+{
+   [select 1 from ord_line where ordnum=@ordnum and client_id = @client_id and wh_id = @wh_id and cancelled_flg=1 ]catch(-1403)
+} >> res
+|
+if (rowcount(@res) > 0)
+{
+  purge cancelled orders where ordnum = @ordnum and client_id = @client_id and wh_id = @wh_id
+}
+}
+","R"
+"CANCELLED-SHIPMENTS","SHIPMENT","if (dbtype = 'ORACLE') { [select shipment.rowid, shipment.* from shipment where shipment.shpsts = 'B' and shipment.moddte < sysdate and stop_id is ] } else { [select shipment.* from shipment where shipment.shpsts = 'B' and shipment.moddte < sysdate and stop_id is ] }",0,"",0,"publish data where wh_id = nvl(nvl(@wh_id, @wh_id_tmpl), '----')
+        |
+get cached policy where polcod = 'USR-ARCHIVING' and polvar = 'KEEP-DATA' and polval = 'DAYS' and wh_id=@wh_id
+|
+if (@moddte < (sysdate - @rtnum2) and @rtnum1=1)
+{
+  [select rtstr1 archive from poldat_view 
+    where polcod = 'ARCHIVE-SYSTEM'
+       and polvar = 'MISCELLANEOUS'
+       and polval = 'REMOTE-HOST'
+       and wh_id =@wh_id] catch(-1403)
+|
+remote(@archive)
+{
+  [select 1  from shipment where ship_id=@ship_id and mode = 'C'] catch(-1403)
+} >> res
+|
+if (rowcount(@res) > 0)
+{
+  purge shipments where ship_id = @ship_id and mode = 'C'
+}
+}
+","R"
+"CANCELLED-SHORTS","CANSHORT","if (dbtype = 'ORACLE') { [select canshort.*, canshort.rowid from canshort where candte < sysdate - /*=moca_util.days(*/ 30 /*=)*/] } else { [select canshort.* from canshort where candte < sysdate - /*=moca_util.days(*/ 30 /*=)*/ ] }",0,"",0,"purge cancelled shorts where rplref = @rplref and wh_id = @wh_id","E"
+"CNFRM_INV_SERV","CNFRM_INV_SERV","if (dbtype = 'ORACLE') { [select cnfrm_inv_serv.rowid, cnfrm_inv_serv.* from cnfrm_inv_serv where cnfrm_inv_serv.cmpflg = 1 and cnfrm_inv_serv.cmpdte < sysdate ] } else { [select cnfrm_inv_serv.* from cnfrm_inv_serv where cnfrm_inv_serv.cmpflg = 1 and cnfrm_inv_serv.cmpdte < sysdate] }",0,"",0,"publish data where wh_id = nvl(nvl(@wh_id, @wh_id_tmpl), '----')
+        |
+/*get cached policy where polcod = 'USR-ARCHIVING' and polvar = 'KEEP-DATA' and polval = 'DAYS' and wh_id=@wh_id
+|
+if (@cmpdte < (sysdate - @rtnum2) and @rtnum1=1)
+{*/
+  [select rtstr1 archive from poldat_view 
+    where polcod = 'ARCHIVE-SYSTEM'
+       and polvar = 'MISCELLANEOUS'
+       and polval = 'REMOTE-HOST'
+       and wh_id =@wh_id] catch(-1403)
+|
+remote(@archive)
+{
+    [select 1
+       from cnfrm_inv_serv
+      where cnfrm_serv_id = @cnfrm_serv_id] catch(-1403)
+} >> res
+|
+if (rowcount(@res) > 0)
+{
+  purge confirm inventory service where cnfrm_serv_id = @cnfrm_serv_id
+}
+/*}*/","I"
+"CNFRM-BCK-SERV","CNFRM_BCK_SERV","if (dbtype = 'ORACLE') { [select cnfrm_bck_serv.rowid, cnfrm_bck_serv.* from cnfrm_bck_serv where cnfrm_bck_serv.moddte < sysdate ] } else { [select cnfrm_bck_serv.* from cnfrm_bck_serv where cnfrm_bck_serv.moddte < sysdate] }",0,"",0,"publish data where wh_id = nvl(nvl(@wh_id, @wh_id_tmpl), '----')
+        |
+get cached policy where polcod = 'USR-ARCHIVING' and polvar = 'KEEP-DATA' and polval = 'DAYS' and wh_id=@wh_id
+|
+if (@moddte < (sysdate - @rtnum2) and @rtnum1=1)
+{
+  [select rtstr1 archive from poldat_view 
+    where polcod = 'ARCHIVE-SYSTEM'
+       and polvar = 'MISCELLANEOUS'
+       and polval = 'REMOTE-HOST'
+       and wh_id =@wh_id] catch(-1403)
+|
+remote(@archive)
+{
+    [select 1
+       from cnfrm_bck_serv
+      where cnfrm_serv_id = @cnfrm_serv_id] catch(-1403)
+} >> res
+|
+if (rowcount(@res) > 0)
+{
+  purge confirm background service where cnfrm_serv_id = @cnfrm_serv_id
+}
+}","I"
+"CNFRM-NONINV-SERV","CNFRM_NONINV_SERV","if (dbtype = 'ORACLE') { [select cnfrm_noninv_serv.rowid, cnfrm_noninv_serv.* from cnfrm_noninv_serv where cnfrm_noninv_serv.moddte < sysdate and serv_result is not ] } else { [select cnfrm_noninv_serv.* from cnfrm_noninv_serv where cnfrm_noninv_serv.moddte < sysdate and serv_result is not ] }",0,"",0,"publish data where wh_id = nvl(nvl(@wh_id, @wh_id_tmpl), '----')
+        |
+get cached policy where polcod = 'USR-ARCHIVING' and polvar = 'KEEP-DATA' and polval = 'DAYS' and wh_id=@wh_id
+|
+if (@moddte < (sysdate - @rtnum2) and @rtnum1=1)
+{
+  [select rtstr1 archive from poldat_view 
+    where polcod = 'ARCHIVE-SYSTEM'
+       and polvar = 'MISCELLANEOUS'
+       and polval = 'REMOTE-HOST'
+       and wh_id =@wh_id] catch(-1403)
+|
+remote(@archive)
+{
+    [select 1
+       from cnfrm_noninv_serv
+      where cnfrm_serv_id = @cnfrm_serv_id] catch(-1403)
+} >> res
+|
+if (rowcount(@res) > 0)
+{
+  purge confirm non inventory service where cnfrm_serv_id = @cnfrm_serv_id
+}
+}","I"
+"DAILY-ACTIVITY","DLYACT","if (dbtype = 'ORACLE') { [select dlyact.*, dlyact.rowid from dlyact where actdte < sysdate - 1 ] } else { [select * from dlyact where actdte < sysdate -1] }",0,"",1,"","I"
+"DAILY-TRAN","DLYTRN","if (dbtype = 'ORACLE') { [select dlytrn.*, dlytrn.rowid from dlytrn where trndte < sysdate ] } else { [/*#limit=0,10000000*/ select * from dlytrn where trndte < sysdate ] }",1000,"",0,"publish data where wh_id = nvl(nvl(@wh_id, @wh_id_tmpl), '----')
+        |
+get cached policy where polcod = 'USR-ARCHIVING' and polvar = 'KEEP-DATA' and polval = 'DAYS' and wh_id=@wh_id
+|
+if (@trndte < (sysdate - @rtnum2) and @rtnum1=1)
+{
+  [select rtstr1 archive from poldat_view 
+    where polcod = 'ARCHIVE-SYSTEM'
+       and polvar = 'MISCELLANEOUS'
+       and polval = 'REMOTE-HOST'
+       and wh_id =@wh_id] catch(-1403)
+|
+remote(@archive)
+{
+    [select 1
+       from dlytrn
+      where dlytrn_id = @dlytrn_id] catch(-1403)
+} >> res
+|
+if (rowcount(@res) > 0)
+{
+  purge daily transaction table where dlytrn_id = @dlytrn_id
+}
+}
+","R"
+"DEFERRED-EXEC","DEFERRED_EXEC","if (dbtype = 'ORACLE') { [select deferred_exec.*, deferred_exec.rowid from deferred_exec where adddte < sysdate -  /*=moca_util.days(*/ 30 /*=)*/ and exec_sts is not ] } else { [select * from deferred_exec where adddte < sysdate - /*=moca_util.days(*/ 30 /*=)*/ and exec_sts is not ] }",0,"",0,"purge deferred executions where dayold = 30","I"
+"DISPATCHED-RCV-TRUCK","RCVTRK","list usr inbound shipments for archive where dayold = 1",100,"",0,"","R"
+"DISPATCHED-RCV-TRUCK-2","RCVTRK","list usr inbound shipments for archive where dayold = 13",100,"",0,"","R"
+"DISPATCHED-RCV-TRUCK-P","RCVTRK","list usr inbound shipments for archive where dayold = 14",100,"",0,"if (@daysold = ''){publish data where wh_id = nvl(nvl(@wh_id, @wh_id_tmpl), '----') |  get cached policy where polcod = 'USR-ARCHIVING' and polvar = 'KEEP-DATA' and polval = 'DAYS' and wh_id=@wh_id | publish data where daysold = @rtnum2}|[select trknum from rcvtrk where trknum = @trknum and rcvtrk_stat = 'C' and sysdate - clsdte > @daysold] catch(-1403)| if (@? = 0) {purge received trucks where by_field = 'trlr_stat' and ignore_inv_flg = 1 and trknum = @trknum and wh_id = @wh_id and dayold = @daysold}","I"
+"DISPATCHED-STANDALONE-TRACTOR","POWERUNIT","if (dbtype = 'ORACLE') { [select powerunit.rowid, powerunit.* from powerunit where powerunit.powerunit_sts = 'D' and powerunit.dispatch_dte < sysdate - /*=moca_util.days(*/ 30 /*=)*/ and not exists (select 'x' from trlr where powerunit.powerunit_id = trlr.powerunit_id)] } else { [select powerunit.* from powerunit where powerunit.powerunit_sts = 'D' and powerunit.dispatch_dte < sysdate - /*=moca_util.days(*/ 30 /*=)*/ and not exists (select 'x' from trlr where powerunit.powerunit_id = trlr.powerunit_id)] }",0,"",1,"","I"
+"DISPATCHED-TRAILERS","CAR_MOVE","if (dbtype = 'ORACLE') { [select car_move.rowid, car_move.*, trlr.dispatch_dte from car_move, trlr where car_move.trlr_id = trlr.trlr_id and trlr.trlr_cod = 'SHIP' and trlr.dispatch_dte < sysdate and not exists (select 'x' from shipment, stop where shipment.stop_id = stop.stop_id and stop.car_move_id = car_move.car_move_id and shipment.shpsts not in ('C','B'))and car_move.arcdte is ] } else { [select car_move.*, trlr.dispatch_dte from car_move, trlr where car_move.trlr_id = trlr.trlr_id and trlr.trlr_cod = 'SHIP' and trlr.dispatch_dte < sysdate and not exists (select 'x' from shipment, stop where shipment.stop_id = stop.stop_id and stop.car_move_id = car_move.car_move_id and shipment.shpsts not in ('C','B')) and car_move.arcdte is ] }",100,"",0,"","I"
+"DISPATCHED-TRAILERS-P","CAR_MOVE","if (dbtype = 'ORACLE') { [select car_move.rowid, car_move.*, trlr.dispatch_dte from car_move, trlr where car_move.trlr_id = trlr.trlr_id and trlr.trlr_cod = 'SHIP' and trlr.dispatch_dte < sysdate and not exists (select 'x' from shipment, stop where shipment.stop_id = stop.stop_id and stop.car_move_id = car_move.car_move_id and shipment.shpsts not in ('C','B')) and car_move.arcdte < sysdate -14] } else { [select car_move.*, trlr.dispatch_dte from car_move, trlr where car_move.trlr_id = trlr.trlr_id and trlr.trlr_cod = 'SHIP' and trlr.dispatch_dte < sysdate and not exists (select 'x' from shipment, stop where shipment.stop_id = stop.stop_id and stop.car_move_id = car_move.car_move_id and shipment.shpsts not in ('C','B')) and car_move.arcdte < sysdate -14] }",100,"",0,"publish data where wh_id = nvl(nvl(@wh_id, @wh_id_tmpl), '----')
+        |
+get cached policy where polcod = 'USR-ARCHIVING' and polvar = 'KEEP-DATA' and polval = 'DAYS' and wh_id=@wh_id
+|
+if (@dispatch_dte < (sysdate - @rtnum2) and @rtnum1=1)
+{
+  [select rtstr1 archive from poldat_view 
+    where polcod = 'ARCHIVE-SYSTEM'
+       and polvar = 'MISCELLANEOUS'
+       and polval = 'REMOTE-HOST'
+       and wh_id =@wh_id] catch(-1403)
+|
+remote(@archive)
+{
+    [select 1
+       from car_move where car_move_id = @car_move_id] catch(-1403)
+} >> res
+|
+if (rowcount(@res) > 0)
+{
+   purge shipments where car_move_id = @car_move_id and mode = 'S'
+}
+}
+","I"
+"DOM-CUSTOMERS","CSTMST","if (dbtype = 'ORACLE') { [select cst.rowid, cst.* from cstmst cst where cst.mc_csttyp = 'DOM' and not exists (select 1 from ord o where o.client_id = cst.client_id and ((o.stcust = cst.cstnum) or (o.rtcust = cst.cstnum) or (o.btcust = cst.cstnum)))] } else { [select cst.* from cstmst cst where cst.mc_csttyp = 'DOM' and not exists (select 1 from ord o where o.client_id = cst.client_id and ((o.stcust = cst.cstnum) or (o.rtcust = cst.cstnum) or (o.btcust = cst.cstnum)))] }",0,"",0,"remove customer where cstnum = @cstnum and client_id = @client_id","I"
+"INBOUND-SERVICE-INVOICE","INB_SERV_RCVINV","if (dbtype = 'ORACLE') { [select inb_serv_rcvinv.*, inb_serv_rcvinv.rowid from inb_serv_rcvinv where adddte < sysdate - /*=moca_util.days(*/ 30 /*=)*/ ] } else { [select inb_serv_rcvinv.* from inb_serv_rcvinv where adddte < sysdate - /*=moca_util.days(*/ 30 /*=)*/] }",0,"",0,"","E"
+"INBOUND-SERVICE-LINE","INB_SERV_RCVLIN","if (dbtype = 'ORACLE') { [select inb_serv_rcvlin.*, inb_serv_rcvlin.rowid from inb_serv_rcvlin where adddte < sysdate - /*=moca_util.days(*/ 30 /*=)*/ ] } else { [select inb_serv_rcvlin.* from inb_serv_rcvlin where adddte < sysdate- /*=moca_util.days(*/ 30 /*=)*/] }",0,"",0,"","E"
+"INVENTORY-ACTIVITY","INVACT","if (dbtype = 'ORACLE') { [select invact.*, invact.rowid from invact where trndte < sysdate - /*=moca_util.days(*/ 365 /*=)*/ ] } else { [select * from invact where trndte < sysdate - /*=moca_util.days(*/ 365 /*=)*/] }",0,"",1,"","I"
+"INVENTORY-SERVICE","INVTID_SERV","if (dbtype = 'ORACLE') { [select invtid_serv.rowid, invtid_serv.* from invtid_serv] } else { [select invtid_serv.* from invtid_serv] }",0,"",0,"","R"
+"INVENTORY-SNAPSHOT","INV_SNAP","if (dbtype = 'ORACLE') { [select inv_snap.*, inv_snap.rowid from inv_snap where gendte < sysdate - /*=moca_util.days(*/ 365 /*=)*/ ] } else { [select * from inv_snap where gendte < sysdate - /*=moca_util.days(*/ 365 /*=)*/] }",0,"",1,"","I"
+"INVENTORY-TYPES","INVTYPMST","if (dbtype = 'ORACLE') { [select invtypmst.rowid, invtypmst.* from invtypmst] } else { [select invtypmst.* from invtypmst] }",100,"",0,"","R"
+"LMS-ACTIVITY","LMSTRN","if (dbtype = 'ORACLE') { [select lmstrn.*, lmstrn.rowid from lmstrn where sent_dte is not  and lmswrk is not  and enddte < sysdate - /*=moca_util.days(*/ 30 /*=)*/ ] } else { [select * from lmstrn where sent_dte is not  and lmswrk is not  and enddte < sysdate - /*=moca_util.days(*/ 30 /*=)*/] }",0,"",1,"","I"
+"OBSOLETE-APPOINTMENT","APPT","if (dbtype = 'ORACLE') { [select ap.*, ap.rowid from appt ap left join trlr tr on ap.appt_id = tr.appt_id where end_dte < sysdate - /*=moca_util.days(*/ 30 /*=)*/ and (tr.trlr_stat = 'D' or tr.trlr_stat is )] } else { [select ap.* from appt ap left join trlr tr on ap.appt_id = tr.appt_id where end_dte < sysdate - /*=moca_util.days(*/ 30 /*=)*/ and (tr.trlr_stat = 'D' or tr.trlr_stat is )] }",0,"",0,"purge obsolete appointment where appt_id = @appt_id and dayold = 30","I"
+"ORDER-ACTIVITY","ORDACT","if (dbtype = 'ORACLE') { [select ordact.*, ordact.rowid from ordact where trndte < sysdate - /*=moca_util.days(*/ 30 /*=)*/ ] } else { [select * from ordact where trndte < sysdate - /*=moca_util.days(*/ 30 /*=)*/] }",0,"",1,"","I"
+"ORDER-TYPES","ORD_TYP","if (dbtype = 'ORACLE') { [select ORD_TYP.rowid, ORD_TYP.* from USR_PACKING_MAP] } else { [select ORD_TYP.* from ORD_TYP] }",100,"",0,"","R"
+"OUTBOUND-AUDIT-HISTORY","OUT_AUD_HST","if (dbtype = 'ORACLE') { [select out_aud_hst.rowid, out_aud_hst.* from out_aud_hst where last_upd_dt < sysdate - /*=moca_util.days(*/ 180 /*=)*/] } else { [select out_aud_hst.* from out_aud_hst where last_upd_dt < sysdate - /*=moca_util.days(*/ 180 /*=)*/] }",0,"",0,"","R"
+"OUTBOUND-SERVICE-ORDER","OUB_SERV_ORD","if (dbtype = 'ORACLE') { [select oub_serv_ord.*, oub_serv_ord.rowid from oub_serv_ord where adddte < sysdate - /*=moca_util.days(*/ 30 /*=)*/ ] } else { [select oub_serv_ord.* from oub_serv_ord where adddte < sysdate - /*=moca_util.days(*/ 30 /*=)*/] }",0,"",0,"","E"
+"OUTBOUND-SERVICE-ORDER-LINE","OUB_SERV_ORD_LINE","if (dbtype = 'ORACLE') { [select oub_serv_ord_line.*, oub_serv_ord_line.rowid from oub_serv_ord_line where adddte < sysdate - /*=moca_util.days(*/ 30 /*=)*/ ] } else { [select oub_serv_ord_line.* from oub_serv_ord_line where adddte < sysdate- /*=moca_util.days(*/ 30 /*=)*/] }",0,"",0,"","E"
+"PACKOUT-ACTIVITY","PKO_ACT","if (dbtype = 'ORACLE') { [select pko_act.*, pko_act.rowid from pko_act where ins_dt < sysdate - /*=moca_util.days(*/ 30 /*=)*/ ] } else { [select * from pko_act where ins_dt < sysdate - /*=moca_util.days(*/ 30 /*=)*/] }",0,"",0,"purge packout activity where pko_act_id = @pko_act_id","I"
+"PICK-SUMMARY-BY-HOUR","PCKSUMRYHR","if (dbtype = 'ORACLE') { [select pcksumryhr.*, pcksumryhr.rowid from pcksumryhr where datetime < sysdate - /*=moca_util.days(*/ 15 /*=)*/] } else { [select pcksumryhr.* from pcksumryhr where datetime < sysdate - /*=moca_util.days(*/ 15 /*=)*/ ] }",0,"",0,"purge pick summary by hour where wh_id = @wh_id","E"
+"PRTLOT-PUR","PRTLOT","if (dbtype = 'ORACLE') { [select prtlot.rowid, prtlot.* from prtlot] } 
+else { 
+publish data where wh_id = nvl(nvl(@wh_id, @wh_id_tmpl), '----')
+|
+get cached policy where polcod = 'USR-ARCHIVING' and polvar = 'KEEP-DATA' and polval = 'DAYS' and wh_id = @wh_id
+|
+[/*#limit=0,10000000*/select * from  prtlot where not  exists (select * from invdtl where prtlot.prtnum = invdtl.prtnum and invdtl.lotnum = prtlot.lotnum) and ins_dt < sysdate - @rtnum2]}",1000,"",1,"","I"
+"RCVTRK-WRKORDER-CLSD","RCVTRK","if (dbtype = 'ORACLE') { [SELECT rcvtrk.*,rcvtrk.rowid from rcvtrk JOIN wkohdr ON rcvtrk.trknum = wkohdr.wkonum and rcvtrk.wh_id = wkohdr.wh_id where wkohdr.wkosts='C'] } else { [SELECT rcvtrk.* from rcvtrk JOIN wkohdr ON rcvtrk.trknum = wkohdr.wkonum and rcvtrk.wh_id = wkohdr.wh_id where wkohdr.wkosts='C'] }",0,"",0,"purge received trucks where ignore_inv_flg = 1 and trknum = @trknum and wh_id = @wh_id and dayold=7","I"
+"RECEIVING-HISTORY","RCV_HST","if (dbtype = 'ORACLE') { [select rcv_hst.rowid, rcv_hst.* from rcv_hst where rcvdte < sysdate - /*=moca_util.days(*/ 180 /*=)*/] } else { [select rcv_hst.* from rcv_hst where rcvdte < sysdate - /*=moca_util.days(*/ 180 /*=)*/] }",0,"",0,"","R"
+"RETURNSPROCOPR-ARCHIVE","RETHDR","if (dbtype = 'ORACLE') {[select rethdr.rowid, rethdr.* from rethdr where rethdr.close_dte < sysdate - /*=moca_util.days(*/ 30 /*=)*/ ] } else { [select rethdr.* from rethdr where rethdr.close_dte < sysdate - /*=moca_util.days(*/ 30 /*=)*/]}",0,"",0,"purge returns where rmanum = @rmanum and wh_id = @wh_id","I"
+"SHIPPED-LPN-ACTIVITY","SHIPPED_LPN_ACT","if (dbtype = 'ORACLE') { [select shipped_lpn_act.*, shipped_lpn_act.rowid from shipped_lpn_act where event_dte < sysdate  ] } else { [select * from shipped_lpn_act where event_dte < sysdate ] }",0,"",0,"publish data where wh_id = nvl(nvl(@wh_id, @wh_id_tmpl), '----')
+        |
+get cached policy where polcod = 'USR-ARCHIVING' and polvar = 'KEEP-DATA' and polval = 'DAYS' and wh_id=@wh_id
+|
+if (@event_dte < (sysdate - @rtnum2) and @rtnum1=1)
+{
+  [select rtstr1 archive from poldat_view 
+    where polcod = 'ARCHIVE-SYSTEM'
+       and polvar = 'MISCELLANEOUS'
+       and polval = 'REMOTE-HOST'
+       and wh_id =@wh_id] catch(-1403)
+|
+remote(@archive)
+{
+   [select 1 from shipped_lpn_act
+      where shipped_lpn_act_id = @shipped_lpn_act_id] catch(-1403)
+} >> res
+|
+if (rowcount(@res) > 0)
+{
+  purge shipped lpn activity table where shipped_lpn_act_id = @shipped_lpn_act_id
+}
+}
+","I"
+"STDPRD-ADDRESSES","ADRMST","archive address data",1000,"",0,"","R"
+"STDPRD-AREAS","AREMST","if (dbtype = 'ORACLE') { [select aremst.rowid, aremst.* from aremst] } else { [select aremst.* from aremst] }",0,"",0,"","R"
+"STDPRD-BILL-OF-MATERIALS","BOMHDR","if (dbtype = 'ORACLE') { [select bomhdr.rowid, bomhdr.* from bomhdr] } else { [select bomhdr.* from bomhdr] }",0,"",0,"","R"
+"STDPRD-BUILDINGS","BLDG_MST","if (dbtype = 'ORACLE') { [select bldg_mst.rowid, bldg_mst.* from bldg_mst] } else { [select bldg_mst.* from bldg_mst] }",0,"",0,"","R"
+"STDPRD-CANCELED-RPL-PICKS","CANPCK","if (dbtype = 'ORACLE') { [select canpck.*, canpck.rowid from canpck where wrktyp in ('M', 'T', 'G', 'E', 'R', 'D') and candte < sysdate - /*=moca_util.days(*/ 30 /*=)*/ ] } else { [select * from canpck where wrktyp in ('M', 'T', 'G', 'E', 'R', 'D') and candte < sysdate -  /*=moca_util.days(*/ 30 /*=)*/] }",0,"",0,"purge cancelled replenishment picks where wrkref = @wrkref","I"
+"STDPRD-CANCELLED-COUNTS","CNTHDR","if (dbtype = 'ORACLE') { [select * from cnthdr where moca_util.date_diff_days(adddte,sysdate) > 0 and not exists (select 'x' from cntwrk where cnthdr.cntbat = cntwrk.cntbat and cntwrk.cntsts != 'N')] } else { [select * from cnthdr where moca_util.date_diff_days(adddte,sysdate) > 0 and not exists (select 'x' from cntwrk where cnthdr.cntbat = cntwrk.cntbat and cntwrk.cntsts != 'N')] }",0,"",0,"purge cancelled counts where wh_id = @wh_id and cntbat = @cntbat","E"
+"STDPRD-CARRIERS","CARHDR","if (dbtype = 'ORACLE') { [select carhdr.rowid, carhdr.* from carhdr] } else { [select carhdr.* from carhdr] }",0,"",0,"","R"
+"STDPRD-CARTONS","CTNMST","if (dbtype = 'ORACLE') { [select ctnmst.rowid, ctnmst.* from ctnmst] } else { [select ctnmst.* from ctnmst] }",0,"",0,"list warehouses | purge generic cartons where wh_id = @wh_id","R"
+"STDPRD-CNTZON","CNTZON","if (dbtype = 'ORACLE') { [select cntzon.rowid, cntzon.* from cntzon] } else { [select cntzon.* from cntzon] }",0,"",0,"","R"
+"STDPRD-COMMODITY","COMMST","if (dbtype = 'ORACLE') { [select commst.rowid, commst.* from commst] } else { [select commst.* from commst] }",0,"",0,"","R"
+"STDPRD-COUNT-HISTORY","CNTHST","if (dbtype = 'ORACLE') { [select cnthst.*, cnthst.rowid from cnthst where  cntdte < sysdate - 30] } else { [select cnthst.* from cnthst where cntdte < sysdate - 30] }",0,"",1,"","I"
+"STDPRD-CUSTOMERS","CSTMST","if (dbtype = 'ORACLE') { [select cstmst.rowid, cstmst.* from cstmst] } else { [select cstmst.* from cstmst] }",1000,"",0,"","R"
+"STDPRD-DESCRIPTIONS","DSCMST","if (dbtype = 'ORACLE') { [/*#nolimit*/ select dscmst.rowid, dscmst.* from dscmst] } else { [/*#nolimit*/ select dscmst.* from dscmst] }",0,"",0,"","R"
+"STDPRD-DISTRO_EXCP","DISTRO_EXCP","if (dbtype = 'ORACLE') { [select distro_excp.*, distro_excp.rowid from distro_excp where ins_dt < sysdate - /*=moca_util.days(*/ 30 /*=)*/ and rsv_flg = 1 ] } else { [select * from distro_excp where ins_dt < sysdate - /*=moca_util.days(*/ 30 /*=)*/ and rsv_flg = 1 ] }",0,"",0,"","R"
+"STDPRD-DSPTCHED-ORPHAN-TRLRS","TRLR","if (dbtype = 'ORACLE') {[select t1.*, t1.rowid from trlr t1 where t1.trlr_stat = 'D' and t1.dispatch_dte < sysdate - /*=moca_util.days(*/ 30 /*=)*/ and t1.trlr_id not in (select t2.trlr_id from rcvinv ri, rcvtrk rc, trlr t2 where rc.trlr_id = t2.trlr_id and rc.trknum = ri.trknum and rc.wh_id = ri.wh_id and t2.trlr_id = t1.trlr_id) and t1.trlr_id not in (select cmv.trlr_id from car_move cmv where cmv.trlr_id = t1.trlr_id)]} else {[select t1.* from trlr t1 where t1.trlr_stat = 'D' and t1.dispatch_dte < sysdate - /*=moca_util.days(*/ 30 /*=)*/ and t1.trlr_id not in (select t2.trlr_id from rcvinv ri, rcvtrk rc, trlr t2 where rc.trlr_id = t2.trlr_id and rc.trknum = ri.trknum and rc.wh_id = ri.wh_id  and t2.trlr_id = t1.trlr_id) and t1.trlr_id not in (select cmv.trlr_id from car_move cmv where cmv.trlr_id = t1.trlr_id)]}",0,"",0,"purge orphan trailers where trlr_id = @trlr_id","I"
+"STDPRD-EXCP_HRS_SET","EXCP_HRS_SET","if (dbtype = 'ORACLE') { [select excp_hrs_set.rowid, excp_hrs_set.* from excp_hrs_set] } else { [select excp_hrs_set.* from excp_hrs_set] }",0,"",0,"","R"
+"STDPRD-FOOTPRINTS","PRTFTP","if (dbtype = 'ORACLE') { [select prtftp.rowid, prtftp.* from prtftp] } else { [select prtftp.* from prtftp where last_upd_dt > sysdate -14] }",0,"",0,"purge usr unused item footprints where ftpcod = @ftpcod and prt_client_id = @prt_client_id and prtnum = @prtnum and wh_id = @wh_id","R"
+"STDPRD-GEODATA","ctry_mst","if (dbtype = 'ORACLE') { [select ctry_mst.rowid, ctry_mst.* from ctry_mst] } else { [select ctry_mst.* from ctry_mst] }",0,"",0,"","R"
+"STDPRD-HOLD-HISTORY","HLDHST","if (dbtype = 'ORACLE') { [select hldhst.*, hldhst.rowid from hldhst where hlddte < sysdate] } else { [select hldhst.* from hldhst where hlddte < sysdate ] }",100,"",0,"publish data where wh_id = nvl(nvl(@wh_id, @wh_id_tmpl), '----')
+|
+get cached policy where polcod = 'USR-ARCHIVING' and polvar = 'KEEP-DATA' and polval = 'DAYS' and wh_id=@wh_id
+|
+if (@hlddte < (sysdate - @rtnum2) and @rtnum1=1)
+{
+  [select rtstr1 archive from poldat_view 
+    where polcod = 'ARCHIVE-SYSTEM'
+       and polvar = 'MISCELLANEOUS'
+       and polval = 'REMOTE-HOST'
+       and wh_id =@wh_id] catch(-1403)
+|
+remote(@archive)
+{
+    [select 1
+       from hldhst
+      where hldhst_id = @hldhst_id] catch(-1403)
+} >> res
+|
+if (rowcount(@res) > 0)
+{
+  /*dayold defaults to 365 whenever not specified*/
+  purge hold history table where hldhst_id = @hldhst_id and dayold = @rtnum2
+}
+}
+","I"
+"STDPRD-HRS_OPR_SET","HRS_OPR_SET","if (dbtype = 'ORACLE') { [select hrs_opr_set.rowid, hrs_opr_set.* from hrs_opr_set] } else { [select hrs_opr_set.* from hrs_opr_set] }",0,"",0,"","R"
+"STDPRD-LOC_TYPE","LOC_TYP","if (dbtype = 'ORACLE') { [select loc_typ.rowid, loc_typ.* from loc_typ] } else { [select loc_typ.* from loc_typ] }",0,"",0,"","R"
+"STDPRD-LOCATIONS","LOCMST","if (dbtype = 'ORACLE') { [/*#limit=0,10000000*/ select locmst.rowid, locmst.* from locmst] } else { [/*#limit=0,10000000*/ select * from locmst where last_upd_dt > sysdate -14] }",1000,"",0,"","R"
+"STDPRD-LOTS","PRTLOT","if (dbtype = 'ORACLE') { [select prtlot.rowid, prtlot.* from prtlot] } else { [/*#limit=0,10000000*/ select prtlot.* from prtlot] }",1000,"",0,"","I"
+"STDPRD-MANCNTCNTHST","CNTHST","if (dbtype = 'ORACLE') { [select * from cnthst where cnttyp = 'MAN' and cntdte < sysdate - /*=moca_util.days(*/ 30 /*=)*/ ] } else { [select * from cnthst where cnttyp = 'MAN' and cntdte < sysdate -  /*=moca_util.days(*/ 30 /*=)*/] }",0,"",0,"purge manual count discrepancies where dayold = 1 and dtlflg = 0","I"
+"STDPRD-MANCNTRFINVADJHST","RF_INVADJ_HST","if (dbtype = 'ORACLE') { [select rf_invadj_hst.rowid, rf_invadj_hst.* from rf_invadj_hst where moddte < sysdate - /*=moca_util.days(*/ 30 /*=)*/ ] } else { [select * from rf_invadj_hst where moddte < sysdate -  /*=moca_util.days(*/ 30 /*=)*/] }",0,"",0,"purge manual count discrepancies where dayold = 1 and dtlflg = 1","I"
+"STDPRD-MOV_ZONE","MOV_ZONE","if (dbtype = 'ORACLE') { [select mov_zone.rowid, mov_zone.* from mov_zone] } else { [select mov_zone.* from mov_zone] }",0,"",0,"","R"
+"STDPRD-PART-HRCY","PRTHRCY_LVL","if (dbtype = 'ORACLE') { [select prthrcy_lvl.rowid, prthrcy_lvl.* from prthrcy_lvl] } else { [select prthrcy_lvl.* from prthrcy_lvl] }",1000,"",0,"","R"
+"STDPRD-PARTS","PRTMST","if (dbtype = 'ORACLE')
+    {
+        [/*#limit=@offset,@limit*/
+         select prtmst.rowid,
+                prtmst.*
+           from prtmst where prtmst.moddte>sysdate-14]
+    }
+    else
+    {
+        [/*#limit=@offset,@limit*/
+         select prtmst.*
+           from prtmst where prtmst.moddte>sysdate-14]
+    }",1000,"",0,"","R"
+"STDPRD-PCK_ZONE","PCK_ZONE","if (dbtype = 'ORACLE') { [select pck_zone.rowid, pck_zone.* from pck_zone] } else { [select pck_zone.* from pck_zone] }",0,"",0,"","R"
+"STDPRD-RECUR-SCHED","RECUR_SCHED","if (dbtype = 'ORACLE') { [select recur_sched.rowid, recur_sched.* from recur_sched where ins_dt < sysdate - /*=moca_util.days(*/ 30 /*=)*/ ] } else { [select recur_sched.* from recur_sched where ins_dt < sysdate - /*=moca_util.days(*/ 30 /*=)*/] }",0,"",0,"","I"
+"STDPRD-RIMSTS_CLSD","RIMHDR","if (dbtype = 'ORACLE') { [select rimhdr.*, rimhdr.rowid from rimhdr where rimhdr.rimsts = 'CLSD' and clsdte < sysdate - /*=moca_util.days(*/ 30 /*=)*/ ] } else { [select rimhdr.* from rimhdr where rimhdr.rimsts = 'CLSD' and clsdte < sysdate - /*=moca_util.days(*/ 30 /*=)*/] }",0,"",0,"purge receive invoice masters where rimsts = 'CLSD' and wh_id = @wh_id and client_id = @client_id and supnum = @supnum and invnum = @invnum","E"
+"STDPRD-SERVICE-INS-MST","SERV_INS_MST","if (dbtype = 'ORACLE') { [select serv_ins_mst.rowid, serv_ins_mst.* from serv_ins_mst] } else { [select serv_ins_mst.* from serv_ins_mst] }",0,"",0,"","R"
+"STDPRD-SERVICE-MST","SERV_MST","if (dbtype = 'ORACLE') { [select serv_mst.rowid, serv_mst.* from serv_mst] } else { [select serv_mst.* from serv_mst] }",0,"",0,"","R"
+"STDPRD-SERVICE-RATE","SERV_RATE_MST","if (dbtype = 'ORACLE') { [select serv_rate_mst.rowid, serv_rate_mst.* from serv_rate_mst] } else { [select serv_rate_mst.* from serv_rate_mst] }",0,"",0,"","R"
+"STDPRD-STO_ZONE","STO_ZONE","if (dbtype = 'ORACLE') { [select sto_zone.rowid, sto_zone.* from sto_zone] } else { [select sto_zone.* from sto_zone] }",0,"",0,"","R"
+"STDPRD-SUPPLIERS","SUPMST","if (dbtype = 'ORACLE') { [select supmst.rowid, supmst.* from supmst] } else { [select supmst.* from supmst] }",1000,"",0,"","R"
+"STDPRD-TRAILER-LOAD","TRLR_PLAN","if (dbtype = 'ORACLE') { [select trlr_plan.rowid, trlr_plan.* from trlr_plan where trlr_plan.ins_dt < sysdate - /*=moca_util.days(*/ 30 /*=)*/] } else { [select trlr_plan.* from trlr_plan where trlr_plan.ins_dt < sysdate - /*=moca_util.days(*/ 30 /*=)*/] }",0,"",0,"purge trailer plan where trlr_plan_id = @trlr_plan_id and wh_id = @wh_id","E"
+"STDPRD-TRNSP_MODE","TRNSP_MODE","if (dbtype = 'ORACLE') { [select trnsp_mode.rowid, trnsp_mode.* from trnsp_mode] } else { [select trnsp_mode.* from trnsp_mode] }",0,"",0,"","R"
+"STDPRD-USER_RECOUNT","USR_RCNT","if (dbtype = 'ORACLE') { [select usr_rcnt.*, usr_rcnt.rowid from usr_rcnt where moca_util.date_diff_days(sysdate,ins_dt) < 0] } else { [select * from usr_rcnt where moca_util.date_diff_days(sysdate,ins_dt) < 0] }",0,"",0,"purge user recount table where usr_id = @usr_id and wh_id = @wh_id and cntwav = @cntwav","E"
+"STDPRD-WAREHOUSE","WH","if (dbtype = 'ORACLE') { [select wh.rowid, wh.* from wh] } else { [select wh.* from wh] }",0,"",0,"","R"
+"TEMP-ADDRESS","ADRMST","archive address data where temp_address_flag=true",0,"",1,"","I"
+"TEMP-CUSTOMER","CSTMST","if (dbtype = 'ORACLE') {[select cst.*, cst.rowid from cstmst cst join adrmst on adrmst.adr_id = cst.adr_id  and adrmst.client_id = cst.client_id where adrmst.temp_flg = 1 and not exists (select 1 from shipment sh where sh.rt_adr_id = cst.adr_id) and not exists (select 1 from ord where cst.adr_id in (ord.st_adr_id, ord.rt_adr_id, ord.bt_adr_id))] } else { [select cst.* from cstmst cst join adrmst on adrmst.adr_id = cst.adr_id  and adrmst.client_id = cst.client_id where adrmst.temp_flg = 1 and not exists (select 1 from shipment sh where sh.rt_adr_id = cst.adr_id) and not exists (select 1 from ord where cst.adr_id in (ord.st_adr_id, ord.rt_adr_id, ord.bt_adr_id))] }",0,"",0,"remove customer where cstnum = @cstnum and client_id = @client_id","I"
+"TRACTOR-ACTIVITY","POWERUNIT_ACT","if (dbtype = 'ORACLE') { [select powerunit_act.rowid, powerunit_act.* from powerunit_act where trndte < sysdate - /*=moca_util.days(*/ 30 /*=)*/ ] } else { [select powerunit_act.* from powerunit_act where trndte < sysdate - /*=moca_util.days(*/ 30 /*=)*/] }",0,"",1,"","I"
+"TRLR-ACTIVITY","TRLRACT","if (dbtype = 'ORACLE') { [select trlract.*, trlract.rowid from trlract where trndte < sysdate - 1 ] } else { [select * from trlract where trndte < sysdate - 1] }",0,"",1,"","I"
+"USR-DEVICES","DEVMST","if (dbtype = 'ORACLE') { [select devmst.*, devmst.rowid from devmst] } else { [select devmst.* from devmst] }",0,"",0,"","R"
+"USR-INV-SNAP","USR_INV_SNAP","if (dbtype = 'ORACLE') { [select usr_inv_snap.*, usr_inv_snap.rowid from usr_inv_snap where gendte < sysdate ] } else { [/*#limit=0,10000000*/ select * from usr_inv_snap where gendte < sysdate ] }",0,"",0,"publish data where wh_id = nvl(nvl(@wh_id, @wh_id_tmpl), '----')
+        |
+get cached policy where polcod = 'USR-ARCHIVING' and polvar = 'KEEP-DATA' and polval = 'DAYS' and wh_id=@wh_id
+|
+if (gendte < (sysdate - @rtnum2) and @rtnum1=1)
+{
+  [select rtstr1 archive from poldat_view 
+    where polcod = 'ARCHIVE-SYSTEM'
+       and polvar = 'MISCELLANEOUS'
+       and polval = 'REMOTE-HOST'
+       and wh_id =@wh_id] catch(-1403)
+|
+remote(@archive)
+{
+    [select 1
+       from usr_inv_snap
+      where inv_snap_id = @inv_snap_id] catch(-1403)
+} >> res
+|
+if (rowcount(@res) > 0)
+{
+  [delete from usr_inv_snap where inv_snap_id = @inv_snap_id] catch(-1403)
+}
+}
+","I"
+"USR-PACKING-MAP","USR_PACKING_MAP","if (dbtype = 'ORACLE') { [select USR_PACKING_MAP.rowid, USR_PACKING_MAP.* from USR_PACKING_MAP] } else { [select USR_PACKING_MAP.* from USR_PACKING_MAP] }",1000,"",0,"","R"
+"USR-USERS","LES_USR_ATH","if (dbtype = 'ORACLE') { [select LES_USR_ATH.rowid, LES_USR_ATH.* from LES_USR_ATH] } else { [select LES_USR_ATH.* from LES_USR_ATH] }",0,"",0," [select usr_id from les_usr_ath where usr_sts='I' and moddte < sysdate-30 and super_usr_flg=0] catch(-1403) |if (@?=0) {  remove user where usr_id = @usr_id }","R"
+"WCS-DISCREPANCY","WCS_DISC_HDR","if (dbtype = 'ORACLE') { [select wcs_disc_hdr.*, wcs_disc_hdr.rowid from wcs_disc_hdr] } else { [select * from wcs_disc_hdr] }",0,"",0,"","I"
+"WORK-HISTORY","WRKHST","if (dbtype = 'ORACLE') { [select wrkhst.*, wrkhst.rowid from wrkhst where cmpdte < sysdate - /*=moca_util.days(*/ 30 /*=)*/] } else { [select wrkhst.* from wrkhst where cmpdte < sysdate - /*=moca_util.days(*/ 30 /*=)*/ ] }",0,"",1,"","I"
+"WORK-ORDERS","WKOHDR","if (dbtype = 'ORACLE') { [select wkohdr.*, wkohdr.rowid from wkohdr where wkosts = 'C' ] } else { [select wkohdr.* from wkohdr where wkosts = 'C'] }",0,"",0,"purge work order where wkonum = @wkonum and client_id = @client_id and wkorev = @wkorev and wh_id = @wh_id and dayold=7","E"

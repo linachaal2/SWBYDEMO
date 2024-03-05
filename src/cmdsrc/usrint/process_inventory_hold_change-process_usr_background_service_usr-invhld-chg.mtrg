@@ -1,0 +1,90 @@
+<trigger>
+  <name>process usr background service usr-invhld-chg</name>
+  <on-command>process inventory hold change</on-command>
+  <description>process inventory hold change</description>
+  <fire-sequence>90000</fire-sequence>
+  <local-syntax>
+<![CDATA[
+/* process usr background service usr-invhld-chg
+ * Processes the background services for the usr hold change exit point USR-PST-RCV-LPN.
+ * Version history:
+ *  2018-11-20  Salem Hamze  Initial version.
+ */
+process usr background services
+ where exitpnt = 'USR-INVHLD-CHG'
+   and exec_sts = @exec_sts
+   and wh_id = @wh_id
+   and lodnum = @lodnum
+   and subnum = @subnum
+   and dtlnum = @dtlnum
+   and hld_flg = @hld_flg
+   and hldpfx = @hldpfx
+   and hldnum = @hldnum
+/* The following fields are returned by "process inventory hold change", we only specifically pass a couple of them but you can still use the rest in your workflow. 
+   exec_sts
+   bldg_id
+   arecod
+   stoloc
+   wh_id
+   lodnum
+   subnum
+   dtlnum
+   prtnum
+   prt_client_id
+   trnqty
+   fr_invsts
+   to_invsts
+   lotnum
+   sup_lotnum
+   revlvl
+   orgcod
+   mandte
+   expire_dte
+   inv_attr_str1
+   inv_attr_str2
+   inv_attr_str3
+   inv_attr_str4
+   inv_attr_str5
+   inv_attr_str6
+   inv_attr_str7
+   inv_attr_str8
+   inv_attr_str9
+   inv_attr_str10
+   inv_attr_str11
+   inv_attr_str12
+   inv_attr_str13
+   inv_attr_str14
+   inv_attr_str15
+   inv_attr_str16
+   inv_attr_str17
+   inv_attr_str18
+   inv_attr_int1
+   inv_attr_int2
+   inv_attr_int3
+   inv_attr_int4
+   inv_attr_int5
+   inv_attr_flt1
+   inv_attr_flt2
+   inv_attr_flt3
+   inv_attr_dte1
+   inv_attr_dte2
+   cstms_cnsgnmnt_id
+   rttn_id
+   cnsg_flg
+   cstms_bond_flg
+   dty_stmp_flg
+   reacod
+   hld_flg
+   hldpfx
+   hldnum
+   to_hld_flg
+   fr_hld_flg
+   rcvkey
+   hldtyp
+   uc_invtyp
+   uc_nottxt
+ */
+]]>
+</local-syntax>
+  <enable>yes</enable>
+</trigger>

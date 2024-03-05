@@ -1,0 +1,3 @@
+cri_id,seqnum,wh_id,grpopr,table_nam,field_name,operator,value,ins_dt,last_upd_dt,ins_user_id,last_upd_user_id
+"ASSET!=2",1,"2","","ord","client_id","=","RFH","20230320122838","20230320122838","939370","939370"
+"ASSET=2",1,"2","","ord","client_id","=","RFH","20230317164642","20230317164642","939370","939370"

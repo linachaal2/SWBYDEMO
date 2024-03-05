@@ -1,0 +1,82 @@
+<command>
+  <name>process pick list rules</name>
+  <description>process pick list rules</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* process pick list rules
+ *
+ * Speed up performance as Blue Yonder can not handle a lot of pick groups without performance loss, logic build to include/exclude zones depending the rule
+ * 
+ * Version history:
+ * 2023-06-12 Marco Schouwenaar Initial version
+ * 2023-06-26 Marco Schouwenaar Set deferred command to be able to set wave status correct
+ */
+if (!@pcklst_rule_name and !@pcklst_rule_grp_name and @async=1)
+{
+    list pick list rule groups
+       where wh_id = nvl(@wh_id,@@wh_id)
+         and ena_flg = 1 catch(-1403)
+    |
+    if (@?=0)
+    {    publish data 
+            where command = "process pick list rules 
+                               where wh_id = '" || nvl(@wh_id,@@wh_id) || "'
+                                 and pcklst_rule_grp_name= '" || @pcklst_rule_grp_name || "' 
+                                 and client_id = '" || @client_id || "'
+                            |
+                            [select 'x' 
+                               from poldat_view 
+                              where wh_id = '" || nvl(@wh_id,@@wh_id) || "' 
+                                and polcod = 'USR-PICKING' 
+                                and polvar = 'PICK-RELEASE' 
+                                and polval = 'AUTO-RELEASE-RULE-ASYNC' 
+                                and rtnum2=@pcklst_rule_id 
+                                and rtnum1=1] catch(-1403)
+                            |
+                            if (@?=0)
+                            {
+                                process pick list release 
+                                    where wh_id =  '" || nvl(@wh_id,@@wh_id) || "'  
+                                      and list_id=@list_id 
+                                      and comflg= " || @comflg || "
+                            }" 
+        |
+        if (length(@schbat_lst)>2)
+        {
+            split string to in clause where liststring=@schbat_lst and criteriaclause='IN'
+            |
+            if(length(@retstr)>2)
+            {
+            publish data 
+               where command = @command || "
+            ;
+            [select distinct 'x'
+               from deferred_exec
+              where exec_dte is null
+                and exec_typ = 'USR4'
+                and deferred_cmd = '[select schbat from pckbat where schbat in ("|| @retstr || ")]catch(-1403)|reset schbat status where schbat=@schbat'] catch(-1403)
+            |
+            if (@? != 0)
+            {
+               create deferred execution
+                where deferred_cmd = '[select schbat from pckbat where schbat in ("|| @retstr || ")]catch(-1403)|reset schbat status where schbat=@schbat'
+                  and exec_typ = 'USR4'
+            }"
+            }
+        }
+        | execute asynchronous command
+            where command = @command  
+              and client_id = @client_id
+              and wh_id = nvl(@wh_id,@@wh_id)
+              and async_typ = 'PCKLSTRULES'
+              and pool_mode = 2    
+    }
+}
+else
+{
+^process pick list rules where @*
+}
+]]>
+</local-syntax>
+</command>

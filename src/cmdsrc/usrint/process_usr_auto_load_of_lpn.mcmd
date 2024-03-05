@@ -1,0 +1,82 @@
+<command>
+  <name>process usr auto load of lpn</name>
+  <description>process usr auto load of lpn</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* process usr auto load of lpn
+ *
+ * Load carriers must be loaded automaticly whenever on shipstage for a certain time
+ * 
+ * Version history:
+ * 2020-28-07 Raoul Scholten      Initial version
+ */
+get warehouse id
+|
+[select rtnum1 as PolicyEnabled,
+        rtnum2 as InactivityTime
+   from poldat_view
+  where polcod = 'USR-INVENTORY'
+    and polvar = 'AUTOLOAD-JOB'
+    and polval = 'LPN-INACTIVITY-TIME'
+    and wh_id = @wh_id] catch(-1403)
+|
+if (@PolicyEnabled = 1 and @InactivityTime > 0)
+{
+    [select *
+       from loc_typ
+      where loc_typ = 'SSTG']
+    |
+    /*create poldat to determine mins*/
+    /*get all pallets on shipstage which are longer on location then allowed in policy and shipment status is in progress*/
+    [select distinct (lodnum)
+       from inventory_pckwrk_view ipv,
+            shipment
+      where exists(select 0
+                     from locmst
+                    where locmst.stoloc = ipv.stoloc
+                      and locmst.loc_typ_id = @loc_typ_id)
+        and shipment.ship_id = ipv.ship_id
+        and datediff(mi, ipv.lstmov, sysdate) > @InactivityTime] catch(-1403)
+    |
+    if (@? = 0)
+    {
+        [select lodnum,
+                ship_id
+           from inventory_pckwrk_view
+          where lodnum = @lodnum
+            and rownum = 1]
+        |
+        move usr shipmentline to shipment
+         where ship_id = @ship_id
+           and lodnum = @lodnum
+           and mode = 'job'
+        |
+        hide stack variable
+         where name = 'ship_id'
+        |
+        change inventory ship sequence
+         where create_dest = 1
+           and wh_id = @wh_id
+           and lodnum = @lodnum catch(@?)
+        /*check if shipment is staged if not do so - whenever not staged - the pallet will be loaded by staging workflows*/
+        |
+        if (@? = 0)
+        {
+            [select ship_id,
+                    shpsts
+               from shipment
+              where ship_id = @ship_id]
+            |
+            if (@shpsts = 'I')
+            {
+                write stage shipment
+                 where wh_id = @wh_id
+                   and ship_id = @ship_id
+            }
+        }
+    }
+}
+]]>
+</local-syntax>
+</command>

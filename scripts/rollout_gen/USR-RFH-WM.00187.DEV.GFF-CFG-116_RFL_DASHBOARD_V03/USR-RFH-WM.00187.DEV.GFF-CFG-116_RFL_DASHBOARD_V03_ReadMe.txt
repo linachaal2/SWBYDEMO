@@ -1,0 +1,10 @@
+======================================================
+Rollout: USR-RFH-WM.00187.DEV.GFF-CFG-116_RFL_DASHBOARD_V03
+Generation timestamp: 2023-10-19 21:15:23
+======================================================
+
+Release Notes:
+
+-V01: web services and commands for the new Not Released Dashboard
+-v02: prep rollout for Linux
+-v03: fix performance issue with select from dlytrn table

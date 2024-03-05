@@ -1,0 +1,64 @@
+<command>
+  <name>remove usr dummyload</name>
+  <description>remove usr dummyload</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* remove usr dummyload
+ * remove lpn/work/hold which contain dummyitems on exception locations.
+ * Version history:
+ * 2019-12-11  Raoul Scholten  Initial version.
+ */
+get warehouse id
+|
+[select iv.wh_id,
+        iv.dtlnum,
+        wrkque.reqnum,
+        invhld.hldpfx,
+        invhld.hldnum,
+        invhld.reacod
+   from inventory_view iv
+   join locmst
+     on locmst.stoloc = iv.stoloc
+   join loc_typ
+     on locmst.loc_typ_id = loc_typ.loc_typ_id
+   left
+   join wrkque
+     on wrkque.lodnum = iv.lodnum
+   left
+   join invhld
+     on invhld.dtlnum = iv.dtlnum
+  where loc_typ.loc_typ = 'REXCP'
+    and iv.prtnum = 'DUMMYITEM'
+    and iv.lodnum = @lodnum
+    and iv.wh_id = @wh_id] catch(-1403)
+|
+if (@reqnum <> '')
+{
+    remove work request
+     where reqnum = @reqnum
+}
+|
+if (@hldpfx <> '')
+{
+    process inventory hold change
+     where dtlnum = @dtlnum
+       and acttyp = 'R'
+       and wh_id = @wh_id
+       and prc_hldpfx = @hldpfx
+       and prc_hldnum = @hldnum
+       and prc_reacod = @reacod
+}
+|
+if (@dtlnum <> '')
+{
+    move inventory
+     where trndte = sysdate
+       and srcdtl = @dtlnum
+       and dstloc = 'PERM-ADJ-LOC'
+       and oprcod = 'INVADJ'
+       and actcod = 'INVDEL'
+}
+]]>
+</local-syntax>
+</command>

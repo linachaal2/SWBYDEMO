@@ -1,0 +1,59 @@
+<command>
+
+<name>change warehouse supplier part</name>
+
+<description>Change Warehouse Supplier Part</description>
+
+<type>Local Syntax</type>
+
+<local-syntax>
+
+<![CDATA[
+    validate stack variable not null 
+	where name = 'wh_id'
+    |
+/* Policy check */
+get cached policy
+ where polcod = 'USR-RECEIVING'
+   and polvar = 'WH-PART'
+   and polval = 'UPDATE'
+   and @+wh_id catch(-1403)
+|
+/* Check on policy rtnum1 value: 0=original command, 1 = do update with new transaction to avoid update lock when multiple operators are working, other =skip update */
+if (@? = 0 and @rtnum1 > 0 and @original!=1)
+{
+    if (@rtnum1 = 1)
+    {
+        execute server command with new transaction
+         where cmd = "change warehouse supplier part where original=1"
+    }
+}else{
+^change warehouse supplier part
+}
+]]>
+
+</local-syntax>
+
+<argument name="prtnum" datatype="string"> </argument>
+<argument name="prt_client_id" datatype="string"> </argument>
+<argument name="supnum" datatype="string"> </argument>
+<argument name="wh_id" datatype="string"> </argument>
+
+<documentation>
+
+<remarks>
+<![CDATA[
+  <p>  This command is used to change an existing warehouse supplier part. (Overrule on the existing command due to update locking issues on last receiving date case 01480810)</p>
+]]>
+</remarks>
+
+<exception value="eOK">Normal successful completion</exception>
+<exception value="eAPP_MISSING_ARG">Required argument was missing from specified parameters.</exception>
+<exception value="eDB_NO_ROWS_AFFECTED">Specified part not found</exception>
+
+<seealso cref="create warehouse supplier part"> </seealso>
+<seealso cref="remove warehouse supplier part"> </seealso>
+
+</documentation>
+
+</command>

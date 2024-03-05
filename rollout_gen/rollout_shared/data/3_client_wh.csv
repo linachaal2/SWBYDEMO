@@ -1,0 +1,2 @@
+client_id,wh_id,trans_wh_id,alw_sup_lot_chg,auto_pack_subline_flg,auto_pop_sup_lot,bulk_pck_flg,lst_ctn_prnt_vis_flg,lst_ctn_prnt_vis_msg,ordinv,abs_ordinv_win,abs_ordinv_code,ins_dt,last_upd_dt,ins_user_id,last_upd_user_id,dlvseq_load_order,inb_full_vld_flg,prev_alloc_on_error_flg,shp_ctnrte_flg
+"RFH","3","3",0,0,0,0,0,"","FIFO-ORDER-BY",1440,"MIN","20181024090801","20200611163939","940028","939161","D",0,0,0

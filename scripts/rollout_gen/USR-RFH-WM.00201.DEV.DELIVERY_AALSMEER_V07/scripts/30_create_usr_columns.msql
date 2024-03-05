@@ -1,0 +1,44 @@
+get warehouse id
+|
+{
+    [select rtnum1 as archive_installed
+       from poldat_view
+      where polcod = 'ARCHIVE-SYSTEM'
+        and polvar = 'INSTALLED'
+        and polval = 'INSTALLED'
+        and wh_id = @wh_id]
+    |
+    [select rtstr1 as archive_remote
+       from poldat_view
+      where polcod = 'ARCHIVE-SYSTEM'
+        and polvar = 'MISCELLANEOUS'
+        and polval = 'REMOTE-HOST'
+        and wh_id = @wh_id]
+    |
+    if (@archive_installed = 1 and @archive_remote <> '')
+    {
+        remote(@archive_remote)
+        create custom column definition
+         WHERE comments = 'This field provides the station number'
+           AND datatype = 'I'
+           AND length = 2
+           AND version = 1
+           AND column_name = 'uc_sort_out_id' catch(-1);
+        remote(@archive_remote)
+        create custom column
+         WHERE column_name = 'uc_sort_out_id'
+           AND table_name = 'usr_gln_location' catch(-1);
+    }
+}
+|
+create custom column definition
+ WHERE comments = 'This field provides the station number'
+   AND datatype = 'I'
+   AND length = 2
+   AND version = 1
+   AND column_name = 'uc_sort_out_id' catch(-1);
+create custom column
+ WHERE column_name = 'uc_sort_out_id'
+   AND table_name = 'usr_gln_location' catch(-1);
+/
+exit

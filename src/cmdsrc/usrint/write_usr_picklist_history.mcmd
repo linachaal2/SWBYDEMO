@@ -1,0 +1,159 @@
+<command>
+  <name>write usr picklist history</name>
+  <description>write usr picklist history</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* user command to write not executed picks from a list to dlytrn.
+ * this will enable logging the leftover tasks from a interrupted picklist
+ * left over tasks will be logged to dlytrn
+ *
+ * Version history:
+ *  2023-02-21 Jasper Ringoir    Initial version
+ */
+if (!@list_id)
+{
+	[select list_id
+	   from pckwrk_hdr
+	  where wrkref = @wrkref]
+}
+|
+[select max(wrkref) wrkref_e_pck
+   from pckwrk_hdr
+  where pckdte is not null
+    and list_id = @list_id] catch(-1403)
+|
+if (@? != -1403)
+{
+	[select max(invdtl.dtlnum) to_dtlnum,
+	        max(invdtl.subnum) to_subnum,
+	        max(invsub.lodnum) to_lodnum
+	   from invdtl
+	  inner
+	   join invsub
+	     on invdtl.subnum = invsub.subnum
+	  where invdtl.wrkref = @wrkref_e_pck] catch(-1403)
+}
+|
+if (@usr_actcod = 'USR-LPCK-SPLIT')
+{
+	[select wrkref,
+	        list_id
+	   from pckwrk_hdr
+	  where pcksts = 'R' 
+	    and appqty < pckqty
+	    and list_id = @list_id] catch(-1403)
+}
+else if (@usr_actcod = 'USR-LPCK-CANCEL')
+{
+	[select wrkref,
+	        list_id
+	   from pckwrk_hdr
+	  where wrkref = @wrkref
+] catch(-1403)
+}
+|
+if (@? != -1403)
+{
+	[select pckwrk_hdr.wh_id,
+	        pckwrk_hdr.oprcod,
+	        pckwrk_hdr.wrkref,
+	        pckwrk_hdr.client_id,
+	        pckwrk_hdr.prtnum,
+	        pckwrk_hdr.prt_client_id,
+	        pckwrk_hdr.ftpcod,
+	        pckwrk_hdr.lotnum,
+	        pckwrk_hdr.sup_lotnum,
+	        pckwrk_hdr.srcare fr_arecod,
+	        pckwrk_hdr.srcloc frstol,
+	        pckwrk_hdr.invsts frinvs,
+	        pckwrk_hdr.pckqty expqty,
+	        pckwrk_hdr.appqty rptqty,
+	        pckwrk_dtl.ship_id,
+	        pckwrk_dtl.ordnum,
+	        invlod.lodnum,
+	        invlod.asset_typ,
+	        invlod.load_attr1_flg,
+	        invlod.load_attr2_flg,
+	        invlod.load_attr3_flg,
+	        invlod.load_attr4_flg,
+	        invlod.load_attr5_flg,
+	        invsub.subnum,
+	        invdtl.dtlnum,
+	        invdtl.supnum,
+	        invdtl.inv_attr_str1,
+	        invdtl.inv_attr_str2,
+	        invdtl.inv_attr_str3,
+	        invdtl.inv_attr_str4,
+	        invdtl.inv_attr_str5,
+	        invdtl.inv_attr_str6,
+	        invdtl.inv_attr_str7,
+	        invdtl.inv_attr_str8,
+	        invdtl.inv_attr_str9,
+	        invdtl.inv_attr_str10,
+	        invdtl.inv_attr_str11,
+	        invdtl.inv_attr_str12,
+	        invdtl.inv_attr_str13,
+	        invdtl.inv_attr_str14,
+	        invdtl.inv_attr_str15,
+	        invdtl.inv_attr_str16,
+	        invdtl.inv_attr_str17,
+	        invdtl.inv_attr_str18,
+	        invdtl.inv_attr_int1,
+	        invdtl.inv_attr_int2,
+	        invdtl.inv_attr_int4,
+	        invdtl.inv_attr_int5,
+	        invdtl.inv_attr_flt1,
+	        invdtl.inv_attr_flt2,
+	        invdtl.inv_attr_flt3,
+	        invdtl.inv_attr_dte1,
+	        invdtl.inv_attr_dte2
+	   from pckwrk_hdr
+	  inner
+	   join pckwrk_dtl
+	     on pckwrk_hdr.wrkref = pckwrk_dtl.wrkref
+	  right
+	  outer
+	   join invlod
+	     on pckwrk_hdr.srcloc = invlod.stoloc
+	    and pckwrk_hdr.wh_id = invlod.wh_id
+	  right
+	  outer
+	   join invsub
+	     on invlod.lodnum = invsub.lodnum
+	  right
+	  outer
+	   join invdtl
+	     on invsub.subnum = invdtl.subnum
+	    and pckwrk_hdr.lotnum = invdtl.lotnum
+	    and pckwrk_hdr.prtnum = invdtl.prtnum
+	    and pckwrk_hdr.prt_client_id = invdtl.prt_client_id
+	  where pckwrk_hdr.pcksts = 'R' 
+	    and pckwrk_hdr.appqty < pckwrk_hdr.pckqty
+	    and pckwrk_hdr.list_id = @list_id
+	    and pckwrk_hdr.wrkref = @wrkref] catch(-1403)
+	|
+	write daily transaction
+	 where actcod = @usr_actcod
+	   and trnqty = @expqty
+	   and var_nam = 'list_id|wrkref'
+	   and fr_value = @list_id || '|' || @wrkref
+}
+]]>
+</local-syntax>
+<argument name="list_id" datatype="string"></argument>
+<argument name="usr_actcod" datatype="string"></argument>
+<documentation>
+	<remarks>
+	<![CDATA[
+ 	   <p>
+ 		User command to write not executed picks from a list to dlytrn.
+		this will enable logging the leftover tasks from a interrupted picklist
+	    left over tasks will be logged to dlytrn table
+	    </p>
+	]]>
+	</remarks>
+	<seealso cref="process remaining picks for list"/>
+	<seealso cref="cancel pick-process usr picklist history"/>
+</documentation>
+</command>

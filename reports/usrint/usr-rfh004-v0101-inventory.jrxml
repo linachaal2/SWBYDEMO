@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.11.0.final using JasperReports Library version 6.10.0  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Blank_A4" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" isIgnorePagination="true" uuid="dc52c4c7-cf9f-4371-8053-83ecebc7e377">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="New Data Adapter "/>
+	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
+		<property name="MOCA" value="true"/>
+		<defaultValueExpression><![CDATA["./"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="MOCA_REPORT_LOCALE" class="java.lang.String" isForPrompting="false">
+		<property name="MOCA" value="true"/>
+		<defaultValueExpression><![CDATA["US_ENGLISH"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="MOCA_REPORT_CONNECTION" class="com.redprairie.moca.jrds.JRMocaConnection" isForPrompting="false">
+		<property name="MOCA" value="true"/>
+		<defaultValueExpression><![CDATA[new com.redprairie.moca.jrds.JRMocaConnection("http://jda2018100.westeurope.cloudapp.azure.com:18000/service", "SUPER", "SUPER", true)]]></defaultValueExpression>
+	</parameter>
+	<parameter name="MOCA_REPORT_DATE" class="java.lang.String" isForPrompting="false">
+		<property name="MOCA" value="true"/>
+		<defaultValueExpression><![CDATA[DateFormat.getDateInstance(DateFormat.SHORT).format(new Date())]]></defaultValueExpression>
+	</parameter>
+	<parameter name="MOCA_REPORT_TIME" class="java.lang.String" isForPrompting="false">
+		<property name="MOCA" value="true"/>
+		<defaultValueExpression><![CDATA[DateFormat.getTimeInstance(DateFormat.SHORT).format(new Date())]]></defaultValueExpression>
+	</parameter>
+	<parameter name="MOCA_REPORT_TZ" class="java.lang.String" isForPrompting="false">
+		<property name="MOCA" value="true"/>
+		<defaultValueExpression><![CDATA[new java.text.SimpleDateFormat("z").format(new Date())]]></defaultValueExpression>
+	</parameter>
+	<parameter name="MOCA_REPORT_DATE_FMT" class="java.lang.String" isForPrompting="false">
+		<property name="MOCA" value="true"/>
+		<defaultValueExpression><![CDATA[DateFormat.SHORT]]></defaultValueExpression>
+	</parameter>
+	<parameter name="MOCA_REPORT_TIME_FMT" class="java.lang.String" isForPrompting="false">
+		<property name="MOCA" value="true"/>
+		<defaultValueExpression><![CDATA[DateFormat.SHORT]]></defaultValueExpression>
+	</parameter>
+	<parameter name="arecod" class="java.lang.String">
+		<property name="prompt" value="^arecod^"/>
+	</parameter>
+	<queryString language="MOCA">
+		<![CDATA[if (@arecod = '' or @arecod = ' ')
+{
+    publish data
+     where whereclause = ' and 1 = 1'
+}
+else
+{
+    publish data
+     where whereclause = ' and aremst.arecod = ' || '''' || @arecod || ''''
+}
+|
+[select dscmst.lngdsc as 'area',
+        sto_zone.sto_zone_cod as 'Storage Zone',
+        iv.stoloc as 'Location',
+        iv.lodnum as 'LPN',
+        iv.lotnum,
+        iv.inv_attr_str8 as 'PAB Number',
+        prtdsc.short_dsc as 'Item Description',
+        rcvlin.idnqty as 'qty from ASN',
+        untqty as 'current qty'
+   from inventory_view iv,
+        rcvlin,
+        prtdsc,
+        locmst,
+        loc_typ,
+        sto_zone,
+        aremst,
+        dscmst
+  where iv.rcvkey = rcvlin.rcvkey
+    and prtdsc.colval = iv.prtnum || '|' || iv.prt_client_id || '|' || iv.wh_id
+    and prtdsc.locale_id = 'US_ENGLISH'
+    and locmst.stoloc = iv.stoloc
+    and locmst.loc_typ_id = loc_typ.loc_typ_id
+    and loc_typ.fwiflg = '1'
+    and sto_zone.sto_zone_id = locmst.sto_zone_id
+    and locmst.arecod = aremst.arecod
+    and dscmst.colnam = 'arecod|wh_id'
+    and dscmst.colval = aremst.arecod || '|' || iv.wh_id @whereclause:raw
+  group by dscmst.lngdsc,
+        sto_zone.sto_zone_cod,
+        iv.stoloc,
+        iv.lodnum,
+        iv.lotnum,
+        iv.inv_attr_str8,
+        prtdsc.short_dsc,
+        rcvlin.idnqty,
+        iv.untqty
+  order by dscmst.lngdsc,
+        sto_zone.sto_zone_cod,
+        iv.stoloc]]]>
+	</queryString>
+	<field name="area" class="java.lang.String"/>
+	<field name="Storage Zone" class="java.lang.String"/>
+	<field name="Location" class="java.lang.String"/>
+	<field name="LPN" class="java.lang.String"/>
+	<field name="lotnum" class="java.lang.String"/>
+	<field name="PAB Number" class="java.lang.String"/>
+	<field name="Item Description" class="java.lang.String"/>
+	<field name="qty from ASN" class="java.lang.Integer"/>
+	<field name="current qty" class="java.lang.Integer"/>
+	<columnHeader>
+		<band height="23">
+			<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.FreeLayout"/>
+			<staticText>
+				<reportElement x="0" y="0" width="66" height="20" uuid="964bf328-a712-49b4-9701-9670a29b69ab"/>
+				<textElement textAlignment="Left" verticalAlignment="Top">
+					<font fontName="Liberation Sans" size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Area]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" x="66" y="0" width="82" height="20" uuid="11bc15e7-30bd-4e83-8d1f-a6e0ac21e345"/>
+				<textElement textAlignment="Left" verticalAlignment="Top">
+					<font fontName="Liberation Sans" size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Storage Zone]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="148" y="0" width="70" height="20" uuid="9c5a6cab-7c73-4d8f-a701-5604d4bc2fdf"/>
+				<textElement textAlignment="Left" verticalAlignment="Top">
+					<font fontName="Liberation Sans" size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Location]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="218" y="0" width="60" height="20" uuid="878c6ae8-d352-4d26-94f2-ec939a95f49a"/>
+				<textElement textAlignment="Left" verticalAlignment="Top">
+					<font fontName="Liberation Sans" size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[LPN]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="348" y="0" width="50" height="20" uuid="7d521d65-1a8b-476c-8bf5-565015968af5"/>
+				<textElement textAlignment="Left" verticalAlignment="Top">
+					<font fontName="Liberation Sans" size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[PAB]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="398" y="0" width="60" height="20" uuid="f85e6fd3-3c27-4544-b975-3eeaedcfbb36"/>
+				<textElement textAlignment="Left" verticalAlignment="Top">
+					<font fontName="Liberation Sans" size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Item Desc]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="458" y="0" width="60" height="20" uuid="0c1776a0-682b-4076-a046-3b65e3852e73"/>
+				<textElement textAlignment="Left" verticalAlignment="Top">
+					<font fontName="Liberation Sans" size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[ASNQty]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="518" y="0" width="60" height="20" uuid="48831912-e111-455a-8082-51990ad3b0a4"/>
+				<textElement textAlignment="Left" verticalAlignment="Top">
+					<font fontName="Liberation Sans" size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[CurQty]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="278" y="0" width="70" height="20" uuid="47dd07b5-6f98-4663-a6c1-808bba59d833"/>
+				<textElement textAlignment="Left" verticalAlignment="Top">
+					<font fontName="Liberation Sans" size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Lotnum]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="30" splitType="Stretch">
+			<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.spreadsheet.SpreadsheetLayout"/>
+			<textField>
+				<reportElement x="0" y="0" width="66" height="30" uuid="862993cb-5545-48a3-bdbb-9f7b154627b1"/>
+				<textElement textAlignment="Left">
+					<font fontName="Liberation Sans"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{area}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="66" y="0" width="82" height="30" uuid="3f4b1544-0eca-4db5-9d74-bcdb64ec7111"/>
+				<textElement textAlignment="Left">
+					<font fontName="Liberation Sans"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{Storage Zone}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="148" y="0" width="70" height="30" uuid="3b0a9ca4-61d7-43a2-bd87-97a726b0100c"/>
+				<textElement textAlignment="Left">
+					<font fontName="Liberation Sans"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{Location}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement x="218" y="0" width="60" height="30" uuid="dd2e2ac0-caa3-437e-b1a3-990bd70d7a29"/>
+				<textElement textAlignment="Left">
+					<font fontName="Liberation Sans"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{LPN}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="278" y="0" width="70" height="30" uuid="a240bf46-3c43-4e14-a255-3cfc47c93104"/>
+				<textElement textAlignment="Left">
+					<font fontName="Liberation Sans"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{lotnum}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="348" y="0" width="50" height="30" uuid="3099a3fc-28bf-4c0f-a40e-7ace54c30235"/>
+				<textElement textAlignment="Left">
+					<font fontName="Liberation Sans"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{PAB Number}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="398" y="0" width="60" height="30" uuid="3a67c710-5972-44e8-92f5-7c9780071d7c"/>
+				<textElement textAlignment="Left">
+					<font fontName="Liberation Sans"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{Item Description}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="458" y="0" width="60" height="30" uuid="f1da3318-99ab-402c-a11d-8e0c0c6f0f67"/>
+				<textElement textAlignment="Center">
+					<font fontName="Liberation Sans"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{qty from ASN}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="518" y="0" width="60" height="30" uuid="edf333de-d7c5-4505-ad35-c918bb3a06ad"/>
+				<textElement textAlignment="Center">
+					<font fontName="Liberation Sans"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{current qty}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

@@ -1,0 +1,22 @@
+<action>
+  <id>usrListAllPicksDtl</id>
+  <name>usrListAllPicksDtl</name>
+  <description>List Open picks detail</description>
+  <type>LIST</type>
+  <ws>
+     <method>GET</method>
+	 <href>/usrListAllPicksDtl</href>
+  </ws>
+  <impl>
+     <command>list usr all picks</command>
+  </impl>
+  <listConfig>
+     <columnConfig>usrListAllPicksDetailColumns</columnConfig>
+     <filterable/>
+     <pageable/>
+     <sortable/>
+  </listConfig>
+  <auth>
+     <opt>optOpen</opt>
+  </auth>
+</action>

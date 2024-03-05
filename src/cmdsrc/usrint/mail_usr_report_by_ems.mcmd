@@ -1,0 +1,168 @@
+<command>
+  <name>mail usr report by ems</name>
+  <description>mail usr report by ems</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* mail usr report by ems
+ *
+ * create usr report and send it via EMS
+ * 
+ * Version history:
+ * 2020-31-07 Raoul Scholten      Initial version
+ * 2020-08-20 Shailesh Raina      Version 2: Added the policy for server and port
+ * 2020-08-24 Raoul Scholten      Version 3: Added the policy for filename - implemented new way to get filename for ems report
+ * Parameters in client_id, wh_id and rpt_id
+ */
+validate stack variable not null
+ where name = 'client_id'
+|
+publish data
+ where wh_id = nvl(@wh_id, @@wh_id)
+|
+validate stack variable not null
+ where name = 'wh_id'
+|
+if (nvl(@rep_usr_id, '') = '')
+{
+    publish data
+     where rep_usr_id = nvl(@@usr_id, 'SYS_RFH')
+}
+|
+if (nvl(@rep_locale_id, '') = '')
+{
+    publish data
+     where rep_locale_id = @@locale_id
+}
+|
+if (nvl(@rep_locale_id, '') = '')
+{
+    [select locale_id rep_locale_id
+       from USERS_VIEW
+      where usr_id = @rep_usr_id]
+}
+|
+[select rtstr1 report_path,
+        rtstr2 report_arch_dir
+   from poldat_view
+  where polcod = 'USR-REPORTS'
+    and polvar = 'SERVER'
+    and polval = 'REPORT_PATH'
+    and wh_id = @wh_id
+    and rtnum1 = 1
+    and rownum = 1] catch(-1403)
+|
+if (nvl(@report_path, '') = '')
+    publish data
+     where report_path = 'C:\Temp'
+else
+{
+    sl_get env_var
+     where env_name = @report_path
+    |
+    publish data
+     where report_path = @envvalue || @report_arch_dir
+}
+|
+[select rtnum1 att_rm_file
+   from poldat_view
+  where polcod = 'USR-EMS'
+    and polvar = 'ATT_RM_FILE'
+    and polval = 'REPORT'
+    and wh_id = @wh_id
+	and rtstr1 = @rpt_id
+    and rownum = 1] catch(-1403)
+|
+if (nvl(@att_rm_file, '') = '')
+{
+    publish data
+     where att_rm_file = 0
+}
+|
+[select rtstr2 rpt_fil_nam
+   from poldat_view
+  where polcod = 'USR-REPORTS'
+    and polvar = 'SERVER'
+    and polval = 'REPORT_FILE_NAME'
+    and wh_id = @wh_id
+    and rtstr1 = @rpt_id
+    and rtnum1 = 1
+    and rownum = 1] catch(-1403)
+|
+[select rtstr2 format_typ
+   from poldat_view
+  where polcod = 'USR-REPORTS'
+    and polvar = 'SERVER'
+    and polval = 'FORMAT_TYP'
+    and wh_id = @wh_id
+    and rtstr1 = @rpt_id
+    and rtnum1 = 1
+    and rownum = 1] catch(-1403)
+|
+get moca report server information
+|
+if (@app_srv = '')
+{
+    [select rtstr1 server,
+        rtstr2 port
+   from poldat_view
+  where polcod = 'USR-SERVERS'
+    and polvar = 'REPORTING'
+    and polval = 'SERVER'
+    and wh_id = @wh_id] catch(-1403)
+    |
+    publish data where att_app_srv = @server|| @port
+}
+else 
+{
+    publish data where att_app_srv = @app_srv
+}
+|
+publish data where att_app_srv = @att_app_srv
+|
+[select rtstr1 server,
+        rtstr2 port
+   from poldat_view
+  where polcod = 'USR-SERVERS'
+    and polvar = 'REPORTING'
+    and polval = 'SERVER'
+    and wh_id = @wh_id] catch(-1403)
+|
+publish data
+ where att_file = @rpt_fil_nam || @wh_id || '_' || to_char(sysdate + @offset, 'YYYYMMDDHH24MI') || '.' || @format_typ
+|
+publish data
+ where att_path = @report_path || '\' || @att_file
+|
+/*GENERATE REPORT WITH PARAMETERS AND SEND VIA EMS*/
+[[
+    import com.redprairie.moca.*
+
+    if (!evt_params.equals(null)) {
+            andParams = "and " + evt_params
+    } else {
+        andParams = ""
+    }
+    moca.executeInline("generate moca report " +
+      "where gen_usr_id = @rep_usr_id " +
+        "and rpt_id = @rpt_id " +
+        "and locale_id = @rep_locale_id  " +
+        "and format_typ = lower(@format_typ) " +
+        "and dest_typ = 'file' " +
+        "and dest = @att_path  " +
+        "and wh_id = @wh_id " +
+        andParams)
+    ]]
+|
+raise usr ems event for usr reports
+ where evt_nam = @rpt_id
+   and att_app_srv = @att_app_srv  
+   and att_rm_file = @att_rm_file
+   and rep_usr_id = @rep_usr_id
+   and rep_locale_id = @rep_locale_id
+   and body = 'Please find attached your report ' || @rpt_id
+   and evt_params = @evt_params
+   and wh_id = @wh_id
+]]>
+</local-syntax>
+</command>

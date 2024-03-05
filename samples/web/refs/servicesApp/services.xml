@@ -1,0 +1,28 @@
+<!-- Sets several key variables -->
+<project project-dir="."
+         js-dir="${project-dir}/src/js"
+         config-dir="${project-dir}/config"
+         app-id="${appId}"
+         hf-compliant="true">
+
+
+  <target name="handler-beans"
+          type="handler-beans"
+          source-dir="${config-dir}/mappings" />
+
+<!-- Process javascript files -->
+  <target name="VersionsApp"
+          type="js"
+          source-dir="${js-dir}/Versions">
+    <include name="versionsApp.js" />
+  </target>
+
+<!-- Process database YAML files -->
+  <target name="database"
+          type="load"
+          source-dir="${project-dir}/db">
+      <include name="messages" />
+      <include name="menu" />
+  </target>
+
+</project>

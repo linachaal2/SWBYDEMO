@@ -1,0 +1,5 @@
+<command>
+<name>test usr command</name>
+<type>C Function</type>
+<function>usrTestUsrCommand</function>
+</command>

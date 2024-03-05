@@ -1,0 +1,45 @@
+<command>
+  <name>remove usr delivery pickhop</name>
+  <description>remove usr delivery pickhop</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* remove usr delivery pickhop
+ *
+ * Version history:
+ *  2020-04-29  Radina Ivanova - Initial version
+ */
+    publish data where wh_id = nvl(@wh_id, @@wh_id)
+    |
+    if (@wh_id = '')
+    {
+        get warehouse id
+    }
+    |
+    [select to_char(uc_delivery_id) || '|' || to_char(dst_mov_zone_id) || '|' || to_char(seqnum) || '|' || stoloc fr_value
+       from usr_delivery
+      where uc_delivery_id = @uc_delivery_id
+        and wh_id = @wh_id
+        and dst_mov_zone_id = @dst_mov_zone_id
+        and seqnum = @seqnum]
+    |
+    remove record
+     where table = 'usr_delivery' >> res
+    |
+    write daily transaction
+    where actcod = 'USR-DELIVERY-PICKHOP'
+      and var_nam = 'uc_delivery_id|dst_mov_zone_id|seqnum|stoloc'
+      and fr_value = @fr_value
+      and to_value = ''
+      and wh_id = @wh_id
+    |
+    publish data combination
+      where res = @res
+     
+]]>
+</local-syntax>
+<argument name="wh_id" required="no" datatype="string">Warehouse ID</argument>
+<argument name="uc_delivery_id" required="yes" datatype="integer">Delivery ID</argument>
+<argument name="dst_mov_zone_id" required="yes" datatype="integer">Destination Movement Zone ID</argument>
+<argument name="seqnum" required="yes" datatype="integer">Sequence number</argument>
+</command>

@@ -1,0 +1,82 @@
+<command>
+  <name>process usr rf stapelwagen in use</name>
+  <description>process usr rf stapelwagen in use</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* process usr rf stapelwagen in use
+ * Process a stapelwagen which is still in use so that it can be used again in the USR_IDENTIFY_LOAD_EX RF screen.
+ * Version history:
+ *  2019-01-03  Salem Hamze  Initial version.
+ */
+validate stack variable not null
+ where name = 'lodnum'
+|
+get warehouse id
+|
+/* First check if the area where the load is currently located has a lost location configured. */
+[select aremst.lost_loc
+   from invlod
+  inner
+   join locmst
+     on locmst.stoloc = invlod.stoloc
+    and locmst.wh_id = invlod.wh_id
+  inner
+   join aremst
+     on aremst.arecod = locmst.arecod
+    and aremst.wh_id = locmst.wh_id
+  where invlod.lodnum = @lodnum]
+|
+if (@lost_loc = '')
+{
+    /* Get the default lost location configured in the policies. */
+    [select max(rtstr1) as pol_lost_loc
+       from poldat_view
+      where wh_id = @wh_id
+        and polcod = 'USR-LOCATIONS'
+        and polvar = 'DEFAULTS'
+        and polval = 'LOST-LOC'
+        and rtnum1 = 1]
+}
+|
+if (nvl(@lost_loc, @pol_lost_loc) = '')
+{
+    /* Error: Lost location is not setup. Please setup a lost location on the area or setup a default lost location in the policies (USR-LOCATIONS,DEFAULTS,LOST-LOC). */
+    set return status
+     where status = 90016
+}
+|
+{
+    /* Move the inventory to the lost location. */
+    move inventory
+     where wh_id = @wh_id
+       and srclod = @lodnum
+       and dstloc = nvl(@lost_loc, @pol_lost_loc);
+
+    /*
+       [select nvl(substr(max(lodnum), len(@lodnum)),'0') as dummy_id_radix36  from invlod where lodnum like @lodnum || '-%'] 
+       |
+       [[Integer.toString(Integer.parseInt("*" + dummy_id_radix36,36)+1,36);]]catch(@?)
+       |
+       if(@? = 0 and len(@lodnum || '-' || @result) <= 30){
+       publish data where dummy_load_id=@lodnum || '-' || @result
+       }else{
+       publish data where dummy_load_id= substr(@lodnum, len(@lodnum), 30-13) '-' || to_char(sysdate, 'YYMMDDHH24MISS')
+       }
+     */
+    generate next number
+     where numcod = 'lodnum'
+    |
+    publish data
+     where dummy_lodnum = @nxtnum
+    |
+    change inventory identifier
+     where wh_id = @wh_id
+       and lodlvl = 'L'
+       and from_id = @lodnum
+       and to_id = @dummy_lodnum
+}
+]]>
+</local-syntax>
+  <argument name="lodnum" required="yes" datatype="string">Load number which is already in use.</argument>
+</command>

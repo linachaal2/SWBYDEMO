@@ -1,0 +1,12 @@
+entity: ResourceBundle
+version: '1.0'
+data:
+
+- bundleId: services-VersionsApp
+  localizationNamespaces:
+  - rp.services*
+  libraries:
+  - name: rpcommon
+    version: 9.0.MAX
+  scripts:
+  - services/VersionsApp.{client-mode}.js

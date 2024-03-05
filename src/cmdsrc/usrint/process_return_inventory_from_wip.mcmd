@@ -1,0 +1,86 @@
+<command>
+  <name>process return inventory from wip</name>
+  <description>process return inventory from wip</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* Wrapper to avoid creation of new loads and transactions while the stock is still within the 4 walls
+ * including skipping rcv interface and use of given LPN instead of new generated one (Blue Yonder bug)
+ * including setting the mvlflg to avoid issues with movements with this lpn
+ * 2023-05-08 Marco Schouwenaar  Initial version
+ */
+publish data where dest_lpn=@lodnum 
+|
+[select * from invlod where lodnum=@dest_lpn] catch(-1403)
+|
+if (@?=-1403)
+{   
+    [select stoloc,lodwgt,prmflg,unkflg,mvlflg,lodhgt,load_attr1_flg,load_attr2_flg,load_attr3_flg,load_attr4_flg,load_attr5_flg 
+       from invlod 
+      where lodnum in (select invsub.lodnum 
+                         from invsub,invdtl 
+                        where invsub.subnum = invdtl.subnum 
+                          and invdtl.dtlnum = @dtlnum)] catch(-1403)
+    |
+    if (@?=-1403)
+    {
+        [select stoloc from locmst where locmst.prdlin=@prdlin and locmst.wh_id=@wh_id ] catch(-1403)
+    }
+    |
+    [insert into invlod (lodnum,wh_id,stoloc,lodwgt,prmflg,unkflg,mvlflg,adddte,asset_typ,lodhgt,load_attr1_flg,load_attr2_flg,load_attr3_flg,load_attr4_flg,load_attr5_flg,completed_receiving_date) 
+     values (@dest_lpn,@wh_id,@stoloc,@lodwgt,nvl(@prmflg,0),nvl(@unkflg,1), 1 ,sysdate,@asset_typ,@lodhgt,@load_attr1_flg,@load_attr2_flg,@load_attr3_flg,@load_attr4_flg,@load_attr5_flg,sysdate)]catch(-1403)
+}
+;
+publish data where dest_lpn=@lodnum 
+|
+[select invdtl.prtnum, invdtl.prt_client_id, invdtl.revlvl, invdtl.orgcod, invdtl.invsts, invdtl.lotnum, 
+        invdtl.sup_lotnum, invdtl.supnum uc_supnum, min(invdtl.fifdte) fifdte, min(invdtl.mandte) mandte, min(invdtl.expire_dte)expire_dte, invdtl.ftpcod, 
+        invdtl.inv_attr_str1, invdtl.inv_attr_str2, invdtl.inv_attr_str3, invdtl.inv_attr_str4, invdtl.inv_attr_str5, 
+        invdtl.inv_attr_str6, invdtl.inv_attr_str7, invdtl.inv_attr_str8, invdtl.inv_attr_str9, invdtl.inv_attr_str10, 
+        invdtl.inv_attr_str11, invdtl.inv_attr_str12, invdtl.inv_attr_str13, invdtl.inv_attr_str14, invdtl.inv_attr_str15, 
+        invdtl.inv_attr_str16, invdtl.inv_attr_str17, invdtl.inv_attr_str18, invdtl.inv_attr_int1, invdtl.inv_attr_int2, 
+        invdtl.inv_attr_int3, invdtl.inv_attr_int4, invdtl.inv_attr_int5, invdtl.inv_attr_flt1, invdtl.inv_attr_flt2, 
+        invdtl.inv_attr_flt3, min(invdtl.inv_attr_dte1) inv_attr_dte1, min(invdtl.inv_attr_dte2) inv_attr_dte2
+from wkodtl,invdtl,invsub,invlod,locmst 
+  where invlod.wh_id = locmst.wh_id 
+    and invlod.stoloc = locmst.stoloc
+    and invsub.subnum = invdtl.subnum
+    and invsub.lodnum = invlod.lodnum
+    and invdtl.prtnum = wkodtl.prtnum 
+    and invdtl.prt_client_id = wkodtl.prt_client_id 
+    and nvl(invdtl.lotnum,'----') = nvl(wkodtl.lotnum ,'----')
+    and nvl(invdtl.orgcod,'----') = nvl(wkodtl.orgcod ,'----')
+    and nvl(invdtl.revlvl,'----') = nvl(wkodtl.revlvl ,'----')
+    and invdtl.invsts = wkodtl.invsts 
+    and invdtl.supnum = wkodtl.supnum
+    and wkodtl.wkonum = @wkonum
+    and wkodtl.client_id =  @client_id
+    and wkodtl.wkorev = @wkorev 
+    and wkodtl.wkolin = @wkolin
+    and wkodtl.seqnum = @seqnum
+    and locmst.prdlin = @prdlin
+    group by invdtl.prtnum, invdtl.prt_client_id, invdtl.revlvl, invdtl.orgcod, invdtl.invsts, invdtl.lotnum, invdtl.sup_lotnum, invdtl.supnum, invdtl.ftpcod, 
+        invdtl.inv_attr_str1, invdtl.inv_attr_str2, invdtl.inv_attr_str3, invdtl.inv_attr_str4, invdtl.inv_attr_str5, 
+        invdtl.inv_attr_str6, invdtl.inv_attr_str7, invdtl.inv_attr_str8, invdtl.inv_attr_str9, invdtl.inv_attr_str10, 
+        invdtl.inv_attr_str11, invdtl.inv_attr_str12, invdtl.inv_attr_str13, invdtl.inv_attr_str14, invdtl.inv_attr_str15, 
+        invdtl.inv_attr_str16, invdtl.inv_attr_str17, invdtl.inv_attr_str18, invdtl.inv_attr_int1, invdtl.inv_attr_int2, 
+        invdtl.inv_attr_int3, invdtl.inv_attr_int4, invdtl.inv_attr_int5, invdtl.inv_attr_flt1, invdtl.inv_attr_flt2, 
+        invdtl.inv_attr_flt3] catch(-1403)
+|    
+^process return inventory from wip >> wip_results
+|
+[update invdtl 
+    set invdtl.sup_lotnum=@sup_lotnum, invdtl.supnum=@uc_supnum, invdtl.fifdte=to_date(@fifdte), invdtl.mandte=to_date(@mandte), invdtl.expire_dte=to_date(@expire_dte), 
+        invdtl.inv_attr_str1=@inv_attr_str1, invdtl.inv_attr_str2=@inv_attr_str2, invdtl.inv_attr_str3=@inv_attr_str3, invdtl.inv_attr_str4=@inv_attr_str4, 
+        invdtl.inv_attr_str5=@inv_attr_str5, invdtl.inv_attr_str6=@inv_attr_str6, invdtl.inv_attr_str7=@inv_attr_str7, invdtl.inv_attr_str8=@inv_attr_str8,
+        invdtl.inv_attr_str9=@inv_attr_str9, invdtl.inv_attr_str10=@inv_attr_str10, invdtl.inv_attr_str11=@inv_attr_str11, invdtl.inv_attr_str12=@inv_attr_str12,
+        invdtl.inv_attr_str13=@inv_attr_str13, invdtl.inv_attr_str14=@inv_attr_str14, invdtl.inv_attr_str15=@inv_attr_str15, invdtl.inv_attr_str16=@inv_attr_str16, 
+        invdtl.inv_attr_str17=@inv_attr_str17, invdtl.inv_attr_str18=@inv_attr_str18, invdtl.inv_attr_int1=@inv_attr_int1, invdtl.inv_attr_int2=@inv_attr_int2, 
+        invdtl.inv_attr_int3=@inv_attr_int3, invdtl.inv_attr_int4=@inv_attr_int4, invdtl.inv_attr_int5=@inv_attr_int5, invdtl.inv_attr_flt1=@inv_attr_flt1, 
+        invdtl.inv_attr_flt2=@inv_attr_flt2, invdtl.inv_attr_flt3=@inv_attr_flt3, invdtl.inv_attr_dte1=to_date(@inv_attr_dte1), invdtl.inv_attr_dte2=to_date(@inv_attr_dte2)
+ where invdtl.dtlnum=@dtlnum] catch(-1403)
+|
+publish data combination where results=@wip_results
+]]>
+</local-syntax>
+</command>

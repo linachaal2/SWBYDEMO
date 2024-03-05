@@ -1,0 +1,22 @@
+<command>
+  <name>create usr stops and loads for shipments def</name>
+  <description>create usr stops and loads for shipments deferred</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* create usr stops and loads for shipments deferred
+ *
+ * creates a deferred execution of the process reate usr stops and loads for shipments 
+ * 
+ * Version history:
+ * 2021-09-22 Marco Schouwenaar   Initial version
+ *                                On request of Blue Yonder always deffered as there are perfomance issues in the upgraded version
+ * 2022-03-09 Raoul Scholten	  Added exec_typ USR1 to deferred_cmd to make unique
+ */
+   publish data 
+      where cmd = 'create usr stops and loads for shipments where ship_id = '  || "'" || @ship_id || "'" || ' and wh_id = '|| "'" || @wh_id || "' "
+    |
+    create deferred execution where deferred_cmd = @cmd and exec_typ = 'USR3'
+]]>
+</local-syntax>
+</command>

@@ -1,0 +1,106 @@
+<command>
+  <name>process usr auto load of shipments</name>
+  <description>process usr auto load of shipments</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* process usr auto load of shipments
+ *
+ * When all shipments for a load are staged, RFH wants to automatically
+ * have these orders loaded and dispatched (close trailer). 
+ * A policy is used to get the order types for which this applies. Also
+ * this policy controls the on or off mechanism using rtnum1 =1 as on. 
+ * 
+ * Version history:
+ * 2018-09-10 Tim van den Akker   Initial version
+ * 2020-10-27 Marco Schouwenaar   Load in stoplevel instead of shipment
+ * 2020-11-02 Marco Schouwenaar   Additional check on loaded and close/dispatch the trailer if that is the case
+ * 2021-02-17 Marco Schouwenaar   Extended check on shipment status Loading and Staged instead of Staged only
+ */
+validate stack variable not null
+ where name = 'ship_id'
+|
+get warehouse id 
+|
+[select rtstr1 as pol_ordtyp
+   from poldat_view
+  where wh_id = nvl(@wh_id, @@wh_id)
+    and polcod = 'USR-SHIPPING'
+    and polvar = 'MISCELLANEOUS'
+    and polval = 'AUTO-LOADING'
+    and rtnum1 = 1
+    and exists(select 0
+                 from shipment,
+                      shipment_line,
+                      ord
+                where shipment_line.ship_id = shipment.ship_id
+                  and ord.ordnum = shipment_line.ordnum
+                  and ord.wh_id = shipment_line.wh_id
+                  and ord.client_id = shipment_line.client_id
+                  and shipment.ship_id = @ship_id
+                  and ord.ordtyp = poldat_view.rtstr1
+                  and rownum = 1)] catch(@?)
+|
+if (@? = 0)
+{
+
+        [select shipment.stop_id,trlr.trlr_id, trlr.stoloc as dockloc, ser_asset.asset_tag from shipment,stop,car_move,trlr 
+                    left outer join asset_link
+                on asset_link.asset_num = trlr.carcod||'|'||trlr.trlr_num
+            left outer join ser_asset
+                on ser_asset.asset_id = asset_link.asset_id
+          where shipment.ship_id=@ship_id
+            and shipment.stop_id = stop.stop_id
+            and stop.car_move_id = car_move.car_move_id
+            and trlr.trlr_id = car_move.trlr_id
+            and trlr.trlr_stat not in ('C','D')] catch(-1403)
+        |
+        if (@? = 0)
+        {
+[select max(shipment.shpsts) maxsts,min(shipment.shpsts) minsts,(select max('NO')
+                     from inventory_pckwrk_view ipv, shipment
+                    where  ipv.lodnum in (select inventory_pckwrk_view.lodnum
+                     from inventory_pckwrk_view
+                    where  inventory_pckwrk_view.ship_id = @ship_id)
+                    and shipment.ship_id=ipv.ship_id
+                    and nvl (shipment.stop_id,'-')='-') as OK from shipment where shipment.stop_id=@stop_id] catch(-1403)
+                    |
+            if(@? = 0 and (@maxsts='S' or @maxsts='L')and (@minsts='S' or @minsts='L') and @OK<>'NO')
+           {
+             hide stack variable where name = 'varexecid'
+			 |
+			 hide stack variable where name = 'exec_id'
+			 |
+			 process load stop
+                where stop_id = @stop_id
+                  and wh_id = nvl(@wh_id, @@wh_id)
+                  and close_trailer=1
+                  and closed_dispatched=1
+                  and dispatch_trailer=1
+                  and work_queue=0
+                  and is_door_changed=0
+                  and closed=1
+                  and load_immediate=1
+                  and stop_seal='-'
+                  and dock_door=@dockloc
+                  and trlr_id=@trlr_id
+                  and was_door_empty=0
+                  and asset_tag=@asset_tag  catch(@?)   
+                  |
+                  if (@? != 0)
+                  {
+                    [select  ipv.wh_id, ipv.client_id, ipv.lodnum,ipv.subnum, ipv.ordnum, ipv.ship_id ,  ipv.rtcust as EAN, adrmst.host_ext_id as GLN from inventory_pckwrk_view ipv
+                    join ord on ord.ordnum = ipv.ordnum
+                    join adrmst on adr_id = ord.rt_adr_id where ship_id = @ship_id and rownum = 1] catch (-1403)
+                    |
+                    raise usr ems event for failed to load stop where @* 
+                  }
+                  
+                  
+           }
+        }
+}
+
+]]>
+</local-syntax>
+</command>

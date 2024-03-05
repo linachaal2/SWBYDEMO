@@ -1,0 +1,116 @@
+<command>
+  <name>get usr hop location for mixed delivery locations</name>
+  <description>get usr hop location for mixed delivery locations</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* get usr hop location for mixed delivery locations
+ * Whenever moves for mixed delivery locations a hop should be in place whenever all lpns are picked up at once
+ * Version history:
+ *  2020-04-28  Raoul Scholten  Initial version.
+ *  2022-08-05  Radina Ivanova  Handle second multidrop location after already been deposited to another multidrop location earlier
+*/
+[select count(distinct(iv.stoloc)) as numstloc
+   from(select invmov.stoloc
+          from inventory_view,
+               invmov
+         where inventory_view.wh_id = nvl(@wh_id, @@wh_id) 
+           and(invmov.lodnum = inventory_view.lodnum
+           and lodlvl = 'L') 
+           and inventory_view.stoloc = nvl(@devcod, @@devcod) 
+         union all
+         select invmov.stoloc
+          from inventory_view,
+               invmov
+         where inventory_view.wh_id = nvl(@wh_id, @@wh_id) 
+           and(invmov.lodnum = inventory_view.subnum
+           and lodlvl = 'S') 
+           and inventory_view.stoloc = nvl(@devcod, @@devcod) 
+         union all
+         select invmov.stoloc
+          from inventory_view,
+               invmov
+         where inventory_view.wh_id = nvl(@wh_id, @@wh_id) 
+           and(invmov.lodnum = inventory_view.dtlnum
+           and lodlvl = 'D') 
+           and inventory_view.stoloc = nvl(@devcod, @@devcod)) iv] catch(-1403)
+|
+if (@numstloc > 1)
+{
+	[select max(dlytrn_id) dlytrn_id
+	   from inventory_view,
+	        dlytrn,
+	        locmst,
+	        poldat_view
+	  where inventory_view.stoloc = @devcod
+	    and dlytrn.tostol = inventory_view.stoloc
+	    and dlytrn.lodnum = inventory_view.lodnum
+	    and locmst.stoloc = dlytrn.frstol
+	    and poldat_view.wh_id = nvl(@wh_id, @@wh_id) 
+	    and poldat_view.polcod = 'USR-INVENTORY' 
+	    and poldat_view.polvar = 'MULTIPLE-LPN-HANDLING' 
+	    and poldat_view.polval = 'CREATE_PICK_DEP_MOVE' 
+	    and poldat_view.rtnum1 = 1
+	    and poldat_view.rtstr1 = locmst.mov_zone_id] catch(-1403)
+	|
+	if (@? = 0)
+	{
+        [select frstol
+           from dlytrn
+          where dlytrn_id = @dlytrn_id]
+        |
+		[select stoloc
+		   from usr_delivery
+		  where frstol = @frstol]
+	}
+}
+else
+{
+	[select distinct(iv.stoloc) as stoloc
+	   from(select invmov.stoloc
+	          from inventory_view,
+	               invmov
+	         where inventory_view.wh_id = nvl(@wh_id, @@wh_id) 
+	           and(invmov.lodnum = inventory_view.lodnum
+	           and lodlvl = 'L') 
+	           and inventory_view.stoloc = nvl(@devcod, @@devcod) 
+	         union all
+	         select invmov.stoloc
+	          from inventory_view,
+	               invmov
+	         where inventory_view.wh_id = nvl(@wh_id, @@wh_id) 
+	           and(invmov.lodnum = inventory_view.subnum
+	           and lodlvl = 'S') 
+	           and inventory_view.stoloc = nvl(@devcod, @@devcod) 
+	         union all
+	         select invmov.stoloc
+	          from inventory_view,
+	               invmov
+	         where inventory_view.wh_id = nvl(@wh_id, @@wh_id) 
+	           and(invmov.lodnum = inventory_view.dtlnum
+	           and lodlvl = 'D') 
+	           and inventory_view.stoloc = nvl(@devcod, @@devcod)) iv] catch(-1403)
+}
+|
+get usr rf scanned lpn count
+ where wh_id = nvl(@wh_id, @@wh_id)
+   and devcod = nvl(@devcod, @@devcod)
+|
+[select arecod + ' ' + wrkzon as dsploc2
+   from locmst,
+        zonmst
+  where stoloc = @stoloc
+    and zonmst.wrk_zone_id = locmst.wrk_zone_id] catch(-1403)
+|
+publish data
+ where stoloc = @stoloc
+   and scanned_lpn_cnt = @scanned_lpn_cnt
+   and dsploc2 = @dsploc2
+]]>
+</local-syntax>
+  <argument name="lodnum" required="yes" datatype="string">lodnum</argument>
+  <argument name="dstloc" required="yes" datatype="string">Destination location</argument>
+  <argument name="srcloc" required="yes" datatype="string">source location</argument>
+  <argument name="src_mov_zone_id" datatype="integer">source zone</argument>
+  <argument name="dst_mov_zone_id" datatype="integer">destination zone</argument>
+</command>

@@ -1,0 +1,8 @@
+entity: MenuItem
+version: '1.0'
+data:
+
+-   menuItemId: customer-Sample
+    menuItems:
+    -   menuItemId: customer-SamplePage
+        page: customer-SamplePage

@@ -1,0 +1,277 @@
+<command>
+<name>get quantity for picking uom</name>
+<description>Get Quantity For Picking UOM</description>
+<type>Local Syntax</type>
+
+<local-syntax>
+<![CDATA[
+
+    /*
+     * If the CONSOLIDATE-DIFFERENT-CASE-PICKS policy is enabled and ftpcod is null
+     * on pckwrk, this means this wrkref is a consolidate pick, we will just display
+     * the total quantity and the stocking uomcod for this item
+     */
+    if (!@ftpcod and @wrkref and @wrkref != '')
+    {
+        [select ftpcod pckftpcod,
+                untcas pckuntcas,
+                pckqty,
+                appqty,
+                lodlvl
+           from pckwrk_view
+          where wrkref = @wrkref]
+        |
+        if (!@pckftpcod and @pckuntcas = 0 and @lodlvl = 'S')
+        {
+            publish data
+                   where consolidatecspck = 1
+        }
+    }
+    |
+    if (@consolidatecspck = 1)
+    {
+        [select stkuom
+           from prtmst_view
+          where prtnum = @prtnum
+            and prt_client_id = @prt_client_id
+            and wh_id = @wh_id]
+        |
+        publish data
+               where uomcod = @stkuom
+                 and uomqty = @untqty
+    }
+    else
+    {
+        /*
+        ** if wrkref is passed in, get part&ftpcod from pckwrk_hdr and calcuate the max
+        ** uom that is pickable for source area, valid for part&ftpcod and 
+        ** untqty % untqty of uom = 0.
+        ** if there is no pickabel uom for area, we assume that all uomcod are pickable.
+        */
+        if (@wrkref and @wrkref != '')
+        {
+            /*
+            ** For either start pallet or threshold picking, we will pick the inventory
+            ** in the load level. Here we will return the uom even it is not pickable.
+            */
+            [select thresh_pck_flg, start_pal_flg, alloc_max_uom_rpl_flg, wrktyp
+               from pckwrk_hdr p
+                    left join locmst l
+                     on p.srcloc = l.stoloc
+                    and l.wh_id = p.wh_id
+                    left join mov_zone m
+                     on l.mov_zone_id = m.mov_zone_id
+              where wrkref = @wrkref]
+            |
+            if ((@thresh_pck_flg#onstack and @thresh_pck_flg = 1)
+                or (@start_pal_flg#onstack and @start_pal_flg = 1)
+                or (@alloc_max_uom_rpl_flg#onstack and @alloc_max_uom_rpl_flg = 1 
+                    and (@wrktyp = 'T' or @wrktyp = 'R' or @wrktyp = 'M' 
+                    or @wrktyp = 'G' or @wrktyp = 'E' or @wrktyp = 'D')))
+            {
+                [select prtftp_dtl.uomcod,
+                        prtftp_dtl.untqty qty_per_uom
+                   from prtftp_dtl,pckwrk_hdr
+                  where prtftp_dtl.prtnum = pckwrk_hdr.prtnum
+                    and prtftp_dtl.prt_client_id = pckwrk_hdr.prt_client_id
+                    and prtftp_dtl.wh_id = pckwrk_hdr.wh_id
+                    and prtftp_dtl.ftpcod = pckwrk_hdr.ftpcod
+                    and mod(@untqty, prtftp_dtl.untqty) = 0
+                    and pckwrk_hdr.wrkref = @wrkref
+                  order by prtftp_dtl.uomlvl DESC] >> res
+                |
+                publish top rows
+                    where rows = 1
+                |
+                publish data
+                    where uomqty = int(@untqty/@qty_per_uom)
+                      and uomcod = @uomcod
+            }
+            else
+            {
+                /*
+                ** If the pick was converted from PIP pick, the untcas
+                ** can be 0, if so let's use case qty from prtftp_dtl
+                */
+                [select prtftp_dtl.uomcod,
+                        prtftp_dtl.untqty qty_per_uom,
+                        decode(pckwrk_hdr.untcas, 0, prtftp_dtl.untqty, pckwrk_hdr.untcas) untcas,
+                        prtftp_dtl.cas_flg
+                   from prtftp_dtl,pckwrk_hdr
+                  where prtftp_dtl.prtnum = pckwrk_hdr.prtnum
+                    and prtftp_dtl.prt_client_id = pckwrk_hdr.prt_client_id
+                    and prtftp_dtl.wh_id = pckwrk_hdr.wh_id
+                    and prtftp_dtl.ftpcod = pckwrk_hdr.ftpcod
+                    and (exists (select 'x'
+                                  from locmst l, loc_typ lt 
+                                 where l.stoloc = pckwrk_hdr.srcloc
+                                   and l.wh_id  = pckwrk_hdr.wh_id
+                                   and lt.loc_typ_id = l.loc_typ_id
+                                   and lt.wh_id = l.wh_id
+                                   and lt.xdaflg = 1
+                                )
+                        or exists (select 'x'
+                                  from locmst l
+                                       join alloc_search_path_rule aspr
+                                          on aspr.pck_zone_id = l.pck_zone_id
+                                       join alloc_search_path asp
+                                          on aspr.alloc_search_path_id = asp.alloc_search_path_id
+                                       and l.wh_id = asp.wh_id
+                                 where l.stoloc = pckwrk_hdr.srcloc
+                                   and l.wh_id  = pckwrk_hdr.wh_id
+                                   and (aspr.uomcod = prtftp_dtl.uomcod
+                                        or aspr.uomcod is null))
+                        )
+                    and pckwrk_hdr.wrkref = @wrkref
+                    and mod(@untqty, prtftp_dtl.untqty) = 0
+                    and prtftp_dtl.uomcod not in (select rtstr1 from poldat_view where  poldat_view.wh_id=@wh_id and poldat_view.polcod='USR-RF-FORM' and poldat_view.polvar='DSP_UOM' and poldat_view.polval='SKIP' and poldat_view.rtnum1=1 )
+                  order by prtftp_dtl.uomlvl DESC] >> res
+                /*
+                ** redirecting the results to a result set (res) and
+                ** publish the top row.
+                ** The other way to achieve the top row was to use rownum < 2
+                ** and then order by desc.
+                ** This would only get the result set of the first row
+                ** and the 'order by desc' will not give me the appropriate results.
+                */
+                |
+                publish top rows
+                    where rows = 1
+                |
+                if(@cas_flg = 0)
+                {
+                    publish data
+                        where uomqty = int(@untqty/@qty_per_uom)
+                          and uomcod = @uomcod
+                }
+                else
+                {
+                    publish data
+                        where uomqty = int(@untqty/@untcas)
+                          and uomcod = @uomcod
+                }
+            }
+        }
+        else
+        {
+            /*
+            ** ftpcod is optional. max()/min() is used to get the ONLY one.
+            */
+            [select count(distinct ivd.ftpcod) ftpcod_count, max(ivd.ftpcod) max_ftpcod
+               from invdtl ivd, invsub ivs, invlod ivl
+              where ivd.subnum = ivs.subnum
+                and ivs.lodnum = ivl.lodnum
+                and ivl.wh_id = @wh_id
+                and ivl.stoloc = @stoloc
+                and ivd.prtnum = @prtnum
+                and ivd.prt_client_id = @prt_client_id
+                and @+ivd.ftpcod]
+            |
+            /*
+            ** stoloc is mixed on ftpcod, just using the stocking uom of part.
+            */
+            if (@ftpcod_count > 1)
+            {
+                [select stkuom
+                   from prtmst_view
+                  where prtnum = @prtnum
+                    and prt_client_id = @prt_client_id
+                    and wh_id = @wh_id]
+                |
+                publish data
+                    where uomqty = @untqty
+                      and uomcod = @stkuom
+            }
+            /*
+            ** Single ftpcod, get max uom which is valid for part&ftpcod and pickable
+            ** for area, and untqty%untqty of uom = 0.
+            */
+            else if (@ftpcod_count = 1)
+            {
+                [select prtftp_dtl.uomcod,
+                        prtftp_dtl.untqty qty_per_uom
+                   from prtftp_dtl, locmst
+                  where prtftp_dtl.prtnum = @prtnum
+                    and prtftp_dtl.prt_client_id = @prt_client_id
+                    and prtftp_dtl.wh_id = @wh_id
+                    and prtftp_dtl.ftpcod = @max_ftpcod
+                    and locmst.wh_id = @wh_id
+                    and locmst.stoloc = @stoloc
+                    and (locmst.pck_zone_id is null
+                         or
+                         exists (select 'x'
+                                   from alloc_search_path_rule
+                                  where alloc_search_path_rule.pck_zone_id = locmst.pck_zone_id
+                                    and alloc_search_path_rule.uomcod = prtftp_dtl.uomcod
+                                     or alloc_search_path_rule.uomcod is null))
+                    and mod(@untqty, prtftp_dtl.untqty) = 0
+                    and prtftp_dtl.uomcod not in (select rtstr1 from poldat_view where  poldat_view.wh_id=@wh_id and poldat_view.polcod='USR-RF-FORM' and poldat_view.polvar='DSP_UOM' and poldat_view.polval='SKIP' and poldat_view.rtnum1=1 )
+                  order by prtftp_dtl.uomlvl DESC] >> res
+                /*
+                ** redirecting the results to a result set (res) and
+                ** publish the top row.
+                ** The other way to achieve the top row was to use rownum < 2
+                ** and then order by desc. 
+                ** This would only get the result set of the first row 
+                ** and the 'order by desc' will not give me the appropriate results.
+                */
+                |
+                publish top rows
+                    where rows = 1
+                |
+                publish data
+                    where uomqty = int(@untqty/@qty_per_uom)
+                      and uomcod = @uomcod
+            }
+            else
+            {
+                /*
+                ** There is no valid inventory at the location
+                */
+                set return status
+                    where status = -1403
+            }
+        }
+    }
+    |
+    list code descriptions 
+        where colnam = 'uomcod'
+          and codval = @uomcod
+    |
+    publish data
+        where uomqty = @uomqty
+          and uomcod = @uomcod
+          and uomdsc = @lngdsc
+
+]]>
+</local-syntax>
+
+<argument name="prtnum">Part Number</argument>
+<argument name="prt_client_id">Part Client ID</argument>
+<argument name="stoloc">Picking from location</argument>
+<argument name="wh_id">Warehouse ID</argument>
+<argument name="untqty">Pick Quantity by Each</argument>
+<argument name="wrkref">Work Reference</argument>
+<argument name="ftpcod">Footprint Code</argument>
+
+<documentation>
+<remarks>
+<![CDATA[
+  <p>
+    This command will calculate the quantity for picking UOM
+    according to the part/part client id/pckqty. if wrkref is passed
+    it would use part&ftpcod of pick and find the max uom which is
+    valid for part&ftpcod, pickable for source area and divides untqty 
+    without reminder. if only stoloc is passed, we will check if
+    ftpcod is mixed at the locaiton, if it is mixed, use stkuom of the part
+    else find the the max uom which is valid for part&ftpcod, pickable 
+    for source area and divides untqty without reminder.
+    2020-06-22 Marco Schouwenaar custom override to skip the UOM on the policies USR-RF-FORM, DSP_UOM, SKIP
+  </p>
+]]>
+</remarks>
+
+<exception value="eOK">Normal successful completion</exception>
+
+</documentation>
+</command>

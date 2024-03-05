@@ -1,0 +1,863 @@
+<command>
+  <name>list usr inventory receipt rm</name>
+  <description>list usr inventory receipt rm</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* list usr inventory receipt rm
+ * herschreven command voor RFH logica
+ * stack variables hidden to prevent filtering on truck or invnum 
+ * Version history:
+ *  2018-11-12  Jasper - Added hiding of stack variables invnum and trknum
+ *  2019-02-22  Jasper - Added EAB/ASN missing flag
+ *  2019-11-15  Jasper - added location fields
+ *  2020-10-14  Radina Ivanova - removed the check for tot_rcvqty > 0 so that lines adjusted to 0 are also included;
+                                 hide subnum/dtlnum so that we get all inventory for the current LPN
+ */
+[select 'x'
+   from invlod
+  where lodnum = @lodnum] catch(-1403)
+|
+if (@? = -1403 or @lodnum = null)
+{
+    hide stack variable
+     where name = 'lodnum'
+}
+|
+if (@lodnum != null and @subnum != null)
+{
+    [select lodnum sublod
+       from invsub
+      where subnum = @subnum] catch(-1403)
+    |
+    if (@? = 0 and @lodnum != @sublod)
+    {
+        hide stack variable
+         where name = 'lodnum'
+    }
+}
+|
+hide stack variable
+ where name = 'trknum'
+|
+hide stack variable
+ where name = 'invnum'
+|
+hide stack variable
+ where name = 'supnum'
+|
+hide stack variable
+ where name = 'subnum'
+|
+hide stack variable
+ where name = 'dtlnum'
+|
+hide stack variable
+ where name = 'rcvkey'
+|
+get session variable
+ where name = 'lodnum_orig' catch(-1403)
+|
+if (@? = 0)
+{
+    publish data
+     where lodnum_orig = @value
+}
+|
+if (@lodnum_orig = null)
+{
+    publish data
+     where lodnum_orig = @lodnum
+}
+|
+get session variable
+ where name = 'subnum_orig' catch(-1403)
+|
+if (@? = 0)
+{
+    publish data
+     where subnum_orig = @value
+}
+|
+if (@subnum_orig = null and @subnum != null)
+{
+    publish data
+     where subnum_orig = @subnum
+}
+|
+/* Get the supnum used for production */
+get cached policy
+ where polcod = 'WORK-ORDER-PROCESSING'
+   and polvar = 'MISCELLANEOUS'
+   and polval = 'CREATE-INV-DEFAULTS'
+   and @+wh_id catch(-1403)
+|
+if (@? = 0)
+{
+    if (@rtnum1 = 1 and @rtstr1 is not null)
+    {
+        publish data
+         where prod_supnum = @rtstr1
+    }
+    else
+    {
+        publish data
+         where prod_supnum = 'PROD'
+    }
+}
+else
+{
+    publish data
+     where prod_supnum = 'PROD'
+}
+|
+/* USED BY TRNX:  INV-RCV / SUMM - EO SEGMENT */
+if (@summFlg = 1)
+{
+    /* Get the fields to summarize by the INV-RCV SUMMARY segment.
+     * This section will generate a dynamic set of fields which are use
+     * later by the SQL code as flags to know if is a summary field or not.
+     * Use local context to only publish out the fields to summarize by.
+     */
+    list assigned inventory attributes to summarize
+     where wh_id = @wh_id
+       and show_dtls = 0 >> res
+    |
+    /* Flatten the result and put all the field to summarize by in context */
+    [[
+        strIndex = 0;
+        selby_grpby = "";
+        res.reset();
+        while (res.next()) {
+            if (!selby_grpby.equals(""))
+            {
+                selby_grpby += ", "
+            }
+
+            colnam = res.getString("colnam");
+            if (colnam.contains(".")) {
+                strIndex = colnam.indexOf(".") + 1;
+            }
+
+            selby_grpby += "invrcv_eo_dtl." + colnam.substring(strIndex);
+        }
+        if (!selby_grpby.equals(""))
+        {
+            selby_grpby = ", " + selby_grpby;
+        }
+        else
+        {
+            selby_grpby;
+        }
+    ]]
+}
+/* USED BY TRNX:  INV-RCV / DTL - EO SEGMENT */
+else
+{
+    /* Force the summarize by all fields..
+     * This is equivalent to having no summarizaiton at all.
+     */
+    publish data
+     where selby_grpby = ", invrcv_eo_dtl.orgcod, " || "invrcv_eo_dtl.orig_orgcod, " || "invrcv_eo_dtl.revlvl, " || "invrcv_eo_dtl.orig_revlvl, " || "invrcv_eo_dtl.lotnum, " || "invrcv_eo_dtl.orig_lotnum, " || "invrcv_eo_dtl.sup_lotnum, " || "invrcv_eo_dtl.orig_sup_lotnum, " || "invrcv_eo_dtl.mandte, " || "invrcv_eo_dtl.orig_mandte, " || "invrcv_eo_dtl.expire_dte, " || "invrcv_eo_dtl.orig_expire_dte, " || "invrcv_eo_dtl.inv_attr_str1, " || "invrcv_eo_dtl.orig_inv_attr_str1, " || "invrcv_eo_dtl.inv_attr_str2, " || "invrcv_eo_dtl.orig_inv_attr_str2, " || "invrcv_eo_dtl.inv_attr_str3, " || "invrcv_eo_dtl.orig_inv_attr_str3, " || "invrcv_eo_dtl.inv_attr_str4, " || "invrcv_eo_dtl.orig_inv_attr_str4, " || "invrcv_eo_dtl.inv_attr_str5, " || "invrcv_eo_dtl.orig_inv_attr_str5, " || "invrcv_eo_dtl.inv_attr_str6, " || "invrcv_eo_dtl.orig_inv_attr_str6, " || "invrcv_eo_dtl.inv_attr_str7, " || "invrcv_eo_dtl.orig_inv_attr_str7, " || "invrcv_eo_dtl.inv_attr_str8, " || "invrcv_eo_dtl.orig_inv_attr_str8, " || "invrcv_eo_dtl.inv_attr_str9, " || "invrcv_eo_dtl.orig_inv_attr_str9, " || "invrcv_eo_dtl.inv_attr_str10, " || "invrcv_eo_dtl.orig_inv_attr_str10, " || "invrcv_eo_dtl.inv_attr_str11, " || "invrcv_eo_dtl.orig_inv_attr_str11, " || "invrcv_eo_dtl.inv_attr_str12, " || "invrcv_eo_dtl.orig_inv_attr_str12, " || "invrcv_eo_dtl.inv_attr_str13, " || "invrcv_eo_dtl.orig_inv_attr_str13, " || "invrcv_eo_dtl.inv_attr_str14, " || "invrcv_eo_dtl.orig_inv_attr_str14, " || "invrcv_eo_dtl.inv_attr_str15, " || "invrcv_eo_dtl.orig_inv_attr_str15, " || "invrcv_eo_dtl.inv_attr_str16, " || "invrcv_eo_dtl.orig_inv_attr_str16, " || "invrcv_eo_dtl.inv_attr_str17, " || "invrcv_eo_dtl.orig_inv_attr_str17, " || "invrcv_eo_dtl.inv_attr_str18, " || "invrcv_eo_dtl.orig_inv_attr_str18, " || "invrcv_eo_dtl.inv_attr_int1, " || "invrcv_eo_dtl.orig_inv_attr_int1, " || "invrcv_eo_dtl.inv_attr_int2, " || "invrcv_eo_dtl.orig_inv_attr_int2, " || "invrcv_eo_dtl.inv_attr_int3, " || "invrcv_eo_dtl.orig_inv_attr_int3, " || "invrcv_eo_dtl.inv_attr_int4, " || "invrcv_eo_dtl.orig_inv_attr_int4, " || "invrcv_eo_dtl.inv_attr_int5, " || "invrcv_eo_dtl.orig_inv_attr_int5, " || "invrcv_eo_dtl.inv_attr_flt1, " || "invrcv_eo_dtl.orig_inv_attr_flt1, " || "invrcv_eo_dtl.inv_attr_flt2, " || "invrcv_eo_dtl.orig_inv_attr_flt2, " || "invrcv_eo_dtl.inv_attr_flt3, " || "invrcv_eo_dtl.orig_inv_attr_flt3, " || "invrcv_eo_dtl.inv_attr_dte1, " || "invrcv_eo_dtl.orig_inv_attr_dte1, " || "invrcv_eo_dtl.inv_attr_dte2, " || "invrcv_eo_dtl.orig_inv_attr_dte2, " || "invrcv_eo_dtl.asnflg "
+       and summFlg = 0
+}
+|
+/* Allows using of bind variables*/
+publish data
+ where defaultString = '/*#nobind*/''----''/*#bind*/'
+   and defaultDateTimeFormat = '/*#nobind*/''YYYYMMDDHH24MISS''/*#bind*/'
+   and oneConstant = '/*#nobind*/''1''/*#bind*/'
+   and zeroConstant = '/*#nobind*/''0''/*#bind*/'
+|
+/* This query drives the INV-RCV EO segments for DTL and SUMM.
+ * The major difference for the two EO segments is the summarize
+ * functionality which is driven by the last outer selection.
+ * The normail DTL segment will not summarize by any fields.
+ * To avoid having the same complex query two times, we will
+ * just use the core one which gets all the details and then
+ * use an outer sub-selct which will make the correct group by
+ * based on the transaction grouping configuraiton.  The section
+ * which is relevant to the the core details of the transaction
+ * will be marked and documented below.  Please keep this query
+ * well organized.
+ */
+[/* START:  EO SEGMENT - SUMM - QUERY GROUPING */
+ select invrcv_eo_dtl.trknum,
+        invrcv_eo_dtl.supnum,
+        invrcv_eo_dtl.invnum,
+        invrcv_eo_dtl.invlin,
+        invrcv_eo_dtl.invsln,
+        invrcv_eo_dtl.wh_id,
+        invrcv_eo_dtl.invtyp,
+        invrcv_eo_dtl.lodnum,
+        invrcv_eo_dtl.prtnum,
+        invrcv_eo_dtl.prt_client_id,
+        invrcv_eo_dtl.expqty expqty,
+        nvl(sum(invrcv_eo_dtl.rcvqty), @zeroConstant:raw) rcvqty,
+        invrcv_eo_dtl.exp_catch_qty exp_catch_qty,
+        nvl(sum(invrcv_eo_dtl.rcv_catch_qty), @zeroConstant:raw) rcv_catch_qty,
+        nvl(invrcv_eo_dtl.tot_rcvqty, @zeroConstant:raw) tot_rcvqty,
+        invrcv_eo_dtl.rimflg,
+        invrcv_eo_dtl.completed_date,
+        invrcv_eo_dtl.rcvsts,
+        invrcv_eo_dtl.orig_rcvsts,
+        invrcv_eo_dtl.lens_invsts,
+        invrcv_eo_dtl.ponum,
+        invrcv_eo_dtl.polin,
+        invrcv_eo_dtl.stkuom,
+        invrcv_eo_dtl.retcod,
+        invrcv_eo_dtl.catch_unttyp,
+        invrcv_eo_dtl.cnsg_flg,
+        invrcv_eo_dtl.trlr_num,
+        invrcv_eo_dtl.carcod,
+        invrcv_eo_dtl.owner,
+        invrcv_eo_dtl.cstms_cnsgnmnt_id,
+        invrcv_eo_dtl.rcvkey,
+        invrcv_eo_dtl.dtlnum,
+        invrcv_eo_dtl.hld_flg,
+        invrcv_eo_dtl.blind_flg,
+        invrcv_eo_dtl.ship_line_id,
+        /*Start changes JR */
+        invrcv_eo_dtl.uc_guid_hst,
+        invrcv_eo_dtl.orgref,
+        invrcv_eo_dtl.init_rcv_dte,
+        (select (case when sign(count(*)) = 0 then 1
+                      else 0
+                 end)
+           from inventory_view
+          inner
+           join hldhst
+             on hldhst.dtlnum = inventory_view.dtlnum
+          where inventory_view.lodnum = invrcv_eo_dtl.lodnum
+            and hldhst.hldpfx = invrcv_eo_dtl.wh_id
+            and hldhst.hldnum = 'EAB.ABS') EAB_ABS_FLG,
+        (select max(invlod.asset_typ)
+           from invlod
+          where invlod.lodnum = invrcv_eo_dtl.lodnum) asset_typ,
+		(select max(locmst.arecod)
+           from invlod
+			inner
+			 join locmst
+				on locmst.stoloc = invlod.stoloc
+          where invlod.lodnum = invrcv_eo_dtl.lodnum) arecod,
+        (select max(invlod.stoloc)
+           from invlod
+          where invlod.lodnum = invrcv_eo_dtl.lodnum) stoloc,
+        (select max(load_attr1_flg)
+           from invlod
+          where invlod.lodnum = invrcv_eo_dtl.lodnum) load_attr1_flg,
+        (select max(load_attr2_flg)
+           from invlod
+          where invlod.lodnum = invrcv_eo_dtl.lodnum) load_attr2_flg,
+        (select max(load_attr3_flg)
+           from invlod
+          where invlod.lodnum = invrcv_eo_dtl.lodnum) load_attr3_flg,
+        (select max(load_attr4_flg)
+           from invlod
+          where invlod.lodnum = invrcv_eo_dtl.lodnum) load_attr4_flg,
+        (select max(load_attr5_flg)
+           from invlod
+          where invlod.lodnum = invrcv_eo_dtl.lodnum) load_attr5_flg @selby_grpby:raw
+        /* START:  EO SEGMENT - DTL - QUERY */
+   from (SELECT /* get general content */
+                invrcv_data.trknum trknum,
+                invrcv_data.supnum supnum,
+                invrcv_data.invnum,
+                invrcv_data.invlin invlin,
+                invrcv_data.invsln invsln,
+                invrcv_data.wh_id wh_id,
+                invrcv_data.invtyp,
+                @lodnum_orig lodnum,
+                @subnum_orig subnum,
+                invrcv_data.prtnum prtnum,
+                invrcv_data.prt_client_id prt_client_id,
+                invrcv_data.expqty expqty,
+                invrcv_data.rcvqty rcvqty,
+                invrcv_data.tot_rcvqty tot_rcvqty,
+                invrcv_data.rimflg rimflg,
+                invrcv_data.exp_catch_qty exp_catch_qty,
+                invrcv_data.rcv_catch_qty rcv_catch_qty,
+                invrcv_data.rcvsts rcvsts,
+                invrcv_data.orig_rcvsts orig_rcvsts,
+                decode(@hld_flg, @oneConstant:raw, 'H', invrcv_data.rcvsts) lens_invsts,
+                invrcv_data.po_num ponum,
+                invrcv_data.completed_date completed_date,
+                invrcv_data.invlin polin,
+                invrcv_data.stkuom stkuom,
+                invrcv_data.retcod retcod,
+                invrcv_data.catch_unttyp catch_unttyp,
+                @cnsg_flg cnsg_flg,
+                invrcv_data.trlr_num trlr_num,
+                invrcv_data.carcod carcod,
+                invrcv_data.cstms_cnsgnmnt_id owner,
+                invrcv_data.asnflg asnflg,
+                invrcv_data.cstms_cnsgnmnt_id cstms_cnsgnmnt_id,
+                /* to sumarize, force these fields to empty */
+                decode(@summFlg, @oneConstant:raw, '', invrcv_data.rcvkey) rcvkey,
+                decode(@summFlg, @oneConstant:raw, '', invrcv_data.dtlnum) dtlnum,
+                decode(@summFlg, @oneConstant:raw, '', invrcv_data.hld_flg) hld_flg,
+                invrcv_data.blind_flg,
+                invrcv_data.ship_line_id,
+                invrcv_data.lot_sts,
+                /* get inventory attribute values */
+                decode(rtrim(invrcv_data.orgcod), @defaultString:raw, null, invrcv_data.orgcod) orgcod,
+                decode(rtrim(invrcv_data.orig_orgcod), @defaultString:raw, null, invrcv_data.orig_orgcod) orig_orgcod,
+                decode(rtrim(invrcv_data.revlvl), @defaultString:raw, null, invrcv_data.revlvl) revlvl,
+                decode(rtrim(invrcv_data.orig_revlvl), @defaultString:raw, null, invrcv_data.orig_revlvl) orig_revlvl,
+                decode(rtrim(invrcv_data.lotnum), @defaultString:raw, null, invrcv_data.lotnum) lotnum,
+                decode(rtrim(invrcv_data.orig_lotnum), @defaultString:raw, null, invrcv_data.orig_lotnum) orig_lotnum,
+                decode(rtrim(invrcv_data.sup_lotnum), @defaultString:raw, null, invrcv_data.sup_lotnum) sup_lotnum,
+                decode(rtrim(invrcv_data.orig_sup_lotnum), @defaultString:raw, null, invrcv_data.orig_sup_lotnum) orig_sup_lotnum,
+                to_char(invrcv_data.mandte, @defaultDateTimeFormat:raw) mandte,
+                to_char(invrcv_data.orig_mandte, @defaultDateTimeFormat:raw) orig_mandte,
+                to_char(invrcv_data.expire_dte, @defaultDateTimeFormat:raw) expire_dte,
+                to_char(invrcv_data.orig_expire_dte, @defaultDateTimeFormat:raw) orig_expire_dte,
+                decode(rtrim(invrcv_data.inv_attr_str1), @defaultString:raw, null, invrcv_data.inv_attr_str1) inv_attr_str1,
+                decode(rtrim(invrcv_data.orig_inv_attr_str1), @defaultString:raw, null, invrcv_data.orig_inv_attr_str1) orig_inv_attr_str1,
+                decode(rtrim(invrcv_data.inv_attr_str2), @defaultString:raw, null, invrcv_data.inv_attr_str2) inv_attr_str2,
+                decode(rtrim(invrcv_data.orig_inv_attr_str2), @defaultString:raw, null, invrcv_data.orig_inv_attr_str2) orig_inv_attr_str2,
+                decode(rtrim(invrcv_data.inv_attr_str3), @defaultString:raw, null, invrcv_data.inv_attr_str3) inv_attr_str3,
+                decode(rtrim(invrcv_data.orig_inv_attr_str3), @defaultString:raw, null, invrcv_data.orig_inv_attr_str3) orig_inv_attr_str3,
+                decode(rtrim(invrcv_data.inv_attr_str4), @defaultString:raw, null, invrcv_data.inv_attr_str4) inv_attr_str4,
+                decode(rtrim(invrcv_data.orig_inv_attr_str4), @defaultString:raw, null, invrcv_data.orig_inv_attr_str4) orig_inv_attr_str4,
+                decode(rtrim(invrcv_data.inv_attr_str5), @defaultString:raw, null, invrcv_data.inv_attr_str5) inv_attr_str5,
+                decode(rtrim(invrcv_data.orig_inv_attr_str5), @defaultString:raw, null, invrcv_data.orig_inv_attr_str5) orig_inv_attr_str5,
+                decode(rtrim(invrcv_data.inv_attr_str6), @defaultString:raw, null, invrcv_data.inv_attr_str6) inv_attr_str6,
+                decode(rtrim(invrcv_data.orig_inv_attr_str6), @defaultString:raw, null, invrcv_data.orig_inv_attr_str6) orig_inv_attr_str6,
+                decode(rtrim(invrcv_data.inv_attr_str7), @defaultString:raw, null, invrcv_data.inv_attr_str7) inv_attr_str7,
+                decode(rtrim(invrcv_data.orig_inv_attr_str7), @defaultString:raw, null, invrcv_data.orig_inv_attr_str7) orig_inv_attr_str7,
+                decode(rtrim(invrcv_data.inv_attr_str8), @defaultString:raw, null, invrcv_data.inv_attr_str8) inv_attr_str8,
+                decode(rtrim(invrcv_data.orig_inv_attr_str8), @defaultString:raw, null, invrcv_data.orig_inv_attr_str8) orig_inv_attr_str8,
+                decode(rtrim(invrcv_data.inv_attr_str9), @defaultString:raw, null, invrcv_data.inv_attr_str9) inv_attr_str9,
+                decode(rtrim(invrcv_data.orig_inv_attr_str9), @defaultString:raw, null, invrcv_data.orig_inv_attr_str9) orig_inv_attr_str9,
+                decode(rtrim(invrcv_data.inv_attr_str10), @defaultString:raw, null, invrcv_data.inv_attr_str10) inv_attr_str10,
+                decode(rtrim(invrcv_data.orig_inv_attr_str10), @defaultString:raw, null, invrcv_data.orig_inv_attr_str10) orig_inv_attr_str10,
+                decode(rtrim(invrcv_data.inv_attr_str11), @defaultString:raw, null, invrcv_data.inv_attr_str11) inv_attr_str11,
+                decode(rtrim(invrcv_data.orig_inv_attr_str11), @defaultString:raw, null, invrcv_data.orig_inv_attr_str11) orig_inv_attr_str11,
+                decode(rtrim(invrcv_data.inv_attr_str12), @defaultString:raw, null, invrcv_data.inv_attr_str12) inv_attr_str12,
+                decode(rtrim(invrcv_data.orig_inv_attr_str12), @defaultString:raw, null, invrcv_data.orig_inv_attr_str12) orig_inv_attr_str12,
+                decode(rtrim(invrcv_data.inv_attr_str13), @defaultString:raw, null, invrcv_data.inv_attr_str13) inv_attr_str13,
+                decode(rtrim(invrcv_data.orig_inv_attr_str13), @defaultString:raw, null, invrcv_data.orig_inv_attr_str13) orig_inv_attr_str13,
+                decode(rtrim(invrcv_data.inv_attr_str14), @defaultString:raw, null, invrcv_data.inv_attr_str14) inv_attr_str14,
+                decode(rtrim(invrcv_data.orig_inv_attr_str14), @defaultString:raw, null, invrcv_data.orig_inv_attr_str14) orig_inv_attr_str14,
+                decode(rtrim(invrcv_data.inv_attr_str15), @defaultString:raw, null, invrcv_data.inv_attr_str15) inv_attr_str15,
+                decode(rtrim(invrcv_data.orig_inv_attr_str15), @defaultString:raw, null, invrcv_data.orig_inv_attr_str15) orig_inv_attr_str15,
+                decode(rtrim(invrcv_data.inv_attr_str16), @defaultString:raw, null, invrcv_data.inv_attr_str16) inv_attr_str16,
+                decode(rtrim(invrcv_data.orig_inv_attr_str16), @defaultString:raw, null, invrcv_data.orig_inv_attr_str16) orig_inv_attr_str16,
+                decode(rtrim(invrcv_data.inv_attr_str17), @defaultString:raw, null, invrcv_data.inv_attr_str17) inv_attr_str17,
+                decode(rtrim(invrcv_data.orig_inv_attr_str17), @defaultString:raw, null, invrcv_data.orig_inv_attr_str17) orig_inv_attr_str17,
+                decode(rtrim(invrcv_data.inv_attr_str18), @defaultString:raw, null, invrcv_data.inv_attr_str18) inv_attr_str18,
+                decode(rtrim(invrcv_data.orig_inv_attr_str18), @defaultString:raw, null, invrcv_data.orig_inv_attr_str18) orig_inv_attr_str18,
+                invrcv_data.inv_attr_int1 inv_attr_int1,
+                invrcv_data.orig_inv_attr_int1 orig_inv_attr_int1,
+                invrcv_data.inv_attr_int2 inv_attr_int2,
+                invrcv_data.orig_inv_attr_int2 orig_inv_attr_int2,
+                invrcv_data.inv_attr_int3 inv_attr_int3,
+                invrcv_data.orig_inv_attr_int3 orig_inv_attr_int3,
+                invrcv_data.inv_attr_int4 inv_attr_int4,
+                invrcv_data.orig_inv_attr_int4 orig_inv_attr_int4,
+                invrcv_data.inv_attr_int5 inv_attr_int5,
+                invrcv_data.orig_inv_attr_int5 orig_inv_attr_int5,
+                invrcv_data.inv_attr_flt1 inv_attr_flt1,
+                invrcv_data.orig_inv_attr_flt1 orig_inv_attr_flt1,
+                invrcv_data.inv_attr_flt2 inv_attr_flt2,
+                invrcv_data.orig_inv_attr_flt2 orig_inv_attr_flt2,
+                invrcv_data.inv_attr_flt3 inv_attr_flt3,
+                invrcv_data.orig_inv_attr_flt3 orig_inv_attr_flt3,
+                to_char(invrcv_data.inv_attr_dte1, @defaultDateTimeFormat:raw) inv_attr_dte1,
+                to_char(invrcv_data.orig_inv_attr_dte1, @defaultDateTimeFormat:raw) orig_inv_attr_dte1,
+                to_char(invrcv_data.inv_attr_dte2, @defaultDateTimeFormat:raw) inv_attr_dte2,
+                to_char(invrcv_data.orig_inv_attr_dte2, @defaultDateTimeFormat:raw) orig_inv_attr_dte2,
+                /*added JR */
+                invrcv_data.uc_guid_hst,
+                invrcv_data.orgref orgref,
+                invrcv_data.init_rcv_dte
+           from (select rcv.prtnum prtnum,
+                        rcv.prt_client_id prt_client_id,
+                        rcv.supnum supnum,
+                        rcv.invnum invnum,
+                        rcv.trknum trknum,
+                        rcv.invtyp invtyp,
+                        rcv.invlin invlin,
+                        rcv.invsln invsln,
+                        /* actual receive attributes */
+                        rcv.rcvsts rcvsts,
+                        rcv.lotnum lotnum,
+                        rcv.sup_lotnum sup_lotnum,
+                        rcv.orgcod orgcod,
+                        rcv.revlvl revlvl,
+                        rcv.mandte mandte,
+                        rcv.expire_dte expire_dte,
+                        rcv.blind_flg,
+                        rcv.ship_line_id,
+                        rcv.inv_attr_str1 inv_attr_str1,
+                        rcv.inv_attr_str2 inv_attr_str2,
+                        rcv.inv_attr_str3 inv_attr_str3,
+                        rcv.inv_attr_str4 inv_attr_str4,
+                        rcv.inv_attr_str5 inv_attr_str5,
+                        rcv.inv_attr_str6 inv_attr_str6,
+                        rcv.inv_attr_str7 inv_attr_str7,
+                        rcv.inv_attr_str8 inv_attr_str8,
+                        rcv.inv_attr_str9 inv_attr_str9,
+                        rcv.inv_attr_str10 inv_attr_str10,
+                        rcv.inv_attr_str11 inv_attr_str11,
+                        rcv.inv_attr_str12 inv_attr_str12,
+                        rcv.inv_attr_str13 inv_attr_str13,
+                        rcv.inv_attr_str14 inv_attr_str14,
+                        rcv.inv_attr_str15 inv_attr_str15,
+                        rcv.inv_attr_str16 inv_attr_str16,
+                        rcv.inv_attr_str17 inv_attr_str17,
+                        rcv.inv_attr_str18 inv_attr_str18,
+                        rcv.inv_attr_int1 inv_attr_int1,
+                        rcv.inv_attr_int2 inv_attr_int2,
+                        rcv.inv_attr_int3 inv_attr_int3,
+                        rcv.inv_attr_int4 inv_attr_int4,
+                        rcv.inv_attr_int5 inv_attr_int5,
+                        rcv.inv_attr_flt1 inv_attr_flt1,
+                        rcv.inv_attr_flt2 inv_attr_flt2,
+                        rcv.inv_attr_flt3 inv_attr_flt3,
+                        rcv.inv_attr_dte1 inv_attr_dte1,
+                        rcv.inv_attr_dte2 inv_attr_dte2,
+                        pm.stkuom stkuom,
+                        rcv.retcod retcod,
+                        nvl(rcv.rcvqty, @zeroConstant:raw) rcvqty,
+                        nvl(rcv.expqty, @zeroConstant:raw) expqty,
+                        totrcv.tot_rcvqty tot_rcvqty,
+                        nvl(rcv.exp_catch_qty, @zeroConstant:raw) exp_catch_qty,
+                        nvl(rcv.rcv_catch_qty, @zeroConstant:raw) rcv_catch_qty,
+                        /* originally expected receive attributes */
+                        nvl(rim.rcvsts, rcv.org_rcvlin_rcvsts) orig_rcvsts,
+                        nvl(rim.lotnum, rcv.org_rcvlin_lotnum) orig_lotnum,
+                        nvl(rim.sup_lotnum, rcv.org_rcvlin_sup_lotnum) orig_sup_lotnum,
+                        nvl(rim.orgcod, rcv.org_rcvlin_orgcod) orig_orgcod,
+                        nvl(rim.revlvl, rcv.org_rcvlin_revlvl) orig_revlvl,
+                        nvl(rim.mandte, rcv.org_rcvlin_mandte) orig_mandte,
+                        nvl(rim.expire_dte, rcv.org_rcvlin_expire_dte) orig_expire_dte,
+                        nvl(rim.inv_attr_str1, rcv.org_rcvlin_inv_attr_str1) orig_inv_attr_str1,
+                        nvl(rim.inv_attr_str2, rcv.org_rcvlin_inv_attr_str2) orig_inv_attr_str2,
+                        nvl(rim.inv_attr_str3, rcv.org_rcvlin_inv_attr_str3) orig_inv_attr_str3,
+                        nvl(rim.inv_attr_str4, rcv.org_rcvlin_inv_attr_str4) orig_inv_attr_str4,
+                        nvl(rim.inv_attr_str5, rcv.org_rcvlin_inv_attr_str5) orig_inv_attr_str5,
+                        nvl(rim.inv_attr_str6, rcv.org_rcvlin_inv_attr_str6) orig_inv_attr_str6,
+                        nvl(rim.inv_attr_str7, rcv.org_rcvlin_inv_attr_str7) orig_inv_attr_str7,
+                        nvl(rim.inv_attr_str8, rcv.org_rcvlin_inv_attr_str8) orig_inv_attr_str8,
+                        nvl(rim.inv_attr_str9, rcv.org_rcvlin_inv_attr_str9) orig_inv_attr_str9,
+                        nvl(rim.inv_attr_str10, rcv.org_rcvlin_inv_attr_str10) orig_inv_attr_str10,
+                        nvl(rim.inv_attr_str11, rcv.org_rcvlin_inv_attr_str11) orig_inv_attr_str11,
+                        nvl(rim.inv_attr_str12, rcv.org_rcvlin_inv_attr_str12) orig_inv_attr_str12,
+                        nvl(rim.inv_attr_str13, rcv.org_rcvlin_inv_attr_str13) orig_inv_attr_str13,
+                        nvl(rim.inv_attr_str14, rcv.org_rcvlin_inv_attr_str14) orig_inv_attr_str14,
+                        nvl(rim.inv_attr_str15, rcv.org_rcvlin_inv_attr_str15) orig_inv_attr_str15,
+                        nvl(rim.inv_attr_str16, rcv.org_rcvlin_inv_attr_str16) orig_inv_attr_str16,
+                        nvl(rim.inv_attr_str17, rcv.org_rcvlin_inv_attr_str17) orig_inv_attr_str17,
+                        nvl(rim.inv_attr_str18, rcv.org_rcvlin_inv_attr_str18) orig_inv_attr_str18,
+                        nvl(rim.inv_attr_int1, rcv.org_rcvlin_inv_attr_int1) orig_inv_attr_int1,
+                        nvl(rim.inv_attr_int2, rcv.org_rcvlin_inv_attr_int2) orig_inv_attr_int2,
+                        nvl(rim.inv_attr_int3, rcv.org_rcvlin_inv_attr_int3) orig_inv_attr_int3,
+                        nvl(rim.inv_attr_int4, rcv.org_rcvlin_inv_attr_int4) orig_inv_attr_int4,
+                        nvl(rim.inv_attr_int5, rcv.org_rcvlin_inv_attr_int5) orig_inv_attr_int5,
+                        nvl(rim.inv_attr_flt1, rcv.org_rcvlin_inv_attr_flt1) orig_inv_attr_flt1,
+                        nvl(rim.inv_attr_flt2, rcv.org_rcvlin_inv_attr_flt2) orig_inv_attr_flt2,
+                        nvl(rim.inv_attr_flt3, rcv.org_rcvlin_inv_attr_flt3) orig_inv_attr_flt3,
+                        nvl(rim.inv_attr_dte1, rcv.org_rcvlin_inv_attr_dte1) orig_inv_attr_dte1,
+                        nvl(rim.inv_attr_dte2, rcv.org_rcvlin_inv_attr_dte2) orig_inv_attr_dte2,
+                        decode(rim.expqty, null, 0, 1) rimflg,
+                        pm.catch_unttyp catch_unttyp,
+                        rcv.rcvkey,
+                        rcv.cnsg_flg,
+                        rcv.trlr_num,
+                        rcv.carcod,
+                        rcv.wh_id,
+                        rcv.cstms_cnsgnmnt_id,
+                        rcv.po_num,
+                        rcv.completed_date,
+                        rcv.asnflg,
+                        rcv.dtlnum,
+                        rcv.lot_sts,
+                        rcv.hld_flg,
+                        /*added JR */
+                        rcv.uc_guid_hst uc_guid_hst,
+                        rcv.orgref,
+                        rcv.init_rcv_dte
+                   from rimlin rim
+                  right outer
+                   join (/* Core query against receive line and inventory */
+                         select iv.dtlnum,
+                                iv.hld_flg,
+                                rcvlin.rcvkey,
+                                trlr.trlr_num,
+                                trlr.carcod,
+                                rcvlin.trknum,
+                                rcvlin.client_id,
+                                rcvlin.supnum,
+                                rcvlin.ship_line_id,
+                                rcvlin.invnum,
+                                /* Adding the PO_NUM column of the rcvinv in */
+                                /* order to do the joins */
+                                rcvinv_1.po_num,
+                                nvl(iv.completed_receiving_date, rcvinv_1.completed_date) completed_date,
+                                rcvlin.invlin,
+                                rcvlin.seqnum,
+                                rcvlin.wh_id,
+                                rcvlin.invsln,
+                                rcvlin.prtnum,
+                                rcvlin.prt_client_id,
+                                rcvlin.rcvsts,
+                                rcvlin.retcod,
+                                rcvlin.blind_flg,
+                                org_rcvlin.expqty expqty,
+                                /* use the inventory qty as this is
+                                 * what builds the receive qty
+                                 * If customer turn on auto consolidation and putaway inventory
+                                 * before triggering transaction
+                                 * sql doesn't return data for INVDTL table as rcvkey gets lost.
+                                 * Depending on the completion date, If the rcvkey is null then
+                                 * retrieving the rcvlin.rcvqty else iv.untqty.
+                                 */
+                                decode(nvl(iv.completed_receiving_date, rcvinv_1.completed_date), null, decode(@rcvkey, null, rcvlin.rcvqty, iv.untqty), iv.untqty) rcvqty,
+                                rcvlin.cnsg_flg,
+                                nvl(iv.asnflg, @zeroConstant:raw) asnflg,
+                                rcvlin.cstms_cnsgnmnt_id,
+                                /* actual receive inventory attributes */
+                                rcvlin.orgcod,
+                                rcvlin.revlvl,
+                                rcvlin.lotnum,
+                                rcvlin.sup_lotnum,
+                                org_rcvlin.exp_catch_qty,
+                                (select sum(line_summary.rcv_catch_qty)
+                                   from rcvlin line_summary
+                                  where line_summary.trknum = rcvlin.trknum
+                                    and line_summary.client_id = rcvlin.client_id
+                                    and line_summary.supnum = rcvlin.supnum
+                                    and line_summary.invnum = rcvlin.invnum
+                                    and line_summary.invlin = rcvlin.invlin
+                                    and line_summary.invsln = rcvlin.invsln
+                                    and line_summary.wh_id = rcvlin.wh_id) rcv_catch_qty,
+                                rcvlin.mandte,
+                                rcvlin.expire_dte,
+                                rcvlin.inv_attr_str1,
+                                rcvlin.inv_attr_str2,
+                                rcvlin.inv_attr_str3,
+                                rcvlin.inv_attr_str4,
+                                rcvlin.inv_attr_str5,
+                                rcvlin.inv_attr_str6,
+                                rcvlin.inv_attr_str7,
+                                rcvlin.inv_attr_str8,
+                                rcvlin.inv_attr_str9,
+                                rcvlin.inv_attr_str10,
+                                rcvlin.inv_attr_str11,
+                                rcvlin.inv_attr_str12,
+                                rcvlin.inv_attr_str13,
+                                rcvlin.inv_attr_str14,
+                                rcvlin.inv_attr_str15,
+                                rcvlin.inv_attr_str16,
+                                rcvlin.inv_attr_str17,
+                                rcvlin.inv_attr_str18,
+                                rcvlin.inv_attr_int1,
+                                rcvlin.inv_attr_int2,
+                                rcvlin.inv_attr_int3,
+                                rcvlin.inv_attr_int4,
+                                rcvlin.inv_attr_int5,
+                                rcvlin.inv_attr_flt1,
+                                rcvlin.inv_attr_flt2,
+                                rcvlin.inv_attr_flt3,
+                                rcvlin.inv_attr_dte1,
+                                rcvlin.inv_attr_dte2,
+                                /* original expected inventory attributes */
+                                org_rcvlin.rcvsts org_rcvlin_rcvsts,
+                                org_rcvlin.orgcod org_rcvlin_orgcod,
+                                org_rcvlin.revlvl org_rcvlin_revlvl,
+                                org_rcvlin.lotnum org_rcvlin_lotnum,
+                                org_rcvlin.sup_lotnum org_rcvlin_sup_lotnum,
+                                org_rcvlin.mandte org_rcvlin_mandte,
+                                org_rcvlin.expire_dte org_rcvlin_expire_dte,
+                                org_rcvlin.inv_attr_str1 org_rcvlin_inv_attr_str1,
+                                org_rcvlin.inv_attr_str2 org_rcvlin_inv_attr_str2,
+                                org_rcvlin.inv_attr_str3 org_rcvlin_inv_attr_str3,
+                                org_rcvlin.inv_attr_str4 org_rcvlin_inv_attr_str4,
+                                org_rcvlin.inv_attr_str5 org_rcvlin_inv_attr_str5,
+                                org_rcvlin.inv_attr_str6 org_rcvlin_inv_attr_str6,
+                                org_rcvlin.inv_attr_str7 org_rcvlin_inv_attr_str7,
+                                org_rcvlin.inv_attr_str8 org_rcvlin_inv_attr_str8,
+                                org_rcvlin.inv_attr_str9 org_rcvlin_inv_attr_str9,
+                                org_rcvlin.inv_attr_str10 org_rcvlin_inv_attr_str10,
+                                org_rcvlin.inv_attr_str11 org_rcvlin_inv_attr_str11,
+                                org_rcvlin.inv_attr_str12 org_rcvlin_inv_attr_str12,
+                                org_rcvlin.inv_attr_str13 org_rcvlin_inv_attr_str13,
+                                org_rcvlin.inv_attr_str14 org_rcvlin_inv_attr_str14,
+                                org_rcvlin.inv_attr_str15 org_rcvlin_inv_attr_str15,
+                                org_rcvlin.inv_attr_str16 org_rcvlin_inv_attr_str16,
+                                org_rcvlin.inv_attr_str17 org_rcvlin_inv_attr_str17,
+                                org_rcvlin.inv_attr_str18 org_rcvlin_inv_attr_str18,
+                                org_rcvlin.inv_attr_int1 org_rcvlin_inv_attr_int1,
+                                org_rcvlin.inv_attr_int2 org_rcvlin_inv_attr_int2,
+                                org_rcvlin.inv_attr_int3 org_rcvlin_inv_attr_int3,
+                                org_rcvlin.inv_attr_int4 org_rcvlin_inv_attr_int4,
+                                org_rcvlin.inv_attr_int5 org_rcvlin_inv_attr_int5,
+                                org_rcvlin.inv_attr_flt1 org_rcvlin_inv_attr_flt1,
+                                org_rcvlin.inv_attr_flt2 org_rcvlin_inv_attr_flt2,
+                                org_rcvlin.inv_attr_flt3 org_rcvlin_inv_attr_flt3,
+                                org_rcvlin.inv_attr_dte1 org_rcvlin_inv_attr_dte1,
+                                org_rcvlin.inv_attr_dte2 org_rcvlin_inv_attr_dte2,
+                                prtlot.lot_sts,
+                                /*added JR */
+                                rcvinv_1.orgref,
+                                rcvinv_1.invtyp,
+                                rcvinv_1.uc_guid_hst,
+                                rcvlin.init_rcv_dte
+                           from rcvlin
+                           join rcvtrk
+                             on (rcvtrk.trknum = rcvlin.trknum)
+                            and (rcvtrk.wh_id = rcvlin.wh_id)
+                           join rcvinv rcvinv_1
+                             on rcvinv_1.trknum = rcvlin.trknum
+                            and rcvinv_1.invnum = rcvlin.invnum
+                            and rcvinv_1.supnum = rcvlin.supnum
+                            and rcvinv_1.client_id = rcvlin.client_id
+                            and rcvinv_1.wh_id = rcvlin.wh_id
+                           left outer
+                           join trlr
+                             on (trlr.trlr_id = rcvtrk.trlr_id)
+                           left outer
+                           join all_inventory_view iv
+                             on (iv.rcvkey = rcvlin.rcvkey)
+                           left
+                           join prtlot
+                             on prtlot.lotnum = rcvlin.lotnum
+                            and prtlot.prtnum = rcvlin.prtnum
+                            and prtlot.prt_client_id = rcvlin.prt_client_id
+                            and prtlot.wh_id = rcvlin.wh_id
+                           join rcvlin org_rcvlin
+                             on org_rcvlin.trknum = rcvlin.trknum
+                            and org_rcvlin.client_id = rcvlin.client_id
+                            and org_rcvlin.supnum = rcvlin.supnum
+                            and org_rcvlin.invnum = rcvlin.invnum
+                            and org_rcvlin.invlin = rcvlin.invlin
+                            and org_rcvlin.invsln = rcvlin.invsln
+                            and org_rcvlin.wh_id = rcvlin.wh_id
+                            and ((org_rcvlin.supnum in (@prod_supnum, 'RET') and org_rcvlin.rcvkey = rcvlin.rcvkey) or org_rcvlin.seqnum = 0)
+                          where @+rcvlin.trknum
+                            and rcvlin.client_id = @client_id
+                            and @+rcvlin.supnum
+                            and @+rcvlin.invnum
+                            and rcvlin.wh_id = @wh_id
+                            and @+iv.lodnum
+                            and @+iv.subnum
+                            and @+iv.dtlnum
+                            and @+rcvlin.rcvkey
+                            and iv.dtlnum is not null
+							and iv.ship_line_id is null) rcv
+                     on (rim.prtnum = rcv.prtnum)
+                    and (rim.invlin = rcv.invlin)
+                    and (rim.invsln = rcv.invsln)
+                    and (rim.invnum = rcv.po_num)
+                    and (rim.supnum = rcv.supnum)
+                    and (rim.client_id = rcv.client_id)
+                    and (rim.wh_id = rcv.wh_id)
+                    and (rim.prt_client_id = rcv.prt_client_id)
+                   join prtmst_view pm
+                     on (rcv.wh_id = pm.wh_id)
+                    and (rcv.prtnum = pm.prtnum)
+                    and (rcv.prt_client_id = pm.prt_client_id)
+                        /* totrcv - calculates the total received per part */
+                        /*   If receipt is link to a PO it will look for */
+                        /*   the rcvqty accross all invoices.  This query */
+                        /*   can be done differently depending on how you */
+                        /*   need the tot_rcv_qty to be calculated. In this */
+                        /*   instance we are taking advantage of the soft */
+                        /*   join between PO and Invoices to calculate the */
+                        /*   total receive quantity for an item */
+                   left outer
+                   join (select all_rcvlin.client_id,
+                                all_rcvlin.supnum,
+                                all_rcvlin.invnum,
+                                rcvinv_4.po_num,
+                                all_rcvlin.invlin,
+                                all_rcvlin.invsln,
+                                all_rcvlin.seqnum,
+                                all_rcvlin.wh_id,
+                                all_rcvlin.blind_flg,
+                                all_rcvlin.ship_line_id,
+                                all_rcvlin.rcvqty tot_rcvqty
+                           from (
+                                 /* Get unique original lines (seqnum = 0) to consider */
+                                 /* and check if this invoice is linked to a PO. */
+                                 /* If it is we can do a soft join to all receive lines
+                                    /* linked to the PO by ignoring field:  trknum */
+                                 select decode(rimlin.invlin, null, 0, 1) rimflg,
+                                        cur_rcvlin.client_id,
+                                        cur_rcvlin.supnum,
+                                        rcvinv_3.po_num,
+                                        cur_rcvlin.invlin,
+                                        cur_rcvlin.invsln,
+                                        cur_rcvlin.seqnum,
+                                        cur_rcvlin.wh_id,
+                                        cur_rcvlin.blind_flg,
+                                        cur_rcvlin.ship_line_id,
+                                        decode(rimlin.invlin, null, cur_rcvlin.trknum, null) trknum
+                                   from rcvlin cur_rcvlin
+                                   join rcvinv rcvinv_3
+                                     on rcvinv_3.invnum = cur_rcvlin.invnum
+                                    and rcvinv_3.trknum = cur_rcvlin.trknum
+                                    and rcvinv_3.supnum = cur_rcvlin.supnum
+                                    and rcvinv_3.client_id = cur_rcvlin.client_id
+                                    and rcvinv_3.wh_id = cur_rcvlin.wh_id
+                                   left outer
+                                   join rimhdr rimhdr_1
+                                     on rimhdr_1.invnum = rcvinv_3.po_num
+                                    and rimhdr_1.wh_id = rcvinv_3.wh_id
+                                        /* Added required joins to calculate the
+                                         * exact total received quantity.
+                                         */
+                                    and rimhdr_1.client_id = rcvinv_3.client_id
+                                    and rimhdr_1.supnum = rcvinv_3.supnum
+                                    and rimhdr_1.invtyp = rcvinv_3.invtyp
+                                   left outer
+                                   join rimlin
+                                     on rimlin.client_id = cur_rcvlin.client_id
+                                    and rimlin.supnum = cur_rcvlin.supnum
+                                    and rimlin.invnum = rimhdr_1.invnum
+                                    and rimlin.invlin = cur_rcvlin.invlin
+                                    and rimlin.invsln = cur_rcvlin.invsln
+                                    and rimlin.wh_id = cur_rcvlin.wh_id
+                                    and rimlin.prtnum = cur_rcvlin.prtnum
+                                    and rimlin.prt_client_id = cur_rcvlin.prt_client_id
+                                  where @+cur_rcvlin.trknum
+                                    and cur_rcvlin.client_id = @client_id
+                                    and @+cur_rcvlin.supnum
+                                    and @+cur_rcvlin.invnum
+                                    and cur_rcvlin.wh_id = @wh_id
+                                 /* if rcvkey was passed we need to find */
+                                 /* what line we are dealing with */
+                                    and cur_rcvlin.invlin || '|' || cur_rcvlin.invsln = decode(@rcvkey, null, cur_rcvlin.invlin || '|' || cur_rcvlin.invsln, (select max(tmp_rcvlin.invlin || '|' || tmp_rcvlin.invsln)
+                                                                                                                                                                from rcvlin tmp_rcvlin
+                                                                                                                                                               where tmp_rcvlin.rcvkey = @rcvkey))) rimlin_exists_join,
+                                rcvlin all_rcvlin
+                                /* Adding Joins to RIMHDR and RCVINV through po_num column */
+                           join rcvinv rcvinv_4
+                             on rcvinv_4.invnum = all_rcvlin.invnum
+                            and rcvinv_4.trknum = all_rcvlin.trknum
+                            and rcvinv_4.supnum = all_rcvlin.supnum
+                            and rcvinv_4.client_id = all_rcvlin.client_id
+                            and rcvinv_4.wh_id = all_rcvlin.wh_id
+                           left outer
+                           join rimhdr rimhdr_2
+                             on rimhdr_2.invnum = rcvinv_4.po_num
+                            and rimhdr_2.wh_id = rcvinv_4.wh_id
+                                /* Added required joins to calculate the
+                                 * exact received quantity.
+                                 */
+                            and rimhdr_2.client_id = rcvinv_4.client_id
+                            and rimhdr_2.supnum = rcvinv_4.supnum
+                            and rimhdr_2.invtyp = rcvinv_4.invtyp
+                          where all_rcvlin.client_id = rimlin_exists_join.client_id
+                            and all_rcvlin.supnum = rimlin_exists_join.supnum
+                            and rcvinv_4.po_num = rimlin_exists_join.po_num
+                            and all_rcvlin.invlin = rimlin_exists_join.invlin
+                            and all_rcvlin.invsln = rimlin_exists_join.invsln
+                            and all_rcvlin.seqnum = rimlin_exists_join.seqnum
+                            and all_rcvlin.wh_id = rimlin_exists_join.wh_id
+                            and ((rimlin_exists_join.rimflg = 1) or (rimlin_exists_join.rimflg = 0 and all_rcvlin.trknum = rimlin_exists_join.trknum))) totrcv
+                     on totrcv.client_id = rcv.client_id
+                    and totrcv.supnum = rcv.supnum
+                    and totrcv.invnum = rcv.invnum
+                    and totrcv.invlin = rcv.invlin
+                    and totrcv.seqnum = rcv.seqnum
+                    and totrcv.invsln = rcv.invsln
+                    and totrcv.wh_id = rcv.wh_id
+                  where pm.prdflg = 1
+                    and @+rcv.trknum
+                    and @+rcv.supnum
+                    and @+rcv.invnum
+                    and rcv.client_id = @client_id
+                    and rcv.wh_id = @wh_id) invrcv_data
+                /* END:  EO SEGMENT - DTL - QUERY */) invrcv_eo_dtl
+  /* We want to include also received lines adjusted to 0 */
+  /* where invrcv_eo_dtl.tot_rcvqty > 0 */
+  group by invrcv_eo_dtl.trknum,
+        invrcv_eo_dtl.supnum,
+        invrcv_eo_dtl.invnum,
+        invrcv_eo_dtl.invlin,
+        invrcv_eo_dtl.invsln,
+        invrcv_eo_dtl.wh_id,
+        invrcv_eo_dtl.invtyp,
+        invrcv_eo_dtl.lodnum,
+        invrcv_eo_dtl.prtnum,
+        invrcv_eo_dtl.prt_client_id,
+        invrcv_eo_dtl.expqty,
+        invrcv_eo_dtl.tot_rcvqty,
+        invrcv_eo_dtl.rimflg,
+        invrcv_eo_dtl.exp_catch_qty,
+        invrcv_eo_dtl.rcvsts,
+        invrcv_eo_dtl.orig_rcvsts,
+        invrcv_eo_dtl.lens_invsts,
+        invrcv_eo_dtl.ponum,
+        invrcv_eo_dtl.completed_date,
+        invrcv_eo_dtl.polin,
+        invrcv_eo_dtl.stkuom,
+        invrcv_eo_dtl.retcod,
+        invrcv_eo_dtl.catch_unttyp,
+        invrcv_eo_dtl.cnsg_flg,
+        invrcv_eo_dtl.trlr_num,
+        invrcv_eo_dtl.carcod,
+        invrcv_eo_dtl.owner,
+        invrcv_eo_dtl.cstms_cnsgnmnt_id,
+        invrcv_eo_dtl.rcvkey,
+        invrcv_eo_dtl.dtlnum,
+        invrcv_eo_dtl.hld_flg,
+        invrcv_eo_dtl.blind_flg,
+        invrcv_eo_dtl.ship_line_id,
+        /*Start changes JR */
+        invrcv_eo_dtl.uc_guid_hst,
+        invrcv_eo_dtl.orgref,
+        invrcv_eo_dtl.init_rcv_dte,
+        invrcv_eo_dtl.inv_attr_str1,
+        invrcv_eo_dtl.inv_attr_str2,
+        invrcv_eo_dtl.inv_attr_str3,
+        invrcv_eo_dtl.inv_attr_str4,
+        invrcv_eo_dtl.inv_attr_str5,
+        invrcv_eo_dtl.inv_attr_str6,
+        invrcv_eo_dtl.inv_attr_str7,
+        invrcv_eo_dtl.inv_attr_str8,
+        invrcv_eo_dtl.inv_attr_str9,
+        invrcv_eo_dtl.inv_attr_str10,
+        invrcv_eo_dtl.inv_attr_str11,
+        invrcv_eo_dtl.inv_attr_str12,
+        invrcv_eo_dtl.inv_attr_str13,
+        invrcv_eo_dtl.inv_attr_str14,
+        invrcv_eo_dtl.inv_attr_str15,
+        invrcv_eo_dtl.inv_attr_str16,
+        invrcv_eo_dtl.inv_attr_str17,
+        invrcv_eo_dtl.inv_attr_str18,
+        invrcv_eo_dtl.inv_attr_int1,
+        invrcv_eo_dtl.inv_attr_int2,
+        invrcv_eo_dtl.inv_attr_int3,
+        invrcv_eo_dtl.inv_attr_int4,
+        invrcv_eo_dtl.inv_attr_int5,
+        invrcv_eo_dtl.inv_attr_flt1,
+        invrcv_eo_dtl.inv_attr_flt2,
+        invrcv_eo_dtl.inv_attr_flt3,
+        invrcv_eo_dtl.inv_attr_dte1,
+        invrcv_eo_dtl.inv_attr_dte2 @selby_grpby:raw
+        /* END:  EO SEGMENT - SUMM - QUERY GROUPING */]
+]]>
+</local-syntax>
+  <argument name="trknum" datatype="string">Truck Number</argument>
+  <argument name="invnum" datatype="">Invoice Number</argument>
+  <argument name="supnum" datatype="">Supplier Number</argument>
+  <argument name="client_id" required="yes" datatype="">Client ID</argument>
+  <argument name="wh_id" required="yes" datatype="">Warehouse ID</argument>
+  <argument name="summFlg" datatype="">Summary Flag; optional, its being set or not results in two separate code paths. Causes output of either summary or detailed information.</argument>
+  <argument name="invtyp" datatype="">Invoice Type</argument>
+  <argument name="sys_absent_ind_char" datatype="">Original Suplier Lot Number</argument>
+  <argument name="cnsg_flg" datatype="">Consigment Flag</argument>
+  <argument name="hld_flg" datatype="">Hold Flag</argument>
+  <argument name="rcvkey" datatype="">Receive Key</argument>
+  <argument name="lodnum" required="yes" datatype="">Load Number</argument>
+  <documentation>
+<remarks></remarks>
+<exception value="eOK">Normal successful completion</exception>
+<exception value="eDB_NO_ROWS_AFFECTED">Inventory receipt not found</exception>
+
+</documentation>
+</command>

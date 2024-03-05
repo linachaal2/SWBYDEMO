@@ -1,0 +1,83 @@
+<command>
+  <name>close usr open trains</name>
+  <description>close usr open trains</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* close usr open trains
+ * Command used in JOB to Close Open trains
+ * Version history: 
+ * 2018-25-01 - Petr Babaian(JDA) - Initial Version
+ * 2019-18-03 - Tim van den Akker - warehouse id was hardcoded,changed with @wh_id 
+ */
+/*Get list of locations which will be passed to the command CLOSE USR train */
+/*Check policy INACTIVITY-TIME*/
+[select rtnum1 inactivity_time
+   from poldat_view
+  where polcod = 'USR-RECEIVING'
+    and polvar = 'TRAIN'
+    and polval = 'INACTIVITY-TIME'
+    and wh_id = @wh_id] catch(-1403)
+|
+/*If policy INACTIVITY-TIME exists and RTNUM1 is not 0 then continue else do nothing*/
+if (@? != '-1403' and @rtnum1 <> '0')
+{
+    /*List all available aisles for locations enabled in Movement Zones in MOV-ZONE-COD policy*/
+    [select distinct locmst.aisle_id
+       from invlod
+       join locmst
+         on locmst.stoloc = invlod.stoloc
+      where invlod.stoloc in (select distinct stoloc
+                                from locmst
+                               where wh_id = @wh_id
+                                 and mov_zone_id in (select mov_zone_id
+                                                       from mov_zone
+                                                      where wh_id = @wh_id
+                                                        and mov_zone_cod in (select rtstr1 mov_zone_cod
+                                                                               from poldat_view
+                                                                              where polcod = 'USR-RECEIVING'
+                                                                                and polvar = 'TRAIN'
+                                                                                and polval = 'MOV-ZONE-COD'
+                                                                                and rtnum1 = 1)))
+        and invlod.uc_train_id is not null
+        and invlod.uc_train_cls_flg <> 1
+        and invlod.wh_id = @wh_id] catch(-1403)
+    |
+    /*If there is no available aisle, do nothning else continue*/
+    if (@? != '-1403')
+    {
+        /*Get STOLOC which is inactive with or without user*/
+        [select invlod.stoloc stoloc_to_close
+           from invlod
+           join locmst
+             on locmst.stoloc = invlod.stoloc
+          where locmst.aisle_id = @aisle_id
+            and invlod.wh_id = @wh_id
+            and invlod.uc_train_id is not null
+            and invlod.uc_train_cls_flg <> 1
+            and invlod.stoloc not in (select distinct rftmst.curstoloc
+                                        from rftmst
+                                        join locmst
+                                          on locmst.stoloc = rftmst.curstoloc
+                                       where locmst.aisle_id = @aisle_id
+                                       /*changed the following in version 2*/
+                                         and locmst.wh_id = @wh_id
+                                       group by rftmst.curstoloc
+                                      having datediff(mi, max(rftmst.actdte), sysdate) < @inactivity_time)
+          group by invlod.stoloc
+         having datediff(mi, max(invlod.last_upd_dt), sysdate) > @inactivity_time] catch(-1403)
+        |
+        /*If there are any locations to close run command CLOSE USR TRAIN else do nothing*/
+        if (@? != '-1403')
+        {
+            close usr train
+             where close_type = 'job'
+               and wh_id = @wh_id
+               and stoloc = @stoloc_to_close
+        }
+    }
+}
+]]>
+</local-syntax>
+  <argument name="wh_id" required="yes" datatype="string">Warehouse ID</argument>
+</command>

@@ -1,0 +1,12 @@
+======================================================
+Rollout: USR-RFH-WM.00190.DEV.GFF-CFG-119_FIFO_INV_DETAIL_V02
+Generation timestamp: 2023-08-04 14:10:35
+======================================================
+
+Release Notes:
+
+-V01: Adjust FIFO data on invdtl to date instead of date/time (trigger on create inventory due to BY bug on FIFO window)
+-V01: Adjust Allocation rules
+-V01: Adjust Allocation search paths
+-V02: Removed work around Blue Yonder issue with allocation (policy)
+-V02: Forced to Absolute fifo on work order and orderline (Transaction definition)

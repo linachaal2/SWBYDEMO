@@ -1,0 +1,73 @@
+<command>
+  <name>execute usr deferred commands</name>
+  <description>execute usr deferred commands</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* wrapper for execute deferred commands
+ * executing multi threaded if included in policy else standard
+ * Version history:
+ *  2022-06-22  Raoul Scholten     Initial version.
+ */
+publish data
+ where wh_id = nvl(@wh_id, @@wh_id)
+   and enabled = 0
+|
+if (@wh_id = '')
+{
+    [select wh_id
+       from wh]
+}
+|
+[select 1 as enabled
+   from poldat_view
+  where poldat_view.polcod = 'USR-DEFERRED_EXEC'
+    and poldat_view.polvar = 'MULTI_THREAD'
+    and poldat_view.polval = 'EXEC_TYP'
+    and poldat_view.rtnum1 = 1
+    and poldat_view.wh_id = @wh_id
+    and poldat_view.rtstr1 = @exec_typ] catch(-1403)
+|
+if (@enabled = 1)
+{
+    publish data
+     where varExecTyp = @exec_typ
+    |
+    [select exec_id as varExecID
+       from deferred_exec
+      where exec_typ = @varExecTyp
+        and exec_sts is null
+        and exec_dte is null
+        and exec_rows is null
+        and (deferred_dte is null or deferred_dte <= sysdate)
+      order by adddte asc] catch(-1403, -54)
+    |
+    [select exec_id as varExecID
+       from deferred_exec
+      where exec_id = @varExecID
+        and exec_typ = @varExecTyp
+        and exec_sts is null
+        and exec_dte is null
+        and exec_rows is null
+      for update nowait] catch(-1403, -54)
+    |
+    if (@? = 0)
+    {
+        execute deferred commands
+         where exec_id = @varExecID
+           and exec_typ = @varExecTyp
+           and comflg = 1
+           and delflg = 1 
+		   and samtrnflg = 1 catch(@?)
+    }
+    |
+    commit;
+}
+else if (@enabled = 0)
+{
+    execute deferred commands where comflg=1 and delflg=1 and exec_typ= @exec_typ
+}
+]]>
+</local-syntax>
+  <argument name="wh_id" datatype="string">wh_id</argument>
+</command>

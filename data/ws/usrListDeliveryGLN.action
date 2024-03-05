@@ -1,0 +1,17 @@
+<action>
+  <id>usrListDeliveryGLN</id>
+  <name>usrListDeliveryGLN</name>
+  <description>List Delivery GLN</description>
+  <type>LIST</type>
+  <ws>
+     <method>GET</method>
+	 <href>/usrListDeliveryGLN</href>
+  </ws>
+  <impl>
+     <command>list usr delivery gln</command>
+  </impl>
+  <auth>
+     <opt>optOpen</opt>
+  </auth>
+  <primary>true</primary>
+</action>

@@ -1,0 +1,573 @@
+<command>
+  <name>list usr las api fields</name>
+  <description>list usr las api fields</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* list usr las api fields
+ * Command which fetches the fields required for LAS
+ * Version history:
+ *  2021-10-21  Raoul Scholten
+ *  2022-03/14  Raoul Scholten - added fix for deferred execution of loading and dispatching and diffferent order types
+ *  2022-04-13  Jasper Ringoir - added temporary quickfix for delivery info from address table and moved back to the SSTG info, this does not provide the user but does give the date.
+ */
+validate stack variable not null
+ where name = 'wh_id'
+|
+[select 1 as wh_idvalid
+   from wh
+  where wh_id = @wh_id]
+|
+if (@lotnum = '' and @lodnum = '' and @ordnum = '' and @inv_attr_str8 = '')
+{
+	/*force error*/
+	set return status
+	 where status = 802
+}
+else
+{
+	if (@lodnum != '')
+	{
+		[select 1 as lodnumvalid
+		   from invlod
+		  where lodnum = @lodnum]
+	}
+	|
+	if (@lotnum != '')
+	{
+		[select 1 as lotnumvalid
+		   from prtlot
+		  where lotnum = @lotnum]
+	}
+	|
+	if (@ordnum != '')
+	{
+		[select 1 as ordnumvalid
+		   from ord
+		  where ordnum = @ordnum]
+	}
+	|
+	if (@inv_attr_str8 != '')
+	{
+		[select 1 as inv_attr_str8valid
+		   from all_inventory_view
+		  where inv_attr_str8 = @inv_attr_str8
+		    and rownum = 1]
+	}
+	|
+	if (@lodnumvalid = 1)
+	{
+		/*get batch double check on inbound/outbound lpn*/
+		[select distinct(inv_attr_str8) 
+		   from all_inventory_view
+		  where lodnum = @lodnum]
+	}
+	else if (@lotnumvalid = 1)
+	{
+		/*get batch */
+		[select inv_attr_str8
+		   from all_inventory_view
+		  where lotnum = @lotnum
+		    and rownum = 1]
+	}
+	else if (@ordnumvalid = 1)
+	{
+		/*get batch */
+		[select rule_nam
+		   from ord_line
+		  where ordnum = @ordnum]
+		|
+		[select distinct(value) 
+		   from alloc_rule_dtl
+		  where rule_nam = @rule_nam]
+		|
+		[select inv_attr_str8
+		   from all_inventory_view
+		  where lotnum = @value
+		    and rownum = 1]
+	}
+	else if (@inv_attr_str8valid = 1)
+	{
+		publish data
+		 where inv_attr_str8 = @inv_attr_str8
+	}
+	|
+	/*get all lotnums on batch */
+	[select distinct lotnum
+	   from all_inventory_view
+	  where inv_attr_str8 = @inv_attr_str8
+	    and @+lotnum
+	    and lotnum != '----']
+	|
+	[select iv.lodnum as lodnum_sto,
+	        iv.subnum as subnum_sto,
+	        iv.dtlnum as dtlnum_sto,
+	        iv.lotnum,
+	        iv.stoloc as stoloc_sto,
+	        iv.prtnum,
+	        prtdsc.short_dsc,
+	        iv.untqty,
+	        inv_asset.asset_typ as asset_typ_sto,
+	        inv_asset.untqty as asset_qty_sto,
+	        iv.inv_attr_dte1,
+	        iv.inv_attr_dte2,
+	        iv.inv_attr_str1,
+	        iv.inv_attr_str2,
+	        iv.inv_attr_str3,
+	        iv.inv_attr_str4,
+	        iv.inv_attr_str5,
+	        iv.inv_attr_str6,
+	        iv.inv_attr_str7,
+	        iv.inv_attr_str8,
+	        iv.inv_attr_str9,
+	        iv.inv_attr_str10,
+	        iv.inv_attr_str11,
+	        iv.inv_attr_str12,
+	        iv.inv_attr_str13,
+	        iv.inv_attr_str14,
+	        iv.inv_attr_str15,
+	        iv.inv_attr_str16,
+	        iv.inv_attr_str17,
+	        iv.inv_attr_str18,
+	        iv.inv_attr_int1,
+	        iv.inv_attr_int2,
+	        ord_line.ordnum,
+	        NULL as clock,
+	        NULL as trn,
+	        ord_line.ordqty,
+	        NULL as plate,
+	        ord.rtcust,
+	        ord.entdte,
+	        null as uc_ckn_no,
+	        null as adrnam,
+	        coalesce(ord_line.uc_shipby, ord.uc_shipby) uc_shipby,
+	        NULL as picker,
+	        srcloc as stoloc_pck,
+	        NULL as pckdte,
+	        NULL as appqty,
+	        NULL as stoloc_trc,
+	        NULL as lodnum_pck,
+	        NULL as subnum_pck,
+	        NULL as dtlnum_pck,
+	        ord.stcust,
+	        NULL as asset_typ_pck,
+	        NULL as asset_qty_pck,
+	        NULL as usr_id,
+	        adrmst.adr_district as tostol,
+	        NULL as delivery_date,
+	        ord_line.ordlin,
+	        ord_line.ordsln,
+	        ord_line.client_id
+	   from prtlot
+	   join alloc_rule_dtl
+	     on alloc_rule_dtl.value = prtlot.lotnum
+	   join ord_line
+	     on alloc_rule_dtl.rule_nam = ord_line.rule_nam
+	   join ord
+	     on ord_line.ordnum = ord.ordnum
+	   left
+	  outer
+	   join adrmst
+	     on ord.rt_adr_id = adrmst.adr_id
+	   left
+	   join pckwrk_view
+	     on ord_line.ordnum = pckwrk_view.ordnum
+	    and ord_line.ordlin = pckwrk_view.ordlin
+	    and ord_line.ordsln = pckwrk_view.ordsln
+	   left
+	   join inventory_view iv
+	     on prtlot.lotnum = iv.lotnum
+	    and iv.stoloc = pckwrk_view.srcloc
+	    and iv.wrkref is null
+	    and iv.stoloc <> 'PERM-ADJ-LOC' 
+	   left
+	   join locmst
+	     on iv.stoloc = locmst.stoloc
+	   left
+	   join loc_typ
+	     on locmst.loc_typ_id = loc_typ.loc_typ_id
+	    and loc_typ.loc_typ_cat = 'STORAGE' 
+	   left
+	   join prtdsc
+	     on(prtdsc.colval = iv.prtnum || '|' || iv.prt_client_id || '|' || iv.wh_id
+	    and prtdsc.colnam = 'prtnum|prt_client_id|wh_id_tmpl' 
+	    and prtdsc.locale_id = 'US_ENGLISH') 
+	   left
+	   join inv_asset
+	     on inv_asset.invtid = iv.lodnum
+	    and iv.asset_typ <> inv_asset.asset_typ
+	  where @+prtlot.lotnum
+	  union
+	  select iv.lodnum as lodnum_sto,
+	        iv.subnum as subnum_sto,
+	        iv.dtlnum as dtlnum_sto,
+	        iv.lotnum,
+	        iv.stoloc as stoloc_sto,
+	        iv.prtnum,
+	        prtdsc.short_dsc,
+	        iv.untqty,
+	        inv_asset.asset_typ as asset_typ_sto,
+	        inv_asset.untqty as asset_qty_sto,
+	        iv.inv_attr_dte1,
+	        iv.inv_attr_dte2,
+	        iv.inv_attr_str1,
+	        iv.inv_attr_str2,
+	        iv.inv_attr_str3,
+	        iv.inv_attr_str4,
+	        iv.inv_attr_str5,
+	        iv.inv_attr_str6,
+	        iv.inv_attr_str7,
+	        iv.inv_attr_str8,
+	        iv.inv_attr_str9,
+	        iv.inv_attr_str10,
+	        iv.inv_attr_str11,
+	        iv.inv_attr_str12,
+	        iv.inv_attr_str13,
+	        iv.inv_attr_str14,
+	        iv.inv_attr_str15,
+	        iv.inv_attr_str16,
+	        iv.inv_attr_str17,
+	        iv.inv_attr_str18,
+	        iv.inv_attr_int1,
+	        iv.inv_attr_int2,
+	        NULL as ordnum,
+	        NULL as clock,
+	        NULL as trn,
+	        NULL as ordqty,
+	        NULL as plate,
+	        NULL as rtcust,
+	        NULL as entdte,
+	        null as uc_ckn_no,
+	        null as adrnam,
+	        NULL as uc_shipby,
+	        NULL as picker,
+	        NULL as stoloc_pck,
+	        NULL as pckdte,
+	        NULL as appqty,
+	        NULL as stoloc_trc,
+	        NULL as lodnum_pck,
+	        NULL as subnum_pck,
+	        NULL as dtlnum_pck,
+	        NULL as stcust,
+	        NULL as asset_typ_pck,
+	        NULL as asset_qty_pck,
+	        NULL as usr_id,
+	        NULL as tostol,
+	        NULL as delivery_date,
+	        NULL as ordlin,
+	        NULL as ordsln,
+	        NULL as client_id
+	   from prtlot
+	   join inventory_view iv
+	     on prtlot.lotnum = iv.lotnum
+	    and iv.wrkref is null
+	    and iv.stoloc <> 'PERM-ADJ-LOC' 
+	    and not exists(select 0
+	                     from pckwrk_view
+	                    where iv.stoloc = pckwrk_view.srcloc
+	                      and iv.lotnum = pckwrk_view.lotnum) 
+	   left
+	   join locmst
+	     on iv.stoloc = locmst.stoloc
+	   left
+	   join loc_typ
+	     on locmst.loc_typ_id = loc_typ.loc_typ_id
+	    and loc_typ.loc_typ_cat = 'STORAGE' 
+	   left
+	   join prtdsc
+	     on(prtdsc.colval = iv.prtnum || '|' || iv.prt_client_id || '|' || iv.wh_id
+	    and prtdsc.colnam = 'prtnum|prt_client_id|wh_id_tmpl' 
+	    and prtdsc.locale_id = 'US_ENGLISH') 
+	   left
+	   join inv_asset
+	     on inv_asset.invtid = iv.lodnum
+	    and iv.asset_typ <> inv_asset.asset_typ
+	  where @+prtlot.lotnum]
+	|
+	if (@ordnum != '')
+	{
+		[select cstmst.uc_ckn_no,
+		        adrmst.adrnam
+		   from cstmst
+		   join adrmst
+		     on(cstmst.adr_id = adrmst.adr_id
+		    and cstmst.client_id = adrmst.client_id) 
+		  where cstnum = @stcust
+		    and cstmst.client_id = @client_id]
+		|
+		[select KLOKNR as clock,
+		        KLOK_TRN as trn,
+		        PLAAT as plate
+		   from(select nottxt,
+		               nottyp
+		          from ord_line_note
+		         where ordnum = @ordnum
+		           and ordlin = @ordlin
+		           and ordsln = @ordsln
+		           and wh_id = @wh_id
+		           and client_id = @client_id
+		         union all
+		         select null as nottxt,
+		               'KLOKNR' as nottyp
+		          from dual
+		         where not exists(select 0
+		                            from ord_line_note
+		                           where ordnum = @ordnum)) d pivot(max(nottxt) for nottyp in(KLOKNR, KLOK_TRN, PLAAT)) piv]
+		|
+		[select pckwrk_dtl.last_upd_user_id as picker,
+		        srcloc as stoloc_pck,
+		        pckdte,
+		        pckwrk_dtl.appqty,
+		        av.stoloc as stoloc_trc,
+		        av.lotnum as lotnum_2,
+		        av.prtnum as prtnum,
+		        av.untqty as untqty,
+		        av.inv_attr_dte1,
+		        av.inv_attr_dte2,
+		        av.inv_attr_str3,
+		        av.inv_attr_str4,
+		        av.inv_attr_str5,
+		        av.inv_attr_str6,
+		        av.inv_attr_str7,
+		        av.inv_attr_str8,
+		        av.inv_attr_str9,
+		        av.inv_attr_str10,
+		        av.inv_attr_str11,
+		        av.inv_attr_str12,
+		        av.inv_attr_str13,
+		        av.inv_attr_str14,
+		        av.inv_attr_str15,
+		        av.inv_attr_str16,
+		        av.inv_attr_str17,
+		        av.inv_attr_str18,
+		        av.inv_attr_int1,
+		        av.inv_attr_int2,
+		        av.subnum as subnum_pck,
+		        av.dtlnum as dtlnum_pck,
+		        av.inv_hist_id,
+		        prtdsc.short_dsc,
+		        av.lodnum as lodnum_pck,
+		        av.subnum as subnum_pck,
+		        av.dtlnum as dtlnum_pck,
+		        av.inv_hist_id
+		   from ord_line
+		   left
+		   join pckwrk_dtl
+		     on ord_line.ordnum = pckwrk_dtl.ordnum
+		    and ord_line.ordlin = pckwrk_dtl.ordlin
+		    and ord_line.ordsln = pckwrk_dtl.ordsln
+		   left
+		   join pckwrk_hdr
+		     on pckwrk_dtl.wrkref = pckwrk_hdr.wrkref
+		   left
+		   join all_inventory_view av
+		     on pckwrk_dtl.wrkref = av.wrkref
+		    and pckwrk_dtl.wrkref_dtl = av.wrkref_dtl
+		   left
+		   join prtdsc
+		     on(prtdsc.colval = av.prtnum || '|' || av.prt_client_id || '|' || av.wh_id
+		    and prtdsc.colnam = 'prtnum|prt_client_id|wh_id_tmpl' 
+		    and prtdsc.locale_id = 'US_ENGLISH') 
+		  where ord_line.ordnum = @ordnum
+		    and ord_line.ordlin = @ordlin] catch(-1403)
+		|
+		[select usr_id,
+		         last_upd_dt as delivery_date
+		   from dlytrn
+		  where lodnum = @lodnum_pck
+		    and actcod = 'SSTG' 
+		    and ordnum = @ordnum] catch(-1403)
+		|
+		if (@lodnum_pck != '')
+		{
+			get usr customer for asset
+			 where lodnum = @lodnum_pck
+			   and inv_hist_id = @inv_hist_id catch(-1403)
+			|
+			if (@? <> 0)
+			{
+				publish data
+				 where asset_typ_pck = ''
+				   and asset_qty_pck = 0
+			}
+			else
+			{
+				if (@ordstcust != @stcust)
+				{
+					publish data
+					 where asset_typ_pck = ''
+					   and asset_qty_pck = 0
+				}
+				else
+				{
+					if (@inv_hist_id = -1)
+					{
+						[select inv_asset.asset_typ,
+						        inv_asset.untqty
+						   from inv_asset
+						   join invlod
+						     on invlod.lodnum = inv_asset.invtid
+						    and invlod.asset_typ <> inv_asset.asset_typ
+						  where invlod.lodnum = @lodnum_pck] catch(-1403)
+						|
+						if (@? != 0)
+						{
+							publish data
+							 where asset_typ_pck = ''
+							   and asset_qty_pck = 0
+						}
+						else
+						{
+							publish data
+							 where asset_typ_pck = @asset_typ
+							   and asset_qty_pck = @untqty
+						}
+					}
+					else
+					{
+						[select inv_asset_hist.asset_typ,
+						        inv_asset_hist.untqty
+						   from inv_asset_hist
+						   join invlod_hist
+						     on invlod_hist.lodnum = inv_asset_hist.invtid
+						    and invlod_hist.asset_typ <> inv_asset_hist.asset_typ
+						  where invlod_hist.lodnum = @lodnum_pck] catch(-1403)
+						|
+						if (@? != 0)
+						{
+							publish data
+							 where asset_typ_pck = ''
+							   and asset_qty_pck = 0
+						}
+						else
+						{
+							publish data
+							 where asset_typ_pck = @asset_typ
+							   and asset_qty_pck = @untqty
+						}
+					}
+				}
+			}
+		}
+		|
+		publish data
+		 where lodnum_sto = @lodnum_sto
+		   and subnum_sto = @subnum_sto
+		   and dtlnum_sto = @dtlnum_sto
+		   and lotnum = nvl(@lotnum, @lotnum_2)
+		   and stoloc_sto = @stoloc_sto
+		   and prtnum = @prtnum
+		   and short_dsc = @short_dsc
+		   and untqty = @untqty
+		   and asset_typ_sto = @asset_typ_sto
+		   and asset_qty_sto = @asset_qty_sto
+		   and inv_attr_dte1 = @inv_attr_dte1
+		   and inv_attr_dte2 = @inv_attr_dte2
+		   and inv_attr_str1 = @inv_attr_str1
+		   and inv_attr_str2 = @inv_attr_str2
+		   and inv_attr_str3 = @inv_attr_str3
+		   and inv_attr_str4 = @inv_attr_str4
+		   and inv_attr_str5 = @inv_attr_str5
+		   and inv_attr_str6 = @inv_attr_str6
+		   and inv_attr_str7 = @inv_attr_str7
+		   and inv_attr_str8 = @inv_attr_str8
+		   and inv_attr_str9 = @inv_attr_str9
+		   and inv_attr_str10 = @inv_attr_str10
+		   and inv_attr_str11 = @inv_attr_str11
+		   and inv_attr_str12 = @inv_attr_str12
+		   and inv_attr_str13 = @inv_attr_str13
+		   and inv_attr_str14 = @inv_attr_str14
+		   and inv_attr_str15 = @inv_attr_str15
+		   and inv_attr_str16 = @inv_attr_str16
+		   and inv_attr_str17 = @inv_attr_str17
+		   and inv_attr_str18 = @inv_attr_str18
+		   and inv_attr_int1 = @inv_attr_int1
+		   and inv_attr_int2 = @inv_attr_int2
+		   and ordnum = @ordnum
+		   and clock = @clock
+		   and trn = @trn
+		   and ordqty = @ordqty
+		   and plate = @plate
+		   and rtcust = @rtcust
+		   and uc_ckn_no = @uc_ckn_no
+		   and adrnam = @adrnam
+		   and uc_shipby = @uc_shipby
+		   and picker = @picker
+		   and stoloc_pck = @stoloc_pck
+		   and pckdte = @pckdte
+		   and appqty = @appqty
+		   and stoloc_trc = @stoloc_trc
+		   and lodnum_pck = @lodnum_pck
+		   and subnum_pck = @subnum_pck
+		   and dtlnum_pck = @dtlnum_pck
+		   and stcust = @ordstcust
+		   and asset_typ_pck = @asset_typ_pck
+		   and asset_qty_pck = @asset_qty_pck
+		   and usr_id = @usr_id
+		   and tostol = @tostol
+		   and delivery_date = @delivery_date
+	}
+	else
+	{
+		publish data
+		 where lodnum_sto = @lodnum_sto
+		   and subnum_sto = @subnum_sto
+		   and dtlnum_sto = @dtlnum_sto
+		   and lotnum = @lotnum
+		   and stoloc_sto = @stoloc_sto
+		   and prtnum = @prtnum
+		   and short_dsc = @short_dsc
+		   and untqty = @untqty
+		   and asset_typ_sto = @asset_typ_sto
+		   and asset_qty_sto = @asset_qty_sto
+		   and inv_attr_dte1 = @inv_attr_dte1
+		   and inv_attr_dte2 = @inv_attr_dte2
+		   and inv_attr_str1 = @inv_attr_str1
+		   and inv_attr_str2 = @inv_attr_str2
+		   and inv_attr_str3 = @inv_attr_str3
+		   and inv_attr_str4 = @inv_attr_str4
+		   and inv_attr_str5 = @inv_attr_str5
+		   and inv_attr_str6 = @inv_attr_str6
+		   and inv_attr_str7 = @inv_attr_str7
+		   and inv_attr_str8 = @inv_attr_str8
+		   and inv_attr_str9 = @inv_attr_str9
+		   and inv_attr_str10 = @inv_attr_str10
+		   and inv_attr_str11 = @inv_attr_str11
+		   and inv_attr_str12 = @inv_attr_str12
+		   and inv_attr_str13 = @inv_attr_str13
+		   and inv_attr_str14 = @inv_attr_str14
+		   and inv_attr_str15 = @inv_attr_str15
+		   and inv_attr_str16 = @inv_attr_str16
+		   and inv_attr_str17 = @inv_attr_str17
+		   and inv_attr_str18 = @inv_attr_str18
+		   and inv_attr_int1 = @inv_attr_int1
+		   and inv_attr_int2 = @inv_attr_int2
+		   and ordnum = @ordnum
+		   and clock = @clock
+		   and trn = @trn
+		   and ordqty = @ordqty
+		   and plate = @plate
+		   and rtcust = @rtcust
+		   and uc_ckn_no = @uc_ckn_no
+		   and adrnam = @adrnam
+		   and uc_shipby = @uc_shipby
+		   and picker = @picker
+		   and stoloc_pck = @stoloc_pck
+		   and pckdte = @pckdte
+		   and appqty = @appqty
+		   and stoloc_trc = @stoloc_trc
+		   and lodnum_pck = @lodnum_pck
+		   and subnum_pck = @subnum_pck
+		   and dtlnum_pck = @dtlnum_pck
+		   and stcust = @ordstcust
+		   and asset_typ_pck = @asset_typ_pck
+		   and asset_qty_pck = @asset_qty_pck
+		   and usr_id = @usr_id
+		   and tostol = @tostol
+		   and delivery_date = @delivery_date
+	}
+}
+]]>
+</local-syntax>
+  <argument name="wh_id" required="yes" datatype="string">wh_id</argument>
+</command>

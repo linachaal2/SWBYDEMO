@@ -1,0 +1,408 @@
+<command>
+  <name>list directed work for work queue</name>
+  <description>lists directed work for work queue</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* ------------------------------------------------------------------------------------------------------------
+ * list directed work for work queue
+ * ------------------------------------------------------------------------------------------------------------
+ * V01, 2018-11-21, Stephan.Doens@starware.nl, first UsrInt version
+ *      - abusing the output fields: load_identifier, ship_id & source_id 
+ *        Altered the 'Get outbound work' query part:
+ *        >> nvl(workdata.load_identifier,invhld.hldnum) AS load_identifier, 
+ *        >> nvl(workdata.source_id, invhld.uc_nottxt) as source_id,
+ *        >> nvl(workdata.ship_id, invhld.uc_invtyp) as ship_id
+ * V02, 2019-08-06, Salem Hamze     Simplified the join to inventory_view because it can only contain lodnum for our cutom purpose.
+                                    Done becasue of performance issues
+ * V03, 2019-12-18, Shailesh Raina	803601 Added the column 'inv_attr_str8' for including PAB reference in the work queue view.																																								
+ * ------------------------------------------------------------------------------------------------------------
+ */
+[with asg_role as (select sys_dsc_mst.mls_text asg_role_desc,
+                          sys_dsc_mst.colval asg_role_id
+                     from sys_dsc_mst
+                    where sys_dsc_mst.colnam = 'role_id'
+                      and sys_dsc_mst.locale_id = @user_locale
+                      and cust_lvl = (select max(cust_lvl) cust_lvl
+                                        from sys_dsc_mst sdm
+                                       where sdm.colnam = sys_dsc_mst.colnam
+                                         and sdm.colval = sys_dsc_mst.colval
+                                         and sdm.locale_id = sys_dsc_mst.locale_id)
+                      and exists(select 1
+                                   from wrkque
+                                  where wrkque.asg_role_id = sys_dsc_mst.colval)),
+        work_queue_recs as (select reqnum,
+                                   wrkref,
+                                   list_id,
+                                   refloc,
+                                   dstloc,
+                                   wh_id,
+                                   man_rel_seq
+                              from wrkque
+                             where @reqnum_in_clause:raw
+                               and (wrkque.client_id is null or @wrkq_client_clause:raw)
+                               and @+wrkque.wh_id
+                               and @+wrkque.wrkref
+                               and @+wrkque.srcloc
+                               and @+wrkque.schbat
+                               and @+wrkque.wrksts
+                               and not exists(select 1
+                                                from wrkque wq2
+                                               where wq2.reqnum = wrkque.reqnum
+                                                 and wq2.oprcod = 'RFOUTAUD')),
+        main as (select wrkque.reqnum,
+                        wrkque.wrksts,
+                        wrkque.baspri,
+                        wrkque.effpri,
+                        wrkque.wh_id,
+                        wrkque.oprcod,
+                        wrkque.srcloc,
+                        wrkque.dstloc,
+                        wrkque.ack_usr_id,
+                        wrkque.ackdevcod,
+                        wrkque.client_id,
+                        workdata.prt_client_id,
+                        wrkque.lodnum,
+                        wrkque.lodlvl,
+                        wrkque.adddte,
+                        wrkque.issdte,
+                        wrkque.ackdte,
+                        wrkque.pckdte,
+                        wrkque.depdte,
+                        workdata.wrkref,
+                        wrkque.lblbat,
+                        wrkque.cntgrp,
+                        wrkque.refloc,
+                        wrkque.batnum,
+                        wrkque.src_wrk_zone_id,
+                        wrkque.srcwrkare,
+                        wrkque.loctrvseq,
+                        wrkque.zontrvseq,
+                        wrkque.asg_usr_id,
+                        wrkque.lstescdte,
+                        wrkque.locacc,
+                        wrkque.schbat,
+                        wrkque.list_id,
+                        wrkque.asg_role_id,
+                        wrkque.src_bldg_id,
+                        wrkque.src_aisle_id,
+                        decode(wrkque.oprcod, 'BPCK', @mlsMultiple, 'TBPCK', @mlsMultiple, wrkque.dstloc) as que_dstloc,
+                        null as cnt_id,
+                        workdata.palctl_wrk_flg,
+                        decode(rplwrk.list_id, null, 0, 1) as pck_exp_flg,
+                        nvl(workdata.ship_id, invhld.uc_invtyp) as ship_id,
+                        workdata.cponum,
+                        nvl(workdata.load_identifier, invhld.hldnum) as load_identifier,
+                        nvl(workdata.source_id, invhld.uc_nottxt) as source_id,
+                        workdata.ctnnum,
+                        workdata.prtnum,
+                        workdata.altprtnum,
+                        workdata.description,
+                        workdata.pckqty,
+                        workdata.appqty,
+                        workdata.pck_uom,
+                        workdata.wkonum,
+                        workdata.wkorev,
+                        asg_role.asg_role_desc,
+                        workdata.pckflg,
+                        wrkque.rf_out_aud_id,
+                        (select decode(count(distinct rcvtrk.trknum), 0, decode(wrkque.oprcod, 'RCV', wrkque.refloc, NULL), 1, max(rcvtrk.trknum), @mlsMultiple || '(' || to_char(count(distinct rcvtrk.trknum)) || ')')
+                           from trlr
+                           join rcvtrk
+                             on rcvtrk.trlr_id = trlr.trlr_id
+                          where trlr.yard_loc = wrkque.srcloc
+                            and trlr.yard_loc_wh_id = wrkque.wh_id) as inbound_ship_id,
+                        (case when (wrkque.oprcod = 'RCV' and wrkque.refloc is not null) then
+                              /* Use refloc for Inbound Shipments without Transport Equipment */
+                              (select decode(count(distinct rcvinv.invnum), 0, NULL, 1, max(rcvinv.invnum), @mlsMultiple || '(' || to_char(count(distinct rcvinv.invnum)) || ')')
+                                 from rcvtrk
+                                 join rcvinv
+                                   on rcvinv.trknum = rcvtrk.trknum
+                                  and rcvinv.wh_id = rcvtrk.wh_id
+                                where rcvtrk.trknum = wrkque.refloc
+                                  and wrkque.oprcod = 'RCV'
+                                  and rcvtrk.wh_id = wrkque.wh_id)
+                              else
+                              /* Inbound Shipments with Transport Equipment */
+                              (select decode(count(distinct rcvinv.invnum), 0, NULL, 1, max(rcvinv.invnum), @mlsMultiple || '(' || to_char(count(distinct rcvinv.invnum)) || ')')
+                                 from trlr
+                                 join rcvtrk
+                                   on rcvtrk.trlr_id = trlr.trlr_id
+                                 join rcvinv
+                                   on rcvinv.trknum = rcvtrk.trknum
+                                  and rcvinv.wh_id = rcvtrk.wh_id
+                                where trlr.yard_loc = wrkque.srcloc
+                                  and trlr.yard_loc_wh_id = wrkque.wh_id)
+                         end) as inbound_order,
+                        1 as directed,
+                        zonmst.wrkzon,
+                        wrkque.asg_usr_id as assigned_user_id,
+                        wrkque.ack_usr_id as acknowledged_user_id,
+                        asg_adr.first_name as asg_first_name,
+                        asg_adr.last_name as asg_last_name,
+                        ack_adr.first_name as ack_first_name,
+                        ack_adr.last_name as ack_last_name,
+                        workdata.work_type,
+                        workdata.lblseq,
+                        workdata.est_time,
+                        workdata.workVolume as workVolume,
+                        workdata.workWeight as workWeight,
+                        workdata.customerNumber as customerNumber,
+                        workdata.itemFamily as itemFamily,
+                        workdata.manualWorkSequence as manualWorkSequence,
+                        workdata.stop_identifier as stop_identifier,
+                        workdata.workRelTypeManualFlag as workRelTypeManualFlag,
+						inventory_view.inv_attr_str8
+                   from (select work_queue_recs.reqnum,
+                                work_queue_recs.list_id,
+                                (case when count(distinct picks_data.subnum) > 0 then @mlsMultiple || '(' || to_char((select count(distinct ph.wrkref)
+                                                                                                                        from pckwrk_hdr ph
+                                                                                                                       where ph.ctnnum = picks_data.subnum
+                                                                                                                         and @+ph.wh_id)) || ')'
+                                      when count(distinct picks_data.list_id) > 1 then @mlsMultiple || '(' || to_char(count(distinct picks_data.wrkref)) || ')'
+                                      when count(distinct picks_data.wrkref) > 1 then @mlsMultiple || '(' || to_char(count(distinct picks_data.wrkref)) || ')'
+                                      else nvl(max(work_queue_recs.wrkref), max(picks_data.wrkref))
+                                 end) as wrkref,
+                                decode(count(distinct picks_data.prt_client_id), 0, NULL, 1, max(picks_data.prt_client_id), @mlsMultiple || '(' || to_char(count(distinct picks_data.prt_client_id)) || ')') as prt_client_id,
+                                decode(max(picks_data.unique_pallet_id), null, 0, 1) as palctl_wrk_flg,
+                                decode(count(distinct picks_data.ship_id), 0, NULL, 1, max(picks_data.ship_id), @mlsMultiple || '(' || to_char(count(distinct picks_data.ship_id)) || ')') as ship_id,
+                                decode(count(distinct picks_data.cponum), 0, NULL, 1, max(picks_data.cponum), @mlsMultiple || '(' || to_char(count(distinct picks_data.cponum)) || ')') as cponum,
+                                decode(count(distinct stop.car_move_id), 0, NULL, 1, max(stop.car_move_id), @mlsMultiple || '(' || to_char(count(distinct stop.car_move_id)) || ')') as load_identifier,
+                                decode(count(distinct picks_data.ordnum), 0, NULL, 1, max(picks_data.ordnum), @mlsMultiple || '(' || to_char(count(distinct picks_data.ordnum)) || ')') as source_id,
+                                decode(count(distinct picks_data.subnum), 0, NULL, 1, max(distinct picks_data.subnum), @mlsMultiple || '(' || to_char(count(distinct picks_data.subnum)) || ')') as ctnnum,
+                                decode(count(distinct picks_data.prtnum), 0, NULL, 1, max(picks_data.prtnum), @mlsMultiple || '(' || to_char(count(distinct picks_data.prtnum)) || ')') as prtnum,
+                                decode(count(distinct nvl(picks_data.dsp_prtnum, picks_data.prtnum)), 0, NULL, 1, max(nvl(picks_data.dsp_prtnum, picks_data.prtnum)), @mlsMultiple || '(' || to_char(count(distinct nvl(picks_data.dsp_prtnum, picks_data.prtnum))) || ')') as altprtnum,
+                                decode(count(distinct substr(nvl(picks_data.item_lngdsc, picks_data.item_short_dsc), 1, 45)), 0, NULL, 1, max(distinct substr(nvl(picks_data.item_lngdsc, picks_data.item_short_dsc), 1, 45)), NULL) as description,
+                                (case when max(picks_data.subnum) is not null then(select sum(pd.pckqty)
+                                                                                     from pckwrk_hdr ph
+                                                                                     join pckwrk_dtl pd
+                                                                                       on pd.wrkref = ph.wrkref
+                                                                                    where ph.ctnnum = picks_data.subnum
+                                                                                      and @+ph.wh_id)
+                                      when work_queue_recs.list_id is not null then(select sum(pd.pckqty)
+                                                                                      from pckwrk_hdr ph
+                                                                                      join pckwrk_dtl pd
+                                                                                        on pd.wrkref = ph.wrkref
+                                                                                     where ph.list_id = work_queue_recs.list_id
+                                                                                       and @+ph.wh_id)
+                                      when work_queue_recs.wrkref is not null then(select sum(pd.pckqty)
+                                                                                     from pckwrk_hdr ph
+                                                                                     join pckwrk_dtl pd
+                                                                                       on pd.wrkref = ph.wrkref
+                                                                                    where ph.wrkref = work_queue_recs.wrkref
+                                                                                      and @+ph.wh_id)
+                                      else sum(picks_data.dtl_pckqty)
+                                 end) as pckqty,
+                                (case when max(picks_data.subnum) is not null then(select sum(pd.appqty)
+                                                                                     from pckwrk_hdr ph
+                                                                                     join pckwrk_dtl pd
+                                                                                       on pd.wrkref = ph.wrkref
+                                                                                    where ph.ctnnum = picks_data.subnum
+                                                                                      and @+ph.wh_id)
+                                      when work_queue_recs.list_id is not null then(select sum(pd.appqty)
+                                                                                      from pckwrk_hdr ph
+                                                                                      join pckwrk_dtl pd
+                                                                                        on pd.wrkref = ph.wrkref
+                                                                                     where ph.list_id = work_queue_recs.list_id
+                                                                                       and @+ph.wh_id)
+                                      when work_queue_recs.wrkref is not null then(select sum(pd.appqty)
+                                                                                     from pckwrk_hdr ph
+                                                                                     join pckwrk_dtl pd
+                                                                                       on pd.wrkref = ph.wrkref
+                                                                                    where ph.wrkref = work_queue_recs.wrkref
+                                                                                      and @+ph.wh_id)
+                                      else sum(picks_data.dtl_appqty)
+                                 end) as appqty,
+                                decode(count(distinct picks_data.pck_uom), 0, NULL, 1, max(picks_data.pck_uom), @mlsMultiple || '(' || to_char(count(distinct picks_data.pck_uom)) || ')') as pck_uom,
+                                decode(count(distinct picks_data.wkonum), 0, NULL, 1, max(picks_data.wkonum), @mlsMultiple || '(' || to_char(count(distinct picks_data.wkonum)) || ')') as wkonum,
+                                decode(count(distinct picks_data.wkorev), 0, NULL, 1, max(picks_data.wkorev), @mlsMultiple || '(' || to_char(count(distinct picks_data.wkorev)) || ')') as wkorev,
+                                (case when count(distinct picks_data.wrkref) > 0 then 1
+                                      when count(distinct picks_data.list_id) > 0 then 1
+                                      else 0
+                                 end) as pckflg,
+                                decode(count(distinct picks_data.wrktyp), 0, NULL, 1, max(picks_data.wrktyp), @mlsMultiple || '(' || to_char(count(distinct picks_data.wrktyp)) || ')') as work_type,
+                                decode(count(distinct picks_data.lblseq), 0, NULL, 1, max(picks_data.lblseq), @mlsMultiple || '(' || to_char(count(distinct picks_data.lblseq)) || ')') as lblseq,
+                                (case when work_queue_recs.list_id is not null then(select max(pcklst.est_time)
+                                                                                      from pcklst
+                                                                                     where pcklst.list_id = work_queue_recs.list_id)
+                                      when work_queue_recs.wrkref is not null then(select max(ph.est_time)
+                                                                                     from pckwrk_hdr ph
+                                                                                     join pckwrk_dtl pd
+                                                                                       on pd.wrkref = ph.wrkref
+                                                                                    where ph.wrkref = work_queue_recs.wrkref
+                                                                                      and @+ph.wh_id)
+                                      else max(picks_data.est_time)
+                                 end) as est_time,
+                                (case when work_queue_recs.list_id is not null then(select max(pcklst.totvol)
+                                                                                      from pcklst
+                                                                                     where pcklst.list_id = work_queue_recs.list_id)
+                                      when work_queue_recs.list_id is null then(max(picks_data.pick_vol))
+                                      else 0
+                                 end) as workVolume,
+                                (case when work_queue_recs.list_id is not null then(select max(pcklst.totwgt)
+                                                                                      from pcklst
+                                                                                     where pcklst.list_id = work_queue_recs.list_id)
+                                      when work_queue_recs.list_id is null then(max(picks_data.pick_wgt))
+                                      else 0
+                                 end) as workWeight,
+                                decode(count(distinct picks_data.stcust), 0, NULL, 1, max(picks_data.stcust), @mlsMultiple || '(' || to_char(count(distinct picks_data.stcust)) || ')') customerNumber,
+                                decode(count(distinct picks_data.prtfam), 0, NULL, 1, max(picks_data.prtfam), @mlsMultiple || '(' || to_char(count(distinct picks_data.prtfam)) || ')') itemFamily,
+                                max(work_queue_recs.man_rel_seq) as manualWorkSequence,
+                                decode(count(distinct stop.stop_id), 0, NULL, 1, max(stop.stop_id), @mlsMultiple || '(' || to_char(count(distinct stop.stop_id)) || ')') as stop_identifier,
+                                max(case when car_move.wrk_rel_typ = 'MANUAL' then 1
+                                         else 0
+                                    end) as workRelTypeManualFlag
+                           from work_queue_recs
+                           left
+                           join (select pick_work.reqnum,
+                                        pick_work.wrkref,
+                                        pick_work.list_id,
+                                        pick_work.wh_id,
+                                        pick_work.prtnum,
+                                        pick_work.prt_client_id,
+                                        pick_work.unique_pallet_id,
+                                        pckwrk_dtl.ship_id,
+                                        pckwrk_dtl.ordnum,
+                                        pckwrk_dtl.subnum,
+                                        pckwrk_dtl.pckqty dtl_pckqty,
+                                        pckwrk_dtl.appqty dtl_appqty,
+                                        pick_work.pck_uom,
+                                        pckwrk_dtl.wkonum,
+                                        pckwrk_dtl.wkorev,
+                                        pick_work.wrktyp,
+                                        pick_work.lblseq,
+                                        pick_work.est_time,
+                                        pick_work.pcksts,
+                                        ord.cponum,
+                                        shipment.stop_id,
+                                        prtmst.dsp_prtnum,
+                                        prtmst.prtfam,
+                                        prtdsc.lngdsc item_lngdsc,
+                                        prtdsc.short_dsc item_short_dsc,
+                                        pckwrk_dtl.stcust,
+                                        (case when pick_work.list_id is null then(case when (prtftp_dtl.len * prtftp_dtl.hgt * prtftp_dtl.wid) <> 0 then(pick_work.pckqty / prtftp_dtl.untqty *(prtftp_dtl.len * prtftp_dtl.hgt * prtftp_dtl.wid))
+                                                                                       else 0
+                                                                                  end)
+                                              else 0
+                                         end) as pick_vol,
+                                        (case when pick_work.list_id is null then(case when (prtftp_dtl.grswgt) <> 0 then(pick_work.pckqty / prtftp_dtl.untqty * prtftp_dtl.grswgt)
+                                                                                       else 0
+                                                                                  end)
+                                              else 0
+                                         end) as pick_wgt
+                                   from (select work_queue_recs.reqnum,
+                                                pckwrk_hdr.wrkref,
+                                                pckwrk_hdr.wrktyp,
+                                                pckwrk_hdr.list_id,
+                                                pckwrk_hdr.pcksts,
+                                                pckwrk_hdr.pck_uom,
+                                                pckwrk_hdr.client_id,
+                                                pckwrk_hdr.prtnum,
+                                                pckwrk_hdr.prt_client_id,
+                                                pckwrk_hdr.pckqty,
+                                                pckwrk_hdr.lblseq,
+                                                pckwrk_hdr.unique_pallet_id,
+                                                pckwrk_hdr.est_time,
+                                                pckwrk_hdr.wh_id
+                                           from pckwrk_hdr
+                                           join work_queue_recs
+                                             on work_queue_recs.wrkref = pckwrk_hdr.wrkref
+                                            and work_queue_recs.wh_id = pckwrk_hdr.wh_id
+                                          where pckwrk_hdr.pcksts != 'C'
+                                            and pckwrk_hdr.ctnnum is null
+                                         union
+                                         select work_queue_recs.reqnum,
+                                                pckwrk_hdr.wrkref,
+                                                pckwrk_hdr.wrktyp,
+                                                pckwrk_hdr.list_id,
+                                                pckwrk_hdr.pcksts,
+                                                pckwrk_hdr.pck_uom,
+                                                pckwrk_hdr.client_id,
+                                                pckwrk_hdr.prtnum,
+                                                pckwrk_hdr.prt_client_id,
+                                                pckwrk_hdr.pckqty,
+                                                pckwrk_hdr.lblseq,
+                                                pckwrk_hdr.unique_pallet_id,
+                                                pckwrk_hdr.est_time,
+                                                pckwrk_hdr.wh_id
+                                           from pckwrk_hdr
+                                           join work_queue_recs
+                                             on work_queue_recs.list_id = pckwrk_hdr.list_id
+                                            and work_queue_recs.wh_id = pckwrk_hdr.wh_id
+                                          where pckwrk_hdr.pcksts != 'C'
+                                            and pckwrk_hdr.ctnnum is null) pick_work
+                                   join pckwrk_dtl
+                                     on pckwrk_dtl.wrkref = pick_work.wrkref
+                                   left
+                                   join prtmst
+                                     on prtmst.prtnum = pick_work.prtnum
+                                    and prtmst.prt_client_id = pick_work.prt_client_id
+                                    and prtmst.wh_id_tmpl = pick_work.wh_id
+                                   left
+                                   join prtdsc
+                                     on prtdsc.colnam = 'prtnum|prt_client_id|wh_id_tmpl'
+                                    and prtdsc.colval = pick_work.prtnum || '|' || pick_work.prt_client_id || '|' || pick_work.wh_id
+                                    and prtdsc.locale_id = @user_locale
+                                   left
+                                   join ord
+                                     on ord.ordnum = pckwrk_dtl.ordnum
+                                    and ord.client_id = pick_work.client_id
+                                    and ord.wh_id = pick_work.wh_id
+                                   left
+                                   join shipment
+                                     on shipment.ship_id = pckwrk_dtl.ship_id
+                                   left
+                                   join prtftp_dtl
+                                     on prtftp_dtl.prtnum = pick_work.prtnum
+                                    and prtftp_dtl.uomcod = pick_work.pck_uom
+                                    and prtftp_dtl.prt_client_id = pick_work.prt_client_id
+                                    and prtftp_dtl.wh_id = pick_work.wh_id) picks_data
+                             on picks_data.reqnum = work_queue_recs.reqnum
+                           left
+                           join stop
+                             on (stop.stop_id = picks_data.stop_id or stop.stop_id = work_queue_recs.refloc)
+                           left
+                           join car_move
+                             on car_move.car_move_id = stop.car_move_id
+                          where @+picks_data.subnum^ctnnum
+                          group by work_queue_recs.reqnum,
+                                work_queue_recs.list_id,
+                                work_queue_recs.wrkref,
+                                picks_data.subnum) workdata
+                   join wrkque
+                     on wrkque.reqnum = workdata.reqnum
+                   left
+                   join rplwrk
+                     on rplwrk.list_id = wrkque.list_id
+                   left
+                   join asg_role
+                     on wrkque.asg_role_id = asg_role.asg_role_id
+                   left
+                   join zonmst
+                     on zonmst.wrk_zone_id = wrkque.src_wrk_zone_id
+                   left
+                   join les_usr_ath asg_user
+                     on asg_user.usr_id = wrkque.asg_usr_id
+                   left
+                   join adrmst asg_adr
+                     on asg_adr.adr_id = asg_user.adr_id
+                   left
+                   join les_usr_ath ack_user
+                     on ack_user.usr_id = wrkque.ack_usr_id
+                   left
+                   join adrmst ack_adr
+                     on ack_adr.adr_id = ack_user.adr_id
+                   left
+                   join inventory_view
+                     on inventory_view.lodnum = wrkque.lodnum
+                   left
+                   join invhld
+                     on invhld.dtlnum = inventory_view.dtlnum)
+ select *
+   from main
+  where @%ship_id
+    and @%load_identifier
+    and @%source_id]
+]]>
+</local-syntax>
+</command>

@@ -1,0 +1,85 @@
+<command>
+  <name>update usr movement path for pallet move</name>
+  <description>update usr movement path for pallet move</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* update usr movement path for pallet move
+ * Version history:
+ *  2022-05-16 Radina Ivanova    Initial version
+ *  2023-06-05 Marco Schouwenaar Removed pckwrk_view to improve performance 
+ */
+
+publish data
+ where asset = @asset_typ
+|
+[select src.mov_zone_id src_mov_zone_id,
+        pckwrk_dtl.dst_mov_zone_id,
+        pckwrk_dtl.cmbcod
+   from pckwrk_hdr
+   join pckwrk_dtl
+     on (pckwrk_hdr.wrkref = pckwrk_dtl.wrkref 
+    and pckwrk_hdr.wh_id = pckwrk_dtl.wh_id )
+   join locmst src
+     on (src.wh_id = pckwrk_hdr.wh_id
+    and  src.stoloc = pckwrk_hdr.srcloc)
+  where pckwrk_hdr.srcloc = @srcloc
+    and pckwrk_hdr.wh_id = @wh_id
+    and pckwrk_hdr.appqty = 0]
+|
+[select distinct 'x'
+   from mov_path_dtl
+  where src_mov_zone_id = @src_mov_zone_id
+    and dst_mov_zone_id = @dst_mov_zone_id
+    and lodlvl = 'L'
+    and cri_id like 'ASSET%'] catch(-1403)
+|
+if (@? = 0)
+{
+    [delete
+       from pckmov
+      where cmbcod = @cmbcod] catch(-1403)
+    |
+    {
+        [select *
+           from mov_path_dtl
+          where src_mov_zone_id = @src_mov_zone_id
+            and dst_mov_zone_id = @dst_mov_zone_id
+            and lodlvl = 'L'
+          order by hopseq]
+        |
+        if (@cri_id like 'ASSET%')
+        {
+            execute server command
+             where cmd = '[select 1 from dual where ' || '@' || @cri_id || ']' catch(-1403)
+        }
+        |
+        if (@? = 0)
+        {
+            [select nvl(max(seqnum) + 1, 0) seqnum
+               from pckmov
+              where cmbcod = @cmbcod]
+            |
+            create record
+             where table = 'pckmov'
+               and mov_zone_id = @hop_mov_zone_id
+               and rescod = 'XXXX'
+               and arrqty = 0
+               and prcqty = 0
+        }
+    }
+    ;
+    [select nvl(max(seqnum) + 1, 0) seqnum
+       from pckmov
+      where cmbcod = @cmbcod]
+    |
+    create record
+     where table = 'pckmov'
+       and mov_zone_id = @dst_mov_zone_id
+       and rescod = 'XXXX'
+       and arrqty = 0
+       and prcqty = 0
+}
+]]>
+</local-syntax>
+</command>

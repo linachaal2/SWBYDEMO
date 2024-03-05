@@ -1,0 +1,147 @@
+<command>
+  <name>sl_process usr uc_package_type</name>
+  <description>sl_process usr uc_package_type</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* -----------------------------------------------------------------------------
+ * sl_process usr uc_package_type
+ * -----------------------------------------------------------------------------
+ * Processes the UC_PACKAGE_TYPE segment of the interface UC_PACKAGE_TYPE 
+ * V2018.1 into the usr_packing_map table
+ * -----------------------------------------------------------------------------
+ * V01, 2018-11-24, Stephan.Doens@Starware.nl
+ * V02	2020-01-23, Jasper Ringoir
+ * -----------------------------------------------------------------------------
+ */
+validate stack variable not null
+ where name = 'trntyp'
+|
+validate stack variable not null
+ where name = 'uc_code'
+|
+validate stack variable not null
+ where name = 'uc_desc'
+|
+validate stack variable not null
+ where name = 'uc_usage'
+|
+validate stack variable not null
+ where name = 'uc_type'
+|
+validate stack variable not null
+ where name = 'uc_stack'
+|
+validate stack variable not null
+ where name = 'uc_len'
+|
+validate stack variable not null
+ where name = 'uc_wid'
+|
+validate stack variable not null
+ where name = 'uc_hgt'
+|
+validate stack variable not null
+ where name = 'netwgt'
+|
+publish data
+ where uc_active = decode(@trntyp, 'R', 1, 'D', 0, -1)
+|
+if (@uc_stack = '0')
+{
+	publish data where uc_stack_num = 0
+}
+else
+{
+	validate stack variable not null
+ 	where name = 'uc_stack_num'
+}
+|
+[select 'X'
+   from usr_packing_map
+  where uc_code = @uc_code] catch(-1403)
+|
+if (@? = -1403)
+{
+    /* since the uc_code isn't there yet, we'll always need to do an insert; 
+     * for trntyp = 'D', uc_active will be set to 0.
+     */
+    create record
+     where table = 'USR_PACKING_MAP'
+       and pk_upper_case = 'UC_CODE'
+       and uc_code = @uc_code
+       and uc_desc = @uc_desc
+       and uc_usage = @uc_usage
+       and uc_type = @uc_type
+       and uc_stack = @uc_stack
+	   and uc_stack_num = @uc_stack_num
+       and uc_active = @uc_active
+       and uc_len = to_number(@uc_len)
+       and uc_wid = to_number(@uc_wid)
+       and uc_hgt = to_number(@uc_hgt)
+       and uc_hgt_dlt = nvl(to_number(@uc_hgt_dlt),0)
+       and uc_netwgt = to_number(@netwgt)
+       and ins_dte = sysdate
+       and last_upd_dt = ''
+       and ins_user_id = nvl(@usr_id, @@usr_id)
+       and last_upd_user_id = ''
+}
+else
+{
+    if (@trntyp = 'D')
+    {
+        /*
+           change record
+           where table = 'USR_PACKING_MAP'
+           and uc_code = @uc_code
+           and uc_active = @uc_active
+           and last_upd_dt = sysdate
+           and last_upd_user_id = nvl(@usr_id, @@usr_id) */
+        /* NOTE: Change record cannot be used due to missing PK index on the table */
+        [update usr_packing_map
+            set uc_active = @uc_active,
+                last_upd_dt = sysdate,
+                last_upd_user_id = nvl(@usr_id, @@usr_id)
+          where uc_code = @uc_code]
+    }
+    else if (@trntyp = 'R')
+    {
+        /*
+           change record
+           where table = 'USR_PACKING_MAP'
+           and pk_upper_case = 'UC_CODE'
+           and uc_code = @uc_code
+           and uc_active = @uc_active
+           and last_upd_dt = sysdate
+           and last_upd_user_id = nvl(@usr_id, @@usr_id)
+           and uc_desc = @uc_desc
+           and uc_usage = @uc_usage
+           and uc_type = @uc_type
+           and uc_stack = to_number(@uc_stack)
+           and len = to_number(@len)
+           and wid = to_number(@wid)
+           and hgt = to_number(@hgt)
+           and uc_hgt_dlt = nvl(to_number(@uc_hgt_dlt),0)
+           and netwgt = to_number(@netwgt)  */
+        /* NOTE: Change record cannot be used due to missing PK index on the table */
+        [update usr_packing_map
+            set uc_desc = @uc_desc,
+                uc_usage = @uc_usage,
+                uc_type = @uc_type,
+                uc_stack = to_number(@uc_stack),
+				uc_stack_num = to_number(@uc_stack_num),
+                uc_active = @uc_active,
+                uc_len = to_number(@uc_len),
+                uc_wid = to_number(@uc_wid),
+                uc_hgt = to_number(@uc_hgt),
+                uc_hgt_dlt = nvl(to_number(@uc_hgt_dlt),0),
+                uc_netwgt = to_number(@netwgt),
+                last_upd_dt = sysdate,
+                last_upd_user_id = nvl(@usr_id, @@usr_id)
+          where uc_code = @uc_code]
+    }
+}
+]]>
+</local-syntax>
+  <argument name="arg" datatype="string">argument description</argument>
+</command>

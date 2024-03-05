@@ -1,0 +1,59 @@
+<command>
+<name>allocate wave</name>
+<description>Allocate Wave</description>
+<type>Local Syntax</type>
+<local-syntax>
+<![CDATA[
+    /* allocate wave
+    * User override allocate wave to a start date of the allocation. (TEMPFIX)
+    * Version history:
+    * 2018-10-18 Salem Hamze Initial version.
+    */
+    publish data
+    where allocate_wave_start = sysdate
+    |
+    [[
+        import com.redprairie.moca.MocaContext
+        import com.redprairie.moca.MocaResults
+        import com.redprairie.moca.util.MocaUtils
+        MocaContext _mocaContext
+        _mocaContext = MocaUtils.currentContext()
+        value = _mocaContext.getSystemVariable("job_id")
+        return value;
+    ]]
+    |
+    /* ignore_threading should only be enabled when we know this is coming from auto allocation job */
+    if (@value = 'PROCESS-AUTO-ALLOCATION' AND @ignore_threading=1 )
+    {
+        write trace message where msg = 'Overriding ignore_threading'
+        |
+        commit
+        |
+        publish data where ignore_threading=0
+    }
+    |
+    ^allocate wave
+    where @*
+]]></local-syntax>
+
+<documentation>
+
+<remarks>
+<![CDATA[
+  <p>
+  This command is essentially a wrapper around the allocate pick group
+  command.  It wraps the allocate pick group command to allow the  register pick group allocation complete command to run, to all
+  triggers to be fired at the end of both of those commands.
+  </p>
+]]>
+</remarks>
+
+<exception value="eOK">Normal successful completion</exception>
+
+<seealso cref="allocate pick group"></seealso>
+<seealso cref="register pick group allocation complete"></seealso>
+<seealso cref="change held pick status"></seealso>
+<seealso cref="publish data combination"></seealso>
+
+</documentation>
+</command>

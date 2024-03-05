@@ -1,0 +1,43 @@
+<command>
+  <name>process usr rf multiple lpns for deposit</name>
+  <description>process usr rf multiple lpns for deposit</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* move multiple LPNS to deposit locations
+ * Version history:
+ *  2020-04-28  Raoul Scholten  Initial version.
+ */
+publish data
+ where devcod = nvl(@devcod, @@devcod)
+|
+get warehouse id
+|
+if (@actcod = 'TRLR_LOAD' or @actcod = 'ASN_NONTRUST')
+{
+    [select distinct lodnum lpns_on_loc,
+            stoloc
+       from inventory_view
+      where lodnum = @lpns_on_loc
+      order by lodnum]
+}
+else
+{
+    [select distinct lodnum lpns_on_loc,
+            stoloc
+       from inventory_view
+      where stoloc = @devcod
+      order by lodnum]
+}
+|
+move inventory
+ where devcod = @devcod
+   and srclod = @lpns_on_loc
+   and srcloc = @stoloc
+   and dstloc = @dstloc catch(@?)
+|
+hide stack variable
+ where name = 'srclod'
+]]>
+</local-syntax>
+</command>

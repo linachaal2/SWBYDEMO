@@ -1,0 +1,30 @@
+<command>
+  <name>mark usr grote partij as gebroken levering</name>
+  <description>mark usr grote partij as gebroken levering</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* mark usr grote partij as gebroken levering
+ * Marks all loads in a grote partij as a gebroken levering.
+ * Version history:
+ *  2018-12-28  Salem Hamze  Initial version.
+ */
+validate stack variable not null
+ where name = 'lodnum'
+|
+/* Don't need a catch here because it also returns the passed load. */
+[update invlod
+    set load_attr5_flg = 1
+  where lodnum in (select all_gp_loads.lodnum
+                     from inventory_view gp_load
+                    inner
+                     join inventory_view all_gp_loads
+                       on all_gp_loads.inv_attr_int1 = gp_load.inv_attr_int1
+                      and all_gp_loads.prt_client_id = gp_load.prt_client_id
+                      and all_gp_loads.prtnum = gp_load.prtnum
+                      and all_gp_loads.lotnum = gp_load.lotnum
+                    where gp_load.lodnum = @lodnum)]
+]]>
+</local-syntax>
+  <argument name="lodnum" required="yes" datatype="string">The "template" load which is used to retrieve all the other loads for the grote partij.</argument>
+</command>

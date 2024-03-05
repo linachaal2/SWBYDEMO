@@ -1,0 +1,20 @@
+<action>
+  <id>usrDeleteDummyItem</id>
+  <name>usrDeleteDummyItem</name>
+  <description>Remove work and holdcodes for dummy items and themselves </description>
+  <type>DELETE</type>
+  <ws>
+     <method>DELETE</method>
+	 <href>usrDeleteDummyItem/{pk}</href>
+  </ws>
+  <impl>
+     <command>remove usr dummyload</command>
+  	 <arguments>
+		<argument name="lodnum" type="string" location="path" required="true" />
+	 </arguments>
+  </impl>
+  <auth>
+     <opt>optOpen</opt>
+  </auth>
+  <primary>true</primary>
+</action>

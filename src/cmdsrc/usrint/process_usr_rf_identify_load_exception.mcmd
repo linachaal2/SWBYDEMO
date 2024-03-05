@@ -1,0 +1,124 @@
+<command>
+  <name>process usr rf identify load exception</name>
+  <description>process usr rf identify load exception</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* process usr rf identify load exception
+ * Process the data in the USR_EXCEPTION RF screen.
+ * Version history:
+ *  2018-10-31  Salem Hamze  Initial version.
+ *  2018-12-04  Salem Hamze  Added mode.
+ */
+publish data
+ where devcod = nvl(@devcod, @@devcod)
+|
+get warehouse id
+|
+{
+    list usr rf identify load exception information
+     where wh_id = @wh_id
+       and devcod = @devcod
+    |
+    /* We publish the variables here because this command will get parameters with the same name. 
+     * The from variables are the ones which were in the screen before any newly made changes, the org values are the "database values". 
+     */
+    publish data
+     where org_hldpfx = @org_hldpfx
+       and fr_hldpfx = @hldpfx
+       and org_hldnum = @org_hldnum
+       and fr_hldnum = @hldnum
+       and org_reacod = @org_reacod
+       and fr_reacod = @reacod
+       and org_invtyp = @org_invtyp
+       and fr_invtyp = @invtyp
+       and org_asset_typ = @org_asset_typ
+       and fr_asset_typ = @asset_typ
+       and org_nottxt = @org_nottxt
+       and fr_nottxt = @nottxt
+}
+|
+/* Remove the existing context values. */
+{
+    [select *
+       from device_context
+      where wh_id = @wh_id
+        and devcod = @devcod
+        and dev_varnam = 'USR_IDENTIFY_LOAD_EX'] catch(-1403)
+    |
+    if (@? != -1403)
+    {
+        pop device context value
+    };
+    noop
+}
+|
+/* Add the value to the device context if something was changed compared to the original hold (as currently in the db). */
+if (@org_hldpfx != @hldpfx or @org_hldnum != @hldnum or @org_reacod != @reacod or @org_invtyp != @invtyp or @org_asset_typ != @asset_typ or @org_nottxt != @nottxt)
+{
+    /* Based on the policies we determine if this is a hold which needs to be added or if it needs to be added and removed (registered). 
+       A = Add, R = Remove, L = Log
+     */
+    if (@hldnum = '')
+    {
+        publish data
+         where mode = 'R'
+    }
+    else
+    {
+        [select nvl(max(rtstr2), 'A') as mode
+           from poldat_view
+          where wh_id = @wh_id
+            and polcod = 'USR-RF-FORM'
+            and polvar = 'USR_EXCEPTION'
+            and polval = 'HLDNUM'
+            and rtstr1 = @hldnum
+            and rtnum1 = 1]
+    }
+    |
+    push device context value
+     where devcod = @devcod
+       and wh_id = @wh_id
+       and dev_varnam = 'USR_IDENTIFY_LOAD_EX'
+       and value = 'MODE:' || @mode;
+    push device context value
+     where devcod = @devcod
+       and wh_id = @wh_id
+       and dev_varnam = 'USR_IDENTIFY_LOAD_EX'
+       and value = 'HLDPFX:' || @hldpfx;
+    push device context value
+     where devcod = @devcod
+       and wh_id = @wh_id
+       and dev_varnam = 'USR_IDENTIFY_LOAD_EX'
+       and value = 'HLDNUM:' || @hldnum;
+    push device context value
+     where devcod = @devcod
+       and wh_id = @wh_id
+       and dev_varnam = 'USR_IDENTIFY_LOAD_EX'
+       and value = 'REACOD:' || 'OVERIG';
+    push device context value
+     where devcod = @devcod
+       and wh_id = @wh_id
+       and dev_varnam = 'USR_IDENTIFY_LOAD_EX'
+       and value = 'INVTYP:' || @invtyp;
+    push device context value
+     where devcod = @devcod
+       and wh_id = @wh_id
+       and dev_varnam = 'USR_IDENTIFY_LOAD_EX'
+       and value = 'ASSET_TYP:' || @asset_typ;
+    push device context value
+     where devcod = @devcod
+       and wh_id = @wh_id
+       and dev_varnam = 'USR_IDENTIFY_LOAD_EX'
+       and value = 'NOTTXT:' || @nottxt;
+    noop
+}
+]]>
+</local-syntax>
+  <argument name="hldpfx" required="yes" datatype="string">hldpfx</argument>
+  <argument name="hldnum" required="yes" datatype="string">hldnum</argument>
+  <argument name="reacod" required="yes" datatype="string">reacod</argument>
+  <argument name="invtyp" required="yes" datatype="string">invtyp</argument>
+  <argument name="freetext" datatype="string">freetext</argument>
+  <argument name="asset_typ" datatype="string">asset_typ</argument>
+</command>

@@ -1,0 +1,9 @@
+Command: hello world
+    Level: PROJbase
+    Statement-Qualifier: Optional
+    Enabled: Y
+    Parse-Flag: Y
+    Insecure: Y
+    Type: C-function
+    Function: projHelloWorld
+End-Command

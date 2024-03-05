@@ -1,0 +1,47 @@
+<trigger>
+  <name>change usr rule name to lotnum</name>
+  <on-command>proto allocate inventory</on-command>
+  <description>change rule name to lotnum</description>
+  <fire-sequence>9200</fire-sequence>
+  <local-syntax>
+<![CDATA[
+/* Trigger to change the rulename sent in the interface to the selected LOTNUM
+ * change needed to make sure that same lotnumbers can be picked combined
+ *
+ * 2023-05-03 Marco Schouwenaar  Initial version
+ */
+[select pckwrk_hdr.wrkref, pckwrk_hdr.rule_nam 
+   from pckwrk_hdr, pckwrk_dtl 
+  where pckwrk_hdr.wrkref = pckwrk_dtl.wrkref 
+    and pckwrk_hdr.client_id = pckwrk_dtl.client_id 
+    and pckwrk_hdr.wh_id = pckwrk_dtl.wh_id  
+    and pckwrk_hdr.lotnum is null 
+    and pckwrk_dtl.wkonum is not null
+    and pckwrk_hdr.schbat=@schbat
+    and pckwrk_hdr.wh_id=@wh_id
+    and pckwrk_hdr.pcksts= 'P'
+    and exists (select 'x' 
+                  from alloc_rule_dtl 
+                 where pckwrk_hdr.rule_nam = alloc_rule_dtl.rule_nam 
+                   and pckwrk_hdr.wh_id = alloc_rule_dtl.wh_id
+                   and alloc_rule_dtl.field_name='lotnum')] catch (-1403)
+|
+if (@?=0)
+{
+    [select count(distinct field_name) field_num
+                  from alloc_rule_dtl 
+                 where alloc_rule_dtl.rule_nam = @rule_nam
+                   and alloc_rule_dtl.wh_id = @wh_id] catch(-1403)
+                   |
+    if (@field_num=1)
+    {
+        list available inventory for pick in location where wrkref = @wrkref and wh_id =@wh_id
+        |
+        [update pckwrk_hdr set lotnum=@lotnum, rule_nam=null where pckwrk_hdr.wrkref = @wrkref] catch(-1403)
+    }
+}
+
+]]>
+</local-syntax>
+  <enable>yes</enable>
+</trigger>

@@ -1,0 +1,54 @@
+/* USR-RFH002.msql
+ * USR-RFH002 Inbound Identification Label
+ * Version history:
+ *  2018-04-09  Raoul Scholten  Initial version.
+ *  2021-04-05  Radina Ivanova  Updated to match the select of USR-RFH003
+ *  2021-09-22  Raoul Scholten  Applied performance fix delivered by BY replacing prtftp_view with prtftp table
+ *  2022-04-26  Raoul Scholten  Adjusted visible lot field to display inv_attr_str4 if available else inv_attr_str8
+ *  2022-08-12  Marco Schouwenaar Adjusted value for big Characters 
+ */
+get warehouse id
+|
+[select invdtl.subnum,
+        substr(invdtl.lotnum, length(invdtl.lotnum) -1, 2) lotnum2,
+        adrmst.adrnam,
+        sum(invdtl.untqty) untqty,
+        invdtl.lotnum,
+		coalesce(invdtl.inv_attr_str4, invdtl.inv_attr_str8,lotnum) AuctionReference,
+        prtmst_view.prtnum,
+        prtdsc.short_dsc,
+        invdtl.inv_attr_str3,
+        invdtl.inv_attr_str2,
+        coalesce(pd5.hgt, 0) unthgt,
+        to_char(sysdate, 'DD-MM-YYYY HH24:mi') printdate
+   from invdtl
+   join supmst
+     on invdtl.supnum = supmst.supnum
+    and supmst.client_id = invdtl.prt_client_id
+   join adrmst
+     on adrmst.adr_id = supmst.adr_id
+    and adrmst.client_id = supmst.client_id
+   join prtmst_view
+     on prtmst_view.prtnum = invdtl.prtnum
+    and prtmst_view.prt_client_id = invdtl.prt_client_id
+   join prtdsc
+     on prtdsc.colval = (prtmst_view.prtnum || '|' || prtmst_view.prt_client_id || '|' || prtmst_view.wh_id_tmpl)
+    and prtdsc.colnam = 'prtnum|prt_client_id|wh_id_tmpl'
+    and prtdsc.locale_id = nvl(@locale_id, @@locale_id)
+   join prtftp
+     on (prtftp.prtnum = invdtl.prtnum and prtftp.ftpcod = invdtl.ftpcod and prtftp.prt_client_id = invdtl.prt_client_id)
+    and prtftp.wh_id = prtmst_view.wh_id
+   join prtftp_dtl pd5
+     on (pd5.prtnum = prtftp.prtnum and pd5.prt_client_id = prtftp.prt_client_id and pd5.wh_id = prtftp.wh_id and pd5.ftpcod = prtftp.ftpcod and pd5.stk_flg = 1)
+  where invdtl.subnum = @subnum
+    and prtmst_view.wh_id = @wh_id
+  group by invdtl.subnum,
+        adrmst.adrnam,
+        invdtl.lotnum,
+        prtmst_view.prtnum,
+        prtdsc.short_dsc,
+        invdtl.inv_attr_str3,
+        invdtl.inv_attr_str2,
+        invdtl.inv_attr_str4,
+        invdtl.inv_attr_str8,
+        coalesce(pd5.hgt, 0)]

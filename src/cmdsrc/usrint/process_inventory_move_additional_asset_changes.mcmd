@@ -1,0 +1,393 @@
+<command>
+<name>process inventory move additional asset changes</name>
+<description>process additional asset changes</description>
+<type>Local Syntax</type>
+
+<argument name="lodnum" datatype="string">Load Number</argument>
+<argument name="subnum" datatype="string">SubLoad Number</argument>
+<argument name="dstlod" datatype="string">Destination Load</argument>
+<argument name="dstsub" datatype="string">Destination Sub-Load Number</argument>
+<argument name="newdst" datatype="string">New Destination Load Number</argument>
+<argument name="plat_asset_typ" datatype="string">Platform asset type</argument>
+<argument name="wrkref" datatype="string">Work Reference</argument>
+
+<local-syntax>
+<![CDATA[
+/* process inventory move additional asset changes
+ * User version with bugfix for command "process inventory move additional asset changes".
+ * Version history:
+ *  2020-10-30  Radina Ivanova  Initial version. Pass usr_remove_linked_assets parameter to "process additional assets"
+ */
+
+    /*
+     * If this value is set in an earlier trigger we consolidated the inventory onto existing
+     * inventory so we should not attempt to create additional assets for newly created identifiers.
+     * We must use this flag since other checks can be legitimate cases.  The specific scenario that
+     * demanded this change is when we have attachment strategy of NEVER-ATTACH but we are doing
+     * consolidation in the location.  What happens is we create a new load during the move and then
+     * consolidation will delete it before we get here.  There is a later check that could be a valid
+     * scenario we cannot count on.
+     */
+    get session variable where name = 'consolidated_inventory' catch (-1403)
+    |
+    if (@value = 1)
+    {
+        noop;
+    }
+    /*
+    ** We are moving inventory to a new load. Let us check if the source load still exist to make sure if we are moving entire source load or it's a partial one.
+    ** 1. When we are moving the complete source load, we retain the platform asset but we move all the additional assets to Destination load.
+    ** 2. When we are moving partial pick from source with newdst = 1, eg: List Picking scenario. If we identify a new asset for the destination load
+    ** we make an entry to INV_ASSET for same.
+    */
+    else if(@newdst = 1 and  @dstlod)
+    {
+        /*
+        ** Verifying if the source load is removed completely, this happens only
+        ** when it's a full move.During a partial pick/list pick scenario
+        ** the original source load will still be retained.
+        */
+        [select 'x'
+           from invlod
+          where lodnum = @lodnum
+            and wh_id = nvl(@wh_id,@@wh_id)] catch(-1403)
+        |
+        if(@? = -1403)
+        {
+            /*
+            ** It is a full move and we are retrieving the asset details for source load
+            ** from INV_ASSET.
+            */
+            [select asset_typ old_lod_asset,
+                    untqty old_lod_qty,
+                    client_id,
+                    1 create_inv_asset
+               from inv_asset
+              where invtid = @lodnum]catch(-1403)
+            |
+            if(@? =0)
+            {
+                /*
+                ** We will not move Platform asset on to destination load.
+                ** Platform asset is available through trnMovLib.c.
+                */
+                if(@plat_asset_typ = @old_lod_asset and @old_lod_qty >1)
+                {
+                    /*
+                    ** We have additional similar to platform asset, ignore platform asset
+                    ** by reducing the quantity.
+                    */
+                    publish data
+                        where old_lod_qty = @old_lod_qty - 1
+                          and create_inv_asset = 1
+                }
+                else if(@plat_asset_typ = @old_lod_asset and @old_lod_qty = 1)
+                {
+                    /* There is only platform asset for this asset type,so ignore this.*/
+                    publish data
+                        where create_inv_asset = 1
+                }
+                |
+                /*
+                ** During List Picking, If inventory is picked from Multiple Location and
+                ** each location has LPN with different Handling Unit/Asset Type, System should not
+                ** add multiple record in INV_ASSET table for the Picked LPN (Destination LPN) when
+                ** Destination LPN is associated with Single HU
+                */
+                if((@wrkref <> "") or (@wrkref <> NULL))
+                {
+                    [select count('x') lstcnt
+                       from pckwrk_hdr
+                      where wrkref = @wrkref
+                        and list_id is not null
+                        and wh_id = nvl(@wh_id,@@wh_id)] catch(-1403)
+                    |
+                    if(@lstcnt > 0)
+                    {
+                        publish data where lod_asset = @asset_typ
+                    }
+                    else
+                    {
+                        publish data where lod_asset = @old_lod_asset
+                    }
+                }
+                |
+                /*
+                ** We create INV_ASSET for destination load if we do not have to ignore the platform asset.
+                ** However we always need to remove the INV_ASSET for Source Load.
+                */
+                process additional assets
+                    where dstlod = @dstlod
+                      and asset_typ = nvl(@lod_asset, @old_lod_asset)
+                      and untqty = @old_lod_qty
+                      and client_id = @client_id
+                      and lodnum = @lodnum
+                      and newdst = @newdst
+                      and create_inv_asset = @create_inv_asset
+                      and remove_inv_asset = 1
+                      and create_platform_asset = 0
+                      and load_cons_or_sub_move = 0
+                      and usr_remove_linked_assets = 1
+            }
+        }
+        else
+        {
+            /*
+            ** During list picking when we are picking partial qty to a destination load (to_id),
+            ** the source load will still be left behind and we need to associate the new asset to
+            ** the destination load.
+            */
+            process additional assets
+                where dstlod = @dstlod
+                  and lodnum = @lodnum
+                  and asset_typ = @asset_typ
+                  and newdst = @newdst
+                  and create_inv_asset = 1
+                  and remove_inv_asset = 0
+                  and create_platform_asset = 1
+                  and load_cons_or_sub_move = 0
+                  and untqty = 1
+        }
+    } >> junk
+    else if(@subnum and (@dstsub or @dstlod) and @newdst != 1)
+    {
+        /*
+        ** If we are moving sub to a existing destination SUB or LOAD or consolidating 2 loads,
+        ** 1. If we are moving a case to another case, we move corresponding sub-assets to destination case except for platform asset.
+        ** 2. If we are consolidating two loads, we move corresponding assets to destination load except for platform asset.
+        ** Consolidation of two loads here means we are actually trying to consolidate the last case or the only case associated to the
+        ** load on to a destination load.Hence the move will still be in terms of source case to a destination load/sub.
+        */
+        [select invlod.lodnum src_load_exist,
+                invsub.subnum src_sub_exist
+           from invlod
+                left outer join invsub
+                  on invsub.lodnum = invlod.lodnum
+                 and invsub.subnum = @subnum
+          where invlod.lodnum = @lodnum] catch(-1403)
+        |
+        /* Moving the assets associated to the source subnum to a destination sub */
+        /* If the src_sub_exist, we don't want to move any of the assets */
+        if( @src_sub_exist = '' and @dstsub)
+        {
+            /* Retrieve assets for the source Sub to move on to destination Sub.*/
+            [select asset_typ src_sub_asset,
+                    untqty src_sub_qty,
+                    client_id,
+                    0 ignore_platform
+               from inv_asset
+              where invtid = @subnum
+                and asset_typ is not null]catch(-1403)
+            |
+            if(@? =0)
+            {
+                /*
+                ** We will get the platform asset type from move inventory.
+                ** Need to ignore the platform asset from Source load or sub during the move.
+                */
+                if(@plat_asset_typ = @src_sub_asset)
+                {
+                    /*
+                    ** If the asset is same as platform asset validate the quantity and
+                    ** ignore platform asset if we have only platform asset.
+                    */
+                    if(@src_sub_qty > 1)
+                    {
+                        /*
+                        ** If quantity is greater than 1, we have additional asset similar to platform asset,
+                        ** reduce the quantity by 1 to ignore the platform asset.
+                        */
+                        publish data
+                            where src_sub_qty = @src_sub_qty - 1
+                        |
+                        /*
+                        ** We have additional assets to be moved,
+                        ** Create/Change INV_ASSET for source and destination SUB.
+                        */
+                        process additional assets
+                            where invtid = @dstsub
+                              and asset_typ = @src_sub_asset
+                              and src_qty = @src_sub_qty
+                              and client_id = @client_id
+                              and newdst = 0
+                              and load_cons_or_sub_move = 1
+                              and create_inv_asset = 0
+                              and remove_inv_asset = 0
+                              and create_platform_asset = 0
+                    }
+                }
+            }>> junk
+            |
+            /*
+            ** Remove INV_ASSET for Source Load.
+            */
+            process additional assets
+                where invtid = @subnum
+                  and asset_typ = @src_sub_asset
+                  and remove_inv_asset = 1
+                  and newdst = 0
+                  and create_inv_asset = 0
+                  and create_platform_asset = 0
+        }
+        |
+        if(@src_load_exist = '' and @dstlod)
+        {
+            /*
+            ** This section takes care of the move where we are trying to move the last case or the only case associated
+            ** to a load on to a destination load/sub.We get in here after verifying the souce load is removed completely
+            ** and we have a destination to which the inventory has to be consolidated into.
+            ** We start with getting asset_type associated to the oriinal source load.
+            ** All the asset details associated to the original load will have to be
+            ** now moved onto the destination load.
+            */
+            [select asset_typ src_lod_asset
+               from inv_asset
+              where invtid = @lodnum]catch(-1403)
+            |
+            /*
+            ** Check if it's the only or if it's the last case on the load,
+            ** if yes we now move the assets associated to the source
+            ** load, except for the platform assets both at load/sub load level
+            */
+            if(@src_lod_asset)
+            {
+                /*
+                ** We will get the platform asset type from move inventory.
+                ** Need to ignore the platform asset from Source load or sub during the move.
+                ** This because as we consolidate inventory, we leave behind the platform assets
+                ** for the source load and move the additional assets to the consolidated destination
+                ** load. These go in as additional assets  for the destination load as well.
+                */
+                if(@src_lod_asset = @plat_asset_typ)
+                {
+                    /*
+                    ** If the asset is same as platform asset validate the quantity
+                    ** and if the quantity is '1' it means we are dealing with platform asset
+                    ** which are to be ignored as we don't move them onto the destination load.
+                    */
+                    [select untqty src_lod_qty,
+                            client_id
+                       from inv_asset
+                      where invtid = @lodnum
+                        and asset_typ = @src_lod_asset]catch(-1403)
+                    |
+                    if(@src_lod_qty > 1)
+                    {
+                        /*
+                        ** If quantity is greater than 1, we have additional asset similar to platform asset,
+                        ** reduce the quantity by 1 to ignore the quantity of platform asset and move the
+                        ** rest on to the destination load .
+                        */
+                        publish data
+                            where src_lod_qty = @src_lod_qty - 1
+                              and ignore_platform = 0
+                    }
+                    else
+                    {
+                        /*
+                        ** There are no additional assets, ignore platform asset as it will not be
+                        ** moved to destination load/case.
+                        */
+                        publish data
+                            where ignore_platform = 1
+                    }
+                }
+                else
+                {
+                    /*
+                    ** The asset is not similar to the platform, hence without worrying too
+                    ** much about it's quantity we move the assets and it's quantity
+                    ** onto the destination load.
+                    */
+                    [select untqty src_lod_qty,
+                            client_id,
+                            0 ignore_platform
+                       from inv_asset
+                      where invtid = @lodnum
+                        and asset_typ = @src_lod_asset]catch(-1403)
+                }
+                |
+                if(@ignore_platform <> 1)
+                {
+                    process additional assets
+                        where invtid = @dstlod
+                          and asset_typ = @src_lod_asset
+                          and src_qty = @src_lod_qty
+                          and client_id = @client_id
+                          and load_cons_or_sub_move = 1
+                          and newdst = 0
+                          and remove_inv_asset = 0
+                          and create_inv_asset = 0
+                          and create_platform_asset = 0
+                } >> junk
+                |
+                /*
+                ** Remove INV_ASSET for Source Load.
+                */
+                process additional assets
+                    where invtid = @lodnum
+                      and asset_typ = @src_lod_asset
+                      and load_cons_or_sub_move = 0
+                      and newdst = 0
+                      and remove_inv_asset = 1
+                      and create_inv_asset = 0
+                      and create_platform_asset = 0
+            }
+        }
+    }
+
+]]>
+</local-syntax>
+
+<documentation>
+<remarks>
+<![CDATA[
+  <p>
+  This command is used to move the additional assets and update the inv_asset table
+  as and when the loads are consolidated. By move we mean we will remove from the source and create
+  on the destination.This is called as a trigger on move inventory, it's been written to handle the platform assets & additional assets
+  during consolidation of inventory.
+  </p>
+  <p>
+  This command is used to handle updating of INV_ASSET table with assets details after a move inventory
+  call.It will update the INV_ASSET table with  the required asset details in the
+  following four cases.
+  </p>
+  <p>
+   (1) We move the entire Source Load to a new Destination load
+   <i>   We first start by verifying if the source load is removed completely.
+   <ii>  If the source load is removed it means it's a Full move, in this case we get the associated additional
+         asset details and move them to the new destination load. Here we take care to ignore the platform asset.
+         But if the additional asset is similar to the platform asset we reduce the source asset quantity by '1'
+         to ignore the platform asset and move the rest additional assets to the destination load.
+   <iii> The other scenario we take care here is , if while moving the load the user scans a new asset_typ for
+         the destination load through ASSET_IDENTIFY, then we need to update the entry for the same in INV_ASSET
+         table against the new destination load.
+
+   (2) List Picking scenario -We do a partial pick from the Source Load to a new Destination load
+   <i>   In this case we verify the source load still exist
+   <ii>  We then just update the INV_ASSET table for the new asset identified for the Destination load.
+
+   (3) We are doing a case to case move
+   <i>   We start with verification of the Source Sub being removed.
+   <ii>  We then get the asset details for the Source Sub. Even here we ignore the platform asset associated to the Source
+         Sub and move the rest to the destination sub. In case the source platform asset and additional asset for the source are similar,
+         we reduce the quantity of the source assets by '1' and update the INV_ASSET table for the destination sub with rest of
+         the source assets.
+
+   (4) We are moving the last case or the only case associated to the load to a new destination load. This appears to be a
+       a load to load consolidation.
+   <i>   We start by verifying the load is removed
+   <ii>  We then get all the asset details associated to the last case/only case associated to the load.
+         We again will have to ignore the platform asset associated to the Sub and move the rest to the destination load.
+         Even here the quantity of the associated source assets is reduced by '1' if the additional asset is similar to the platform asset
+         for the source sub.
+  </p>
+]]>
+</remarks>
+
+<exception value="eOK">Normal successful completion</exception>
+<exception value="eDB_NO_ROWS_AFFECTED (510)">No data found</exception>
+
+</documentation>
+</command>

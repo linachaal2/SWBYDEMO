@@ -1,0 +1,23 @@
+<trigger>
+  <name>process usr background service usr-relabel</name>
+  <on-command>change usr inventory identifier</on-command>
+  <description>process usr background service usr-relabel</description>
+  <fire-sequence>9000</fire-sequence>
+  <local-syntax>
+<![CDATA[
+/* process usr background service usr-relabel
+ * Processes the background services for the usr relabel exit point USR-RELABEL.
+ * Version history:
+ *  2018-12-21  Salem Hamze  Initial version.
+ */
+process usr background services
+ where exitpnt = 'USR-RELABEL'
+   and wh_id = @wh_id
+   and from_id = @from_id
+   and to_id = @to_id
+   and lodlvl = @lodlvl
+   and reacod = @reacod
+]]>
+</local-syntax>
+  <enable>yes</enable>
+</trigger>

@@ -1,0 +1,91 @@
+<command>
+  <name>change usr gln location</name>
+  <description>change usr gln location</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* change usr gln location
+ *
+ * Version history:
+ *  2021-04-05  Radina Ivanova - Initial version
+ *  2022-02-18	Raoul Scholten - Adjusted command due to changing primary key usr_delivery_gln table
+ */
+    publish data where wh_id = nvl(@wh_id, @@wh_id)
+    |
+    if (@wh_id = '')
+    {
+        [select wh_id
+           from wh]
+    }
+    |
+    [select distinct 'x'
+       from locmst
+      where stoloc = @stoloc
+        and wh_id = @wh_id] catch(-1403)
+    |
+    if (@? != 0)
+    {
+         /* Location does not exist */
+         set return status where status = 90006
+    }
+    |
+	[select count(0) as loc_exists
+		from usr_gln_location
+		where stoloc = @stoloc
+		and wh_id = @wh_id] catch(-1403)
+	|
+	if (@loc_exists = 1)
+	{
+         /* Record for this location already exists */
+         set return status where status = 90050
+    }
+    |
+    [select distinct 'x'
+       from adrmst
+      where host_ext_id = @gln] catch(-1403)
+    |
+    if (@? = 0)
+    {	
+        [select stoloc fr_value
+           from usr_gln_location
+          where gln = @gln
+            and wh_id = @wh_id]
+		|
+		[select count(0) as loc_chg_exists
+			from usr_gln_location
+			where stoloc = @fr_value
+			and wh_id = @wh_id] catch(-1403)
+		|	
+		if (@loc_chg_exists = 1)
+		/* This is the current location so locvrc must be changed to location if not linked (haven) */
+		{
+			[update locmst
+				set locvrc = @fr_value
+				where stoloc = @fr_value
+				and wh_id = @wh_id]
+		}
+        |
+		if (@loc_exists = 0)
+		/* This is the location to be linked so locvrc must be changed to gln if not already linked to haven location */
+		{
+        [update locmst
+            set locvrc = @gln
+          where stoloc = @stoloc
+            and wh_id = @wh_id]
+		}
+        |
+        change record
+         where table = 'usr_gln_location'
+    }
+    else
+    {
+        /* GLN does not exist */
+        set return status where status = 90029
+    }
+     
+]]>
+</local-syntax>
+<argument name="gln" required="yes" datatype="string">GLN</argument>
+<argument name="wh_id" required="no" datatype="string">Warehouse ID</argument>
+<argument name="stoloc" required="yes" datatype="string">Location</argument>
+</command>

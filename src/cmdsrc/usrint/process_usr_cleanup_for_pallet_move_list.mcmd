@@ -1,0 +1,70 @@
+<command>
+  <name>process usr cleanup for pallet move list</name>
+  <description>process usr cleanup for pallet move list</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* process usr cleanup for pallet move list
+ * Version history:
+ *  2022-05-16 Radina Ivanova    Initial version
+ *  2023-06-30 Marco Schouwenaar Improvements for database locking after multithread pick release
+ */
+{
+    {
+        [select distinct value list_id
+           from device_context
+          where devcod = 'PALMOV'
+            and wh_id = @wh_id
+            and dev_varnam = 'pallet_move_list_ids'] catch(-1403)
+        |
+        if (@? = 0)
+        {
+            /* clear list_id and pcksts on remaining picks from previous lists, remove work */
+            /* let standard jobs build these picks into lists again */
+            {[select list_id
+               from pckwrk_hdr
+              where list_id = @list_id
+              for update nowait] catch(-1403)
+            |
+            [update pckwrk_hdr
+                set list_id = null,
+                    list_seqnum = null,
+                    list_grp_id = null,
+                    pcksts = 'L'
+              where list_id = @list_id] catch(-1403)
+              ;
+              noop
+            }
+            |
+            remove pick list
+             where list_id = @list_id catch(@?)
+            |
+            [select reqnum
+               from wrkque
+              where list_id = @list_id] catch(-1403)
+            |
+            if (@? = 0)
+            {
+                remove work request
+                 where reqnum = @reqnum
+            }
+            |
+            commit
+        }
+    };
+} catch(-54)
+|
+if (@? = -54)
+{  /* in  case off lock on list, keep trying until free of db lock */
+    process usr cleanup for pallet move list
+}
+else
+{
+    [delete
+       from device_context
+      where devcod = 'PALMOV'
+        and wh_id = @wh_id] catch(-1403)
+}
+]]>
+</local-syntax>
+</command>

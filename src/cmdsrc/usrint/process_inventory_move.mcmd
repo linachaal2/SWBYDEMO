@@ -1,0 +1,281 @@
+<command>
+  <name>process inventory move</name>
+  <description>Process Inventory Move</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* process inventory move
+ * User override process inventory move for depositing multiple lpns. (TEMPFIX)
+ * Version history:
+ *  2020-04-21  Raoul Scholten  Initial version.
+ *  2022-01-26  Radina Ivanova  include operation codes for picking to the check
+ *  2023-02-03  Marco Schouwenaar add client id from part client id if client id is null
+ *  2023-09-14  Marco Schouwenaar corrected overrule on given parameters conform spec
+ */
+publish data
+ where devcod = nvl(@devcod, @@devcod)
+|
+get usr rf multiple lpn handling flag
+|
+if (@mult_lpn_handling = 1)
+{
+    [select 'x' as deviceenabled,
+            opr.rtnum1 as skip_oprcod
+       from devmst,
+            rftmst,
+            poldat_view pv
+       left
+       join poldat_view opr
+         on (opr.wh_id=pv.wh_id 
+         and opr.polcod='USR-INVENTORY'
+         and opr.polvar = 'MULTIPLE-LPN-HANDLING'
+         and opr.polval = 'SKIP_OPRCOD'
+         and opr.rtnum1 = 1
+         and opr.rtstr1 = @oprcod
+         )
+      where devmst.devcod = rftmst.devcod
+        and devmst.devcod = @devcod
+        and devmst.devcls = 'R'
+        and pv.wh_id = nvl(@wh_id, @@wh_id)
+        and pv.polcod = 'USR-INVENTORY'
+        and pv.polvar = 'MULTIPLE-LPN-HANDLING'
+        and pv.polval = 'VEHICLETYPE'
+        and pv.rtnum1 = 1
+        and pv.rtstr1 = rftmst.vehtyp
+        and pv.wh_id=rftmst.wh_id
+        and pv.wh_id=devmst.wh_id] catch(-1403)
+    |
+    if (@deviceenabled = 'x' and (@actcod != 'ASN_NONTRUST' and @skip_oprcod !=1))
+    {
+        process usr rf multiple lpns for deposit
+         where devcod = @devcod and lpns_on_loc = @srclod
+        |
+        [select distinct (devcod)
+           from device_context
+          where devcod = @devcod
+            and @actcod != 'TRLR_LOAD'] catch (-1403)
+        |
+        if (@? = 0)
+        {
+            [delete device_context
+              where devcod = @devcod
+			    and dev_varnam like 'lpn_on_device-%'
+                and rownum = 1]
+        }
+    }
+    else
+    {   publish data where client_id=nvl(@client_id,@prt_client_id)
+	    |
+        ^process inventory move
+             where @+client_id and @*
+    }
+}
+else
+{
+    publish data where client_id=nvl(@client_id,@prt_client_id)
+	|
+    ^process inventory move
+         where @+client_id and @*}
+]]>
+</local-syntax>
+  <argument name="wh_id" datatype="string">Warehouse ID</argument>
+  <argument name="srcloc" datatype="string">Source Location</argument>
+  <argument name="srclod" datatype="string">Source LPN</argument>
+  <argument name="srcsub" datatype="string">Source Sub-LPN</argument>
+  <argument name="srcdtl" datatype="string">Source Detail LPN</argument>
+  <argument name="srcqty" datatype="integer">Source Quantity</argument>
+  <argument name="src_catch_qty" datatype="float">Source Catch Quantity</argument>
+  <argument name="untcas" datatype="integer">Units per Case</argument>
+  <argument name="untpak" datatype="integer">Units per Pack</argument>
+  <argument name="dstloc" datatype="string">Destination Location</argument>
+  <argument name="dstlod" datatype="string">Destination LPN</argument>
+  <argument name="dstsub" datatype="string">Destination Sub-LPN</argument>
+  <argument name="prtnum" datatype="string">Item Number</argument>
+  <argument name="prt_client_id" datatype="string">Item Client ID</argument>
+  <argument name="ftpcod" datatype="string">Item Footprint Code</argument>
+  <argument name="lotnum" datatype="string">Lot Number</argument>
+  <argument name="sup_lotnum" datatype="string">Supplier Lot Number</argument>
+  <argument name="orgcod" datatype="string">Origin Code</argument>
+  <argument name="revlvl" datatype="string">Revision Level</argument>
+  <argument name="mandte" datatype="string">Manufactured Date</argument>
+  <argument name="expire_dte" datatype="string">Expiration Date</argument>
+  <argument name="rttn_id" datatype="string">Rotation ID</argument>
+  <argument name="inv_attr_str1" datatype="string">Inventory Attribute String 1</argument>
+  <argument name="inv_attr_str2" datatype="string">Inventory Attribute String 2</argument>
+  <argument name="inv_attr_str3" datatype="string">Inventory Attribute String 3</argument>
+  <argument name="inv_attr_str4" datatype="string">Inventory Attribute String 4</argument>
+  <argument name="inv_attr_str5" datatype="string">Inventory Attribute String 5</argument>
+  <argument name="inv_attr_str6" datatype="string">Inventory Attribute String 6</argument>
+  <argument name="inv_attr_str7" datatype="string">Inventory Attribute String 7</argument>
+  <argument name="inv_attr_str8" datatype="string">Inventory Attribute String 8</argument>
+  <argument name="inv_attr_str9" datatype="string">Inventory Attribute String 9</argument>
+  <argument name="inv_attr_str10" datatype="string">Inventory Attribute String 10</argument>
+  <argument name="inv_attr_str11" datatype="string">Inventory Attribute String 11</argument>
+  <argument name="inv_attr_str12" datatype="string">Inventory Attribute String 12</argument>
+  <argument name="inv_attr_str13" datatype="string">Inventory Attribute String 13</argument>
+  <argument name="inv_attr_str14" datatype="string">Inventory Attribute String 14</argument>
+  <argument name="inv_attr_str15" datatype="string">Inventory Attribute String 15</argument>
+  <argument name="inv_attr_str16" datatype="string">Inventory Attribute String 16</argument>
+  <argument name="inv_attr_str17" datatype="string">Inventory Attribute String 17</argument>
+  <argument name="inv_attr_str18" datatype="string">Inventory Attribute String 18</argument>
+  <argument name="inv_attr_int1" datatype="integer">Inventory Attribute Integer 1</argument>
+  <argument name="inv_attr_int2" datatype="integer">Inventory Attribute Integer 2</argument>
+  <argument name="inv_attr_int3" datatype="integer">Inventory Attribute Integer 3</argument>
+  <argument name="inv_attr_int4" datatype="integer">Inventory Attribute Integer 4</argument>
+  <argument name="inv_attr_int5" datatype="integer">Inventory Attribute Integer 5</argument>
+  <argument name="inv_attr_flt1" datatype="float">Inventory Attribute Float 1</argument>
+  <argument name="inv_attr_flt2" datatype="float">Inventory Attribute Float 2</argument>
+  <argument name="inv_attr_flt3" datatype="float">Inventory Attribute Float 3</argument>
+  <argument name="inv_attr_dte1" datatype="string">Inventory Attribute Date 1</argument>
+  <argument name="inv_attr_dte2" datatype="string">Inventory Attribute Date 2</argument>
+  <argument name="lodnum" datatype="string">LPN</argument>
+  <argument name="lodtag" datatype="string">LPN Tag</argument>
+  <argument name="subtag" datatype="string">Sub-LPN Tag</argument>
+  <argument name="srcref" datatype="string">Source Reference</argument>
+  <argument name="wrkref" datatype="string">Work Reference</argument>
+  <argument name="movref" datatype="string">Move Reference</argument>
+  <argument name="actcod" datatype="string">Activity Code</argument>
+  <argument name="devcod" datatype="string">Device Code</argument>
+  <argument name="usr_id" datatype="string">User ID</argument>
+  <argument name="invsts" datatype="string">Inventory Status</argument>
+  <argument name="spcind" datatype="string">Special Indicator</argument>
+  <argument name="load_trlr_flg" datatype="integer">Load Trailer Flag</argument>
+  <argument name="newdst" datatype="integer">New Destination Flag</argument>
+  <argument name="ship_line_id" datatype="string">Shipment Line ID</argument>
+  <argument name="trknum" datatype="string">Truck Number</argument>
+  <argument name="asset_typ" datatype="string">Asset Type</argument>
+  <argument name="sub_asset_typ" datatype="string">Sub Asset Type</argument>
+  <argument name="distro_id" datatype="string">Distribution ID</argument>
+  <argument name="supnum" datatype="string">Supplier Number</argument>
+  <argument name="load_attr1_flg" datatype="integer">Load Attribute 1 Flag</argument>
+  <argument name="load_attr2_flg" datatype="integer">Load Attribute 2 Flag</argument>
+  <argument name="load_attr3_flg" datatype="integer">Load Attribute 3 Flag</argument>
+  <argument name="load_attr4_flg" datatype="integer">Load Attribute 4 Flag</argument>
+  <argument name="load_attr5_flg" datatype="integer">Load Attribute 5 Flag</argument>
+  <argument name="trolley_flag" datatype="integer">Trolley Flag</argument>
+  <argument name="sernum_outcap" datatype="integer">Serial Number Outbound Capture</argument>
+  <argument name="oprcod" datatype="string">Operation Code</argument>
+  <argument name="phyflg" datatype="integer">Physical Flag</argument>
+  <argument name="prmflg" datatype="integer">Permanent Flag</argument>
+  <argument name="mergeondep" datatype="integer">Merge on Deposit Flag</argument>
+  <argument name="ign_restrict" datatype="integer">Ignore Restriction Flag</argument>
+  <argument name="move_authorized" datatype="integer">Movement Authorized Flag</argument>
+  <argument name="can_sub_catch_flg" datatype="integer">Cancelled Sub-Load Catch Quantity Capture Flag</argument>
+  <argument name="pick_to_lvl" datatype="string">Picking container level (L or S)</argument>
+  <argument name="reqnum" datatype="integer">Req Num</argument>
+  <documentation>
+<remarks></remarks>
+<retrows>Many</retrows>
+<retcol name="src_mov_zone_id" type="integer">
+    Source Movement Zone ID
+</retcol>
+<retcol name="dst_mov_zone_id" type="integer">
+    Destination Movement Zone ID
+</retcol>
+<retcol name="srcare" type="string">
+    Source Area
+</retcol>
+<retcol name="srcpra" type="integer">
+    Source Processing Area Flag
+</retcol>
+<retcol name="srcloc" type="string">
+    Source Location
+</retcol>
+<retcol name="lodnum" type="string">
+    LPN
+</retcol>
+<retcol name="subnum" type="string">
+    Sub-LPN
+</retcol>
+<retcol name="dtlnum" type="string">
+    Detail LPN
+</retcol>
+<retcol name="untqty" type="integer">
+    Unit Quantity
+</retcol>
+<retcol name="catch_qty" type="float">
+    Catch Quantity
+</retcol>
+<retcol name="dstare" type="string">
+    Destination Area
+</retcol>
+<retcol name="dstpra" type="integer">
+    Destination Processing Area Flag
+</retcol>
+<retcol name="dstloc" type="string">
+    Destination Location
+</retcol>
+<retcol name="dstlod" type="string">
+    Destination LPN
+</retcol>
+<retcol name="dstsub" type="string">
+    Destination Sub-LPN
+</retcol>
+<retcol name="trknum" type="string">
+    Truck Number
+</retcol>
+<retcol name="sesnum" type="string">
+    Session Number
+</retcol>
+<retcol name="actcod" type="string">
+    Activity Code
+</retcol>
+<retcol name="movref" type="string">
+    Move Reference
+</retcol>
+<retcol name="src_cipflg" type="integer">
+    Source Count In Progress Flag
+</retcol>
+<retcol name="dst_cipflg" type="integer">
+    Destination Count In Progress Flag
+</retcol>
+<retcol name="pckcod" type="string">
+    Pick Code
+</retcol>
+<retcol name="dst_pckcod" type="string">
+    Destination Pick Code
+</retcol>
+<retcol name="xdkref" type="string">
+    Crossdock Reference
+</retcol>
+<retcol name="xdkqty" type="integer">
+    Crossdock Quantity
+</retcol>
+<retcol name="src_put_to_sto_flg" type="integer">
+    Source Put To Store Flag
+</retcol>
+<retcol name="dst_put_to_sto_flg" type="integer">
+    Destination Put To Store Flag
+</retcol>
+<retcol name="wh_id" type="string">
+    Warehouse ID
+</retcol>
+<retcol name="plat_asset_typ" type="string">
+    Platform Asset Type
+</retcol>
+<policy polcod="MOVE-INVENTORY" polvar="ATTACHMENT-STRATEGY-FOR-ZONES">
+    rtnum1 used as movement zone of the destination location in query;
+    polval checked against NEVER-ATTACH
+</policy>
+<exception value="eOK">Normal successful completion</exception>
+<exception value="2005">Missing argument</exception>
+<exception value="10051">Qty requested exceeds available quantity</exception>
+<exception value="10099">No move quantity specified</exception>
+<exception value="10165">Ship To Too General</exception>
+<exception value="10177">No Source</exception>
+<exception value="10179">No Ship To</exception>
+<exception value="10186">Source location not found</exception>
+<exception value="10187">Source sub-LPN not found</exception>
+<exception value="10188">Source detail not found</exception>
+<exception value="10285">Source load not found</exception>
+<exception value="10592">Invalid Move.  Use Relabel functionality instead</exception>
+<exception value="11573">Multiple matching inventories were found in this location</exception>
+<exception value="11643">Consolidation at a staging location is not allowed for manifested inventory</exception>
+<exception value="11644">Consolidation at a staging location is not allowed for bundled inventory</exception>
+<exception value="*">Any other error generated by any of the called components.</exception>
+<seealso cref="list available inventory for pick in location"></seealso>
+<seealso cref="set catchqty on shipping"></seealso>
+<seealso cref="move inventory"></seealso>
+
+</documentation>
+</command>

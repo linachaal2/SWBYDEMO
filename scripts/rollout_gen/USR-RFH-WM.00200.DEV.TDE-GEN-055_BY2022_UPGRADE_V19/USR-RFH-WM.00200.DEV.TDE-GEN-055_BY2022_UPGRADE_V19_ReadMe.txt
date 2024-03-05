@@ -1,0 +1,34 @@
+======================================================
+Rollout: USR-RFH-WM.00200.DEV.TDE-GEN-055_BY2022_UPGRADE_V19
+Generation timestamp: 2023-12-28 10:35:04
+======================================================
+
+Release Notes:
+
+-V01: rollout for solving 2022 issues
+-V02: remove USR-RFH003 label and update other label settings to 2022 standards
+-V02: set right label data 
+-V02: set lbl_cmd for production label
+-V03: fix issues merging 2020
+-V04: fix issues merging 2020
+-V05: adjust wrappers get component details for work order, process inventory move
+-V05: adjust locmst
+-V05: remove temporary fix work order notes (fixed in version 2022)
+-V06: Correction on skip height cubing (rules without asset)
+-V07: Mobile corrections (les mls cat) on text to long
+-V08: changed EMS policy which is not used anymore
+-V09: changed production related standard commands to show the correct produced quantity in the web ui
+-V10: missing policies Eelde (homework-area connected to itself)
+-V11: Check for locale in RFL dashboard
+-V12: Report corrections due to unavailable fonts on linux environments (Blue Yonder issue)
+-V12: Report correction due to barcode used on linux environemtns (Blue Yonder issue)
+-V12: Removed un-used report versions to avoid stay current costs
+-V12: Adjustments on endpoints production (request Conclusion)
+-V13: Corrected policy for label USR-RFH003
+-V14: Corrected policy to disable label printing as delivery note on eelde
+-V15: Correction Aalsmeer connected work area
+-V16: Correction Naaldwijk/Rijndburg label printing
+-V16: Fix on retrieve command on the dashboard
+-V17: Change on dispatch trailer, as shipment quantities are doubled due to deferred execution (Blue Yonder bug)
+-v18: Resourcecodes and qvl fixes, fix in remove hold process
+-v19: DUMMYITEM flag to enable remove inventroy

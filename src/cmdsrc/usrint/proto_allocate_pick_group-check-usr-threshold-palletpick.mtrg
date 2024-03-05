@@ -1,0 +1,44 @@
+<trigger>
+  <name>check-usr-threshold-palletpick</name>
+  <on-command>proto allocate pick group</on-command>
+  <description />
+  <fire-sequence>0</fire-sequence>
+  <local-syntax>
+<![CDATA[
+[select rtnum1 as active, rtstr1 as chk_method, rtstr2 as to_method from poldat_view where wh_id=@wh_id and polcod='USR-PICKING' and polvar='PALLETPICK' and polval='THRESHOLD-CHECK']catch(-1403)
+|
+if (@active=1)
+{
+[select pck_mthd.pck_mthd_nam from pck_mthd where pck_mthd.pck_mthd_id=@pck_mthd_id] catch (-1403)
+|
+if (@?=0 and @pck_mthd_nam=@chk_method)
+{  [select prtftp_dtl.thresh_pct as threshold, prtftp_dtl.untqty as palqty from prtftp_dtl 
+     where prtftp_dtl.prt_client_id=@prt_client_id
+       and prtftp_dtl.prtnum=@prtnum 
+       and prtftp_dtl.wh_id=@wh_id 
+       and prtftp_dtl.ftpcod=@ftpcod
+       and prtftp_dtl.uomcod='PA'] /* allways take pallet footprint */
+       |
+       if ((@palqty*(@threshold/100))>@pckqty)
+       { /* In correct pallet pick, correct pick assignment to listpick*/
+          [select pck_mthd.pck_mthd_id from pck_mthd where pck_mthd.pck_mthd_nam=@to_method]
+          |
+          [update pckwrk_dtl set lodlvl='S' where wrkref=@wrkref]
+          |
+          list pick zone verification flags where wrktyp='P' and lodlvl='S' and src_pck_zone_id=@src_pck_zone_id 
+          |
+          [update pckwrk_hdr set lodlvl='S', lodflg=@lodflg,lotflg=@lotflg, sup_lot_flg=@sup_lot_flg,supflg=@supflg,attr_dte1_flg=@attr_dte1_flg,attr_dte2_flg=@attr_dte2_flg,
+                                             attr_flt1_flg=@attr_flt1_flg,attr_flt2_flg=@attr_flt2_flg,attr_flt3_flg=@attr_flt3_flg,attr_int1_flg=@attr_int1_flg,attr_int2_flg=@attr_int2_flg,
+                                             attr_int3_flg=@attr_int3_flg,attr_int4_flg=@attr_int4_flg,attr_int5_flg=@attr_int5_flg,attr_str1_flg=@attr_str1_flg,attr_str2_flg=@attr_str2_flg,
+                                             attr_str3_flg=@attr_str3_flg,attr_str4_flg=@attr_str4_flg,attr_str5_flg=@attr_str5_flg,attr_str6_flg=@attr_str6_flg,attr_str7_flg=@attr_str7_flg,
+                                             attr_str8_flg=@attr_str8_flg,attr_str9_flg=@attr_str9_flg,attr_str10_flg=@attr_str10_flg,attr_str11_flg=@attr_str11_flg,attr_str12_flg=@attr_str12_flg,
+                                             attr_str13_flg=@attr_str13_flg,attr_str14_flg=@attr_str14_flg,attr_str15_flg=@attr_str15_flg,attr_str16_flg=@attr_str16_flg,attr_str17_flg=@attr_str17_flg,
+                                             attr_str18_flg=@attr_str18_flg, rttn_id_flg=@rttn_id_flg,cstms_typ_flg=@cstms_typ_flg, revflg=@revflg, orgflg=@orgflg, dtlflg=@dtlflg, subflg=@subflg,
+                                             prtflg=@prtflg,locflg=@locflg,qtyflg=@qtyflg,catch_qty_flg=@catch_qty_flg,mandte_flg=@mandte_flg,expire_dte_flg=@expire_dte_flg,pck_mthd_id=@pck_mthd_id where wrkref=@wrkref ]          
+       }
+}
+}
+]]>
+</local-syntax>
+  <enable>yes</enable>
+</trigger>

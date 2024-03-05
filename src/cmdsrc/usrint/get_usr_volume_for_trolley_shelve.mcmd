@@ -1,0 +1,265 @@
+<command>
+<name>get usr volume for trolley shelve</name>
+<description>get usr volume for trolley shelve</description>
+<type>Local Syntax</type>
+<local-syntax>
+<![CDATA[
+/* get usr volume for trolley shelve
+ * Version history:
+ *  2022-03-22 Radina Ivanova    Initial version
+ *  2022-12-21 Radina Ivanova    Skip height check based on policy
+ *  2022-01-23 Radina Ivanova    Support allow splitting of picks
+ *  2023-04-24 Radina Ivanova    Split pick only if the volume is above a threshold percentage from the shelve volume
+ */
+[select distinct 1
+   from poldat_view
+  where polcod = 'USR-PICKING'
+    and polvar = 'CUBING'
+    and polval = 'SKIP_HEIGHT_CHECK'
+    and wh_id = @wh_id
+    and rtnum1 = 1] catch(-1403)
+|
+if (@? = 0)
+{
+    publish data where skip_height_check = 1
+}
+else
+{
+    publish data where skip_height_check = 0
+}
+|
+[[
+
+    double height = asset_hgt; /* Double.parseDouble(asset_hgt) */
+    String group_by_combined = "";
+    double max_height_of_group = 0.0;
+    ArrayList picksToRemove = new ArrayList();
+
+    while (res.next())
+    {
+        res.setValue("totvol", res.getDouble("pd2_len")*res.getDouble("pd2_wid")*height*(res.getInt("pckqty")/res.getInt("pd2_qty")));
+        res.setValue("intvol", res.getDouble("pd2_len")*res.getDouble("pd2_wid")*height*(res.getInt("pckqty")/res.getInt("pd2_qty")));
+        
+        if (skip_height_check != 1)
+        {
+            if (res.getString("group_by_combined").equals(group_by_combined))
+            {
+                max_height_of_group = Math.max(max_height_of_group, res.getDouble("pd2_hgt"));
+            }
+            else
+            {
+                /* switching to another group, check if the heighest item in the group so far can fit in the shelve */
+                if (max_height_of_group > height)
+                {
+                    /* Heighest item won't fit, remove picks so that they are not added to the list for this asset */
+                    picksToRemove.add(group_by_combined);
+                }
+                group_by_combined = res.getString("group_by_combined");
+                max_height_of_group = res.getDouble("pd2_hgt");
+            }
+        }
+    }
+    
+    if (skip_height_check != 1)
+    {
+        /* Make the height check for the last group */
+        if (max_height_of_group > height)
+        {
+            /* Heighest item won't fit, remove picks so that they are not added to the list for this asset */
+            picksToRemove.add(group_by_combined);
+        }
+
+        res.reset();
+        while (res.next())
+        {
+            if (picksToRemove.contains(res.getString("group_by_combined")))
+            {
+                res.removeRow();
+            }
+        }
+    }
+    
+    /* See if some picks require splitting */
+    double current_volume_of_group = 0.0;
+    ArrayList pickLists = new ArrayList();
+    ArrayList processedPicks = new ArrayList();
+    PickList currentPickList;
+    double pick_volume = 0.0;
+    int row_number = 0;
+    group_by_combined = "";
+    boolean allowSplitting = (allow_split_flg != null ? allow_split_flg : false);
+    int split_percentage = (split_percentage != null ? split_percentage : 100);
+    boolean start_new_list = false;
+    
+    res.reset();
+    while (res.next())
+    {
+        moca.executeCommand("publish data " +
+                             "where wrkref = '" + res.getString("wrkref") + "' " +
+                              "  and pckqty = " + res.getInt("pckqty") +
+                              "  and totvol = " + res.getDouble("totvol") +
+                              "  and current_volume_of_group = " + current_volume_of_group +
+                              "  and asset_max_vol = " + asset_max_vol);
+    
+        if (processedPicks.contains(res.getString("wrkref")))
+        {
+            res.setValue("totvol", pick_volume);
+            res.setValue("intvol", pick_volume);
+            row_number++;
+            continue;
+        }
+        processedPicks.add(res.getString("wrkref"));
+        
+        pick_volume = 0.0;
+        start_new_list = false;
+        
+        if (!res.getString("group_by_combined").equals(group_by_combined) || current_volume_of_group + res.getDouble("totvol") > asset_max_vol)
+        {
+            /* check if it is possible to split pick and add to the current list */
+            boolean splitSuccessful = false;
+            if (allowSplitting && current_volume_of_group + res.getDouble("totvol") > asset_max_vol)
+            {
+                /* check if the pick is above the threshold percentage for splitting */
+                if (res.getDouble("totvol") > asset_max_vol * split_percentage/100.0)
+                {
+                    /* calculate split quantity */
+                    int minSplitQuantity = (asset_max_vol * split_percentage/100.0) / (res.getDouble("totvol") / res.getInt("pckqty"));
+                    int currentRemainingQuantity = (asset_max_vol - current_volume_of_group) / (res.getDouble("totvol") / res.getInt("pckqty"));
+                    int splitQuantity = 0;
+                    if (minSplitQuantity > currentRemainingQuantity) {
+                        splitQuantity = (asset_max_vol) / (res.getDouble("totvol") / res.getInt("pckqty"));
+                        if(splitQuantity >= res.getInt("pckqty")) {
+                            splitQuantity = 0;
+                        }
+                        start_new_list = true;
+                    }
+                    else{
+                        splitQuantity = currentRemainingQuantity;
+                    }
+
+                    if (splitQuantity > 0)
+                    {
+                        SimpleResults new_pckwrk_res;
+                        new_pckwrk_res = moca.executeCommand("split usr pick work " +
+                                                             "where src_wrkref = '" + res.getString("wrkref") + "' " +
+                                                             "  and split_qty = " + splitQuantity +
+                                                             "  and remqty = " + (res.getInt("pckqty") - splitQuantity));
+                        
+                        new_pckwrk_res.next();
+                        new_pckwrk_res.setValue("group_by_combined", res.getString("group_by_combined"));
+                        new_pckwrk_res.setValue("order_by_combined", res.getString("order_by_combined"));
+                        
+                        res.setValue("pckqty", splitQuantity);
+                        res.setValue("dtl_pckqty", splitQuantity);
+                        res.setValue("totvol", res.getDouble("pd2_len")*res.getDouble("pd2_wid")*height*(res.getInt("pckqty")/res.getInt("pd2_qty")));
+                        res.setValue("intvol", res.getDouble("pd2_len")*res.getDouble("pd2_wid")*height*(res.getInt("pckqty")/res.getInt("pd2_qty")));
+                        res.setValue("totwgt", res.getDouble("pd2_grswgt")*(res.getInt("pckqty")/res.getInt("pd2_qty")));
+                        
+                        res.addRow();
+                        res.setValue("pcksts", new_pckwrk_res.getString("pcksts"));
+                        res.setValue("wrkref", new_pckwrk_res.getString("wrkref"));
+                        res.setValue("wrkref_dtl", new_pckwrk_res.getString("wrkref_dtl"));
+                        res.setValue("cmbcod", new_pckwrk_res.getString("cmbcod"));
+                        res.setValue("wh_id", new_pckwrk_res.getString("wh_id"));
+                        res.setValue("client_id", new_pckwrk_res.getString("client_id"));
+                        res.setValue("lodlvl", new_pckwrk_res.getString("lodlvl"));
+                        res.setValue("wrktyp", new_pckwrk_res.getString("wrktyp"));
+                        res.setValue("pckqty", new_pckwrk_res.getInt("pckqty"));
+                        res.setValue("untcas", new_pckwrk_res.getInt("untcas"));
+                        res.setValue("dtl_pckqty", new_pckwrk_res.getInt("dtl_pckqty"));
+                        res.setValue("group_by_combined", new_pckwrk_res.getString("group_by_combined"));
+                        res.setValue("order_by_combined", new_pckwrk_res.getString("order_by_combined"));
+                        res.setValue("kit_flg", new_pckwrk_res.getInt("kit_flg"));
+                        res.setValue("cube_rem_flg", new_pckwrk_res.getInt("cube_rem_flg"));
+                        res.setValue("start_pal_flg", new_pckwrk_res.getInt("start_pal_flg"));
+                        res.setValue("thresh_pck_flg", new_pckwrk_res.getInt("thresh_pck_flg"));
+                        res.setValue("src_pck_zone_id", new_pckwrk_res.getInt("src_pck_zone_id"));
+                        res.setValue("schbat", new_pckwrk_res.getString("schbat"));            
+                        res.setValue("ordnum", new_pckwrk_res.getString("ordnum")); 
+                        res.setValue("ordlin", new_pckwrk_res.getString("ordlin")); 
+                        res.setValue("ordsln", new_pckwrk_res.getString("ordsln")); 
+                        res.setValue("wkonum", new_pckwrk_res.getString("wkonum")); 
+                        res.setValue("wkolin", new_pckwrk_res.getString("wkolin")); 
+                        res.setValue("subnum", new_pckwrk_res.getString("subnum")); 
+                        res.setValue("prtnum", new_pckwrk_res.getString("prtnum")); 
+                        res.setValue("stcust", new_pckwrk_res.getString("stcust")); 
+                        res.setValue("list_id", new_pckwrk_res.getString("list_id")); 
+                        res.setValue("pcklst_rule_id", new_pckwrk_res.getInt("pcklst_rule_id"));
+                        res.setValue("pcklst_rule_name", new_pckwrk_res.getString("pcklst_rule_name")); 
+                        res.setValue("asset_typ", new_pckwrk_res.getString("asset_typ")); 
+                        res.setValue("pd1_qty", new_pckwrk_res.getInt("pd1_qty"));
+                        res.setValue("pd1_len", new_pckwrk_res.getDouble("pd1_len"));
+                        res.setValue("pd1_wid", new_pckwrk_res.getDouble("pd1_wid"));
+                        res.setValue("pd1_hgt", new_pckwrk_res.getDouble("pd1_hgt"));
+                        res.setValue("pd1_grswgt", new_pckwrk_res.getDouble("pd1_grswgt"));
+                        res.setValue("pd2_qty", new_pckwrk_res.getInt("pd2_qty"));
+                        res.setValue("pd2_len", new_pckwrk_res.getDouble("pd2_len"));
+                        res.setValue("pd2_wid", new_pckwrk_res.getDouble("pd2_wid"));
+                        res.setValue("pd2_hgt", new_pckwrk_res.getDouble("pd2_hgt"));
+                        res.setValue("pd2_grswgt", new_pckwrk_res.getDouble("pd2_grswgt"));
+                        
+                        res.setValue("totvol", new_pckwrk_res.getDouble("pd2_len")*new_pckwrk_res.getDouble("pd2_wid")*height*(new_pckwrk_res.getInt("pckqty")/new_pckwrk_res.getInt("pd2_qty")));
+                        res.setValue("intvol", new_pckwrk_res.getDouble("pd2_len")*new_pckwrk_res.getDouble("pd2_wid")*height*(new_pckwrk_res.getInt("pckqty")/new_pckwrk_res.getInt("pd2_qty")));
+                        res.setValue("totwgt", new_pckwrk_res.getDouble("pd2_grswgt")*(new_pckwrk_res.getInt("pckqty")/new_pckwrk_res.getInt("pd2_qty")));
+                        res.setValue("caswgt", new_pckwrk_res.getDouble("caswgt"));
+                        res.setValue("extvol",0.0);
+                
+                        res.setRow(row_number);
+                        splitSuccessful = true;
+                    }
+                }
+            }
+            
+            if (!splitSuccessful || start_new_list)
+            {
+                /* switching to another group or start new list/shelve for the same group, reset values */
+                /* find if we can fit the pick in an existing list  or we need to create a new list */
+                currentPickList = null;
+                for (int i = 0; i < pickLists.size; i++)
+                {
+                    if (res.getString("group_by_combined").equals(pickLists[i].group_by_combined) &&
+                        pickLists[i].current_volume_of_group + res.getDouble("totvol") <= asset_max_vol)
+                    {
+                        currentPickList = pickLists[i];
+                        group_by_combined = res.getString("group_by_combined");
+                        current_volume_of_group = pickLists[i].current_volume_of_group;
+                        break;
+                    }
+                }
+                
+                if (currentPickList == null)
+                {
+                    currentPickList = new PickList();
+                    currentPickList.group_by_combined = res.getString("group_by_combined");
+                    pickLists.add(currentPickList);
+                    
+                    group_by_combined = res.getString("group_by_combined");
+                    current_volume_of_group = 0.0;
+                }
+            }
+        }
+        
+        pick_volume = res.getDouble("totvol");
+        current_volume_of_group +=  pick_volume;
+        
+        currentPickList.current_volume_of_group = current_volume_of_group;
+        row_number++;
+    }
+
+    res.reset();
+    return res;
+    
+    class PickList {
+        String group_by_combined = "";
+        double current_volume_of_group = 0.0;
+    }
+    
+]] /*>> res
+|
+sort result set
+where rs = @res
+  and sort_list = 'group_by_combined,totvol desc'
+*/
+]]>
+</local-syntax>
+</command>

@@ -1,0 +1,22 @@
+<action>
+  <id>usrEditGLNLocation</id>
+  <name>usrEditGLNLocation</name>
+  <description>Edit GLN Location</description>
+  <type>EDIT</type>
+  <ws>
+     <method>PUT</method>
+	 <href>usrEditGLNLocation/{pk}</href>
+  </ws>
+  <impl>
+     <command>change usr gln location</command>
+     <arguments>
+        <argument name="gln" type="string" required="true"  location="path"/>
+        <argument name="stoloc" type="string" required="true" />
+        <argument name="uc_sort_out_id" type="string" required="false" />
+     </arguments>
+  </impl>
+  <auth>
+     <opt>optOpen</opt>
+  </auth>
+  <primary>true</primary>
+</action>

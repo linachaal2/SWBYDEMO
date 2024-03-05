@@ -1,0 +1,3 @@
+carcod,accnum,carnam,scacod,crncy_code,autoclsflg,autocls_mansts,autocls_wait_tim,adr_id,mod_usr_id,moddte,hrs_opr_set_id,excp_hrs_set_id
+"Parcel","","Parcel","","",0,"",0,"","","","",""
+"RFH","","RFH","","",0,"",0,"CAR_RFH","940028","20180903142801","",""

@@ -1,0 +1,12 @@
+entity: ResourceBundle
+version: '1.0'
+data:
+
+- bundleId: customer-SamplePage
+  localizationNamespaces:
+  - rp.customer*
+  libraries:
+  - name: rpcommon
+    version: 9.0.MAX
+  scripts:
+  - customer/SamplePage.{client-mode}.js

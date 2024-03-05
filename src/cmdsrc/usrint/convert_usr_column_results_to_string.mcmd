@@ -1,0 +1,52 @@
+<command>
+  <name>convert usr column results to string</name>
+  <description>convert usr column results to string</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* convert usr column results to string
+ * Converts a column in a resultset to a character separated string.
+ * based on the command "convert column results to string" but with added distinct parameter.
+ * Version history:
+ *  2018-09-13  Salem Hamze  Initial version.
+ */
+validate stack variable not null
+ where name = 'resultset'
+|
+validate stack variable not null
+ where name = 'colnam'
+|
+publish data
+ where separator = nvl(@separator, ',')
+|
+[[
+ArrayList<String> list = new ArrayList<String>();
+RowIterator rowIterator;
+
+rowIterator = resultSet.getRows();
+while (rowIterator.next()) {
+    Object value = rowIterator.getValue(colnam);
+    if (value != null){
+        list.add(value);
+    }
+}
+
+EditableResults res = moca.newResults();
+res.addColumn("result_string", MocaType.STRING);
+res.addRow();
+
+if(distinct == 1){
+    Set<String> set = new HashSet<String>(list);
+    res.setStringValue("result_string", String.join(separator, set));
+}else{
+    res.setStringValue("result_string", String.join(separator, list));
+}
+
+return res;]]
+]]>
+</local-syntax>
+  <argument name="resultset" required="yes" datatype="results">resultset</argument>
+  <argument name="colnam" required="yes" datatype="string">colnam</argument>
+  <argument name="separator" datatype="string">separator</argument>
+  <argument name="distinct" datatype="flag">distinct values?</argument>
+</command>

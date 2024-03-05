@@ -1,0 +1,23 @@
+<action>
+  <id>usrListToPickSummary</id>
+  <name>usrListToPickSummary</name>
+  <description>List Picked Tasks Summary per Pick Zone</description>
+  <type>LIST</type>
+  <ws>
+     <method>GET</method>
+	 <href>/usrListToPickSummary</href>
+  </ws>
+  <impl>
+     <command>list usr to pick summary</command>
+  </impl>
+    <listConfig>
+        <columnConfig>usrListToPickSummaryColumns</columnConfig>
+        <filterable/>
+        <pageable/>
+        <sortable/>
+    </listConfig>
+  <auth>
+     <opt>optOpen</opt>
+  </auth>
+  <primary>true</primary>
+</action>

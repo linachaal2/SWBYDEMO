@@ -1,0 +1,17 @@
+<action>
+  <id>usrAddDeliveryPickhop</id>
+  <name>usrAddDeliveryPickhop</name>
+  <description>Add Delivery Pickhop</description>
+  <type>ADD</type>
+  <ws>
+     <method>POST</method>
+	 <href>/usrAddDeliveryPickhop</href>
+  </ws>
+  <impl>
+     <command>create usr delivery pickhop</command>
+  </impl>
+  <auth>
+     <opt>optOpen</opt>
+  </auth>
+  <primary>true</primary>
+</action>

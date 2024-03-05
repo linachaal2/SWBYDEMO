@@ -1,0 +1,33 @@
+<command>
+  <name>list usr gln locations</name>
+  <description>list usr gln locations</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* list usr gln locations
+ *
+ * Version history:
+ *  2021-04-05  Radina Ivanova - Initial version
+ */
+    publish data where wh_id = nvl(@wh_id, @@wh_id)
+    |
+    if (@wh_id = '')
+    {
+        [select wh_id
+           from wh]
+    }
+    |
+    [select *
+       from usr_gln_location
+      where @+gln
+        and @+wh_id
+        and @+stoloc
+        and @+uc_sort_out_id]
+     
+]]>
+</local-syntax>
+<argument name="gln" required="no" datatype="string">GLN</argument>
+<argument name="wh_id" required="no" datatype="string">Warehouse ID</argument>
+<argument name="stoloc" required="no" datatype="string">Location</argument>
+<argument name="uc_sort_out_id" required="no" datatype="string">Station number</argument>
+</command>

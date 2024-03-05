@@ -1,0 +1,18 @@
+<action>
+  <id>usrListShortsOverview</id>
+  <name>usrListShortsOverview</name>
+  <description>List all shorts</description>
+  <type>LIST</type>
+  <ws>
+     <method>GET</method>
+	 <href>/usrListShortsOverview</href>
+  </ws>
+  <impl>
+     <command>list usr shorts overview</command>
+  </impl>
+
+  <auth>
+     <opt>optOpen</opt>
+  </auth>
+  <primary>true</primary>
+</action>

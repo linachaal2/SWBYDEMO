@@ -1,0 +1,265 @@
+les_cmd_id,cust_lvl,syntax,moddte,mod_usr_id,grp_nam
+"authmnt_default_img",0,"publish data where dvc_var_nam = 'imgauthmnt' and dvp_DefaultImageName = 'user_32.ico'","","","dcs_data"
+"cfg_addr_ids_crit",0,"publish data where dvc_var_nam = 'asset_typ,client_id,stoloc,par_asset_id,trlr_num,carcod,adrnam,src_adrnam'and dvc_ena_flg = '1,1,1,1,1,1,1,1'and dvc_vis_flg = '1,1,1,1,1,1,1,1'","","","dcs_data"
+"cfg_auto_calc_mandte",0,"if('&autocalcmfgdte' = '1'){[select age_pflnam from prtmst_view where prtnum = '&prtnum' and prt_client_id = '&prt_client_id' and wh_id ='&wh_id'] | get manufactured date where age_pflnam = @age_pflnam and expdte = '&expdte'}","","","dsc_data"
+"cfg_client_id_enable",0,"configure clientid fields visibility","","","dcs_data"
+"cfg_def_invsts",0,"configure default inventory status field where prtnum = '&prtnum' and prt_client_id = '&prt_client_id' and wh_id = '&wh_id'","","","dcs_data"
+"cfg_fields_for_asset_typ",0,"configure fields for asset typ where asset_typ='&asset_typ'and asset_id = '&asset_id'","","","dcs_data"
+"cfg_prt_client_id_enable",0,"configure part clientid fields visibility","","","dcs_data"
+"check_overstack",0,"if('&alg_grp_id' = 'SL_RETR_MTHD_IMPL') {publish data where dvc_var_nam = 'overstack_arg_flg' and dvc_vis_flg = 1 and dvc_ena_flg = 0 and overstack_arg_flg = 'F'} else {publish data where dvc_var_nam = 'overstack_arg_flg' and dvc_vis_flg = 1 and dvc_ena_flg = 1}","","","int_data"
+"clean_var_list",0,"if('&overstack_arg_flg' = 'F') {publish data where dvc_var_nam = 'var_arg_list_flg' and dvc_vis_flg = 1 and dvc_ena_flg = 0 and var_arg_list_flg = 'F'} else {publish data where dvc_var_nam = 'var_arg_list_flg' and dvc_vis_flg = 1 and dvc_ena_flg = 1}","","","int_data"
+"clear_eo_fld_len",0,"if('&eo_fld_len' = '0') {publish data where eo_fld_len = }","","","int_data"
+"clear_eo_fld_max_chars",0,"if('&eo_fld_max_chars' = '0') {publish data where eo_fld_max_chars = }","","","int_data"
+"clear_eo_fld_sql_ordr",0,"if('&eo_fld_sql_ordr'='0') {publish data where eo_fld_sql_ordr = }","","","int_data"
+"clear_ifd_fld_len",0,"if('&ifd_fld_len'='0') {publish data where ifd_fld_len = }","","","int_data"
+"clear_ifd_fld_max_chars",0,"if('&ifd_fld_max_chars'='0') {publish data where ifd_fld_max_chars = }","","","int_data"
+"clear_ifd_fld_sql_ordr",0,"if('&ifd_fld_sql_ordr'='0') {publish data where ifd_fld_sql_ordr = }","","","int_data"
+"cmd_config_digital_signature_options",0,"configure options for digital signature where rpt_id = '&rpt_id' and wh_id = @@wh_id","","","sal_data"
+"cmd_dash_dda_required",0,"if ('&module_typ' = 'Q') {publish data where dvc_var_nam = 'dash_dda_id,ws_wsdl,ws_function' and dvp_RequiredMode = 'EditAndNew,None,None'} else if ('&module_typ' = 'X') {publish data where dvc_var_nam = 'dash_dda_id,ws_wsdl,ws_function' and dvp_RequiredMode = 'None,EditAndNew,EditAndNew'} else {publish data where dvc_var_nam = 'dash_dda_id,ws_wsdl,ws_function' and dvp_RequiredMode = 'None,None,None'}","","","sal_data"
+"cmd_gridAltPrtNum",0,"publish data where dvc_var_nam = 'gridAltPrtNum' and dvc_ena_flg = '0' and dvc_vis_flg = '0'","","","sal_data"
+"cmd_module_typ",0,"if ('&module_typ' = 'Q') { publish data where dvc_var_nam = 'dash_dda_id,dda_qual,ws_wsdl,ws_service,ws_port,ws_wsml,ws_function' and dvc_ena_flg = '1,1,0,0,0,0,0' and dvc_vis_flg = '1,1,1,1,1,1,1'} else if ('&module_typ' = 'X') { publish data where dvc_var_nam = 'dash_dda_id,dda_qual,ws_wsdl,ws_service,ws_port,ws_wsml,ws_function' and dvc_ena_flg = '0,0,1,1,1,1,1' and dvc_vis_flg = '1,1,1,1,1,1,1' } else if ('&module_typ' = 'I') { publish data where dvc_var_nam = 'dash_dda_id,dda_qual,ws_wsdl,ws_service,ws_port,ws_wsml,ws_function' and dvc_ena_flg = '0,0,1,0,0,0,0' and dvc_vis_flg = '1,1,1,1,1,1,1'} else { publish data where dvc_var_nam = 'dash_dda_id,dda_qual,ws_wsdl,ws_service,ws_port,ws_wsml,ws_function' and dvc_ena_flg = '1,1,1,1,1,1,1' and dvc_vis_flg = '1,1,1,1,1,1,1'}","","","sal_data"
+"cmd_pool_flg",0,"if ('&pool_flg' = '1') { publish data where dvc_var_nam = 'pool_rate_serv_nam' and dvc_ena_flg = '1' and dvc_vis_flg = '1' } else { publish data where dvc_var_nam = 'pool_rate_serv_nam' and dvc_ena_flg = '0' and dvc_vis_flg = '1' and pool_rate_serv_nam = NULL }","","","sal_data"
+"cmd_rptarc_btn",0,"if ('&filename'){ if ('&filename' = 'JR') { publish data where dvc_var_nam = 'bbar:btnPreviewReport,bbar:btnPrintReport,bbar:btnExportReport' and dvc_ena_flg = '1,1,1' and dvc_vis_flg = '1,1,1' } else { publish data where dvc_var_nam = 'bbar:btnPreviewReport,bbar:btnPrintReport,bbar:btnExportReport' and dvc_ena_flg = '1,1,0' and dvc_vis_flg = '1,1,1' }} else { publish data where dvc_var_nam = 'bbar:btnPreviewReport,bbar:btnPrintReport,bbar:btnExportReport' and dvc_ena_flg = '0,0,0' and dvc_vis_flg = '1,1,1' }","","","sal_data"
+"cmd_rptopr_btn",0,"if ('&rpt_id'){ if ('&rpt_typ' = 'JR') { publish data where dvc_var_nam = 'bbar:btnPreviewReport,bbar:btnPrintReport,bbar:btnExportReport' and dvc_ena_flg = '1,1,1' and dvc_vis_flg = '1,1,1' } else { publish data where dvc_var_nam = 'bbar:btnPreviewReport,bbar:btnPrintReport,bbar:btnExportReport' and dvc_ena_flg = '1,1,0' and dvc_vis_flg = '1,1,1' }} else { publish data where dvc_var_nam = 'bbar:btnPreviewReport,bbar:btnPrintReport,bbar:btnExportReport' and dvc_ena_flg = '0,0,0' and dvc_vis_flg = '1,1,1' }","","","sal_data"
+"cmd_rptpreview_btn",0,"if ('&rpt_id'){ publish data where dvc_var_nam = 'bbar:btnSubmitForDigSig' and dvc_ena_flg = '1' and dvc_vis_flg = '1' } else { publish data where dvc_var_nam = 'bbar:btnSubmitForDigSig' and dvc_ena_flg = '0' and dvc_vis_flg = '1' }","","","sal_data"
+"cmd_set_par_uom_flg_visible",0,"if ('&lvl_colnam' = 'uomcod') { publish data where dvc_var_nam = 'par_uom_flg' and dvc_vis_flg='1' and dvc_ena_flg='1' } else { publish data where dvc_var_nam = 'par_uom_flg' and dvc_vis_flg='0' and dvc_ena_flg='0' }","","","sal_data"
+"cmd_std_put_flg",0,"list policies where polcod = 'ALLOCATE-LOC' and polvar = 'RESPECT-FIFO-SKIP-LOCS' and polval = 'ENABLED' and rtnum1 = 1 and wh_id = '&wh_id' catch(-1403)|if (@? = -1403){publish data where dvc_var_nam = "std_put_flg" and dvc_ena_flg = "0" and dvc_vis_flg = "0"}else{publish data where dvc_var_nam = "std_put_flg" and dvc_ena_flg = "1" and dvc_vis_flg =  "1"}","","","dcs_data"
+"cmd_submit_digital_signature_button",0,"configure moca report digital signature button where rpt_id = '&rpt_id' and wh_id = @@wh_id","","","sal_data"
+"cmd_track_num_cfg",0,"if ('&trlr_cod' = 'SHIP'){list policies where polval = 'DOCNUM-ASSIGNMENT-LEVELS' and polvar='MISCELLANEOUS' and polcod='SHIPPING' and rtstr1='CAR-MOVE' and wh_id = '&wh_id' catch(-1403) | if (@? = -1403) { publish data where dvc_var_nam = "track_num" and dvc_ena_flg = "0" and dvc_vis_flg = "0" } else { publish data where dvc_var_nam = "track_num" and dvc_ena_flg = "1" and dvc_vis_flg = "1" } } else { publish data where dvc_var_nam = "track_num" and dvc_ena_flg = "0" and dvc_vis_flg = "0" }","","","dcs_data"
+"cntentopr_catch_qty_dvc",0,"configure cntentopr catch_qty where wh_id = '&wh_id' and prtnum = '&prtnum' and prt_client_id = '&prt_client_id' and catch_qty = '&catch_qty'","","","dcs_data"
+"configure_allocatecatch_quantity",0,"configure allocatecatch quantity where allocate_catch='&allocate_catch' and prtnum = '&prtnum' and prt_client_id = '&prt_client_id' and wh_id = '&wh_id'","","","dcs_data"
+"configure_asset_typ_dim_fields",0,"if ('&asset_cat' = 'TRL') {publish data where asset_len = 0 and asset_wid = 0 and asset_hgt = 0 and asset_wgt = 0 and max_vol = 0 and max_wgt = 0 }","","","dcs_data"
+"configure_bomcatch_quantity",0,"configure bomcatch quantity where allocate_catch='&allocate_catch' and prtnum = '&prtnum' and prt_client_id = '&prt_client_id' and disass_flg = '&disass_flg' and wh_id = '&wh_id'","","","dcs_data"
+"configure_cmdCancel",0,"if ('&exitpnt_typ' = 'SERVICE-NONINVENTORY' AND '&non_invtyp' != 'WKO' AND '&non_invtyp' != 'WKODTL' ) { publish data where dvc_var_nam = 'cmdCancel' and dvc_ena_flg = '0' } else { publish data where dvc_var_nam = 'cmdCancel' and dvc_ena_flg = '1' }","","","dcs_data"
+"configure_cnfrm_trailer_asset_tag_field_rf",0,"configure cnfrm trailer asset tag field where wh_id = '&global.wh_id'","","","dcs_data"
+"configure_def_stack_rel_field",0,"if ('&trlr_dck_flg' = '1') { publish data where dvc_var_nam = 'def_stacks_rel' and dvc_ena_flg = '1'} else { publish data where dvc_var_nam = 'def_stacks_rel' and dvc_ena_flg = '0'}","","","dcs_data"
+"configure_distro_order_fields",0,"configure distro order fields where ordnum = '&ordnum' and ordlin = '&ordlin' and ordsln = '&ordsln' and wh_id = nvl('&wh_id',@@wh_id)","","","dcs_data"
+"configure_distromnt_fields",0,"configure distromnt fields where prtnum = '&prtnum' and prt_client_id = '&prt_client_id' and wh_id = '&wh_id'","","","dcs_data"
+"configure_dyn_slotting_fields",0,"configure dynamic slotting fields","","","dcs_data"
+"configure_export_typ_for_ordlin",0,"configure export type for order line where client_id = '&client_id' and ordnum = '&ordnum' and ordlin = '&ordlin' and ordsln = '&ordsln' and wh_id = '&wh_id' ","","","dcs_data"
+"configure_export_typ_for_shp",0,"configure export type for shipment where wh_id = '&wh_id' and ship_id = '&ship_id'","","","dcs_data"
+"configure_locale_id_field",0,"if ('&locale_typ' = 'specific_locale'){publish data where dvc_var_nam= 'locale_id' and dvc_vis_flg = '1' } else { publish data where dvc_var_nam= 'locale_id' and dvc_vis_flg = '0'}","","","sal_data"
+"configure_min_shelf_life_field",0,"configure minimum shelf life field where prtnum = '&prtnum' and prt_client_id = '&prt_client_id' and wh_id = '&wh_id'","","","dcs_data"
+"configure_starter_pallet_fields",0,"configure starter pallet fields where asset_cat = '&asset_cat'","","","dcs_data"
+"configure_sup_cnsg_fields",0,"configure supplier consigned fields where wh_id = '&wh_id' and supnum = '&supnum' and client_id = '&prt_client_id' and prtnum = '&prtnum'","","","dcs_data"
+"configure_sup_cnsg_fields_for_invadj",0,"configure supplier consigned fields for invadj where wh_id = '&wh_id' and client_id = '&prt_client_id' and prtnum = '&prtnum' and supnum='&supnum' and mode='&mode'","","","dcs_data"
+"configure_sup_cnsg_flds_at_wh",0,"configure supplier consigned fields at warehouse where wh_id = '&wh_id' and client_id = '&client_id'","","","dcs_data"
+"configure_sup_cnsg_flds_on_rcv",0,"configure supplier consigned fields for receiving where wh_id = '&wh_id' and supnum = '&supnum' and client_id = '&prt_client_id' and prtnum = '&prtnum'","","","dcs_data"
+"configure_sup_field_at_wh_rf",0,"configure supplier consigned fields at warehouse where  wh_id = '&global.wh_id' and client_id = '&prt_client_id'","","","dcs_data"
+"configure_sup_field_rf",0,"configure supplier consigned fields where wh_id = '&global.wh_id' and supnum = '&supnum' and client_id = '&prt_client_id' and prtnum = '&prtnum' and prt_client_id = '&prt_client_id'","","","dcs_data"
+"configure_supplier_consigned_fields_for_web",0,"configure supplier consigned fields for web where wh_id = '&wh_id' and client_id = '&prt_client_id' and prtnum = '&prtnum' and supnum='&supnum' and movref='&moveref' and mode='&mode'","","","dcsweb_data"
+"configure_wh_id_for_defservmnt",0,"if ('&def_serv_cod' = 'WH' OR '&def_serv_cod' = 'PART' OR '&def_serv_cod' = 'ORDNUM' OR '&def_serv_cod' = 'BOM' OR '&def_serv_cod' = 'BOMDTL' OR '&def_serv_cod' = 'WKO' OR '&def_serv_cod' = 'WKODTL' OR '&def_serv_cod' = 'FINGOOD' OR '&def_serv_cod' = 'COMPNT') { publish data where dvc_var_nam = 'wh_id' and dvc_ena_flg = '0' and dvc_vis_flg ='1' } else { publish data where dvc_var_nam = 'wh_id' and dvc_ena_flg = '0' and dvc_vis_flg = '0'}","","","dcs_data"
+"configure_wkolin_prcloc",0,"if ('&prdlin' != '') {publish data where dvc_var_nam = 'prcloc' and dvc_ena_flg = '1'} else {publish data where dvc_var_nam = 'prcloc' and dvc_ena_flg = '0'}","","","dcs_data"
+"configure_work_order_schedule_fields",0,"configure work order schedule fields where prdlin = '&prdlin' and wh_id = '&wh_id' and auto_relpck_flg = '&auto_relpck_flg' and wkosts = '&wkosts' and start_flg = '&start_flg'","","","dcs_data"
+"configure_wrko_catch_qty",0,"configure workordercatch quantity where wkosts = '&wkosts' and prtnum = '&prtnum' and client_id = '&client_id' and wh_id = '&wh_id'","","","dcs_data"
+"def_eo_fld_len",0,"if('&data_typ_cd' = 'C' and ('&eo_fld_len' =  or '&eo_fld_len' = '' or '&eo_fld_len' = '0') and ('&eo_fld_max_chars' !=  and '&eo_fld_max_chars' != '' and '&eo_fld_max_chars' != '0')) {publish data where eo_fld_len = '&eo_fld_max_chars' * 4}","","","int_data"
+"def_ftpcod_gui_cmd",0,"[select ftpcod from prtftp where prtnum='&prtnum' and wh_id = '&wh_id' and prt_client_id = '&prt_client_id' and defftp_flg = 1]","","","dcs_data"
+"def_ifd_fld_len",0,"if('&data_typ_cd' = 'C' and ('&ifd_fld_len' =  or '&ifd_fld_len' = '' or '&ifd_fld_len' = '0') and ('&ifd_fld_max_chars' !=  and '&ifd_fld_max_chars' != '' and '&ifd_fld_max_chars' != '0')) {publish data where ifd_fld_len = '&ifd_fld_max_chars' * 4}","","","int_data"
+"def_rcvqty_gui_cmd",0,"get default receive quantity where invnum = '&invnum' and prtnum = '&prtnum' and prt_client_id = '&prt_client_id' and wh_id = '&wh_id' and supnum = '&supnum' and trknum = '&trknum'","","","dcs_data"
+"def_rcvqty_rf_cmd",0,"get default receive quantity where invnum = '&UNDIR_IDENTIFY.invnum' and prtnum = '&IDENTIFY_LOAD.prtnum' and prt_client_id = '&IDENTIFY_LOAD.client_id' and wh_id = '&global.wh_id' and supnum = '&IDENTIFY_LOAD.supnum' and trknum = '&IDENTIFY_LOAD.trknum' and ftpcod = '&IDENTIFY_LOAD.ftpcod'","","","dcs_data"
+"default_perm_lod_fields",0,"if ('&wh_id' != '') {publish data where perm_adj_lod = 'PERM-ADJ-LOD-'||'&wh_id' and perm_cre_lod = 'PERM-CRE-LOD-'||'&wh_id' and perm_adj_sub = 'PERM-ADJ-SUB-'||'&wh_id' and perm_cre_sub = 'PERM-CRE-SUB-'||'&wh_id'}","","","dcs_data"
+"disable_bbar_clear_pallet",0,"if ('&lodnum' = ''){publish data where dvc_var_nam = 'bbar:WMD-AUTLINOPR-CLEAR' and dvc_ena_flg = '0'} else {publish data where dvc_var_nam = 'bbar:WMD-AUTLINOPR-CLEAR' and dvc_ena_flg = '1'}","","","dcs_data"
+"disable_bbarNew_reacod",0,"[select 'x' from reacod where reacod =  '&reacod'] catch(-1403) | if (@? = -1403){publish data where dvc_var_nam = 'bbar:REACODGRPMNT-CREATE' and dvc_ena_flg = '0'} else {publish data where dvc_var_nam = 'bbar:REACODGRPMNT-CREATE' and dvc_ena_flg = '1'}","","","dcs_data"
+"disable_bbarNew_reagrp",0,"[select 'x' from reagrp where reagrp =  '&reagrp'] catch(-1403) | if (@? = -1403){publish data where dvc_var_nam = 'bbar:REAGRPCODMNT-CREATE' and dvc_ena_flg = '0'} else {publish data where dvc_var_nam = 'bbar:REAGRPCODMNT-CREATE' and dvc_ena_flg = '1'}","","","dcs_data"
+"disable_consgnment_field",0,"if('&dft_typ' is  or '&dft_typ' != 'W') {publish data where dvc_var_nam = 'supnum,client_id' and dvc_ena_flg = '1,1'} else {publish data where dvc_var_nam = 'supnum,client_id' and dvc_ena_flg = '0,0' and supnum = 'xxxx' and client_id = '----'}","","","dcs_data"
+"disable_container_flg",0,"if ('&asset_cat' = 'TRL') {publish data where dvc_var_nam = 'container_flg' and dvc_ena_flg = '0' and container_flg = 0} else {publish data where dvc_var_nam = 'container_flg' and dvc_ena_flg = '1'}","","","dcs_data"
+"disable_ftpcod_field",0,"if('&prtnum' != '' AND '&prt_client_id' != '') {publish data where dvc_var_nam = 'ftpcod' and dvc_ena_flg = '1' and dvc_vis_flg ='1'} else {publish data where dvc_var_nam = 'ftpcod' and dvc_ena_flg = '0' and dvc_vis_flg ='1'}","","","dcs_data"
+"disable_lpncnt_oprcod",0,"[select rtstr1 from poldat_view where polcod = 'CYCLE-COUNTING' and polvar = 'LPN-COUNT' and polval = 'CNTTYP' and wh_id = @@wh_id] >> res | convert column results to string where res = @res and colnam = 'rtstr1' and separator = ''',''' | publish data where in_clause = '''' || @result_string || '''' | [select 'x' from dual where '&cnttyp' in (@in_clause:raw)] catch(-1403) | if (@? = -1403 or '&dtl_flg' = '1') { publish data where dvc_var_nam = 'lpncnt_oprcod' and dvc_ena_flg = '0' and dvc_vis_flg = '1' and lpncnt_oprcod = '' } else { publish data where dvc_var_nam = 'lpncnt_oprcod' and dvc_ena_flg = '1' and dvc_vis_flg = '1' }","","","dcs_data"
+"disable_module_width",0,"list dashboard tab module configs where module_id='&module_id' catch(-1403) >> res | if (@? = 0) { publish data where dvc_var_nam='module_width'and dvc_ena_flg='0'} else { publish data  where dvc_var_nam='module_width' and dvc_ena_flg='1'}","","","sal_data"
+"disable_ordnum_field",0,"if('&velocity_type' = 'ORDER QTY' or '&velocity_type' = 'FORECAST ORDER QTY')  publish data where dvc_var_nam= 'ordnum' and dvc_ena_flg = '1' else publish data where dvc_var_nam= 'ordnum' and dvc_ena_flg = '0'","","","sal_data"
+"disable_rule_fields",0,"[select * from rule_set_cmd where cmd_config_id = '&cmd_config_id' and cmd_grp = '&cmd_grp'] catch(-1403) | if (@? = 0) {publish data where dvc_var_nam = 'cmd_config_id,cmd_config,cmd_dsc,cmd_grp,cmd_config_arg,seq,arg_typ,req_flg,_flg' and dvc_ena_flg = '0,0,0,0,0,0,0,0,0'} else {publish data where dvc_var_nam = 'cmd_config_id,cmd_config,cmd_dsc,cmd_grp,cmd_config_arg,seq,arg_typ,req_flg,_flg' and dvc_ena_flg = '1,1,1,1,1,1,1,1,1'}","","","sal_data"
+"disable_sum_retry_flg",0,"if('&dtl_flg' = '1'){publish data where dvc_var_nam = 'sum_retry_flg' and dvc_ena_flg = '0' and dvc_vis_flg = '1' and sum_retry_flg=0} else {publish data where dvc_var_nam = 'sum_retry_flg' and dvc_ena_flg = '1' and dvc_vis_flg = '1'}","","","dcs_data"
+"disable_unit_field",0,"if('&ftpcod' != ''){publish data where dvc_var_nam = 'untcas,untpak' and dvc_ena_flg = '0,0' and dvc_vis_flg = '1,1'} else {publish data where dvc_var_nam = 'untcas,untpak' and dvc_ena_flg = '1,1' and dvc_vis_flg = '1,1'}","","","dcs_data"
+"disable_untqty_field",0,"if('&ftpcod' != ''){publish data where dvc_var_nam = 'untpal,untcas,untpak' and dvc_ena_flg = '0,0,0' and dvc_vis_flg = '1,1,1'} else {publish data where dvc_var_nam = 'untpal,untcas,untpak' and dvc_ena_flg = '1,1,1' and dvc_vis_flg = '1,1,1'}","","","dcs_data"
+"disable_warehouse_field",0,"disable warehouse field where wh_id = '&wh_id' and stoloc_wh_id = '&stoloc_wh_id'","","","dcs_data"
+"dspitem_cfg",0,"get display item configuration","","","sal_data"
+"dspitem_cfg_asgLoc",0,"get display item configuration where prtclientidalias = 'assigned_prt_client_id' and prtnumalias = 'assigned_prtnum'","","","dcs_data"
+"dspitem_cfg_edit",0,"get display item configuration where resolveCommand = 'get translated part number for display'","","","sal_data"
+"dspitem_cfg_invadj",0,"get display item configuration for rdt where prtClientIDAlias = 'client_id' and coupled = 'prt_client_id'","","","dcs_data"
+"dspitem_cfg_itemvel",0,"get display item configuration where prtnumAlias='item_num' and prtClientIDAlias='client_id'","","","sal_data"
+"dspitem_cfg_palbld",0,"get display item configuration for rdt where prtClientIDAlias = 'client_id' and display = 'prtnum'","","","dcs_data"
+"dspitem_cfg_pickupA",0,"get display item configuration for rdt where prtClientIDAlias = 'dspprtcli' and coupled = 'dspprtcli'","","","dcs_data"
+"dspitem_cfg_rdt",0,"get display item configuration for rdt","","","sal_data"
+"dspitem_cfg_rdt_rcv",0,"get display item configuration for rdt where filterCommand = 'get matching items at identify'","","","dcs_data"
+"dspitem_cfg_rdt_wko",0,"get display item configuration for rdt where filterCommand = 'get matching items at work order'","","","dcs_data"
+"dspitem_cfg_rpt",0,"get display item configuration where resolveCommand = 'get translated part number for display'","","","sal_data"
+"dspitem_cfg_worngLoc",0,"get display item configuration where prtclientidalias = 'wrong_prt_client_id' and prtnumalias = 'wrong_prtnum'","","","dcs_data"
+"dspprt_cfg",0,"get display item configuration for rdt where prtnumAlias = 'dspprt' and prtClientIDAlias = 'dspprtcli' and base = 'dspprt' and display = 'dsp_prtnum' and coupled = 'dspprtcli'","","","dcs_data"
+"dtlnum_barcode_cmd",0,"if ('&dtlnum' != '') {parse bar code on mcs where bar_code_str = '&dtlnum' and input_field = 'dtlnum' and supnum = '&supnum' and client_id = '&client_id' and wh_id = nvl('&wh_id', @@wh_id)}","","","dcs_data"
+"dummy_parse_bar_code",0,"[select '' from dual]","","","dcs_data"
+"dyn_cmdNew",0,"list policies where polcod = 'PRTMST' and polvar = 'NONSHARED-FIELDS' and polval = 'CMDNEW' and wh_id = '----' catch(-1403)|if (@? = -1403){list parts where prtnum = '&prtnum' and prt_client_id = '&prt_client_id' and wh_id = '----' catch(-1403)|if (@? = 0){publish data where dvc_var_nam = "cmdNew" and dvc_ena_flg = "0" and dvc_vis_flg = "1"}}else{publish data where dvc_var_nam = "cmdNew" and dvc_ena_flg = "1" and dvc_vis_flg = "1"}","","","dcs_data"
+"dyn_cmdRemove",0,"list policies where polcod = 'PRTMST' and polvar = 'NONSHARED-FIELDS' and polval = 'CMDREMOVE' and wh_id = '----' catch(-1403)|if (@? = -1403){list parts where prtnum = '&prtnum' and prt_client_id = '&prt_client_id' and wh_id = '----' catch(-1403)|if (@? = 0){publish data where dvc_var_nam = "cmdRemove" and dvc_ena_flg = "0" and dvc_vis_flg = "1"}}else{publish data where dvc_var_nam = "cmdRemove" and dvc_ena_flg = "1" and dvc_vis_flg = "1"}","","","dcs_data"
+"enable_min_catch_qty",0,"configure mincatch quantity where prtnum = '&prtnum' and prt_client_id = '&prt_client_id' and wh_id = '&wh_id'","","","dcs_data"
+"enable_set_maxqvl_flg",0,"configure setmaxqvl flag where set_locsts = '&set_locsts'","","","dcs_data"
+"enable_slot_id",0,"[select 1 from locmst join loc_typ on loc_typ.loc_typ_id = locmst.loc_typ_id where locmst.arecod = '&arecod' and locmst.wh_id = '&wh_id' and (loc_typ.rcv_dck_flg = 1 or loc_typ.shp_dck_flg = 1)] catch(-1403) | if (@? = -1403){publish data where dvc_var_nam = 'slot_id' and dvc_ena_flg = '0'}else{publish data where dvc_var_nam = 'slot_id' and dvc_ena_flg = '1'}","","","dcs_data"
+"enable_turn_flg",0,"enable turn flag where trlr_num = '&trlr_num'","","","dcs_data"
+"get_bldg_id_for_sto_zone_id",0,"if('&wh_id' != '' and '&sto_zone_id' != '' and '&bldg_id' = '') {list storage zones where wh_id = '&wh_id' and sto_zone_id = '&sto_zone_id' | publish data where bldg_id = @bldg_id}","","","dcs_data"
+"get_trnsl_trlr_num",0,"configure trlr_num criteria mode where trlr_num = '&trlr_num' and carcod = '&carcod' and wh_id = nvl('&wh_id',nvl('&stoloc_wh_id','&yard_loc_wh_id'))","","","dcs_data"
+"hide_invact_field",0,"if ('&optSummary' = '1') { publish data where dvc_var_nam = 'invact_id,actcod' and dvc_ena_flg = '0,0' and dvc_vis_flg = '0,0'} else if ('&optDetail' = '1') { publish data where dvc_var_nam = 'invact_id,actcod' and dvc_ena_flg = '1,1' and dvc_vis_flg = '1,1'} ","","","dcs_data"
+"INEWRKDSPRFT-CMD",0,"configure ineligible work display","","","dcs_data"
+"INVALID-CATCH-BUTTON",0,"configure invalid cat button where trlr_id = '&trlr_id' and inv_catch_flg = '&inv_catch_flg'","","","dcs_data"
+"INVSERVMNTCMD-CRIT",0,"configure inventory service type criteria mode where serv_typ = '&serv_typ'","","","dcs_data"
+"INVSERVMNTCMD-NEW",0,"configure inventory service type new mode where serv_typ = '&serv_typ' and serv_id = '&serv_id'","","","dcs_data"
+"invtid_barcode_cmd",0,"if ('&invtid' != '') {parse bar code on mcs where bar_code_str = '&invtid' and input_field = 'invtid' and supnum = '&supnum' and client_id = '&client_id' and wh_id = nvl('&wh_id', @@wh_id)}","","","dcs_data"
+"lblfmt_default_img",0,"publish data where dvc_var_nam = 'imglblfmtmnt' and dvp_DefaultImageName = 'default_lbl.jpg' and lblfmt = '&lblfmt'","","","sal_data"
+"localemnt_mu_cfg",0,"if ('&mu' != ''){list measurement units where mu = '&mu' | publish data where lngdsc = @lngdsc and short_dsc = @short_dsc}","","","tm_data"
+"lodnum_barcode_cmd",0,"if ('&lodnum' != '') {parse bar code on mcs where bar_code_str = '&lodnum' and input_field = 'lodnum' and supnum = '&supnum' and client_id = '&client_id' and wh_id = nvl('&wh_id', @@wh_id)}","","","dcs_data"
+"loducc_barcode_cmd",0,"if ('&loducc' != '') {parse bar code on mcs where bar_code_str = '&loducc' and input_field = 'loducc' and supnum = '&supnum' and client_id = '&client_id' and wh_id = nvl('&wh_id', @@wh_id)}","","","dcs_data"
+"onchange_cnzflg",0,"validate fields on cnzflg where cnzflg = '&cnzflg'","","","dsc_data"
+"onchange_cnzflg_prtmstovrdmnt",0,"validate fields on cnzflg where cnzflg = '&cnzflg' and frm_id = 'prtmstovrdmnt'","","","dsc_data"
+"onchange_dtcflg",0,"validate fields on dtcflg where dte_code = '&dte_code'","","","dsc_data"
+"onchange_dtcflg_prtmstovrdmnt",0,"validate fields on dtcflg where dte_code = '&dte_code' and frm_id = 'prtmstovrdmnt'","","","dsc_data"
+"ordmnt_prt_desc_field",0,"if ('&prtnum' != '') {list parts for lookup where prtnum = '&prtnum' and prt_client_id = nvl('&prt_client_id','&client_id') and wh_id = '&wh_id' | publish data where prt_desc = @lngdsc} else {publish data where prt_desc=''}","","","dcs_data"
+"prtmst_default_img",0,"publish data where dvc_var_nam = 'imgprtmstmnt' and dvp_DefaultImageName = 'default_prt.jpg'","","","sal_data"
+"prtmst_shrfld_def_cfg",0,"configure part default fields","","","dcs_data"
+"prtmst_shrfld_ovr_cfg",0,"configure part override fields where prtnum = '&prtnum' and prt_client_id = '&prt_client_id'","","","dcs_data"
+"prtmst_shrfld_reset_cfg",0,"configure part fields reset","","","dcs_data"
+"rcvtrkopr_identify_lodnum_barcode_cmd",0,"if ('&lodnum' != '') {parse bar code on mcs where bar_code_str = '&lodnum' and input_field = 'lodnum' and supnum = '&supnum' and client_id = '&client_id' and wh_id = nvl('&wh_id', @@wh_id)|rename columns where untqty='uomqty'}","","","dcs_data"
+"refresh_dspitem_dyn",0,"publish data where prtnum = '&prtnum'","","","sal_data"
+"refresh_prt_client_id",0,"publish data where prt_client_id = '&client_id'","","","sal_data"
+"rf_cycle_count_catch_qty_dvc",0,"configure cntentopr catch_qty where wh_id = '&global.wh_id' and prtnum = '&prtnum' and prt_client_id = '&prt_client_id' and catch_qty = '&catch_qty'","","","dcs_data"
+"rft_rack_quiz",0,"configure rft rackquiz where prtnum = '&prtnum' and prt_client_id = '&prt_client_id' and wh_id = '&global.wh_id'","","","dcs_data"
+"rifdmnt_eo_desc",0,"if('&eo_id' !=  AND '&eo_ver' != ) { sl_list eo_def where eo_id = '&eo_id' and eo_ver = '&eo_ver' | publish data where dvc_var_nam = 'eo_descr' and dvc_vis_flg = 1 and dvc_ena_flg = 1 and eo_descr = @eo_descr } else {publish data where dvc_var_nam = 'eo_descr' and dvc_vis_flg = 1 and dvc_ena_flg = 1 and eo_descr = ''}","","","int_data"
+"rifdmnt_sync_mode",0,"if('&comm_mode_cd' = 'SYNCD') {publish data where dvc_var_nam = 'grp_ordr_edit'  and dvc_ena_flg='0' and grp_ordr_edit = } else {publish data where dvc_var_nam = 'grp_ordr_edit' and dvc_ena_flg='1'}","","","int_data"
+"rimlinmnt_cmd",0,"configure receive invoice line fields where prtnum ='&prtnum' and wh_id ='&wh_id' and prt_client_id = '&prt_client_id'","","","dcs_data"
+"servinsmnt_default_img",0,"publish data where dvc_var_nam = 'imgservinsmnt' and dvp_DefaultImageName = 'default_servins.jpg' and serv_ins_id = '&serv_ins_id'","","","sal_data"
+"servmnt_default_img",0,"publish data where dvc_var_nam = 'imgservmnt' and dvp_DefaultImageName = 'default_servins.jpg' and serv_id = '&serv_id'","","","dcs_data"
+"set_bulk_pck_flg_vis",0,"list policies where polcod = 'BULK-PICKING' and polvar = 'INSTALLED' and polval = 'INSTALLED' and rtnum1 = 1 and wh_id = nvl ('&wh_id', @@wh_id) catch(-1403) | if (@? = 0){publish data where dvc_var_nam = 'bulk_pck_flg' and dvc_ena_flg = 1 and dvc_vis_flg = 1}else{publish data where dvc_var_nam = 'bulk_pck_flg' and dvc_ena_flg = 0 and dvc_vis_flg = 0}","","","dcs_data"
+"set_bulk_pck_flg_vis_with_client",0,"list policies where polcod = 'BULK-PICKING' and polvar = 'INSTALLED' and polval = 'INSTALLED' and rtnum1 = 1 and wh_id = nvl('&wh_id', @@wh_id) catch(-1403) | if(@? = 0){ get installed configuration where config = 'THIRD-PARTY-LOGISTICS' and wh_id = nvl('&wh_id', @@wh_id) catch(-1403) | if(@installed = 0) { publish data where dvc_var_nam = 'bulk_pck_flg' and dvc_ena_flg = 1 and dvc_vis_flg = 1} else { if('&client_id' is not ){list bulk picking clients where wh_id = nvl('&wh_id', @@wh_id) and client_id = '&client_id' catch(-1403) | if(@? = 0){publish data where dvc_var_nam = 'bulk_pck_flg' and dvc_ena_flg = 1 and dvc_vis_flg = 1}else{publish data where dvc_var_nam = 'bulk_pck_flg' and dvc_ena_flg = 0 and dvc_vis_flg = 0}}else{ publish data where dvc_var_nam = 'bulk_pck_flg' and dvc_ena_flg = 0 and dvc_vis_flg = 0}}}else{publish data where dvc_var_nam = 'bulk_pck_flg' and dvc_ena_flg = 0 and dvc_vis_flg = 0}","","","dcs_data"
+"set_chkin_trlr_asset_fld_ena",0,"configure check in trailer asset fields enable where asset_typ = '&asset_typ' and asset_tag = '&asset_tag'","","","dcs_data"
+"set_clsrcvtrkopr_vis",0,"configure clsrcvtrkopr fields visibility where trlr_id = '&trlr_id' and dispatch_flg = &chkDispatchTrailer","","","dcs_data"
+"set_cnfrm_asset_tag_fld_ena",0,"configure cnfrm_asset_tag field enable where trlr_id = '&trlr_id' and wh_id = '&wh_id'","","","dcs_data"
+"set_form_close_trlr_fld_cfg",0,"configure form close_trlr fields where trlr_id = '&trlr_id' and wh_id = '&global.wh_id'","","","dcs_data"
+"set_fraBulkPckOpt_vis",0,"list policies where polcod = 'BULK-PICKING' and polvar = 'INSTALLED' and polval = 'INSTALLED' and rtnum1 = 1 and wh_id = nvl ('&wh_id', @@wh_id) catch(-1403) | if (@? = 0){publish data where dvc_var_nam = 'fraBulkPckOpt' and dvc_ena_flg = 1 and dvc_vis_flg = 1}else{publish data where dvc_var_nam = 'fraBulkPckOpt' and dvc_ena_flg = 0 and dvc_vis_flg = 0}","","","dcs_data"
+"set_loc_coordinates",0,"if('&basepoint_id' is not  or '&basepoint_id' != '') {publish data where dvc_var_nam = 'top_left_x,top_left_y,bottom_left_x,bottom_left_y,top_right_x,top_right_y,bottom_right_x,bottom_right_y,border_pad' and dvc_ena_flg = '1,1,1,1,1,1,1,1,1'} else {publish data where dvc_var_nam = 'top_left_x,top_left_y,bottom_left_x,bottom_left_y,top_right_x,top_right_y,bottom_right_x,bottom_right_y,border_pad' and dvc_ena_flg = '0,0,0,0,0,0,0,0,0' }","","","dcs_data"
+"set_lot_sts_ena",0,"[select shp_res_lot from prtmst_view where prtnum = '&prtnum' and prt_client_id = '&prt_client_id' and wh_id ='&wh_id']catch(-1403) | if (@shp_res_lot = 1) {publish data where dvc_var_nam = 'lot_sts' and dvc_ena_flg = '1'} else {publish data where dvc_var_nam = 'lot_sts' and dvc_ena_flg = '0'}","","","dcs_data"
+"set_ser_asset_id_fld_ena",0,"publish data where dvc_var_nam = 'asset_id' and dvc_ena_flg = '0'","","","dcs_data"
+"set_trlr_asset_fld_ena",0,"configure trailer asset fields enable where asset_typ = '&asset_typ'","","","dcs_data"
+"set_trlr_asset_fld_vis",0,"configure trailer asset fields visibility where wh_id = @@wh_id","","","dcs_data"
+"set_trlrmgtopr_fld_ena",0,"configure trlrmgtopr fields enable where trlr_id = '&trlr_id'","","","dcs_data"
+"set_wh_framework_configuration",0,"set wh framework configuration where wh_id = '&wh_id'","","","dcs_data"
+"subnum_barcode_cmd",0,"if ('&subnum' != '') {parse bar code on mcs where bar_code_str = '&subnum' and input_field = 'subnum' and supnum = '&supnum' and client_id = '&client_id' and wh_id = nvl('&wh_id', @@wh_id)}","","","dcs_data"
+"subucc_barcode_cmd",0,"if ('&subucc' != '') {parse bar code on mcs where bar_code_str = '&subucc' and input_field = 'subucc' and supnum = '&supnum' and client_id = '&client_id' and wh_id = nvl('&wh_id', @@wh_id)}","","","dcs_data"
+"to_ctnnum_cmd",0,"[select '&CARTON_EXCEPTION.ctnnum' to_ctnnum from dual]","","","dcs_data"
+"toggle_invalid_date",0,"if ('&invalid_flg' = '1') {publish data where dvc_var_nam = 'invalid_dte' and dvc_ena_flg = '1'} else {publish data where dvc_var_nam = 'invalid_dte' and dvc_ena_flg = '0'}","","","sal_data"
+"usr_check_dst_loc_only",10," [select 'x'
+       from locmst
+      where (stoloc='&dstloc' or locvrc='&dstloc') and wh_id='@global.wh_id'] catch(-1403)
+|
+if (@?<>0) 
+{
+publish data where dstloc=''
+}","20210126074241","938673",""
+"usr_cpy_dstloc",10,"publish data where dvc_var_nam = 'non_invtid,lblNonInvtId' and dvc_vis_flg = '0,0' and dvc_ena_flg = '0,0' and non_invtid='&dstloc' and lblNonInvtId='&dstloc'","20200429113317","938673",""
+"usr_def_asset_typ_cmd",10,"configure usr rf asset identify default asset typ where wh_id = '&GLOBAL.wh_id' and prvfrm = '&INIT_POLICIES.prvfrm' and asset_typ = '&ASSET_IDENTIFY.asset_typ'","20181008143005","939370","usr_data"
+"usr_def_pick_slot_cmd",10,"[select 'slot' dvc_var_nam, '0' dvc_ena_flg, '&SLOT_DEPOSIT.assetslot' slot from dual]","20220112151018","939370","usr_data"
+"usr_def_pos_id_cmd",10,"publish data where pos_id='1' and dvc_var_nam = 'pos_id' and dvc_vis_flg = '1' and dvc_ena_flg = '0'","20181010103618","940028","usr_data"
+"usr_def_putaway_to_staging",10,"if ('&IDENTIFY_LOAD.wkoflg' = 'Y') {
+create usr move to production station staging
+ where lodnum = '&IDENTIFY_LOAD.lodnum'
+   and wh_id = '&GLOBAL.wh_id'
+   and wkonum = '&IDENTIFY_LOAD.wkonum'
+   and wkorev = '&IDENTIFY_LOAD.invnum'
+   and client_id = '&IDENTIFY_LOAD.client_id' catch(@?)
+ }","20230501164335","938673","usr_data"
+"usr_def_wko_asset_typ",10,"if ('&IDENTIFY_LOAD.wkoflg' = 'Y') {
+if ('&IDENTIFY_LOAD.lodnum' != ''){
+get usr lpn asset type where lodnum = '&IDENTIFY_LOAD.lodnum' and wh_id = '&GLOBAL.wh_id'
+}
+else
+{
+[select rtstr1 asset_typ,
+        'asset_typ,load_attr1_flg' dvc_var_nam,
+        '0,0' dvc_ena_flg
+   from poldat_view
+  where polcod = 'USR-PRODUCTION'
+    and polvar = 'DEFAULTS'
+    and polval = 'ASSET-TYP'
+    and wh_id = '&GLOBAL.wh_id'] catch(-1403) }}","20230330150822","938673","usr_data"
+"usr_def_wko_ftpcod",10,"if ('&wkoflg' = 'Y')
+[select decode(pd3.untqty, 0, 1, nvl(pd3.untqty, 1)) untpak,
+        decode(pd2.untqty, 0, 1, nvl(pd2.untqty, 1)) untcas,
+        pd1.untqty untpal,
+        decode(pd3.untqty, 0, 1, nvl(pd3.untqty, 1)) wrkuntpak,
+        decode(pd2.untqty, 0, 1, nvl(pd2.untqty, 1)) wrkuntcas,
+        pd1.untqty wrkuntpal,
+        pf.ftpcod,
+        pm.rcvsts invsts,
+        pd4.uomcod rcvuom,
+        pm.lodlvl,
+        pm.stkuom stdstkuom,
+        pm.lotflg,
+        pm.sup_lot_flg,
+        pm.orgflg,
+        pm.revflg,
+        pm.rcvflg
+   from wkohdr
+   join prtmst_view pm
+     on wkohdr.prtnum = pm.prtnum
+    and wkohdr.prt_client_id = pm.prt_client_id
+    and wkohdr.wh_id = pm.wh_id
+   left
+   join prtftp pf
+     on pf.wh_id = pm.wh_id
+    and pf.prtnum = pm.prtnum
+    and pf.prt_client_id = pm.prt_client_id
+    and pf.ftpcod = wkohdr.ftpcod
+   left
+   join prtftp_dtl pd1
+     on pd1.prtnum = pf.prtnum
+    and pd1.prt_client_id = pf.prt_client_id
+    and pd1.wh_id = pf.wh_id
+    and pd1.ftpcod = pf.ftpcod
+    and pd1.pal_flg = 1
+   left
+   join prtftp_dtl pd2
+     on pd2.prtnum = pf.prtnum
+    and pd2.prt_client_id = pf.prt_client_id
+    and pd2.wh_id = pf.wh_id
+    and pd2.ftpcod = pf.ftpcod
+    and pd2.cas_flg = 1
+   left
+   join prtftp_dtl pd3
+     on pd3.prtnum = pf.prtnum
+    and pd3.prt_client_id = pf.prt_client_id
+    and pd3.wh_id = pf.wh_id
+    and pd3.ftpcod = pf.ftpcod
+    and pd3.pak_flg = 1
+   left
+   join prtftp_dtl pd4
+     on pd4.prtnum = pf.prtnum
+    and pd4.prt_client_id = pf.prt_client_id
+    and pd4.wh_id = pf.wh_id
+    and pd4.ftpcod = pf.ftpcod
+    and pd4.rcv_flg = 1
+  where wkohdr.wkonum = '&UNDIR_ASSEMBLY.wkonum'
+    and wkohdr.wkorev = '&UNDIR_ASSEMBLY.wkorev'
+    and wkohdr.client_id = '&UNDIR_ASSEMBLY.client_id'
+    and pm.prtnum = '&prtnum'
+    and pm.wh_id = '&GLOBAL.wh_id'
+    and pm.prt_client_id = '&prt_client_id']","20230330150822","938673","usr_data"
+"usr_def_wko_supnum",10,"if ('&wkoflg' = 'Y')
+[select wkohdr.uc_supnum supnum
+   from wkohdr
+  where wkohdr.wkonum = '&UNDIR_ASSEMBLY.wkonum'
+    and wkohdr.wkorev = '&UNDIR_ASSEMBLY.wkorev'
+    and wkohdr.client_id = '&UNDIR_ASSEMBLY.client_id']","20230330150822","938673","usr_data"
+"usr_def_wko_wko_existing_lpn",10,"if ('&IDENTIFY_LOAD.wkoflg' = 'Y') {
+publish data where dvc_var_nam = 'ok_delete,ok_add_to' and dvc_ena_flg = '0,0' and ok_delete = 'N' and ok_add_to = 'Y' }","20230406092235","938673","usr_data"
+"usr_disable_prtclient",10,"publish data where dvc_var_nam = 'prt_client_id' and dvc_vis_flg = '0' and dvc_ena_flg = '0'","20221202000000","938673","usr_data"
+"usr_pickup_a_lodnum_client",10,"publish data where dvc_var_nam = 'lodnumOrdinv,dspprtcli' and dvc_vis_flg = '0,0' and dvc_ena_flg = '0,0' ","20221202000000","938673","usr_data"
+"usr_pickup_a_lodnum_cmd",10,"publish data where lodnumOrdinv=iif(length('&lodnumOrdinv') > 12, substr('&lodnumOrdinv', length('&lodnumOrdinv')-12), '&lodnumOrdinv')","20181017180434","939370","usr_data"
+"usr_recalc_cube",10,"[select to_char(round((pcklst.totvol/pcklst.max_list_cube)*100,2),'999.00') || ' %'  as total_cubes from pcklst where list_id='&list_id']","20221202000000","938673",""
+"usr_ro_lotnum_ftpcod",10,"if ('&wkoflg' = 'Y'){ publish data where dvc_var_nam = 'ftpcod,lotnum,invsts' and dvc_vis_flg = '1,1,1' and dvc_ena_flg = '0,0,0' }","20230505000000","938673","usr_data"
+"usr_save_confirmation_id",10,"push device context value where dev_varnam='cnfrm_serv_id' and value='&CONFIRM_SERV.cnfrm_serv_id' and wh_id='&GLOBAL.wh_id' and devcod='&GLOBAL.devcod'","20230110000000","938673",""
+"usr_show_dstloc",10,"publish data where dvc_var_nam = 'trlr_num,LblTrlrnum' and dvc_vis_flg = '1,1' and dvc_ena_flg = '0,0' and trlr_num='&non_invtid' and LblTrlrnum='Loc:'","20200430160427","938673",""
+"usr_to_upper_dsplot",10," [select 'x'
+       from pckwrk_view
+      where wrkref='&wrkref' and lotflg=1 ] catch(-1403)
+|
+if (@?=0) 
+{
+publish data where dsplot=upper(nvl('&dsplot',''))
+}","20200515152658","938673",""
+"validate_car_crs_ref",0,"validate carrier cross reference where srvnam = '&srvnam' and wh_id = nvl('&wh_id',@@wh_id)","","","dcs_data"
+"wm_web_login",0,"publish data where cmdoutput = "Ignore Dynamic Configs for Login and Signon Forms"","","","dcsweb_data"

@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.11.0.final using JasperReports Library version 6.10.0  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Linked work orders (LPN)" language="groovy" columnCount="4" printOrder="Horizontal" pageWidth="555" pageHeight="595" orientation="Landscape" whenNoDataType="NoPages" columnWidth="138" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" scriptletClass="com.redprairie.moca.jrds.ReportingIreportScriptlet" resourceBundle="com.redprairie.moca.jrds.Xlate" whenResourceMissingType="Empty" uuid="e151aff3-699c-4d75-bf54-be0b74a1211a">
+	<property name="ireport.zoom" value="1.5"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<property name="ireport.scriptlethandling" value="0"/>
+	<property name="ireport.ireport.encoding" value="UTF-8"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="Local development"/>
+	<property name="com.jaspersoft.studio.report.description" value="Work Orders linked to LPN"/>
+	<property name="net.sf.jasperreports.page.break.no.pagination" value="apply"/>
+	<import value="net.sf.jasperreports.engine.*"/>
+	<import value="java.util.*"/>
+	<import value="net.sf.jasperreports.engine.data.*"/>
+	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
+		<property name="MOCA" value="true"/>
+		<defaultValueExpression><![CDATA["./"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="MOCA_REPORT_LOCALE" class="java.lang.String" isForPrompting="false">
+		<property name="MOCA" value="true"/>
+		<defaultValueExpression><![CDATA["US_ENGLISH"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="MOCA_REPORT_CONNECTION" class="com.redprairie.moca.jrds.JRMocaConnection" isForPrompting="false">
+		<property name="MOCA" value="true"/>
+		<defaultValueExpression><![CDATA[new com.redprairie.moca.jrds.JRMocaConnection("http://localhost:4600/service", "SUPER", "SUPER", true)]]></defaultValueExpression>
+	</parameter>
+	<parameter name="MOCA_REPORT_DATE" class="java.lang.String" isForPrompting="false">
+		<property name="MOCA" value="true"/>
+		<property name="prompt" value="No"/>
+		<defaultValueExpression><![CDATA[DateFormat.getDateInstance(DateFormat.SHORT).format(new Date())]]></defaultValueExpression>
+	</parameter>
+	<parameter name="MOCA_REPORT_TIME" class="java.lang.String" isForPrompting="false">
+		<property name="MOCA" value="true"/>
+		<defaultValueExpression><![CDATA[DateFormat.getTimeInstance(DateFormat.SHORT).format(new Date())]]></defaultValueExpression>
+	</parameter>
+	<parameter name="MOCA_REPORT_TZ" class="java.lang.String" isForPrompting="false">
+		<property name="MOCA" value="true"/>
+		<defaultValueExpression><![CDATA[new java.text.SimpleDateFormat("z").format(new Date())]]></defaultValueExpression>
+	</parameter>
+	<parameter name="MOCA_REPORT_DATE_FMT" class="java.lang.String" isForPrompting="false">
+		<property name="MOCA" value="true"/>
+		<defaultValueExpression><![CDATA[DateFormat.SHORT]]></defaultValueExpression>
+	</parameter>
+	<parameter name="MOCA_REPORT_TIME_FMT" class="java.lang.String" isForPrompting="false">
+		<property name="MOCA" value="true"/>
+		<defaultValueExpression><![CDATA[DateFormat.SHORT]]></defaultValueExpression>
+	</parameter>
+	<parameter name="wkonum" class="java.lang.String">
+		<parameterDescription><![CDATA[Work order]]></parameterDescription>
+	</parameter>
+	<parameter name="lpn_line" class="java.lang.String">
+		<parameterDescription><![CDATA[LPN id]]></parameterDescription>
+	</parameter>
+	<queryString language="MOCA">
+		<![CDATA[publish data where wkonum=$P{wkonum} and lpn_line=$P{lpn_line}
+		|
+[select wkohdr.wkonum, wkohdr.client_id, wkohdr. wh_id, wkohdr.wkorev, wkohdr.start_flg  
+   from wkohdr,wkodtl,pckwrk_dtl, invdtl, invsub,invlod
+  where wkohdr.wkonum = wkodtl.wkonum 
+     and wkohdr.wkorev = wkodtl.wkorev 
+     and wkohdr.wh_id = wkodtl.wh_id 
+     and wkohdr.client_id = wkodtl.client_id
+     and wkodtl.wkonum = pckwrk_dtl.wkonum 
+     and wkodtl.wkorev = pckwrk_dtl.wkorev 
+     and wkodtl.wkolin = pckwrk_dtl.wkolin 
+     and wkodtl.seqnum = pckwrk_dtl.seqnum 
+     and wkodtl.wh_id = pckwrk_dtl.wh_id 
+     and wkodtl.client_id = pckwrk_dtl.client_id
+     and invdtl.wrkref = pckwrk_dtl.wrkref
+     and invdtl.subnum = invsub.subnum
+     and invsub.lodnum = invlod.lodnum
+     and wkohdr.wkonum != @wkonum
+	 and invlod.lodnum = @lpn_line
+group by wkohdr.wkonum, wkohdr.client_id, wkohdr. wh_id, wkohdr.wkorev, wkohdr.start_flg] catch(-1403)]]>
+	</queryString>
+	<field name="wkonum" class="java.lang.String">
+		<fieldDescription><![CDATA[Work order id]]></fieldDescription>
+	</field>
+	<field name="client_id" class="java.lang.String">
+		<fieldDescription><![CDATA[Client id of work order]]></fieldDescription>
+	</field>
+	<field name="wh_id" class="java.lang.String">
+		<fieldDescription><![CDATA[Warehouse id of work order]]></fieldDescription>
+	</field>
+	<field name="wkorev" class="java.lang.String">
+		<fieldDescription><![CDATA[Revision of work order]]></fieldDescription>
+	</field>
+	<field name="start_flg" class="java.lang.Integer">
+		<fieldDescription><![CDATA[Work order started]]></fieldDescription>
+	</field>
+	<sortField name="wkonum"/>
+	<detail>
+		<band height="17" splitType="Stretch">
+			<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.FreeLayout"/>
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+			<textField>
+				<reportElement isPrintRepeatedValues="false" x="20" y="2" width="120" height="15" isRemoveLineWhenBlank="true" uuid="3a0a7d1d-ddff-47e3-8217-fd712d53beb9">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+				</reportElement>
+				<textElement>
+					<font fontName="Liberation Sans" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{wkonum}]]></textFieldExpression>
+			</textField>
+			<image>
+				<reportElement isPrintRepeatedValues="false" x="4" y="3" width="13" height="13" isRemoveLineWhenBlank="true" uuid="599b9c7a-b3f4-4717-b770-f8d1beb6203a">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					<printWhenExpression><![CDATA[EQUALS($F{start_flg},1)]]></printWhenExpression>
+				</reportElement>
+				<imageExpression><![CDATA["checkboxOn.png"]]></imageExpression>
+			</image>
+			<image>
+				<reportElement isPrintRepeatedValues="false" x="3" y="3" width="13" height="13" isRemoveLineWhenBlank="true" uuid="585753b6-f83d-48d6-b682-26c2b5d37310">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<printWhenExpression><![CDATA[EQUALS($F{start_flg},0)]]></printWhenExpression>
+				</reportElement>
+				<imageExpression><![CDATA["checkboxOff.png"]]></imageExpression>
+			</image>
+		</band>
+	</detail>
+</jasperReport>

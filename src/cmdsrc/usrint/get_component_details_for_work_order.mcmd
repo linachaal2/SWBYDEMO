@@ -1,0 +1,39 @@
+<command>
+  <name>get component details for work order</name>
+  <description>get component details for work order</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* get component details for work order
+ * wrapper to set allow_over_cons to 0 and make sure that in the interface the cmp_trk_flg =0 to have an error on overcconsume components
+ * Blue Yonder bug, not part of stay current
+ * Added check on return/scrap/consumed to fullfill top component (RET supplier used by default by Blue Yonder)
+ *
+ * Version history:
+ *  2023-07-17 Marco Schouwenaar Initial version
+*  2023-09-14  Marco Schouwenaar corrected overrule on given parameters conform spec
+*/
+
+[select 'x' 
+   from (select sum(tot_dlvqty-tot_cnsqty-rpt_rtsqty-rpt_scpqty)/bom_cnsqty to_main
+           from wkodtl 
+          where wkodtl.wkonum = @wkonum 
+            and wkodtl.wkorev = @wkorev  
+            and wkodtl.wh_id = @wh_id
+            and wkodtl.client_id = @client_id
+          group by  wkonum,wkolin,wkorev,bom_cnsqty) top_comp 
+  where top_comp.to_main<@tlp_untqty ]catch(-1403)
+|
+if (@?!=-1403)
+{
+  set return status where status=10362
+}
+else
+{
+   publish data where allow_over_cns = 0
+   |
+   ^get component details for work order where @+allow_over_cns and @*
+}
+]]>
+</local-syntax>
+</command>

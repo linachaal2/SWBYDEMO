@@ -1,0 +1,176 @@
+<command>
+  <name>list picks for pick list</name>
+  <description>list picks for pick list</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* list picks for pick list
+ * Version history:
+ *  2021-03-26 Radina Ivanova    Initial version
+ *  2022-08-15 Radina Ivanova    Reverse logic of pick zone policy to be used to exclude specific pick zones
+ *  2022-01-23 Radina Ivanova    Support allow splitting of picks
+ *  2023-04-24 Radina Ivanova    Get splitting enabled and split percentage from a policy
+ *  2023-06-09 Marco Schouwenaar Simplified the Work assignment rules and logic
+ *  2023-06-12 Marco Schouwenaar Speed up performance as Blue Yonder can not handle a lot of pick groups without performance loss, logic build to include/exclude zones depending the rule
+ */
+[select distinct 1
+   from poldat_view
+  where polcod = 'USR-PICKING'
+    and polvar = 'CUBING'
+    and polval = 'ENABLED'
+    and wh_id = @wh_id
+    and rtnum1 = 1] catch(-1403)
+|
+if (@? = 0)
+{
+    if (instr(@select_where_string, 'pcklst_rule_name') > 0)
+    {
+        publish data where i = instr(@select_where_string, 'pcklst_rule_name')
+        |
+        publish data where id_string = substr(@select_where_string, @i)
+        |
+        publish data where id_string = substr(@id_string, instr(@id_string, "'") + 1)
+        |
+        publish data where id_string = substr(@id_string, 0, instr(@id_string, "'") - 1)
+        |
+        publish data where pcklst_rule_name = @id_string
+        |
+     /* get the height of the shelve and the shelve asset type */
+        [select asset_typ slot_asset_typ, pcklst_rule_id, assign_slot_flg trl_rule
+           from pcklst_rule
+          where pcklst_rule.pcklst_rule_name = @pcklst_rule_name]
+        |
+        /*remove the id and asset condition from the select where clause */
+        get pick list select criteria summary
+          where pcklst_rule_id = @pcklst_rule_id
+            and exclude_condition = '1'
+            and field_list = 'pcklst_rule_name'        
+        |
+           [select asset_hgt,
+                 max_vol asset_max_vol
+           from asset_typ
+          where asset_typ = @slot_asset_typ]
+        |
+        publish data
+          where select_where_string = @select_cri_where_clause
+            and asset_hgt = @asset_hgt
+            and asset_max_vol = @asset_max_vol
+            and slot_asset_typ = @slot_asset_typ
+            and check_for_pick_zone_enabled = 1
+            and trl_rule= @trl_rule
+            and pcklst_rule_name=@pcklst_rule_name
+    }
+    |
+    if (@check_for_pick_zone_enabled = 1)
+    {
+        [select '''' || rtstr1 || '''' rtstr1
+           from poldat_view
+          where polcod = 'USR-PICKING'
+            and polvar = 'CUBING'
+            and polval = 'EXCLUDED-PICK-ZONES'
+            and rtnum1 = 1
+            and wh_id = @wh_id] catch(-1403) >> resRule
+        |
+        if (rowcount(@resRule) > 0)
+        {
+                convert column results to string
+                  where colnam = 'rtstr1'
+                    and res = @resRule
+                    and separator = ','
+                |
+                publish data
+                  where select_where_string = @select_where_string || ' and pck_zone.pck_zone_cod not in (' || @result_string || ')'
+        }
+        else
+        {
+            publish data
+              where select_where_string = @select_where_string
+        }
+        |
+        publish data
+          where select_where_string = @select_where_string
+    }
+    |
+    if (@asset_hgt > 0 and @trl_rule!=1)
+    {
+        [select rtnum1 allow_split_flg
+           from poldat_view
+          where polcod = 'USR-PICKING'
+            and polvar = 'CUBING'
+            and polval = 'SPLITTING-ENABLED'
+            and wh_id = @wh_id] catch(-1403)
+        |
+        [select rtnum1 split_percentage
+           from poldat_view
+          where polcod = 'USR-PICKING'
+            and polvar = 'CUBING'
+            and polval = 'SPLIT-PERCENTAGE'
+            and wh_id = @wh_id] catch(-1403)
+        |
+        publish data where allow_split_flg_org = @allow_split_flg
+        |
+        publish data where select_where_string_orig = @select_where_string
+        |
+        ^list picks for pick list
+            where @* and select_where_string = @select_where_string_orig || ' and exists (select ''x'' from usr_packing_map where uc_code = pckwrk_view.inv_attr_str2 and uc_stack = 1)' catch (-1403) >> resStackableItems
+        |
+        if (@? = 0)
+        {
+            get usr volume for trolley shelve
+            where res = @resStackableItems
+              and allow_split_flg = 0 >> resStackableItems        
+            |
+            if (rowcount(@resStackableItems) > 0)
+            {
+                get usr volume for stackable items
+                where res = @resStackableItems
+                  and allow_split_flg = @allow_split_flg_org >> resStackableItems
+            }
+        }
+        |
+        ^list picks for pick list
+            where @* and select_where_string = @select_where_string_orig || ' and not exists (select ''x'' from usr_packing_map where uc_code = pckwrk_view.inv_attr_str2 and uc_stack = 1)' catch (-1403) >> resNonStackableItems
+        |
+        if (@? = 0)
+        {
+            get usr volume for trolley shelve
+            where res = @resNonStackableItems
+              and allow_split_flg = @allow_split_flg_org >> resNonStackableItems
+        }
+        |
+        publish data combination
+          where res1 = @resStackableItems
+            and res2 = @resNonStackableItems >> resFinal
+        |
+        if (rowcount(@resFinal) = 0)
+        {
+            set return status where status = -1403
+        }
+        else
+        {
+            publish data combination
+              where res = @resFinal
+        }
+
+    }
+    else
+    {   if (@trl_rule=1)
+        {
+            ^list picks for pick list    
+                where @* and select_where_string = @select_where_string 
+        }
+        else
+        {
+            ^list picks for pick list 
+                where @*
+        }
+    }
+}
+else
+{
+    ^list picks for pick list 
+        where @*
+}
+]]>
+</local-syntax>
+</command>

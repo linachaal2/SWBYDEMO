@@ -1,0 +1,5 @@
+<trigger>
+  <name>process_background_services</name>
+  <on-command>move inventory</on-command>
+  <disable>yes</disable>
+</trigger>

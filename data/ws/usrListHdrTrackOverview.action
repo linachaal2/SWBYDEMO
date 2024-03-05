@@ -1,0 +1,17 @@
+<action>
+  <id>usrListHdrTrackOverview</id>
+  <name>usrListHdrTrackOverview</name>
+  <description>List Occupation Delivery Track Overview (Header)</description>
+  <type>LIST</type>
+  <ws>
+     <method>GET</method>
+	 <href>/usrListHdrTrackOverview</href>
+  </ws>
+  <impl>
+     <command>list usr header track overview</command>
+  </impl>
+   <auth>
+     <opt>optOpen</opt>
+  </auth>
+  <primary>true</primary>
+</action>

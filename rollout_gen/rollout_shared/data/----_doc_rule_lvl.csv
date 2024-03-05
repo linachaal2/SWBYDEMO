@@ -1,0 +1,12 @@
+doc_typ,seqnum,colval,par_uom_flg,ins_dt,last_upd_dt,ins_user_id,last_upd_user_id
+"ctnlbl",1,"S",0,"","","",""
+"pallbl",1,"L",0,"","","",""
+"pallbl",2,"L",0,"","","",""
+"pallbl",3,"L",0,"","","",""
+"pallbl",4,"L",0,"","","",""
+"pallbl",5,"L",0,"","","",""
+"pallbl",6,"L",0,"","","",""
+"putostore_ctnlbl",1,"S",0,"","","",""
+"rcvrpt",1,"L",0,"","","",""
+"USR-RFH001-FFDELIVER",1,"L",0,"20180919081917","20180919081917","939370","939370"
+"USR-RFH007",1,"L",0,"20210726161233","20210726161233","939370","939370"

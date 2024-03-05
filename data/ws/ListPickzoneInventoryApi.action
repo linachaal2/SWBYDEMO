@@ -1,0 +1,20 @@
+<action>
+  <id>ListPickzoneInventoryApi</id>
+  <name>ListPickzoneInventoryApi</name>
+  <description>list pickzone inventory api fields</description>
+  <type>LIST</type>
+  <ws>
+     <method>GET</method>
+	 <href>/PickzoneInventory</href>
+  </ws>
+  <impl>
+     <command>list usr pickzone inventory api fields</command>
+  	 <!--arguments>
+		<argument name ="wh_id" type="string" location="body" required="true" description="subsidiary Code"/>
+		<argument name ="pck_zone_cod" type="string" location="body" required="true" description="pick zone code"/>
+	 </arguments-->
+  </impl>
+  <auth>
+     <opt>optOpen</opt>
+  </auth>
+</action>

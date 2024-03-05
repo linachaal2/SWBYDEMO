@@ -1,0 +1,56 @@
+<command>
+  <name>list usr inbound shipments for archive</name>
+  <description>custom command for listing invbound shipments for archive</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* ------------------------------------------------------------------------------------------------------------
+ * list usr inbound shipments for archive
+ * ------------------------------------------------------------------------------------------------------------
+ * V01, 2020-08-03, Shailesh Raina	ARC-CFG-001 Created this custom command to enable archiving of partially received trucks
+ * ------------------------------------------------------------------------------------------------------------
+ */
+if (!@dayold) {
+    publish data where dayold = 30
+}
+|
+publish data where archiveDate = sysdate - @dayold
+|
+if (dbtype = 'ORACLE')
+{
+    [select rcvtrk.*,
+            rcvtrk.rowid
+       from rcvtrk
+       left
+       join trlr
+         on trlr.trlr_id = rcvtrk.trlr_id
+      where (rcvtrk.clsdte is not null and (
+                                            /* Transport equipment was dispatched more than the specified number of days ago. */
+                                            (trlr.trlr_stat = 'D' and trlr.dispatch_dte < @archiveDate:date) or
+                                            /* There is no transport equipment and the inbound shipment was closed more than the specified number of days ago. */
+                                            (trlr.trlr_id is null and rcvtrk.rcvtrk_stat = 'C' and rcvtrk.clsdte < @archiveDate:date) or
+                                            /* Trailer has been truned around to Shipping trailer. */
+                                            (trlr_cod = 'SHIP' and rcvtrk.rcvtrk_stat = 'C' and rcvtrk.clsdte < @archiveDate:date)))
+     /* Partially recieved trucks */
+         or rcvtrk.rcvtrk_stat = 'R']
+}
+else
+{
+    [select rcvtrk.*
+       from rcvtrk
+       left
+       join trlr
+         on trlr.trlr_id = rcvtrk.trlr_id
+      where (rcvtrk.clsdte is not null and (
+                                            /* Transport equipment was dispatched more than the specified number of days ago. */
+                                            (trlr.trlr_stat = 'D' and trlr.dispatch_dte < @archiveDate:date) or
+                                            /* There is no transport equipment and the inbound shipment was closed more than the specified number of days ago. */
+                                            (trlr.trlr_id is null and rcvtrk.rcvtrk_stat = 'C' and rcvtrk.clsdte < @archiveDate:date) or
+                                            /* Trailer has been truned around to Shipping trailer. */
+                                            (trlr_cod = 'SHIP' and rcvtrk.rcvtrk_stat = 'C' and rcvtrk.clsdte < @archiveDate:date)))
+     /* Partially recieved trucks */
+         or rcvtrk.rcvtrk_stat = 'R']
+}
+]]>
+</local-syntax>
+</command>

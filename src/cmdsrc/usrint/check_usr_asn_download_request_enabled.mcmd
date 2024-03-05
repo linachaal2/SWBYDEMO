@@ -1,0 +1,38 @@
+<command>
+  <name>check usr asn download request enabled</name>
+  <description>check usr asn download request enabled</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* check usr asn download request enabled
+ * Version history:
+ *  2021-02-09  Radina Ivanova    Initial version. 
+ */
+
+/* check policy if asn download request is enabled */
+[select rtnum1
+   from poldat_view
+  where polcod = 'USR-RECEIVING'
+    and polvar = 'ASN-DOWNLOAD-REQUEST'
+    and polval = 'ENABLED'
+    and rtnum1 = 1
+    and wh_id = @wh_id] catch(-1403)
+|
+if (@? = 0)
+{
+    /* Override logic map config to display a dialog asking for confirmation */
+    publish data
+      where show_message = null
+        and show_error = null
+        and show_confirmation = 'dlgRequestAsnDownload[Y|N]'
+        and show_parms = null
+        and open_rf_frm = null
+        and open_rf_frm_parms_cmd = null
+        and start_scan = 0
+        and add_scan = 0
+}
+
+]]>
+</local-syntax>
+<argument name="wh_id" required="yes" datatype="string">Warehouse ID</argument>
+</command>

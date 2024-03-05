@@ -1,0 +1,46 @@
+<command>
+  <name>list usr rf pickup_a untqty_gp</name>
+  <description>Returns the untqty of which a gp load should consist</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* list usr rf pickup_a untqty_gp
+ * Returns the untqty of which a gp load should consist
+ * Version history:
+ *  2019-10-03  Salem Hamze     Initial version.
+ *  2020-04-03  Raoul Scholten  Altered check on validate stack variable wrkref
+ *  2020-31-03  Raoul Scholten  Adjusted policy to fetch predifened ordtyp
+ */
+[select pckwrk_view.wrkref
+   from pckwrk_view
+  where pckwrk_view.wrkref = @wrkref] catch(@?)
+|
+if (@? = 0)
+{
+    [select max(ord_line_note.nottxt) as untqty_gp
+       from pckwrk_view
+      inner
+       join poldat_view
+         on poldat_view.wh_id = pckwrk_view.wh_id
+        and poldat_view.polcod = 'USR-RF-FORM'
+        and poldat_view.polvar = 'PICKUP_A'
+        and poldat_view.polval = 'UNTQTY_GP'
+        and poldat_view.rtstr1 = 'NOTTYP'
+      inner
+       join ord_line_note
+         on ord_line_note.ordnum = pckwrk_view.ordnum
+        and ord_line_note.ordlin = pckwrk_view.ordlin
+        and ord_line_note.ordsln = pckwrk_view.ordsln
+        and ord_line_note.wh_id = pckwrk_view.wh_id
+        and ord_line_note.client_id = pckwrk_view.client_id
+        and ord_line_note.nottyp = poldat_view.rtstr2
+      inner
+       join ord
+         on ord.ordnum = ord_line_note.ordnum
+        and ord.ordtyp = poldat_view.rtnum1
+      where pckwrk_view.wrkref = @wrkref] catch(-1403)
+}
+]]>
+</local-syntax>
+  <argument name="wrkref" required="yes" datatype="string">Work reference</argument>
+</command>

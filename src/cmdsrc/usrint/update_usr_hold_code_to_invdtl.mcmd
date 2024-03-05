@@ -1,0 +1,83 @@
+<command>
+  <name>update usr hold code to invdtl</name>
+  <description>update usr hold code to invdtl</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* update usr hold code to invdtl
+ * copy to the hold code to invdtl for storage rules
+ *
+ * Version history:
+ *  2018-11-13  Tim van den Akker  Initial version.
+ *  2018-11-21  Tim van den Akker  Added logic to update en delete str18 with the hold code 
+ *  2023-07-19  Marco Schouwenaar  Avoid higher number of invdtl.u_version (update instead of change record)
+ */
+get warehouse id
+|
+/*haal het hold op die toegepast is. 
+ * in het receiving process kan maar 
+ * 1 hold worden toegepast*/
+[select hldnum
+   from invdtl
+  inner
+   join invsub
+     on invsub.subnum = invdtl.subnum
+  inner
+   join invhld
+     on invdtl.dtlnum = invhld.dtlnum
+    and invhld.wh_id = @wh_id
+  where invsub.lodnum = @lodnum
+    and rownum = 1] catch(-1403)
+|
+/* haal in de policy op of de hold code
+ * naar het vraagtekenspoor moet per area, 
+ * of dat de hold code aangeeft dat de kar 
+ * niet meer te transporteren is en dus 
+ * op een dock exceptie locatie komt te staan.
+ * ieder dock heeft zn eigen execptie locatie*/
+if (@exec_sts = 0 and @to_hld_flg = 1)
+{
+    [select rtstr2 as polcod
+       from poldat_view
+      where wh_id = nvl(@wh_id, @@wh_id)
+        and polcod = 'USR-RECEIVING'
+        and polvar = 'EXCEPTION'
+        and polval = 'STORAGE'
+        and rtstr1 = @hldnum] catch(-1403)
+    |
+    if (@? = 0)
+    {
+        /*record updaten met de juiste waarde, 
+         * hier kunnen we dan de storage rules 
+         * mee ingaan*/
+        [select *
+           from invdtl
+          inner
+           join invsub
+             on invsub.subnum = invdtl.subnum
+          where invsub.lodnum = @lodnum]
+        |
+        [update invdtl 
+        set inv_attr_str18 = @polcod 
+         where dtlnum = @dtlnum] catch(-1403)
+    }
+}
+else if (@exec_sts = 0 and @to_hld_flg = 0 and @hld_flg = 0)
+/* als de hold verwijderd word, moeten we ook de hold code
+ * van de indtl table afhalen.
+ */
+{
+    [select *
+       from invdtl
+      inner
+       join invsub
+         on invsub.subnum = invdtl.subnum
+      where invsub.lodnum = @lodnum]
+    |
+    [update invdtl 
+        set inv_attr_str18 = ''
+     where dtlnum = @dtlnum] catch(-1403)
+}
+]]>
+</local-syntax>
+</command>

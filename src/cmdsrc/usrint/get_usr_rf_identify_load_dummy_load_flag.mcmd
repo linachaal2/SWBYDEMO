@@ -1,0 +1,65 @@
+<command>
+  <name>get usr rf identify load dummy load flag</name>
+  <description>get usr rf identify load dummy load flag</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* get usr rf identify load dummy load flag
+ * Returns the dummy load flag for the loads on the device, this indicates if the only item on the load is a dummy item.
+ * Version history:
+ *  2019-01-23  Salem Hamze     Initial version.
+ */
+get warehouse id
+|
+publish data
+ where devcod = nvl(@devcod, @@devcod)
+|
+/* Get the loads which were scanned by the user. */
+[select value
+   from device_context
+  where wh_id = @wh_id
+    and devcod = @devcod
+    and dev_varnam in ('USR_IDENTIFY_LOAD|LODNUM', 'USR_IDENTIFY_LOAD|FINISH_IDENTIFIER')] catch(-1403) >> res_loads
+|
+if (@? != -1403)
+{
+    convert column results to string
+     where resultset = @res_loads
+       and colnam = 'value'
+    |
+    convert list to in clause
+     where string = @result_string
+       and table_prefix = 'invlod'
+       and column_name = 'lodnum'
+       and separator = ','
+    |
+    /* If there is an item on the load which is not a dummy load then it is not a dummy load. */
+    [select nvl(min(decode(invdtl.prtnum, poldat_view.rtstr1, 1, 0)), 0) as dummy_load_flg
+       from invlod
+      inner
+       join invsub
+         on invsub.lodnum = invlod.lodnum
+      inner
+       join invdtl
+         on invdtl.subnum = invsub.subnum
+       left
+       join poldat_view
+         on poldat_view.wh_id = invlod.wh_id
+        and poldat_view.polcod = 'USR-RF-FORM'
+        and poldat_view.polvar = 'USR_EXCEPTION'
+        and poldat_view.polval = 'DUMMY-INV-PRTNUM'
+        and poldat_view.rtnum1 = 1
+        and poldat_view.rtstr1 = invdtl.prtnum
+        and poldat_view.rtstr2 = invdtl.prt_client_id
+      where @in_clause:raw] catch(-1403)
+}
+else
+{
+    publish data
+     where dummy_load_flg = 0
+}
+]]>
+</local-syntax>
+  <argument name="wh_id" datatype="string">wh_id</argument>
+  <argument name="devcod" datatype="string">devcod</argument>
+</command>

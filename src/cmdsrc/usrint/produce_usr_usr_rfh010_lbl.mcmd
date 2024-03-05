@@ -1,0 +1,45 @@
+<command>
+  <name>produce usr usr_rfh010 lbl</name>
+  <description>produce RFH Case label(prod)</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[ 
+  /* produce usr usr_rfh010 lbl
+   * produce case label production
+   * Version history:
+   *  2023-04-14  Marco Schouwenaar    Initial version. 
+   */
+      if (@lodnum)
+      {
+        [select cmphdr.wkonum 
+           from invdtl, invsub, cmphdr 
+          where invdtl.cmpkey = cmphdr.cmpkey
+            and invdtl.subnum = invsub.subnum
+            and invsub.lodnum = @lodnum
+          group by cmphdr.wkonum
+          order by cmphdr.wkonum] catch(-1403)
+      }
+      |
+      get lbl document format
+       where doc_typ = @doc_typ
+         and exitpnt = @exitpnt >> readdocfmt
+      |
+      {
+      write daily transaction
+       where actcod = 'USR-LABEL-PRINT'
+         and tostol = @printer
+         and devcod = @@devcod
+         and trndte = sysdate
+         and var_nam = 'doc_typ'
+         and fr_value = @doc_typ
+         and trnqty = @no_labels
+         and cmnt = 'Case label (production)';
+      }
+      |
+      if(@no_labels<1) publish data where no_labels=1
+      |
+      publish data combination where results=@readdocfmt and  docqty = @no_labels and wkonum=@wkonum
+  ]]>
+</local-syntax>
+  <argument name="wkonum" required="yes" datatype="string">wkonum</argument>
+</command>

@@ -1,0 +1,20 @@
+[select wh_id
+   from wh]
+|
+if (@wh_id = '1')
+{
+[delete from aremst where arecod in ('H155')] catch(-1403);
+[delete from dscmst where colnam in ('arecod|wh_id', 'wrkzon|wh_id', 'sto_zone_cod|wh_id', 'pck_zone_cod|wh_id', 'mov_zone_cod|wh_id') and colval like ('%H155%')] catch(-1403);
+[delete from locmst where stoloc like 'H155%'] catch(-1403);
+[update invsum set arecod = 'H255' where arecod = 'H155'] catch(-1403);
+[update invlod set stoloc = replace(stoloc, 'H155', 'H255') where stoloc like 'H155%'] catch(-1403);
+[update invmov set stoloc = replace(stoloc, 'H155', 'H255') where stoloc like 'H155%'] catch(-1403);
+[update invsum set stoloc = replace(stoloc, 'H155', 'H255') where stoloc like 'H155%'] catch(-1403);
+[update pckmov set stoloc = replace(stoloc, 'H155', 'H255') where stoloc like 'H155%'] catch(-1403);
+[update qvlwrk set stoloc = replace(stoloc, 'H155', 'H255') where stoloc like 'H155%'] catch(-1403);
+[update pckwrk_hdr set srcare = 'H255' where srcare = 'H155'] catch(-1403);
+[update pckwrk_hdr set srcloc = replace(srcloc, 'H155', 'H255') where srcloc like 'H155%'] catch(-1403);
+[update wrkque set srcloc = replace(srcloc, 'H155', 'H255') where srcloc like 'H155%'] catch(-1403);
+}
+/
+exit

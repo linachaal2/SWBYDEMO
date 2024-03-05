@@ -1,0 +1,41 @@
+<command>
+  <name>process usr build pallet move list</name>
+  <description>process usr build pallet move list</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* process usr build pallet move list
+ * Version history:
+ *  2021-03-15 Radina Ivanova    Initial version
+ *  2021-06-09 Radina Ivanova    fix error -1403 when inventory was moved from the pick location; fix threshold calculation; pending picks should not be included
+ *  2022-05-17 Radina Ivanova    move the logic to deferred execution
+ */
+
+[select 'x'
+   from poldat_view
+  where polcod = 'USR-PICKING'
+    and polvar = 'PALLETMOVE'
+    and polval = 'SWITCH-ACTIVE'
+    and rtnum1 = 1
+    and wh_id = @wh_id] catch(-1403)
+|
+if (@? = 0)
+{
+    [select distinct 'x'
+       from deferred_exec
+      where exec_dte is null
+        and exec_typ = 'USR2'
+        and deferred_cmd like 'process usr locations for pallet move list%'] catch(-1403)
+    |
+    if (@? != 0)
+    {
+        create deferred execution
+         where deferred_cmd = "process usr locations for pallet move list " ||
+                               " where wh_id = '" || @wh_id || "' "
+           and exec_typ = 'USR2'
+    }
+}
+
+]]>
+</local-syntax>
+</command>

@@ -1,0 +1,60 @@
+<command>
+  <name>process usr skip pallet move</name>
+  <description>process usr skip pallet move</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* process usr skip pallet move
+ * Version history:
+ *  2021-06-11 Radina Ivanova    Initial version
+ */
+
+/* Pallet move will follow the pick prevalidation configuration of Pallet Pick */
+[select action_cd, skip_limit, cancod
+   from pck_preval_cfg
+   join pck_mthd on pck_mthd.skip_pick_valdt = pck_preval_cfg.pck_preval_id
+  where pck_mthd.pck_mthd_nam = 'PALLETPICK'
+    and pck_mthd.wh_id = @wh_id]
+|
+execute server command
+  where cmd = 'process work nack ' ||
+              '  where reqnum = ' || @reqnum ||
+              '    and wh_id = ''' || @wh_id || ''''
+    and inline = 0
+|
+[select (max(effpri) + 1) effpri
+   from wrkque
+  where wh_id = @wh_id]
+|
+[update wrkque
+    set effpri = @effpri
+  where reqnum = @reqnum
+    and wh_id = @wh_id]
+|
+/* Increment the skip count for the skipped wrkref. */
+[update pckwrk_hdr 
+    set skip_cnt = nvl(skip_cnt,0) + 1
+  where list_id = @list_id]
+|
+[select max(skip_cnt) skip_cnt
+   from pckwrk_hdr
+  where list_id = @list_id]
+|
+if(@skip_cnt >= @skip_limit or @action_cd != 'S')
+{
+    get mls text
+    where mls_id = "err" || @excp_code catch(-1403)
+    |
+    process usr cancel pallet move 
+      where list_id = @list_id 
+        and cancod = @cancod
+        and excp_code = @excp_code
+        and cmnt = @mls_text
+        and reacod = 'AUTO_SKIP'
+        and devcod = @devcod
+        and snd_travel_time_flg = 0
+        and wh_id = @wh_id
+}
+]]>
+</local-syntax>
+</command>

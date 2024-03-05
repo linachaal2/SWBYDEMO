@@ -1,0 +1,53 @@
+<command>
+  <name>change load attributes</name>
+  <description>change load attributes</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* change load attributes
+ * User version for command "process additional assets" which also returns the original values.
+ * Version history:
+ *  2019-01-14  Salem Hamze  Initial version.
+ */
+/* Get the load_attr_flg values before the update. */
+[select invlod.lodnum,
+        invlod.load_attr1_flg as fr_load_attr1_flg,
+        invlod.load_attr2_flg as fr_load_attr2_flg,
+        invlod.load_attr3_flg as fr_load_attr3_flg,
+        invlod.load_attr4_flg as fr_load_attr4_flg,
+        invlod.load_attr5_flg as fr_load_attr5_flg
+   from invlod
+  where lodnum = @lodnum#keep] catch(-1403) >> res_fr_invlod
+|
+/* Change the load attributes and store the results, becasue we also want to return these values as the original version would do. */
+^change load attributes
+ where @* >> res_cmd_invlod
+|
+/* Get the load_attr_flg values after the update. */
+[select invlod.lodnum,
+        invlod.load_attr1_flg as to_load_attr1_flg,
+        invlod.load_attr2_flg as to_load_attr2_flg,
+        invlod.load_attr3_flg as to_load_attr3_flg,
+        invlod.load_attr4_flg as to_load_attr4_flg,
+        invlod.load_attr5_flg as to_load_attr5_flg
+   from invlod
+  where lodnum = @lodnum#keep] catch(-1403) >> res_to_invlod
+|
+{
+    merge result sets with data
+     where resultset = @res_cmd_invlod
+       and additionalresultset = @res_fr_invlod
+       and keycolumns = 'lodnum' >> res_merge_temp
+    |
+    merge result sets with data
+     where resultset = @res_merge_temp
+       and additionalresultset = @res_to_invlod
+       and keycolumns = 'lodnum' >> res_merge_temp2
+    |
+    publish data combination
+     where res = @res_merge_temp2
+}
+]]>
+</local-syntax>
+  <argument name="@*" datatype="string">Any invlod field value</argument>
+</command>

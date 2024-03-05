@@ -1,0 +1,30 @@
+<command>
+  <name>list usr delivery gln</name>
+  <description>list usr delivery gln</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* list usr delivery gln
+ *
+ * Version history:
+ *  2020-04-22  Radina Ivanova - Initial version
+ */
+    publish data where wh_id = nvl(@wh_id, @@wh_id)
+    |
+    if (@wh_id = '')
+    {
+        get warehouse id
+    }
+    |
+    [select *
+       from usr_delivery_gln
+      where @+gln
+        and @+wh_id
+        and @+uc_delivery_id]
+     
+]]>
+</local-syntax>
+<argument name="gln" required="no" datatype="string">GLN</argument>
+<argument name="wh_id" required="no" datatype="string">Warehouse ID</argument>
+<argument name="uc_delivery_id" required="no" datatype="string">Delivery ID</argument>
+</command>

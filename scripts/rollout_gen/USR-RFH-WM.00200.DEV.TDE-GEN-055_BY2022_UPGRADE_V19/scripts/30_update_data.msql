@@ -1,0 +1,23 @@
+[update locmst set pck_zone_id = null, cnt_zone_id = null where pck_zone_id = 0] catch(-1403);
+[update poldat set rtnum1 = 0 where polcod = 'EMS' and polvar = 'EVENTS' and polval = 'USR-SHORT-ALLOC'] catch(-1403);
+[update locmst set rescod = null where 1 = 1] catch(-1403);
+[update prtmst set prtadjflg = 1 where  prtnum = 'DUMMYITEM'] catch(-1403);
+[select wh_id
+   from wh
+  where wh_id in('1', '2', '3', '7')]
+|
+if (@wh_id = '3')
+{
+	[update locmst set maxqvl = 999999999 where loc_typ_id in('10036', '10037', '10038')] catch(-1403);
+}
+else if (@wh_id = '7')
+{
+    [update locmst set maxqvl = 999999999 where arecod = 'PRESTOPRI'] catch(-1403);
+    [update locmst set maxqvl = 50 where stoloc in ('E-002-01','E-002-02','E-002-03','E-002-04','E-002-08','E-002-09','E-002-10','E-002-11','E-002-12','E-002-13','E-002-14','E-002-15','E-002-16','E-002-17','E-002-18','E-002-19','E-002-20','E-002-21','E-002-22','E-002-23','E-002-24','E-002-25','E-002-26')] catch(-1403);
+    [update locmst set maxqvl = 100 where stoloc in ('E-002-07','E-002-27')] catch(-1403);
+    [update locmst set maxqvl = 150 where stoloc = 'E-002-05'] catch(-1403);
+    [update locmst set maxqvl = 999999999 where stoloc in ('D-002-01','D-003-01','E-002-28','E-005-01','F-002-01','G-003-01','H-002-01','H-003-01','H-003-02','K3-003-01','L-003-01','M-003-01','N-003-01')] catch(-1403);
+};
+commit;
+/
+exit

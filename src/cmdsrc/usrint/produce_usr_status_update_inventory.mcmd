@@ -1,0 +1,129 @@
+<command>
+  <name>produce usr status update inventory</name>
+  <description>send status update inventory to host</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* produce usr status update inventory
+ * Create transaction for status update with correct status (setup in policy). Movements are based on the workzones set in the workflow
+ * Version history:
+ *  2018-10-29  Marco Schouwenaar  Initial version.
+ *  2022-01-24  Jasper Ringoir  prepare for deffered execution
+*/
+if (@dst_mov_zone_id is null and @src_mov_zone_id is null)
+{
+[select rtstr2 as status
+   from poldat_view
+  where wh_id = nvl(@wh_id, @@wh_id)
+      and polcod='USR-INTEGRATOR' 
+      and polvar='TRANSACTIONS' 
+      and polval='SEND_STATUS'
+      and rtstr1=@exitpnt
+      and rtnum2 in (select mov_zone_id
+                       from locmst
+                      where stoloc=@dstloc)
+      and rtnum1 = 1
+      and rtstr2 not in (select rtstr2 
+                           from poldat_view 
+                          where wh_id = nvl(@wh_id, @@wh_id)
+                            and polcod='USR-INTEGRATOR' 
+                            and polvar='TRANSACTIONS' 
+                            and polval='SEND_STATUS'
+                            and rtstr1=@exitpnt
+                            and rtnum2 in (select mov_zone_id
+                                             from locmst
+                                            where stoloc=@srcloc)
+                            and rtnum1 = 1)
+      and not exists (select 'x'
+                        from cnfrm_bck_serv
+                       where lodnum = @lodnum
+                          and serv_id = 'USR-SEND-STATUS'
+                          and dst_mov_zone_id != (select mov_zone_id
+                                                    from locmst
+                                                   where stoloc=@dstloc)
+                          and dst_mov_zone_id in (select rtnum2
+                                                    from poldat_view pv
+                                                   where wh_id = nvl(@wh_id, @@wh_id)
+                                                     and polcod='USR-INTEGRATOR' 
+                                                     and polvar='TRANSACTIONS' 
+                                                     and polval='SEND_STATUS'
+                                                     and rtstr1=@exitpnt
+                                                     and rtstr2 = poldat_view.rtstr2
+                                                     and rtnum1 = 1))]catch(-1403)
+|
+if (@? = 0)
+ /* if no status code found, skip sending transaction */
+{
+    get integrator system id
+    where systyp = 'WMD'
+    |
+          sl_log event 
+           where evt_id = 'UC_LOAD_STATUS' 
+             and ifd_data_ptr = NULL
+             and sys_id = @sys_id
+             and lodnum=@lodnum
+             and wh_id=nvl(@wh_id, @@wh_id)
+             and stoloc=@dstloc
+             and status=@status
+}}
+else
+{
+[select rtstr2 as status
+   from poldat_view
+  where wh_id = nvl(@wh_id, @@wh_id)
+      and polcod='USR-INTEGRATOR' 
+      and polvar='TRANSACTIONS' 
+      and polval='SEND_STATUS'
+      and rtstr1=@exitpnt
+      and rtnum2 = @dst_mov_zone_id
+      and rtnum1 = 1
+      and rtstr2 not in (select rtstr2 
+                           from poldat_view 
+                          where wh_id = nvl(@wh_id, @@wh_id)
+                            and polcod='USR-INTEGRATOR' 
+                            and polvar='TRANSACTIONS' 
+                            and polval='SEND_STATUS'
+                            and rtstr1=@exitpnt
+                            and rtnum2 = @src_mov_zone_id
+                            and rtnum1 = 1)
+      and not exists (select 'x'
+                        from cnfrm_bck_serv
+                       where lodnum = @lodnum
+                          and serv_id = 'USR-SEND-STATUS'
+                          and dst_mov_zone_id != @dst_mov_zone_id
+                          and dst_mov_zone_id in (select rtnum2
+                                                    from poldat_view pv
+                                                   where wh_id = nvl(@wh_id, @@wh_id)
+                                                     and polcod='USR-INTEGRATOR' 
+                                                     and polvar='TRANSACTIONS' 
+                                                     and polval='SEND_STATUS'
+                                                     and rtstr1=@exitpnt
+                                                     and rtstr2 = poldat_view.rtstr2
+                                                     and rtnum1 = 1))]catch(-1403)
+
+|
+if (@? = 0)
+ /* if no status code found, skip sending transaction */
+{
+    get integrator system id
+    where systyp = 'WMD'
+    |
+          sl_log event 
+           where evt_id = 'UC_LOAD_STATUS' 
+             and ifd_data_ptr = NULL
+             and sys_id = @sys_id
+             and lodnum=@lodnum
+             and wh_id=nvl(@wh_id, @@wh_id)
+             and stoloc=@dstloc
+             and status=@status
+}
+}
+
+]]>
+</local-syntax>
+  <argument name="lodnum" required="yes" datatype="string">lodnum</argument>
+  <argument name="dstloc" required="yes" datatype="string">Destination location</argument>
+  <argument name="srcloc" required="yes" datatype="string">source location</argument>
+  <argument name="src_mov_zone_id" datatype="integer">source zone</argument>
+  <argument name="dst_mov_zone_id" datatype="integer">destination zone</argument>
+</command>

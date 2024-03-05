@@ -1,0 +1,38 @@
+<command>
+  <name>process usr cancel pallet move</name>
+  <description>process usr cancel pallet move</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* process usr cancel pallet move
+ * Version history:
+ *  2021-03-15 Radina Ivanova    Initial version
+ */
+
+[select wrkref
+   from pckwrk_hdr
+  where list_id = @list_id]
+|
+check palletctl replan in process
+where wrkref = @wrkref
+  and wh_id = @whId
+|
+if (@is_replan_in_process = 1)
+{ 
+    set return status 
+    where status = 11496 
+}
+|
+process cancel pick 
+  where wrkref = @wrkref
+    and cancod = @cancod
+    and oprcod = @oprcod
+    and devcod = nvl(@devcod, @@devcod)
+    and wh_id = nvl(@whId, @@whId)
+;
+complete rf pick list
+   where list_id = @list_id
+     and wh_id = nvl(@whId, @@whId)
+]]>
+</local-syntax>
+</command>

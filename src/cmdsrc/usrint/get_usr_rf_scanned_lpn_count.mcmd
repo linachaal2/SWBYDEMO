@@ -1,0 +1,38 @@
+<command>
+  <name>get usr rf scanned lpn count</name>
+  <description>Returns the count of the LPNs scanned by the current RF device based on the Multiple LPN Handling policy settings.</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* User command to get the number of LPNs already scanned by the RF device.
+ *
+ * Version history:
+ * 2020-04-07  Shailesh Raina     Initial version.
+ */
+get warehouse id
+|
+publish data
+ where devcod = nvl(@devcod, @@devcod)
+|
+/* Get the loads which were scanned by the user. */
+[select count(distinct dev_varnam) count
+   from device_context
+  where wh_id = @wh_id
+    and devcod = @devcod
+    and dev_varnam like 'lpn_on_device%'
+    and exists(select 1
+                 from poldat_view
+                where wh_id = @wh_id
+                  and polcod = 'USR-INVENTORY'
+                  and polvar = 'INVENTORY-MOVEMENT'
+                  and polval = 'MULTIPLE-LPN-HANDLING'
+                  and rtnum1 = 1)]
+|
+if (@? != 1403)
+{
+    publish data
+     where scanned_lpn_cnt = @count
+}
+]]>
+</local-syntax>
+</command>

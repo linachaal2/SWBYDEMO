@@ -1,0 +1,36 @@
+<command>
+  <name>format usr control file for rollout</name>
+  <description>format usr control file for rollout</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* format usr control file for rollout
+ * Generates a control file for a warehouse specific rollout, this will only mload data if the warehouse exists in the instance.
+ * Version history:
+ *  2018-08-20  Salem Hamze  Initial version.
+ *  2018-10-16  Salem Hamze  Changed logic for '----' so it also works when no wh is setup (i.e. EMS).
+ */
+/* Check the required parametes. */
+validate stack variable not null
+ where name = 'table_name'
+|
+/* Generate the control file and add some logic around it for warehouse specific mloads (mload_wh_id). */
+publish data
+ where rowtype = 'DATA'
+   and formated_data = "[select sign(count(*)) mload_wh_id_flg from wh where wh_id='@mload_wh_id@']" &
+publish data
+ where rowtype = 'DATA'
+   and formated_data = "|" &
+publish data
+ where rowtype = 'DATA'
+   and formated_data = "if (@mload_wh_id_flg = 1 or '----'='@mload_wh_id@') {" &
+format control file
+ where type = 'LOAD'
+   and table_name = @table_name &
+publish data
+ where rowtype = 'DATA'
+   and formated_data = "}"
+]]>
+</local-syntax>
+  <argument name="table_name" required="yes" datatype="string" />
+</command>

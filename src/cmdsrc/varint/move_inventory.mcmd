@@ -1,0 +1,20 @@
+<command>
+  <name>move inventory</name>
+  <description>move inventory</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+if (@actcod = 'LSTPCK' and @wrkref != '')
+{
+    [select lotnum
+       from pckwrk_hdr
+      where wrkref = @wrkref]
+    |
+    publish data
+     where lotnum = @lotnum
+}
+|
+^move inventory
+]]>
+</local-syntax>
+</command>

@@ -1,0 +1,123 @@
+<trigger>
+  <name>update usr train</name>
+  <on-command>move inventory</on-command>
+  <description>update usr train</description>
+  <fire-sequence>900001</fire-sequence>
+  <local-syntax>
+<![CDATA[
+/* Trigger: move inventory-update usr train
+ * Processes train adjustments for the invetory which has been moved.
+ * Version history:
+ *  2018-10-24  Salem Hamze     Initial version.
+ *  2019-01-23  Karol Giemza    Policy check. Bug fix. Rename to train.
+ *  2019-01-28  Karol Giemza    Skip "Expected Receipt" locations (expflg = 0)
+ */
+[select nvl(max(pv.rtnum1), 0) as train_enabled
+   from locmst lm
+   join loc_typ lt
+     on lt.loc_typ_id = lm.loc_typ_id
+   left outer join mov_zone mz
+     on mz.mov_zone_id = lm.mov_zone_id
+   left outer join poldat_view pv
+     on pv.wh_id = mz.wh_id
+    and pv.polcod = 'USR-RECEIVING' and pv.polvar = 'TRAIN' and pv.polval = 'MOV-ZONE-COD'
+    and pv.rtstr1 = mz.mov_zone_cod
+    and pv.rtnum1 = 1
+  where lm.wh_id = @wh_id
+    and lm.stoloc = @dstloc
+    and lt.expflg = 0]
+|
+if (@train_enabled = 1)
+{
+    publish data
+     where dstlod = nvl(@dstlod, @lodnum)
+    |
+    [select uc_train_id as lpn_train_id
+       from invlod
+      where lodnum = @dstlod]
+    |
+    if (@lpn_train_id is null)
+    {
+        /* Check if there is a last open train. */
+        [select uc_train_id as loc_train_id,
+                nvl(max(uc_train_seq), 0) as loc_train_seq,
+                uc_train_loc_seq as loc_train_loc_seq,
+                uc_train_cls_flg as loc_train_cls_flg
+           from invlod
+          where wh_id = @wh_id
+            and stoloc = @dstloc
+            and uc_train_id is not null
+            and uc_train_loc_seq = (select max(uc_train_loc_seq)
+                                      from invlod
+                                     where wh_id = @wh_id
+                                       and stoloc = @dstloc
+                                       and uc_train_id is not null
+                                       and uc_train_cls_flg != 1)
+          group by uc_train_id,
+                   uc_train_loc_seq,
+                   uc_train_cls_flg] catch(-1403)
+        |
+        if (@? = 0 and @new_train_flg = 1)
+        {
+            /* If it is indicated that a new train needs to be started then close the last one. */
+            [update invlod
+                set uc_train_cls_flg = 1
+              where wh_id = @wh_id
+                and stoloc = @dstloc
+                and uc_train_id = @loc_train_id]
+            ;
+            publish data
+             where loc_train_id = null
+        }
+        |
+        if (@loc_train_id is not null)
+        {
+            /* If there is add the load to it. */
+            [update invlod
+                set uc_train_id = @loc_train_id,
+                    uc_train_seq = @loc_train_seq + 1,
+                    uc_train_loc_seq = @loc_train_loc_seq,
+                    uc_train_cls_flg = @loc_train_cls_flg
+              where lodnum = @dstlod]
+        }
+        else
+        {
+            /* If there is not create a new train. */
+            generate next number
+             where numcod = 'uc_train_id'
+            |
+            publish data
+             where new_train_id = @nxtnum
+            |
+            [select nvl(max(uc_train_loc_seq), 0) as max_train_loc_seq
+               from invlod
+              where wh_id = @wh_id
+                and stoloc = @dstloc]
+            |
+            [update invlod
+                set uc_train_id = @new_train_id,
+                    uc_train_seq = 1,
+                    uc_train_loc_seq = @max_train_loc_seq + 1,
+                    uc_train_cls_flg = 0
+              where lodnum = @dstlod]
+        }
+    }
+    else if (@lpn_train_id is not null)
+    {
+        /* If the inventory already has a train then keep that and just update the train_loc_seq. */
+        [select nvl(max(uc_train_loc_seq), 0) as max_train_loc_seq,
+                max(case when uc_train_id = @lpn_train_id then uc_train_loc_seq else null end) as curr_train_loc_seq
+           from invlod
+          where wh_id = @wh_id
+            and stoloc = @dstloc
+            and lodnum <> @dstlod]
+        |
+        [update invlod
+            set uc_train_loc_seq = nvl(@curr_train_loc_seq, @max_train_loc_seq + 1)
+          where lodnum = @dstlod]
+    }
+}
+]]>
+</local-syntax>
+  <enable>yes</enable>
+</trigger>

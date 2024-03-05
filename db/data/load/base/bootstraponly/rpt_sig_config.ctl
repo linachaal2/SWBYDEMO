@@ -1,0 +1,1 @@
+#include $SALDIR/db/data/load/base/bootstraponly/rpt_sig_config.ctl

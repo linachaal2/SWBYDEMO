@@ -1,0 +1,67 @@
+<command>
+  <name>create usr move to production station staging</name>
+  <description>create usr move to production station staging</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* create usr move to production station staging
+ * get the production station staging for the work order and create a move to it
+ *
+ * Version history:
+ *  2023-04-07 Radina Ivanova    Initial version
+ *  2023-05-10 Radina Ivanova    Support also immediate move to the production staging location
+ */
+
+[select prdlin
+   from wkohdr
+  where wkonum = @wkonum
+    and wkorev = @wkorev
+    and client_id = @client_id
+    and wh_id = @wh_id]
+|
+[select stgloc
+   from locmst
+  where prdlin = @prdlin
+    and rownum = 1]
+|
+if (@immediate = 1)
+{
+    if (@lodnum = '')
+    {
+        [select lodnum
+           from invlod
+          where stoloc = @wkonum] catch(-1403)
+    }
+    |
+    if (@lodnum != '')
+    {
+        move inventory
+        where srclod = @lodnum
+          and dstloc = @stgloc
+          and wh_id = @wh_id
+    }
+}
+else
+{  [select 'x' 
+       from invmov where invmov.lodnum=@lodnum 
+        and invmov.lodlvl = 'L'
+        and invmov.seqnum = '0'
+        and invmov.stoloc = @stgloc
+        and invmov.wh_id = @wh_id] catch(-1403)
+    |
+    if (@?=-1403)
+    {
+        create record
+         where table = 'invmov'
+           and lodnum = @lodnum
+           and lodlvl = 'L'
+           and seqnum = '0'
+           and stoloc = @stgloc
+           and wh_id = @wh_id
+           and invmov_typ = 'RCV'
+    }
+}
+
+]]>
+</local-syntax>
+</command>

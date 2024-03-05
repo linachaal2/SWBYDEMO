@@ -1,0 +1,66 @@
+<command>
+  <name>get usr customer for asset</name>
+  <description>get usr customer for asset</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* get usr customer for asset
+ * get the customer/address combination with largest number of fusts on the LPN
+ * Version history:
+ *  2021-11-16  Radina Ivanova  Initial version.
+ *  2021-12-07  Radina Ivanova  Added parameter for inv_hist_id
+ */
+
+    if (@inv_hist_id = -1 or @inv_hist_id = null)
+    {
+        [select ord.stcust,
+                ord.st_adr_id,
+                sum(inventory_view.untqty) fust_qty
+           from inventory_view
+           join shipment_line
+             on inventory_view.ship_line_id = shipment_line.ship_line_id
+           join ord
+             on ord.ordnum = shipment_line.ordnum
+            and ord.client_id = shipment_line.client_id
+            and ord.wh_id = shipment_line.wh_id
+          where inventory_view.lodnum = @lodnum
+        group by ord.stcust,
+                 ord.st_adr_id
+        order by fust_qty desc, ord.stcust] catch(-1403) >> res
+    }
+    |
+    if ((@? != 0 and @inv_hist_id != -1) or @inv_hist_id > 0)
+    {
+        [select ord.stcust,
+                ord.st_adr_id,
+                sum(invdtl_hist.untqty) fust_qty
+           from invlod_hist
+           join invsub_hist on (invlod_hist.lodnum = invsub_hist.lodnum
+             and invsub_hist.inv_hist_id=invlod_hist.inv_hist_id)
+           join invdtl_hist on (invdtl_hist.subnum = invsub_hist.subnum
+             and invdtl_hist.inv_hist_id=invlod_hist.inv_hist_id)
+           join shipment_line
+             on invdtl_hist.ship_line_id = shipment_line.ship_line_id
+           join ord
+             on ord.ordnum = shipment_line.ordnum
+            and ord.client_id = shipment_line.client_id
+            and ord.wh_id = shipment_line.wh_id
+          where invlod_hist.lodnum = @lodnum
+            and (@inv_hist_id > 0 and invlod_hist.inv_hist_id = @inv_hist_id
+             or  invlod_hist.inv_hist_id = (select max(id_h.inv_hist_id)
+                                             from invlod_hist id_h
+                                            where id_h.lodnum = invlod_hist.lodnum))          
+        group by ord.stcust,
+                 ord.st_adr_id
+        order by fust_qty desc, ord.stcust] >> res
+    }
+    |
+    publish top rows
+      where res = @res
+        and rows = 1
+    
+]]>
+</local-syntax>
+  <argument name="lodnum" required="yes" datatype="string">LPN</argument>
+  <argument name="inv_hist_id" required="no" datatype="string">Inventory History Id</argument>
+</command>

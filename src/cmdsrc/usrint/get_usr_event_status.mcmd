@@ -1,0 +1,29 @@
+<command>
+  <name>get usr event status</name>
+  <description>get usr event status</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* get usr event status
+ * Returns the number of unprocessed events
+ * Version history:
+ *  2019-08-07  Jasper Ringoir     Initial version.
+ */
+[select @wh_id as wh_id,
+        count(evt_data_seq) as to_process,
+        min(ins_dt) as oldest
+   from sl_evt_data
+  inner
+   join poldat_view
+     on poldat_view.rtstr2 = sl_evt_data.sys_id
+  where sl_evt_data.evt_stat_cd = 'IC'
+    and poldat_view.polcod = 'USR-INTEGRATOR'
+    and poldat_view.polvar = 'TRANSACTIONS'
+    and poldat_view.polval = 'WH_SYSTEM_IN'
+    and poldat_view.rtnum1 = 1
+    and poldat_view.wh_id = @wh_id
+    and poldat_view.rtstr1 = @wh_id]
+]]>
+</local-syntax>
+  <argument name="wh_id" datatype="string">wn_id</argument>
+</command>

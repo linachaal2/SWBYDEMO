@@ -1,0 +1,49 @@
+<command>
+  <name>validate usr number</name>
+  <description>validate usr number</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* validate usr number
+ * Validates if a value is a valid number.
+ * Uses "validate number" but also gives a correct error when alphanumeric values are passed. 
+ * With the command "validate number" you would get an unexpected server error.
+ * 2019-01-23   Salem Hamze     Initial version.
+ */
+/* Check if we can convert it to a number, if not it probably contains alphanumeric characters or is empty. */
+[[ Integer.parseInt(value); ]] catch(@?)
+|
+if (@? = 0)
+{
+    /* If it is a valid number than call the original validate number to check if it matches the specific requirements. */
+    validate number
+     where @*
+}
+else
+{
+    /* Error 90018: Invalid number. */
+    set return status
+     where status = 90018
+}
+]]>
+</local-syntax>
+  <argument name="compare" datatype="string" />
+  <argument name="value" datatype="float" />
+  <argument name="limit" default-value="0.0" datatype="float" />
+  <argument name="colnam" datatype="string" />
+  <argument name="intflg" datatype="integer" />
+  <documentation>
+<remarks></remarks>
+<retrows>No Rows</retrows>
+<exception value="eOK">Normal successful completion</exception>
+<exception value="eAPP_MISSING_ARG (2005)">Missing comapre, value, limit</exception>
+<exception value="eBASE_INVALID_INTEGER (2109)">Not a valid integer</exception>
+<exception value="eBASE_VALUE_MUST_BE_EQ (2400)">Value passed is not equal to the limit</exception>
+<exception value="eBASE_VALUE_MUST_BE_LT (2401)">Value passed is greater than or equal to the limit</exception>
+<exception value="eBASE_VALUE_MUST_BE_LTE (2402)">Value passed is greater than the limit</exception>
+<exception value="eBASE_VALUE_MUST_BE_GT (2403)">Value passed is less than or equal the limit</exception>
+<exception value="eBASE_VALUE_MUST_BE_GTE (2404)">Value passed is less than the limit</exception>
+<example></example>
+
+</documentation>
+</command>

@@ -1,0 +1,72 @@
+<command>
+  <name>clear usr rf device context</name>
+  <description>clear usr rf device context</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* clear usr rf device context
+ * Clears certain variables from the device context for the USR_IDENTIFY_LOAD screen.
+ * Version history:
+ *  2018-12-27  Salem Hamze  Initial version.
+ */
+validate stack variable not null
+ where name = 'clear_type'
+|
+publish data
+ where devcod = nvl(@devcod, @@devcod)
+|
+get warehouse id
+|
+if (@clear_type = 'all')
+{
+    [select *
+       from device_context
+      where wh_id = @wh_id
+        and devcod = @devcod
+        and dev_varnam like 'USR_IDENTIFY_LOAD%'] catch(-1403)
+    |
+    if (@? != -1403)
+    {
+        pop device context value
+    }
+}
+else if (@clear_type = 'all_except_stoloc')
+{
+    [select *
+       from device_context
+      where wh_id = @wh_id
+        and devcod = @devcod
+        and dev_varnam like 'USR_IDENTIFY_LOAD%'
+        and dev_varnam not in ('USR_IDENTIFY_LOAD|STOLOC')] catch(-1403)
+    |
+    if (@? != -1403)
+    {
+        pop device context value
+    }
+}
+else if (@clear_type = 'clear_for_dummy_load')
+{
+    [select *
+       from device_context
+      where wh_id = @wh_id
+        and devcod = @devcod
+        and ((dev_varnam not like 'USR_IDENTIFY_LOAD|%' and dev_varnam not in ('USR_IDENTIFY_LOAD_EX')) or dev_varnam in ('USR_IDENTIFY_LOAD|LODNUM'))] catch(-1403)
+    |
+    if (@? != -1403)
+    {
+        pop device context value
+    }
+}
+else
+{
+    /* Exception: Not a valid clear type. */
+    set return status
+     where status = 999
+       and message = 'Not a valid clear_type'
+}
+]]>
+</local-syntax>
+  <argument name="clear_type" required="yes" datatype="string">clear_type, Indicates what should be cleared from the device context.</argument>
+  <argument name="wh_id" datatype="string">Warehouse ID</argument>
+  <argument name="devocd" datatype="string">Device code</argument>
+</command>

@@ -1,0 +1,67 @@
+<command>
+  <name>list usr header track overview</name>
+  <description>list usr detail track overview</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* List usr header track overview
+ * Header overview of location occupation for the delivery tracksl
+ *
+ * Version history:
+ *  2022-09-06 Marco Schouwenaar Initial version
+ */
+publish data
+ where filterByClause = nvl(@filterByClause,[1 = 1])
+   and sortOrderClause = nvl(@sortOrderClause,"COALESCE(to_char(min(shipment.late_shpdte), 'YYYY-MM-DD HH24:MI'),'NONE') asc, occupied desc, mov_zone.mov_zone_cod")
+|
+[/*#limit=@offset,@limit,true*/
+select locmst.wh_id as wh_id,
+                mov_zone.mov_zone_id,
+                mov_zone.mov_zone_cod,
+                count(distinct invlod.lodnum) as occupied,
+                COALESCE(dscmst.lngdsc,mov_zone.mov_zone_cod) as description,
+                to_char(min(shipment.late_shpdte), 'YYYY-MM-DD HH24:MI')as min_late_ship_date
+           from locmst
+           join mov_zone
+             on (mov_zone.mov_zone_id = locmst.mov_zone_id)
+           join loc_typ
+             on (loc_typ.loc_typ_id = locmst.loc_typ_id )
+           left
+           join invlod
+             on (invlod.wh_id = locmst.wh_id and invlod.stoloc = locmst.stoloc)
+           left
+           join invsub
+             on (invsub.lodnum = invlod.lodnum)
+           left
+           join invdtl
+             on (invdtl.subnum = invsub.subnum)
+           left
+           join shipment_line
+             on (shipment_line.ship_line_id = invdtl.ship_line_id)
+           left
+           join shipment
+             on (shipment.ship_id = shipment_line.ship_id and shipment.wh_id = shipment_line.wh_id)
+           left 
+           join dscmst
+             on dscmst.colnam = 'mov_zone_cod|wh_id'                 
+            and dscmst.colval = mov_zone.mov_zone_cod || '|' || locmst.wh_id
+            and dscmst.locale_id = COALESCE(COALESCE(@locale_id, @@locale_id), 'US_ENGLISH') 
+          where @filterByClause:raw
+            and 
+            loc_typ.loc_typ in (select poldat_view.rtstr1
+                                      from poldat_view
+                                     where poldat_view.wh_id = locmst.wh_id
+                                       and poldat_view.polcod = 'USR-DASHBOARD'
+                                       and poldat_view.polvar = 'DELIVERY'
+                                       and poldat_view.polval = 'LOC_TYP'
+                                       and poldat_view.rtnum1 = 1)
+            and locmst.locsts <> 'I'
+            and locmst.useflg = 1
+       group by locmst.wh_id,
+                mov_zone.mov_zone_id,
+                mov_zone.mov_zone_cod,
+                dscmst.lngdsc
+  order by @sortOrderClause:raw]
+]]>
+</local-syntax>
+</command>

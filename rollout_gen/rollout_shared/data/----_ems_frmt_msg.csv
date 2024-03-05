@@ -1,0 +1,41 @@
+evt_nam,locale_id,subfld,frmt_msg,html_msg,moddte,mod_usr_id,grp_nam
+"EMS-EVENT-LIMIT","US_ENGLISH","Event Limit Met - @lmt_nam","An event limit has been reached and needs to be acknowledged.  Event or Priority:  @lmt_nam In the time of @tm_int minute(s) the number of events raised has exceeded limit @limit_num events.  All @lmt_nam events that follow will be put on hold.","","","","ems_data"
+"EMS-HELD-ALERT-LIMIT","US_ENGLISH","Held alert count has exceeded limit - at @count","Held alert count is now at @count. Please review the alerts in held status to release or cancel the alerts.","","","","ems_data"
+"INT-DWNLD_HAS_ERRORS","US_ENGLISH","INT-DWNLD_HAS_ERRORS","","","","",""
+"INT-FAILED_TO_SEND_IFDS","US_ENGLISH","INT-FAILED_TO_SEND_IFDS","","","","",""
+"SAL-ARC-ERROR","US_ENGLISH","SAL-ARC-ERROR","","","","",""
+"SAL-DEFERRED-EXEC-FAILED","US_ENGLISH","SAL-DEFERRED-EXEC-FAILED","","","","",""
+"SYSTEM-CONNECTION-FAILURE","US_ENGLISH","Unresponsive SYSTEM Alert.","Unresponsive SYSTEM Server detected:  @mocasite","","","","ems_data"
+"USR-ALLOC-WAVE","US_ENGLISH","Wave (@schbat) has run and generated (@no_wrkref) picktasks.","Wave @schbat has just completed with the following work:
+                            Warehouse: @wh_id
+                            Wave: @schbat
+                            Pickgroup: @pckgr1
+                            Nbr of Shipment(s): @no_ship_id
+                            Nbr of Order(s): @no_ordnum
+                            Nbr of Pick task(s): @no_wrkref
+                            Qty to be picked: @sum_pckqty
+                            Shortage?: @has_shorts","","20221109142401","940409",""
+"USR-FAILED-CREATE-STOP","US_ENGLISH","Failed to create stop for shipment: @ship_id.","Failed to create stop for shipment: @ship_id:
+                            Warehouse: @wh_id
+                            Client: @client_id
+                            LPN: @lodnum
+                            Sub LPN: @subnum
+                            Shipment: @ship_id
+                            Order: @ordnum
+                            EAN: @EAN
+                            GLN: @GLN
+","","20221109142615","940409",""
+"USR-FAILED-LOAD-STOP","US_ENGLISH","Failed to load stop for shipment: @ship_id.","Failed to load stop for shipment: @ship_id:
+                            Warehouse: @wh_id
+                            Client: @client_id
+                            LPN: @lodnum
+                            Sub LPN: @subnum
+                            Shipment: @ship_id
+                            Order: @ordnum
+                            EAN: @EAN
+                            GLN: @GLN
+","","20221109142648","940409",""
+"USR-SHORT-ALLOC","US_ENGLISH","USR-SHORT-ALLOC","","","","",""
+"WMD-CANCEL-PICK","US_ENGLISH","WMD-CANCEL-PICK","","","","",""
+"WMD-ERRORED-LOCATION","US_ENGLISH","WMD-ERRORED-LOCATION","","","","",""
+"WMD-FAIL-BCKGRND-SERVICE","US_ENGLISH","WMD-FAIL-BCKGRND-SERVICE","","","","",""

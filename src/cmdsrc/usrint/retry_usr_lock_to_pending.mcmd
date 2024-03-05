@@ -1,0 +1,33 @@
+<command>
+  <name>retry usr lock to pending</name>
+  <description>Retry to set workque status back to pending</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* retry usr lock to pending
+ * due to async processes we get database locks between several processes, 
+ * using deferred executions to get the correct state where needed (if not been picked up yet)
+ *
+ * Version history:
+ *  2023-06-30 Marco Schouwenaar Initial version
+ */
+ {
+    [select wrkque.reqnum             
+        from wrkque 
+       where wrkque.reqnum=@reqnum for update nowait]
+    |
+    [update wrkque
+        set wrkque.wrksts = 'PEND'
+      where wrkque.wrksts='LOCK'
+        and wrkque.reqnum=@reqnum]
+}catch (-54,-1403)
+|
+if (@?=-54)
+{
+    create deferred execution
+     where deferred_cmd = "retry usr lock to pending where reqnum="||@reqnum
+       and exec_typ = 'USR2' 
+}
+]]>
+</local-syntax>
+</command>

@@ -1,0 +1,48 @@
+<command>
+  <name>validate usr auction date</name>
+  <description>validate usr auction date</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* validate usr auction date
+ * Returns an error if it is an invalid auction date.
+ * 2019-01-21   Salem Hamze         Initial version based on "check usr auction date"
+ */
+validate stack variable not null
+ where name = 'auction_date'
+|
+/* The following query returns a record if the auction date is not valid. Which is if:
+ * - The auction date is in the past.
+ * - The auction date is today but it is already after the auction cutoff time.
+ * - The auction date is a date which is setup as a non-aution day in calendar maintenance.
+ */
+[select 'X' as invalid_auction_date
+   from dual
+  where to_char(to_date(@auction_date, 'YYYYMMDD'), 'YYYYMMDD') < to_char(sysdate, 'YYYYMMDD')
+ union
+ select 'X' as invalid_auction_date
+   from dual
+  where to_char(to_date(@auction_date, 'YYYYMMDD'), 'YYYYMMDD') = to_char(sysdate, 'YYYYMMDD')
+    and to_char(sysdate, 'HH24MI') > '0400'
+ union
+ select 'X' as invalid_auction_date
+   from calmst
+  where calmst.cal_typ = 'P'
+    and calmst.dcsdte = to_date(@auction_date, 'YYYYMMDD')] catch(@?)
+|
+if (@? = 103)
+{
+    /* Exception: Invalid date format. */
+    set return status
+     where status = 90017
+}
+else if (@? = 0)
+{
+    /* Exception: Only valid auction dates in the future allowed. */
+    set return status
+     where status = 90015
+}
+]]>
+</local-syntax>
+  <argument name="auction_date" required="yes" datatype="string">Auction date in the format YYYYMMDD or YYYYMMDDHH24MISS.</argument>
+</command>

@@ -1,0 +1,111 @@
+lblfmt,def_printer,rfid_flg,moddte,mod_usr_id,lbl_cmd,is_purged
+"711","",0,"","","retrieve lbl customer carton label",0
+"84_lumber_ctn","",0,"","","retrieve lbl customer carton label",0
+"advanceauto","",0,"","","retrieve lbl customer carton label",0
+"advanceauto_mixed","",0,"","","retrieve lbl customer carton label",0
+"albertsons","",0,"","","retrieve lbl customer carton label",0
+"amazon_ctn","",0,"","","retrieve lbl customer carton label",0
+"autozone","",0,"","","retrieve lbl customer carton label",0
+"bbbeyond_ctn","",0,"","","retrieve lbl customer carton label",0
+"bealls_3x8_ctn","",0,"","","retrieve lbl customer carton label",0
+"bealls_ctn","",0,"","","retrieve lbl customer carton label",0
+"belk_ctn","",0,"","","retrieve lbl customer carton label",0
+"berkshire_ctn","",0,"","","retrieve lbl customer carton label",0
+"biglots","",0,"","","retrieve lbl customer carton label",0
+"bloomingdales_ctn","",0,"","","retrieve lbl customer carton label",0
+"bloomingdales_h","",0,"","","retrieve lbl customer carton label",0
+"burdines_ctn","",0,"","","retrieve lbl customer carton label",0
+"burdines_h","",0,"","","retrieve lbl customer carton label",0
+"burlington_cf_ctn","",0,"","","retrieve lbl customer carton label",0
+"cache","",0,"","","retrieve lbl customer carton label",0
+"caseys_ctn","",0,"","","retrieve lbl customer carton label",0
+"charming_shoppes_ctn","",0,"","","retrieve lbl customer carton label",0
+"circuit_city_ctn","",0,"","","retrieve lbl customer carton label",0
+"clulbl","",0,"","","retrieve lbl clulbl",0
+"comp_usa","",0,"","","retrieve lbl customer carton label",0
+"csv","",0,"","","retrieve lbl customer carton label",0
+"delhaize","",0,"","","retrieve lbl customer carton label",0
+"dillards_ctn","",0,"","","retrieve lbl customer carton label",0
+"dollar_general_ctn","",0,"","","retrieve lbl customer carton label",0
+"dollar_tree","",0,"","","retrieve lbl customer carton label",0
+"duckwall_ctn","",0,"","","retrieve lbl customer carton label",0
+"family_dollar","",0,"","","retrieve lbl customer carton label",0
+"federated_ctn","",0,"","","retrieve lbl customer carton label",0
+"federated_h_ctn","",0,"","","retrieve lbl customer carton label",0
+"fleming_ctn","",0,"","","retrieve lbl customer carton label",0
+"footstar","",0,"","","retrieve lbl customer carton label",0
+"gap","",0,"","","retrieve lbl customer carton label",0
+"giant_eagle","",0,"","","retrieve lbl customer carton label",0
+"heb","",0,"","","retrieve lbl customer carton label",0
+"henri_bendel","",0,"","","retrieve lbl customer carton label",0
+"home_depot_side_ctn","",0,"","","retrieve lbl customer carton label",0
+"home_depot_top_ctn","",0,"","","retrieve lbl customer carton label",0
+"home_shop_ntwrk_ctn","",0,"","","retrieve lbl customer carton label",0
+"intimate_brands","",0,"","","retrieve lbl customer carton label",0
+"jc_penney_ctn","",0,"","","retrieve lbl customer carton label",0
+"kbtoys_ctn","",0,"","","retrieve lbl customer carton label",0
+"kmart_hardline_ctn","",0,"","","retrieve lbl customer carton label",0
+"kmart_non_edi_ctn","",0,"","","retrieve lbl customer carton label",0
+"kmart_softline_ctn","",0,"","","retrieve lbl customer carton label",0
+"kohls_bulk_ctn","",0,"","","retrieve lbl customer carton label",0
+"kohls_ctn","",0,"","","retrieve lbl customer carton label",0
+"kroger_ctn","",0,"","","retrieve lbl customer carton label",0
+"limited","",0,"","","retrieve lbl customer carton label",0
+"loclbl","",0,"","","retrieve lbl loclbl",0
+"lowes_128","",0,"","","retrieve lbl customer carton label",0
+"lowes_2_of_5_ctn","",0,"","","retrieve lbl customer carton label",0
+"lowes_ups_ctn","",0,"","","retrieve lbl customer carton label",0
+"macys_ctn","",0,"","","retrieve lbl customer carton label",0
+"macys_h","",0,"","","retrieve lbl customer carton label",0
+"macys_west_ctn","",0,"","","retrieve lbl customer carton label",0
+"macys_west_h","",0,"","","retrieve lbl customer carton label",0
+"may_co_ctn","",0,"","","retrieve lbl customer carton label",0
+"may_co_h_ctn","",0,"","","retrieve lbl customer carton label",0
+"meijer_ctn","",0,"","","retrieve lbl customer carton label",0
+"michaels_ctn","",0,"","","retrieve lbl customer carton label",0
+"michaels_direct_ctn","",0,"","","retrieve lbl customer carton label",0
+"michaels_pal","",0,"","","retrieve lbl customer carton label",0
+"nieman_marcus_ctn","",0,"","","retrieve lbl customer carton label",0
+"nordstoms_ctn","",0,"","","retrieve lbl customer carton label",0
+"pallbl","",0,"","","retrieve lbl pallbl",0
+"penn_traffic","",0,"","","retrieve lbl customer carton label",0
+"prtlbl","",0,"","","retrieve lbl prtlbl",0
+"publix","",0,"","","retrieve lbl customer carton label",0
+"radio_shack_ctn","",0,"","","retrieve lbl customer carton label",0
+"radio_shack_mp_ctn","",0,"","","retrieve lbl customer carton label",0
+"rfid_ctnlbl","",0,"","","retrieve lbl rfid ctnlbl",0
+"rfid_pallbl","",0,"","","retrieve lbl rfid pallbl",0
+"richs_ctn","",0,"","","retrieve lbl customer carton label",0
+"rite_aid_ctn","",0,"","","retrieve lbl customer carton label",0
+"robinson_h","",0,"","","retrieve lbl customer carton label",0
+"robinsons","",0,"","","retrieve lbl customer carton label",0
+"ross","",0,"","","retrieve lbl customer carton label",0
+"safeway","",0,"","","retrieve lbl customer carton label",0
+"saks_ctn","",0,"","","retrieve lbl customer carton label",0
+"schnuck","",0,"","","retrieve lbl customer carton label",0
+"sears_ctn","",0,"","","retrieve lbl customer carton label",0
+"sears_stock_ctn","",0,"","","retrieve lbl customer carton label",0
+"shaws","",0,"","","retrieve lbl customer carton label",0
+"shopko_ctn","",0,"","","retrieve lbl customer carton label",0
+"shplbl","",0,"","","retrieve lbl shplbl",0
+"slotlbl","",0,"","","produce lbl slot label",0
+"smart_ctn","",0,"","","retrieve lbl customer carton label",0
+"speigel","",0,"","","retrieve lbl customer carton label",0
+"stater_ctn","",0,"","","retrieve lbl customer carton label",0
+"superval","",0,"","","retrieve lbl customer carton label",0
+"talbots","",0,"","","retrieve lbl customer carton label",0
+"target_cvs_ctn","",0,"","","retrieve lbl customer carton label",0
+"tiffany_ctn","",0,"","","retrieve lbl customer carton label",0
+"tmax","",0,"","","retrieve lbl customer carton label",0
+"toys_r_us_ctn","",0,"","","retrieve lbl customer carton label",0
+"USR-RFH002","",1,"20181005154028","RAOUL","produce usr usr_rfh002 lbl",0
+"USR-RFH007","",1,"20210726135643","939370","produce usr delivery label",0
+"USR-RFH010","",0,"20230414000000","938673","produce usr usr_rfh010 lbl",0
+"value_city_ctn","",0,"","","retrieve lbl customer carton label",0
+"value_city_j_ctn","",0,"","","retrieve lbl customer carton label",0
+"walmart_ctn","",0,"","","retrieve lbl customer carton label",0
+"walmart_shp","",0,"","","retrieve lbl customer carton label",0
+"walmartupc_ctn","",0,"","","retrieve lbl customer carton label",0
+"wegmans_ctn","",0,"","","retrieve lbl customer carton label",0
+"wholefoods","",0,"","","retrieve lbl customer carton label",0
+"zale_ctn","",0,"","","retrieve lbl customer carton label",0

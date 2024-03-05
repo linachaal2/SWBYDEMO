@@ -1,0 +1,92 @@
+<command>
+  <name>list usr detail track overview</name>
+  <description>list usr detail track overview</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* List usr detail track overview
+ * Detail overview of location occupation for the delivery tracksl
+ *
+ * Version history:
+ *  2022-09-06 Marco Schouwenaar Initial version
+ */
+publish data
+ where filterByClause = nvl(@filterByClause,[1 = 1])
+   and sortOrderClause = nvl(@sortOrderClause,"COALESCE(to_char(min(shipment.late_shpdte), 'YYYY-MM-DD HH24:MI'),'NONE') asc, occupied desc")
+|
+[/*#limit=@offset,@limit,true*/
+ select locmst.wh_id as wh_id,
+        locmst.arecod as area,
+        mov_zone.mov_zone_id,
+        mov_zone.mov_zone_cod,
+        COALESCE((select dscmst.lngdsc
+                    from dscmst
+                   where dscmst.colnam = 'mov_zone_cod|wh_id'
+                     and dscmst.colval = mov_zone.mov_zone_cod || '|' || locmst.wh_id
+                     and dscmst.locale_id = 'US_ENGLISH'), mov_zone.mov_zone_cod) as zone,
+        locmst.stoloc as location,
+        locmst.maxqvl as maximum,
+        count(distinct invlod.lodnum) as occupied,
+        to_char(min(shipment.late_shpdte), 'YYYY-MM-DD HH24:MI') as min_late_ship_date,
+        case when (count(distinct ord_line.dst_mov_zone_id) > 1) then(select COALESCE(destdsc.lngdsc, dst_zone.mov_zone_cod)
+                                                                        from mov_zone dst_zone
+                                                                        left
+                                                                        join dscmst destdsc
+                                                                          on destdsc.colnam = 'mov_zone_cod|wh_id'
+                                                                         and destdsc.colval = dst_zone.mov_zone_cod || '|' || locmst.wh_id
+                                                                         and destdsc.locale_id = 'US_ENGLISH'
+                                                                       where dst_zone.mov_zone_id = max(ord_line.dst_mov_zone_id)) || ' + Multi'
+             else (select COALESCE(destdsc.lngdsc, dst_zone.mov_zone_cod)
+                     from mov_zone dst_zone
+                     left
+                     join dscmst destdsc
+                       on destdsc.colnam = 'mov_zone_cod|wh_id'
+                      and destdsc.colval = dst_zone.mov_zone_cod || '|' || locmst.wh_id
+                      and destdsc.locale_id = 'US_ENGLISH'
+                    where dst_zone.mov_zone_id = max(ord_line.dst_mov_zone_id))
+        end destination
+   from loc_typ,
+        mov_zone,
+        locmst
+   left
+   join invlod
+     on (invlod.wh_id = locmst.wh_id and invlod.stoloc = locmst.stoloc)
+   left
+   join invsub
+     on (invsub.lodnum = invlod.lodnum)
+   left
+   join invdtl
+     on (invdtl.subnum = invsub.subnum)
+   left
+   join shipment_line
+     on (shipment_line.ship_line_id = invdtl.ship_line_id)
+   left
+   join shipment
+     on (shipment.ship_id = shipment_line.ship_id and shipment.wh_id = shipment_line.wh_id)
+   left
+   join ord_line
+     on (ord_line.ordnum = shipment_line.ordnum and ord_line.ordlin = shipment_line.ordlin and ord_line.ordsln = shipment_line.ordsln and ord_line.wh_id = shipment_line.wh_id and ord_line.client_id = shipment_line.client_id)
+  where @filterByClause:raw 
+    and locmst.loc_typ_id = loc_typ.loc_typ_id
+    and loc_typ.loc_typ in (select poldat_view.rtstr1
+                               from poldat_view
+                               where poldat_view.wh_id = locmst.wh_id
+                               and poldat_view.polcod = 'USR-DASHBOARD'
+                               and poldat_view.polvar = 'DELIVERY'
+                               and poldat_view.polval = 'LOC_TYP'
+                               and poldat_view.rtnum1 = 1)
+    and mov_zone.mov_zone_id = locmst.mov_zone_id
+    and locmst.locsts <> 'I'
+    and locmst.useflg = 1
+  group by locmst.wh_id,
+        locmst.stoloc,
+        locmst.maxqvl,
+        mov_zone.mov_zone_cod,
+        locmst.arecod,
+        mov_zone.mov_zone_id
+  order by @sortOrderClause:raw,
+        mov_zone.mov_zone_id,
+        locmst.stoloc]
+]]>
+</local-syntax>
+</command>

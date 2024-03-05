@@ -1,0 +1,17 @@
+<action>
+  <id>usrListDeliveryPickhopForMultidrop</id>
+  <name>usrListDeliveryPickhopForMultidrop</name>
+  <description>List Delivery Pickhop For Multidrop</description>
+  <type>LIST</type>
+  <ws>
+     <method>GET</method>
+	 <href>/usrListDeliveryPickhopForMultidrop</href>
+  </ws>
+  <impl>
+     <command>list usr delivery pickhop summary for multidrop</command>
+  </impl>
+  <auth>
+     <opt>optOpen</opt>
+  </auth>
+  <primary>true</primary>
+</action>

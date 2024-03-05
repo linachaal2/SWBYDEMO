@@ -1,0 +1,60 @@
+get warehouse id
+|
+[select rtnum1 as archive_installed
+   from poldat_view
+  where polcod = 'ARCHIVE-SYSTEM'
+    and polvar = 'INSTALLED'
+    and polval = 'INSTALLED'
+    and wh_id = @wh_id]
+|
+[select rtstr1 as archive_remote
+   from poldat_view
+  where polcod = 'ARCHIVE-SYSTEM'
+    and polvar = 'MISCELLANEOUS'
+    and polval = 'REMOTE-HOST'
+    and wh_id = @wh_id]
+|
+if (@archive_installed = 1 and @archive_remote <> '')
+{
+    /* delta heigth */
+    remote(@archive_remote)
+    [select 1 as rollout_table
+       from information_schema.tables
+      where table_name = 'usr_rollout_install'] catch(@?)
+      |
+    if (@rollout_table != '1')
+    {
+        remote(@archive_remote)
+        [create
+          table usr_rollout_install
+         (
+             rollout_id int not null,
+             rollout_type nvarchar(5),
+             rollout_version nvarchar(5) not null,
+             rollout_name nvarchar(150) not null,
+             rollout_readme nvarchar(max),
+             ins_dt datetime default(getdate()) not null
+         )] catch(@?);
+    }
+}
+|
+[select 1 as rollout_table
+   from information_schema.tables
+  where table_name = 'usr_rollout_install'] catch(@?)
+  |
+if (@rollout_table != '1')
+{
+    [create
+      table usr_rollout_install
+     (
+         rollout_id int not null,
+         rollout_type nvarchar(5),
+         rollout_version nvarchar(5) not null,
+         rollout_name nvarchar(150) not null,
+         rollout_readme nvarchar(max),
+         ins_dt datetime default(getdate()) not null
+     )] catch(@?);
+};
+commit;
+/
+exit

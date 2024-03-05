@@ -1,0 +1,16 @@
+<command>
+  <name>change usr inventory identifier</name>
+  <description>change usr inventory identifier</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* change usr inventory identifier
+ * Change an inventory identifier
+ * Version history:
+ *  2018-12-21  Salem Hamze  Initial version.
+ */
+change inventory identifier
+ where @*
+]]>
+</local-syntax>
+</command>

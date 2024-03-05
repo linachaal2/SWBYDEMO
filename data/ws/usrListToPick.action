@@ -1,0 +1,23 @@
+<action>
+  <id>usrListToPick</id>
+  <name>usrListToPick</name>
+  <description>List Picked Tasks per Pick Zone</description>
+  <type>LIST</type>
+  <ws>
+     <method>GET</method>
+	 <href>/usrListToPick</href>
+  </ws>
+  <impl>
+     <command>list usr to pick</command>
+  </impl>
+    <listConfig>
+        <columnConfig>usrListToPickColumns</columnConfig>
+        <filterable/>
+        <pageable/>
+        <sortable/>
+    </listConfig>
+  <auth>
+     <opt>optOpen</opt>
+  </auth>
+  <primary>true</primary>
+</action>

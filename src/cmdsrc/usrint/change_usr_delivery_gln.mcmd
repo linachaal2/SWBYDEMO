@@ -1,0 +1,61 @@
+<command>
+  <name>change usr delivery gln</name>
+  <description>change usr delivery gln</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* change usr delivery gln
+ *
+ * Version history:
+ *  2020-04-22  Radina Ivanova - Initial version
+ *  2022-01-31  Radina Ivanova - handle that uc_delivery_id is now part of the primary key
+ */
+    publish data where wh_id = nvl(@wh_id, @@wh_id)
+    |
+    if (@wh_id = '')
+    {
+        get warehouse id
+    }
+    |
+    if (@resourceId != '' and instr(@resourceId, '*!') > 0)
+    {
+        publish data
+          where old_uc_delivery_id = substr(@resourceId, instr(@resourceId, '*!') + 2)
+    }
+    |
+    [select uc_delivery_id fr_value
+       from usr_delivery_gln
+      where gln = @gln
+        and uc_delivery_id = @old_uc_delivery_id
+        and wh_id = @wh_id]
+    |
+    [update usr_delivery_gln
+        set uc_delivery_id = @uc_delivery_id,
+            last_upd_dt = sysdate,
+            last_upd_user_id = @@usr_id
+      where gln = @gln
+        and uc_delivery_id = @old_uc_delivery_id
+        and wh_id = @wh_id]
+    |
+    [select *
+       from usr_delivery_gln
+      where gln = @gln
+        and uc_delivery_id = @uc_delivery_id
+        and wh_id = @wh_id] >> res
+    |
+    write daily transaction
+    where actcod = 'USR-GLN-SETUP'
+      and var_nam = @gln
+      and fr_value = @fr_value
+      and to_value = @uc_delivery_id
+      and wh_id = @wh_id
+    |
+    publish data combination
+      where res = @res
+     
+]]>
+</local-syntax>
+<argument name="gln" required="yes" datatype="string">GLN</argument>
+<argument name="wh_id" required="no" datatype="string">Warehouse ID</argument>
+<argument name="uc_delivery_id" required="yes" datatype="string">Delivery ID</argument>
+</command>

@@ -1,0 +1,21 @@
+<action>
+  <id>usrDeleteDeliveryGLN</id>
+  <name>usrDeleteDeliveryGLN</name>
+  <description>Delete Delivery GLN</description>
+  <type>DELETE</type>
+  <ws>
+     <method>DELETE</method>
+	 <href>usrDeleteDeliveryGLN/{pk}</href>
+  </ws>
+  <impl>
+     <command>remove usr delivery gln</command>
+     <arguments>
+        <argument name="gln" type="string" required="true" location="path" />
+        <argument name="uc_delivery_id" type="int" required="true" location="path" />
+     </arguments>
+  </impl>
+  <auth>
+     <opt>optOpen</opt>
+  </auth>
+  <primary>true</primary>
+</action>

@@ -1,0 +1,45 @@
+<command>
+  <name>produce usr lbl document on ship staging</name>
+  <description>produce usr lbl document on ship staging</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* produce usr lbl document on ship staging
+ * Data command for document types to print on a move to a staging location.
+ * Version history:
+ *  2018-09-19  Salem Hamze  Initial version.
+ *  2018-10-18  Salem Hamze  Get location from the exit point call instead of based on the load number.
+ *  2020-04-23  Marco Schouwenaar Overrule op staging location when exitpoint is PRE-DEPOSIT
+ *  2021-07-26  Radina Ivanova  do not print delivery note if labels are enabled
+ */
+/* Only print the document if it is a ship staging location. */
+[select 'x'
+   from locmst
+  inner
+   join loc_typ
+     on loc_typ.loc_typ_id = locmst.loc_typ_id
+  where locmst.stoloc = @dstloc
+    and locmst.wh_id = @wh_id
+    and loc_typ.stgflg = 1] catch(-1403)
+|
+if (@? = 0 or @exitpnt='PRE-DEPOSIT')
+{
+     [select 'x'
+       from poldat_view
+      where polcod = 'USR-LABELS'
+        and polvar = 'DELIVERY-LABELS'
+        and polval = 'ENABLED'
+        and rtnum1 = 1
+        and wh_id = @wh_id] catch(-1403)
+    |
+    if (@? = -1403)
+    {
+        get lbl compliant printer
+         where @*
+    }
+}
+]]>
+</local-syntax>
+  <argument name="lodnum" required="yes" datatype="string">lodnum</argument>
+  <argument name="dstloc" required="yes" datatype="string">dstloc</argument>
+</command>

@@ -1,0 +1,69 @@
+<command>
+  <name>create usr delivery multidrop</name>
+  <description>create usr delivery multidrop</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* create usr delivery multidrop
+ *
+ * Version history:
+ *  2020-04-30  Radina Ivanova - Initial version
+ */
+    publish data where wh_id = nvl(@wh_id, @@wh_id)
+    |
+    if (@wh_id = '')
+    {
+        get warehouse id
+    }
+    |
+    [select distinct 'x'
+       from locmst
+      where stoloc = @stoloc
+        and wh_id = @wh_id] catch(-1403)
+    |
+    if (@? != 0)
+    {
+        /* Invalid location */
+        set return status where status = 90006
+    }
+    |
+    [select distinct 'x'
+       from locmst
+      where stoloc = @frstol
+        and wh_id = @wh_id] catch(-1403)
+    |
+    if (@? != 0)
+    {
+        /* Invalid location */
+        set return status where status = 90006
+    }
+    |
+    [select nvl(max(seqnum), 0) + 1 seqnum
+       from usr_delivery
+      where uc_delivery_id = -1
+        and wh_id = @wh_id
+        and dst_mov_zone_id = -1]
+    |
+    create record
+     where table = 'usr_delivery'
+       and uc_multi_drop = 1
+       and uc_delivery_id = -1
+       and dst_mov_zone_id = -1 >> res
+    |
+    write daily transaction
+    where actcod = 'USR-DELIVERY-MULTIDROP'
+      and var_nam = 'seqnum|stoloc|frstol'
+      and fr_value = ''
+      and to_value = @seqnum || '|' || @stoloc || @frstol
+      and wh_id = @wh_id
+    |
+    publish data combination
+      where res = @res
+
+      
+]]>
+</local-syntax>
+<argument name="wh_id" required="no" datatype="string">Warehouse ID</argument>
+<argument name="stoloc" required="yes" datatype="string">Destination Location for the movement</argument>
+<argument name="frstol" required="no" datatype="string">From Location</argument>
+</command>

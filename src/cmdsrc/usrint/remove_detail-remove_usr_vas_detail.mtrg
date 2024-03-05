@@ -1,0 +1,28 @@
+<trigger>
+  <name>remove usr vas detail</name>
+  <on-command>remove detail</on-command>
+  <description />
+  <fire-sequence>1000</fire-sequence>
+  <local-syntax>
+<![CDATA[
+/* Trigger to remove vas details for removed detail
+ *
+ * Version history:
+ *  2023-02-17 Marco Schouwenaar   Initial version
+ */
+validate stack variable not null
+ where name = 'dtlnum'
+|
+[select *
+   from usr_invdtl_vas
+  where dtlnum = @dtlnum] catch(-1403)
+|
+if (@? = 0)
+{
+    remove record
+     where table = 'usr_invdtl_vas'
+}  
+]]>
+</local-syntax>
+  <enable>yes</enable>
+</trigger>
