@@ -7,6 +7,7 @@ jobs:
       - name: my-helloWorldGreeting
         run: |
           echo "Hello There!"
+          echo "Today is $DAY_OF_WEEK!"
           echo 'Hi ${{ github.workspace }}'
   CheckingModifiedFile:
     runs-on: ubuntu-latest
