@@ -51,3 +51,24 @@ jobs:
           write_output_files: true
           output_dir: './tmp/outputs'
           rollout-number: '${{ github.event.inputs.rollout_number }}'
+
+      - name: Checkout into dir1
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          path: rollouts
+
+      - name: Run changed-files with defaults in dir1
+        id: changed-files-for-dir1
+        uses: tj-actions/changed-files@v42
+        with:
+          path: rollouts
+
+      - name: List all added files in dir1
+        env:
+          ADDED_FILES: |-
+            ${{ steps.changed-files-for-dir1.outputs.added_files }}
+        run: |
+          for file in ${ADDED_FILES}; do
+            echo "$file was added"
+          done    
