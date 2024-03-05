@@ -51,7 +51,7 @@ jobs:
           write_output_files: true
           output_dir: './tmp/outputs'
           rollout-number: '${{ github.event.inputs.rollout_number }}'
-
+         # Get all changed files for a repository located in a different path
       - name: Checkout into dir1
         uses: actions/checkout@v4
         with:
