@@ -5,7 +5,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: my-helloWorldGreeting
-        run: echo "Hello There!"
+        run: |
+          echo "Hello There!"
+          echo 'Hi ${{ github.workspace }}'
   CheckingModifiedFile:
     runs-on: ubuntu-latest
     steps:
