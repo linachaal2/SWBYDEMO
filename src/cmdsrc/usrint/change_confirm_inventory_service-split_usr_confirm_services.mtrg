@@ -1,0 +1,37 @@
+<trigger>
+  <name>split usr confirm services</name>
+  <on-command>change confirm inventory service</on-command>
+  <description>split multiple instructions when needed</description>
+  <fire-sequence>10</fire-sequence>
+  <local-syntax>
+<![CDATA[
+/* Trigger to split confirmed  entries in confirmation services
+ *
+ * Version history:
+ *  2020-01-01 Marco Schouwenaar   Initial version
+ *  2023-02-22 Marco Schouwenaar   Added serv_id as parameter instead of fixed
+ */ 
+[select 'x' from poldat_view where wh_id=@wh_id and polcod='USR-RF-FORM' and polvar='MERGE-FLOW' and polval=@exitpnt_typ and rtstr2=@serv_id and rtnum1=1] catch(-1403)
+|
+if (@?=0) /* policy active so check if there is a need to update*/
+{
+  if (@cmpflg=1) /* confirmed, so check if there are merged records to update */
+  {
+     [select * from cnfrm_inv_serv where cnfrm_serv_id=@cnfrm_serv_id] catch(-1403) /* get data for update */
+     |
+     if (@?=0)
+     {
+       [select cnfrm_serv_id merged_cnfrm_serv_id from cnfrm_inv_serv where invtid=@cnfrm_serv_id] catch(-1403)
+       |
+       if (@?=0) /* found a merged, update records and set inventory id to the correct value complete*/
+       {
+         [update cnfrm_inv_serv set invtid = @invtid , alt_idn = @alt_idn,  cmp_usr_id = @cmp_usr_id , cmpflg = @cmpflg, cmpdte = to_date(@cmpdte) , serv_result = @serv_result , invsts = @invsts,  
+                                   moddte =to_date(@moddte) , mod_usr_id = @mod_usr_id , devcod = @devcod  where cnfrm_serv_id=@merged_cnfrm_serv_id]
+       }
+     }
+  }
+}
+]]>
+</local-syntax>
+  <enable>yes</enable>
+</trigger>

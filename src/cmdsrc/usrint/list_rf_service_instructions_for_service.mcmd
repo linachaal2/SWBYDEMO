@@ -1,0 +1,69 @@
+<command>
+  <name>list rf service instructions for service</name>
+  <description>list service instructions for service</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* wrapper to manipulate the instructions to the order note text if indicated on order/order line
+ *
+ * Version history:
+ *  2023-02-20 Marco Schouwenaar   Initial version.
+ */  
+^list rf service instructions for service >> results
+|
+pop device context value where dev_varnam='cnfrm_serv_id' and devcod=@@devcod and wh_id=@@wh_id catch(-1403)
+|
+if (@?=0)
+{
+   [select ordnum, ordlin, ordsln, client_id
+      from cnfrm_inv_serv 
+     where cnfrm_serv_id=@value] catch (-1403)
+   |
+   [select nvl(ord_line_note.nottxt, ord_note.nottxt) alt_serv_ins_lngdsc
+      from ord
+      join poldat_view
+        on poldat_view.polcod='USR-ORDER-VAS-NOTE'
+       and poldat_view.polvar='WORKFLOW'
+       and poldat_view.wh_id=ord.wh_id
+       and poldat_view.rtstr1=@serv_id
+      left 
+      join ord_note
+        on ord.ordnum = ord_note.ordnum 
+       and ord.wh_id = ord_note.wh_id 
+       and ord.client_id = ord_note.client_id
+       and ord_note.nottyp = poldat_view.polval
+      left
+      join ord_line
+        on ord.client_id = ord_line.client_id
+       and ord.ordnum = ord_line.ordnum
+       and ord.wh_id = ord_line.wh_id
+       and @ordlin = ord_line.ordlin
+       and @ordsln = ord_line.ordsln
+      left 
+      join ord_line_note
+        on ord_line.ordnum = ord_line_note.ordnum 
+       and ord_line.ordlin = ord_line_note.ordlin 
+       and ord_line.ordsln = ord_line_note.ordsln 
+       and ord_line.wh_id = ord_line_note.wh_id 
+       and ord_line.client_id = ord_line_note.client_id
+       and ord_line_note.nottyp = poldat_view.polval
+     where ord.ordnum = @ordnum
+       and ord.client_id=@client_id
+       and ord.wh_id=@wh_id] catch(-1403)
+    |
+    if (@?=0)
+    {
+        publish data combination where results=@results and serv_ins_lngdsc=nvl(@alt_serv_ins_lngdsc,@serv_ins_lngdsc)
+    }
+    else   
+    {
+        publish data combination where results=@results
+    }
+}
+else
+{
+   publish data combination where results=@results
+}
+]]>
+</local-syntax>
+</command>

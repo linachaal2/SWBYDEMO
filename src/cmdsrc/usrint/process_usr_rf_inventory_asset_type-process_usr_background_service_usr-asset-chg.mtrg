@@ -1,0 +1,24 @@
+<trigger>
+  <name>process usr background service usr-asset-chg</name>
+  <on-command>process usr rf inventory asset type</on-command>
+  <description>process usr background service usr-asset-chg</description>
+  <fire-sequence>9000</fire-sequence>
+  <local-syntax>
+<![CDATA[
+/* process usr background service usr-asset-chg
+ * Processes the background services for the usr hold change exit point USR-ASSET-CHG.
+ * Version history:
+ *  2019-01-04  Salem Hamze  Initial version.
+ */
+process usr background services
+ where exitpnt = 'USR-ASSET-CHG'
+   and wh_id = @wh_id
+   and lodnum = @invtid
+   and asset_typ = @asset_typ
+   and from_untqty = @from_untqty
+   and to_untqty = @to_untqty
+   and adj_untqty = @adj_untqty
+]]>
+</local-syntax>
+  <enable>yes</enable>
+</trigger>

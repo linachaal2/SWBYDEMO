@@ -1,0 +1,184 @@
+<command>
+  <name>create usr vas record</name>
+  <description>create usr vas record</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* create usr vas record
+ * command to create VAS records to communicate
+ *
+ * Version history:
+ *  2023-01-10  Marco Schouwenaar   Initial version.
+ */  
+if (@vas_type='WKO')
+{
+    [select poldat_view.polval nottyp, 0 multi
+       from poldat_view
+      where poldat_view.polcod='USR-WORKORDER-VAS-NOTE'
+        and poldat_view.polvar='WORKFLOW'
+        and poldat_view.wh_id=@wh_id
+        and poldat_view.rtstr1=@serv_id] catch (-1403)
+    |
+    /* retrieve wkonum, wkorev, client_id from original confirmation if available */     
+    [select cmphdr.wkonum,
+            cmphdr.wkorev,
+            cmphdr.client_id
+       from inventory_view
+       left join cmphdr
+         on inventory_view.cmpkey = cmphdr.cmpkey
+      where inventory_view.lodnum = @lodnum] catch(-1403)
+    |
+    [select distinct 'x'
+       from def_serv
+      where serv_id = @serv_id
+        and wkonum = @wkonum
+        and wkorev = @wkorev
+        and client_id = @client_id
+        and wh_id = @wh_id] catch(-1403)
+    |
+    if (@? = 0)
+    {
+        [select wkh.wh_id,
+                invdtl.dtlnum,
+                invdtl.untqty,
+                wkh.client_id,        
+                '-' ordnum,
+                '-' ordlin,
+                '-' ordsln,
+                wkh.wkonum,
+                wkh.wkorev,
+                '-' wkolin,
+                @lst_mov_zone_id mov_zone_id,
+                wkohdr_note.uc_nottyp,
+                wkohdr_note.notlin,
+                wkohdr_note.nottxt,
+                wkohdr_note.uc_inv_code,
+                nvl(@uc_auto_genflg,1) uc_auto_genflg,
+                nvl(@uc_cnfrm_flg,1) uc_cnfrm_flg
+           from invsub
+           join invlod
+             on invsub.lodnum = invlod.lodnum
+           join invdtl
+             on invdtl.subnum = invsub.subnum
+            and nvl(invdtl.u_version,0) = 0
+           join cmphdr
+             on invdtl.cmpkey = cmphdr.cmpkey
+           join wkohdr wkh
+             on wkh.wkonum = cmphdr.wkonum 
+            and wkh.wkorev = cmphdr.wkorev 
+            and wkh.wh_id = cmphdr.wh_id 
+            and wkh.client_id = cmphdr.client_id
+            and wkh.wkorev = @wkorev
+            and wkh.wkonum = @wkonum
+            and wkh.client_id=@client_id
+            and wkh.wh_id=@wh_id
+           join wkohdr_note
+             on wkohdr_note.wkonum = wkh.wkonum 
+            and wkohdr_note.wkorev = wkh.wkorev 
+            and wkohdr_note.wh_id = wkh.wh_id 
+            and wkohdr_note.client_id = wkh.client_id
+            and wkohdr_note.uc_nottyp = @nottyp
+            and (wkohdr_note.uc_inv_code = @uc_inv_code or @uc_inv_code is null)
+          where invlod.lodnum=@lodnum ] catch(-1403)
+        |
+        if (@?=0)
+        {  [select 'x' from usr_invdtl_vas where @+dtlnum and @+ordnum and @+ordlin and @+ordsln and @+wkonum and @+wkorev and @+wkolin and @+nottyp and @+notlin] catch(-1403)
+           |
+           if (@?=-1403)
+           {
+              create record where table='usr_invdtl_vas'
+           }
+        }
+    }
+}
+else /* no type given or not WKO so assume order VAS*/
+{
+[select poldat_view.polval nottyp, 0 multi 
+   from poldat_view
+   where poldat_view.polcod='USR-ORDER-VAS-NOTE'
+     and poldat_view.polvar='WORKFLOW'
+     and poldat_view.wh_id=@wh_id
+     and poldat_view.rtstr1=@serv_id] catch (-1403)
+     | /* get merged records and create the VAS records, if nothing found, use original service */
+     [select cnfrm_serv_id, 1 multi from cnfrm_inv_serv where invtid=@cnfrm_serv_id] catch(-1403)
+     |
+/* retrieve ordnum, ordlin, ordsln, client_id from original confirmation if available*/     
+[select ordnum, 
+        ordlin,
+        ordsln,
+        client_id,
+        uc_inv_code
+   from cnfrm_inv_serv 
+  where cnfrm_serv_id=@cnfrm_serv_id] catch (-1403)
+|
+[select ord.wh_id,
+        invdtl.dtlnum,
+        invdtl.untqty,
+        ord.client_id,        
+        ord.ordnum,
+        nvl(ord_line.ordlin,'-') ordlin,
+        nvl(ord_line.ordsln,'-') ordsln,
+        '-' wkonum,
+        '-' wkorev,
+        '-' wkolin,
+        @lst_mov_zone_id mov_zone_id,
+        nvl(ord_line_note.nottyp,ord_note.nottyp) nottyp,
+        nvl(ord_line_note.notlin,ord_note.notlin) notlin,
+        nvl(ord_line_note.nottxt,ord_note.nottxt) nottxt,
+        nvl(ord_line_note.uc_inv_code,ord_note.uc_inv_code) uc_inv_code,
+        nvl(@uc_auto_genflg,1) uc_auto_genflg,
+        nvl(@uc_cnfrm_flg,1) uc_cnfrm_flg
+   from invsub,invlod,invdtl
+   left
+   join shipment_line
+     on invdtl.ship_line_id = shipment_line.ship_line_id
+   left
+   join ord
+     on shipment_line.client_id = ord.client_id
+    and shipment_line.ordnum = ord.ordnum
+    and shipment_line.wh_id = ord.wh_id
+   left 
+   join ord_note
+     on ord.ordnum = ord_note.ordnum 
+    and ord.wh_id = ord_note.wh_id 
+    and ord.client_id = ord_note.client_id
+    and ord_note.nottyp = @nottyp
+    and ord_note.uc_inv_code = @uc_inv_code
+   left
+   join ord_line
+     on shipment_line.client_id = ord_line.client_id
+    and shipment_line.ordnum = ord_line.ordnum
+    and shipment_line.ordlin = ord_line.ordlin
+    and shipment_line.ordsln = ord_line.ordsln
+    and shipment_line.wh_id = ord_line.wh_id
+    and ord_line.ordlin = nvl(@ordlin,'-')
+    and ord_line.ordsln = nvl(@ordsln,'-')
+   left 
+   join ord_line_note
+     on ord_line.ordnum = ord_line_note.ordnum 
+    and ord_line.ordlin = ord_line_note.ordlin 
+    and ord_line.ordsln = ord_line_note.ordsln 
+    and ord_line.wh_id = ord_line_note.wh_id 
+    and ord_line.client_id = ord_line_note.client_id
+    and ord_line_note.nottyp = @nottyp
+    and ord_line_note.uc_inv_code = @uc_inv_code
+  where ((invdtl.dtlnum = @dtlnum and @multi=0) 
+     or (@multi=1 and invlod.lodnum=@lodnum))
+    and invdtl.subnum = invsub.subnum
+    and invsub.lodnum = invlod.lodnum
+    and ord.ordnum = @ordnum
+    and ord.client_id=@client_id
+    and ord.wh_id=@wh_id] catch(-1403)
+    |
+    if (@?=0)
+    {  [select 'x' from usr_invdtl_vas where @+dtlnum and @+ordnum and @+ordlin and @+ordsln and @+wkonum and @+wkorev and @+wkolin and @+nottyp and @+notlin] catch(-1403)
+       |
+       if (@?=-1403)
+       {
+          create record where table='usr_invdtl_vas'
+       }
+    }
+}
+]]>
+</local-syntax>
+</command>

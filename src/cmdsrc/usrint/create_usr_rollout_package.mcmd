@@ -1,0 +1,990 @@
+<command>
+  <name>create usr rollout package</name>
+  <description>create usr rollout package</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* create usr rollout package
+ * Creates a rollout package based on the items indicated in the result set res_rollout.
+ * Version history:
+ *  2017-06-05    Salem Hamze     Initial version
+ *  2017-12-08    Salem Hamze     Added support for linked dda's
+ *  2018-09-19    Salem Hamze     Added Windows OS support,added slimp.
+ *  2020-08-14		Jasper Ringoir	Added readme and insert script (into usr_rollout_install) generation, moved from gen script; added requirements script generation
+ *  2021-03-03    Jasper Ringoir  updated logic for full table exports for Git useage, auto remove readme in script folder
+ *  2023-09-14  Marco Schouwenaar Adjusted for generation on Linux (removed dos commands/parameters)
+ */
+validate stack variable not null
+ where name = 'rollout_name'
+|
+validate stack variable not null
+ where name = 'res_rollout'
+|
+validate stack variable not null
+ where name = 'rollout_readme_release_notes'
+|
+[select version as moca_version
+      from moca_dbversion]
+|
+publish data
+ where dir_script_rollout_base = '$LESDIR/scripts/rollout_gen/'
+|
+publish data
+ where dir_script_rollout = @dir_script_rollout_base || @rollout_name || '/'
+|
+publish data
+ where dir_rollout_base = '$LESDIR/rollout_gen/'
+|
+publish data
+ where dir_rollout_generic = @dir_rollout_base || 'rollout_shared/'
+|
+publish data
+ where dir_rollout_shared = @dir_rollout_base || 'rollout_shared/'
+|
+publish data
+ where dir_rollout_shared_mload = @dir_rollout_shared || 'data/'
+|
+publish data
+ where dir_rollout = @dir_rollout_base || @rollout_name || '/'
+|
+publish data
+ where file_name_rollout_zip = @rollout_name || '.zip'
+|
+publish data
+ where file_rollout_zip = @dir_rollout_base || @file_name_rollout_zip
+|
+publish data
+ where dir_rollout_cmdsrc = @dir_rollout || 'pkg/src/cmdsrc/'
+|
+publish data
+ where dir_rollout_mload = @dir_rollout || 'pkg/db/data/load/base/safetoload/'
+|
+publish data
+ where dir_rollout_slimp = @dir_rollout || 'pkg/db/upgrade/' || @moca_version || '/'
+|
+publish data
+ where dir_rollout_scripts = @dir_rollout || 'pkg/scripts/'
+|
+publish data
+ where dir_rollout_sql = @dir_rollout || 'pkg/db/ddl/'
+|
+publish data
+ where file_rollout_script = @dir_rollout || @rollout_name
+|
+publish data
+ where file_package_contents = @dir_rollout || 'contents.txt'
+|
+publish data
+ where dir_rollout_readme_template = @dir_script_rollout_base || 'generic/README.v02.txt'
+   and rollout_readme_name = @rollout_name
+   and rollout_readme_date = to_char(sysdate, 'YYYY-MM-DD HH24:MI:SS')
+|
+publish data
+ where file_readme_output = @dir_rollout || 'ReadMe.txt'
+|
+publish data
+ where file_readme_output_script_rollout = @dir_script_rollout || @rollout_name || '_ReadMe.txt'
+|
+publish data
+ where dir_requirements_template = @dir_script_rollout_base || 'generic/Rollout_requirements_script.v02.msql'
+|
+publish data
+ where file_requirements_output = @dir_rollout_scripts || '00_Rollout_requirements.msql'
+|
+publish data
+ where dir_package = '$SOURCEDIR/'
+|
+/* Relative path without $SOURCEDIR */
+publish data
+ where dir_package_cmdsrc = 'pkg/src/cmdsrc/'
+|
+publish data
+ where dir_package_mload = @dir_package || 'pkg/db/data/load/base/safetoload/'
+|
+publish data
+ where dir_package_slimp = @dir_package || 'pkg/db/upgrade/' || @moca_version || '/'
+|
+publish data
+ where dir_package_sql = @dir_package || 'pkg/db/ddl/'
+|
+publish data
+ where dir_package_scripts = @dir_package || 'pkg/scripts/'
+|
+publish data
+ where dir_lesdir = '$LESDIR/'
+|
+publish data
+ where dir_lesdir_cmdsrc = @dir_lesdir || 'src/cmdsrc/'
+|
+if (@recursive_call = 1)
+{
+    publish data
+     where remove_rollout_dir_if_exists = 0
+       and zip_rollout = 0
+       and list_content_after_create = 0
+}
+|
+{
+    /* Remove the rollout dir if it exists and indicated. */
+    if (@remove_rollout_dir_if_exists = 1)
+    {
+        expand environment variable
+         where name = @dir_rollout
+        |
+        publish data
+         where dir_rollout_expanded = @value
+        |
+        execute os command
+         where cmd = 'rm -rf "' || @dir_rollout_expanded || '"' catch(@?);
+        /*remove old version rollouts*/
+        [select substr(@rollout_name, charindex('.', @rollout_name) + 1, 5) as rollout_id,
+        substr(@rollout_name, charindex('.', @rollout_name) + 7, 3) as rollout_type,
+        substr(@rollout_name, 0, charindex('.', @rollout_name)) as rollout_prefix]
+        |
+        publish data
+         where rollout_base_name = @rollout_prefix || '.' || @rollout_id || '.' || @rollout_type
+        |
+        expand environment variable
+         where name = @dir_rollout_base
+        |
+        execute os command in directory
+         where directory = @value
+           and cmd = 'rm  '|| @rollout_base_name ||'*' catch(@?);
+        remove file
+         where filnam = @file_rollout_zip catch(@?);
+        noop
+        /*
+           remove directory
+           where directory = @dir_rollout 
+         */
+    }
+    |
+    /* Create the rollout dir */
+    create directory
+     where directory = @dir_rollout
+    |
+    /* Publish the rows which we want to generate. */
+    publish data combination
+     where res = @res_rollout
+    |
+    if (@type = 'rollout-script-text')
+    {
+        /* Check if we have all the required parameters */
+        if (@text = '')
+        {
+            set return status
+             where status = 999
+               and message = 'type rollout-script-text missing argument.'
+        }
+        |
+        /* Write to the rollout script. */
+        write output file
+         where path = @dir_rollout
+           and filnam = @rollout_name
+           and charset = 'UTF-8'
+           and mode = 'A'
+           and newline = 'Y'
+           and data = @text
+    }
+    else if (@type = 'comment')
+    {
+        /* Check if we have all the required parameters */
+        if (@comment = '')
+        {
+            set return status
+             where status = 999
+               and message = 'type comment missing argument.'
+        }
+        |
+        /* Write to the rollout script. */
+        write output file
+         where path = @dir_rollout
+           and filnam = @rollout_name
+           and charset = 'UTF-8'
+           and mode = 'A'
+           and newline = 'Y'
+           and data = '#' || @comment
+    }
+    else if (@type = 'file-include')
+    {
+        /* Check if we have all the required parameters */
+        if (@server_dir = '' or @server_file = '' or @include_in_rollout_script = '')
+        {
+            set return status
+             where status = 999
+               and message = 'type file-include missing argument.'
+        }
+        |
+        /* Create the directory in the rollout directory. */
+        create directory
+         where directory = @dir_rollout || '/' || @package_dir
+        |
+        /* Copy the file to the specified directory. */
+        copy file
+         where src = @server_dir || '/' || @server_file
+           and dest = @dir_rollout || @package_dir || '/' || @package_file catch(@?)
+        |
+        if (@? != 0)
+        {
+            set return status
+             where status = @?
+               and detail = @src
+        }
+        |
+        if (@include_in_rollout_script = 1)
+        {
+            /* Write to the rollout script. */
+            write output file
+             where path = @dir_rollout
+               and filnam = @rollout_name
+               and charset = 'UTF-8'
+               and mode = 'A'
+               and newline = 'Y'
+               and data = 'REPLACE ' || @package_dir || @package_file || ' ' || @server_dir
+        }
+        else
+        {
+            /* Write to the rollout script. */
+            write output file
+             where path = @dir_rollout
+               and filnam = @rollout_name
+               and charset = 'UTF-8'
+               and mode = 'A'
+               and newline = 'Y'
+               and data = '#INCLUDED FILE ' || @server_dir || @server_file || ' in package directory ' || @dir_rollout || @package_dir || @package_file
+        }
+    }
+    else if (@type = 'mcmd')
+    {
+        /* Check if we have all the required parameters */
+        if (@level = '' or @command = '')
+        {
+            set return status
+             where status = 999
+               and message = 'type mcmd missing argument.'
+        }
+        |
+        /* Get the filename based on the command name */
+        [select replace(@command, ' ', '_') || '.mcmd' as filename_cmd
+           from dual]
+        |
+        /* Create the src/cmdsrc directory in the rollout directory. */
+        create directory
+         where directory = @dir_rollout_cmdsrc || '/' || @level || '/'
+        |
+        /* Copy the file to the rollout */
+        copy file
+         where src = @dir_lesdir_cmdsrc || @level || '/' || @filename_cmd
+           and dest = @dir_rollout_cmdsrc || '/' || @level || '/' || @filename_cmd catch(@?)
+        |
+        if (@? != 0)
+        {
+            set return status
+             where status = @?
+               and detail = @src
+        }
+        |
+        /* Write to the rollout script. */
+        write output file
+         where path = @dir_rollout
+           and filnam = @rollout_name
+           and charset = 'UTF-8'
+           and mode = 'A'
+           and newline = 'Y'
+           and data = 'REPLACE ' || @dir_package_cmdsrc || @level || '/' || @filename_cmd || ' ' || @dir_lesdir_cmdsrc || @level || '/'
+    }
+    else if (@type = 'mtrg')
+    {
+        /* Check if we have all the required parameters */
+        if (@level = '' or @command = '' or @trigger = '')
+        {
+            set return status
+             where status = 999
+               and message = 'type cmd-trigger missing argument.'
+        }
+        |
+        /* Get the filename based on the command name */
+        [select replace(@command, ' ', '_') || '-' || replace(@trigger, ' ', '_') || '.mtrg' as filename_cmd_trigger
+           from dual]
+        |
+        /* Create the src/cmdsrc directory in the rollout directory. */
+        create directory
+         where directory = @dir_rollout_cmdsrc || '/' || @level || '/'
+        |
+        /* Copy the file to the rollout */
+        copy file
+         where src = @dir_lesdir_cmdsrc || @level || '/' || @filename_cmd_trigger
+           and dest = @dir_rollout_cmdsrc || '/' || @level || '/' || @filename_cmd_trigger catch(@?)
+        |
+        if (@? != 0)
+        {
+            set return status
+             where status = @?
+               and detail = @src
+        }
+        |
+        /* Write to the rollout script. */
+        write output file
+         where path = @dir_rollout
+           and filnam = @rollout_name
+           and charset = 'UTF-8'
+           and mode = 'A'
+           and newline = 'Y'
+           and data = 'REPLACE ' || @dir_package_cmdsrc || @level || '/' || @filename_cmd_trigger || ' ' || @dir_lesdir_cmdsrc || @level || '/'
+    }
+    else if (@type = 'msql')
+    {
+        /* Check if we have all the required parameters */
+        if (@server_dir = '' or @server_file = '')
+        {
+            set return status
+             where status = 999
+               and message = 'type msql missing argument.'
+        }
+        |
+        /* Create the src/cmdsrc directory in the rollout directory. */
+        create directory
+         where directory = @dir_rollout_scripts
+        |
+        /* Copy the file to the rollout */
+        copy file
+         where src = @server_dir || @server_file
+           and dest = @dir_rollout_scripts || @server_file catch(@?)
+        |
+        if (@? != 0)
+        {
+            set return status
+             where status = @?
+               and detail = @src
+        }
+        |
+        /* Write to the rollout script. */
+        write output file
+         where path = @dir_rollout
+           and filnam = @rollout_name
+           and charset = 'UTF-8'
+           and mode = 'A'
+           and newline = 'Y'
+           and data = 'RUNMSQL ' || @dir_package_scripts || @server_file
+    }
+    else if (@type = 'sql')
+    {
+        /* Check if we have all the required parameters */
+        if (@server_dir = '' or @server_file = '')
+        {
+            set return status
+             where status = 999
+               and message = 'type sql missing argument.'
+        }
+        |
+        /* Create the src/cmdsrc directory in the rollout directory. */
+        create directory
+         where directory = @dir_rollout_sql
+        |
+        /* Copy the file to the rollout */
+        copy file
+         where src = @server_dir || @server_file
+           and dest = @dir_rollout_sql || @server_file catch(@?)
+        |
+        if (@? != 0)
+        {
+            set return status
+             where status = @?
+               and detail = @src
+        }
+        |
+        /* Write to the rollout script. */
+        write output file
+         where path = @dir_rollout
+           and filnam = @rollout_name
+           and charset = 'UTF-8'
+           and mode = 'A'
+           and newline = 'Y'
+           and data = 'RUNSQL ' || @dir_package_sql || @server_file
+    }
+    else if (@type = 'slimp')
+    {
+        /* Check if we have all the required parameters */
+        if ((@evt_id = '' and (@ifd_id = '' or @ifd_ver = '')) or @trg_sys_id = '' or @dest_sys_id = '' or @name = '')
+        {
+            set return status
+             where status = 999
+               and message = 'type slimp missing argument.'
+        }
+        |
+        /* Check if we either have an inbound ifd or an outbound event, not both as it will probably give no data or unexpected results */
+        if (@evt_id and @ifd_id and @ifd_ver)
+        {
+            set return status
+             where status = 999
+               and message = 'type slimp inbound ifd and event id given, please specify either and not both.'
+        }
+        |
+        [select replace(@name, ' ', '_') || '.slexp' as filename_slimp
+           from dual]
+        |
+        /* Create the src/cmdsrc directory in the rollout directory. */
+        create directory
+         where directory = @dir_rollout_slimp
+        |
+        if (@evt_id)
+        {
+            publish data
+             where evt_list = "'" || @evt_id || "'"
+        }
+        |
+        if (@ifd_id and @ifd_ver)
+        {
+            publish data
+             where ifd_list = "'" || @ifd_id || "|" || @ifd_ver || "'"
+        }
+        |
+        /* Hide the stack variables which apparently affect the export. */
+        hide stack variable
+         where name = 'evt_id'
+        |
+        hide stack variable
+         where name = 'ifd_id'
+        |
+        hide stack variable
+         where name = 'ifd_ver'
+        |
+        /* Export the interface. */
+        sl_list dependencies
+         where evt_list = @evt_list
+           and ifd_list = @ifd_list
+           and trg_sys_id = @trg_sys_id
+           and dest_sys_id = @dest_sys_id
+           and unload_filename = @dir_rollout_slimp || @filename_slimp
+        |
+        /* Write to the rollout script. */
+        write output file
+         where path = @dir_rollout
+           and filnam = @rollout_name
+           and charset = 'UTF-8'
+           and mode = 'A'
+           and newline = 'Y'
+           and data = 'UPDATESLDATA ' || @dir_package_slimp || @filename_slimp
+    }
+    else if (@type = 'mload')
+    {
+        /* Check if we have all the required parameters */
+        if (@table = '' or @name = '' or @query = '' or @mload_wh_id = '')
+        {
+            set return status
+             where status = 999
+               and message = 'type cmd-trigger missing argument.'
+        }
+        |
+        /* Get the directory name based on the table 
+           publish data
+           where dir_rollout_mload_table = @dir_rollout_mload || @table || '/'
+           |
+         */
+        /* Get the filename based on the command name */
+        [select replace(@name, ' ', '_') as name
+           from dual]
+        |
+        /* Get the filename based on the command name 
+           publish data
+           where filename_ctl = @table || '.ctl'
+           |
+         */
+        /* Get the data to export based on the query given. */
+        execute server command
+         where cmd = @query catch(-1403) >> res_mload
+        |
+        if (rowcount(@res_mload) > 0)
+        {
+            /* Create the csv directory in the rollout directory. 
+               create directory where directory=@dir_rollout_mload_table
+               |
+             */
+            unload usr data for rollout
+             where res = @res_mload
+               and path = @dir_rollout_mload
+               and name = @name
+               and table_name = @table
+               and mload_wh_id = @mload_wh_id
+            |
+            {
+                if (@generate_rollout_shared = 1)
+                {
+                    [select substr(@query, 1, charindex(';', @query)) as db_prefix]						
+                    |
+                    add to session variable list
+                     where name = @db_prefix || '|' || @table || '|' || @mload_wh_id
+                       and value = @mload_wh_id								   
+                }
+            }
+            |
+            /* Write to the rollout script. */
+            write output file
+             where path = @dir_rollout
+               and filnam = @rollout_name
+               and charset = 'UTF-8'
+               and mode = 'A'
+               and newline = 'Y'
+               and data = 'LOADDATA ' || @dir_package_mload || @ctl_filename || ' ' || @csv_filename
+        }
+        else if (rowcount(@res_mload) = 0 and @ignore_mload_nodata != 1)
+        {
+            /* If no data is found give an error, except when @ignore_mload_nodata is set. */
+            set return status
+             where code = 999
+               and message = 'No data found for mload. (name=' || @name || ')'
+        }
+    }
+    else if (@type = 'dda')
+    {
+        /* Check if we have all the required parameters */
+        if (@dda_id = '')
+        {
+            set return status
+             where status = 999
+               and message = 'type dda missing argument.'
+        }
+        |
+        {
+            publish data
+             where type = "comment"
+               and comment = "DDA " || @dda_id &
+            /* Mloads */
+            publish data
+             where type = "comment"
+               and comment = "DDA MLOADS " || @dda_id &
+            publish data
+             where type = "mload"
+               and table = "dda_mst"
+               and name = "dda_mst" || "_" || @dda_id
+               and query = "[select * from dda_mst where dda_id='" || @dda_id || "']" &
+            publish data
+             where type = "mload"
+               and table = "dda_field"
+               and name = "dda_field" || "_" || @dda_id
+               and query = "[select * from dda_field where dda_id='" || @dda_id || "']" &
+            publish data
+             where type = "mload"
+               and table = "dda_child"
+               and name = "dda_child" || "_" || @dda_id
+               and query = "[select * from dda_child where dda_id='" || @dda_id || "']" &
+            publish data
+             where type = "mload"
+               and table = "dda_action"
+               and name = "dda_action" || "_" || @dda_id
+               and query = "[select * from dda_action where dda_id='" || @dda_id || "']" &
+            publish data
+             where type = "mload"
+               and table = "dda_fltr_grp"
+               and name = "dda_fltr_grp" || "_" || @dda_id
+               and query = "[select * from dda_fltr_grp where dda_fltr_grp.fltr_grp in (select dda_field.fltr_grp from dda_field where dda_field.dda_id='" || @dda_id || "')]" &
+            publish data
+             where type = "mload"
+               and table = "sys_dsc_mst"
+               and name = "sys_dsc_mst_dda_fltr_grp" || "_" || @dda_id
+               and query = "[select * from sys_dsc_mst where sys_dsc_mst.colnam='fltr_grp' and sys_dsc_mst.colval in (select dda_fltr_grp.fltr_grp from dda_fltr_grp where dda_fltr_grp.fltr_grp in (select dda_field.fltr_grp from dda_field where dda_field.dda_id='" || @dda_id || "'))]" &
+            publish data
+             where type = "mload"
+               and table = "les_layout"
+               and name = "les_layout" || "_" || @dda_id
+               and query = "[select * from les_layout where les_layout.layout_id in (select dda_field.fltr_grp from dda_field where dda_field.dda_id='" || @dda_id || "')]" &
+            publish data
+             where type = "mload"
+               and table = "les_mls_cat"
+               and name = "les_mls_cat" || "_" || @dda_id
+               and query = "[select * from les_mls_cat where frm_id='" || @dda_id || "']" &
+            publish data
+             where type = "mload"
+               and table = "les_var_config"
+               and name = "les_var_config" || "_" || @dda_id
+               and query = "[select * from les_var_config where frm_id='" || @dda_id || "']" &
+            publish data
+             where type = "mload"
+               and table = "les_var_def"
+               and name = "les_var_def" || "_" || @dda_id
+               and query = "[select * from les_var_def where frm_id='" || @dda_id || "']" &
+            publish data
+             where type = "mload"
+               and table = "les_var_inp"
+               and name = "les_var_inp" || "_" || @dda_id
+               and query = "[select * from les_var_inp where frm_id='" || @dda_id || "']" &
+            publish data
+             where type = "mload"
+               and table = "les_var_valdt"
+               and name = "les_var_valdt" || "_" || @dda_id
+               and query = "[select * from les_var_valdt where frm_id='" || @dda_id || "']" &
+            publish data
+             where type = "mload"
+               and table = "les_var_vp"
+               and name = "les_var_vp" || "_" || @dda_id
+               and query = "[select * from les_var_vp where frm_id='" || @dda_id || "']" &
+            publish data
+             where type = "mload"
+               and table = "les_var_lkp"
+               and name = "les_var_lkp" || "_" || @dda_id
+               and query = "[select * from les_var_lkp where frm_id='" || @dda_id || "']" &
+            publish data
+             where type = "mload"
+               and table = "les_lkp"
+               and name = "les_lkp" || "_" || @dda_id
+               and query = "[select * from les_lkp where les_lkp.lkp_id in (select les_var_vp.lkp_id from les_var_vp where les_var_vp.frm_id='" || @dda_id || "' union select les_var_lkp.lkp_id from les_var_lkp where les_var_lkp.frm_id='" || @dda_id || "')]" &
+            publish data
+             where type = "mload"
+               and table = "les_lkp_fld"
+               and name = "les_lkp_fld" || "_" || @dda_id
+               and query = "[select * from les_lkp_fld where les_lkp_fld.lkp_id in (select les_var_vp.lkp_id from les_var_vp where les_var_vp.frm_id='" || @dda_id || "' union select les_var_lkp.lkp_id from les_var_lkp where les_var_lkp.frm_id='" || @dda_id || "')]" &
+            publish data
+             where type = "mload"
+               and table = "les_mnu_opt"
+               and name = "les_mnu_opt" || "_" || @dda_id
+               and query = "[select * from les_mnu_opt where opt_nam like '%" || @dda_id || "%']" &
+            publish data
+             where type = "mload"
+               and table = "les_mnu_itm"
+               and name = "les_mnu_itm" || "_" || @dda_id
+               and query = "[select * from les_mnu_itm where opt_nam like '%" || @dda_id || "%']" &
+            publish data
+             where type = "mload"
+               and table = "les_opt_ath"
+               and name = "les_opt_ath" || "_" || @dda_id
+               and query = "[select * from les_opt_ath where opt_nam like '%" || @dda_id || "%']" &
+            publish data
+             where type = "mload"
+               and table = "sys_dsc_mst"
+               and name = "sys_dsc_mst" || "_" || @dda_id
+               and query = "[select * from sys_dsc_mst where colval like '%" || @dda_id || "%']" &
+            publish data
+             where type = "mload"
+               and table = "grid_dsp_rule"
+               and name = "grid_dsp_rule" || "_" || @dda_id
+               and query = "[select * from grid_dsp_rule where frm_id='" || @dda_id || "']" &
+            /* Include the DDA commands */
+            {
+                [select dda_cmd as dda_cmd_sub
+                   from dda_mst
+                  where dda_id = @dda_id
+                    and dda_cmd is not null
+                    and @include_dda_command = 1
+                 union
+                 select init_cmd as dda_cmd_sub
+                   from dda_mst
+                  where dda_id = @dda_id
+                    and init_cmd is not null
+                    and @include_dda_command = 1] catch(-1403) >> res_dda_cmd_sub
+                |
+                if (rowcount(@res_dda_cmd_sub) > 0)
+                {
+                    publish data
+                     where type = "comment"
+                       and comment = "DDA COMMANDS " || @dda_id &
+                    {
+                        publish data combination
+                         where res = @res_dda_cmd_sub
+                        |
+                        publish data
+                         where type = "mcmd"
+                           and level = "usrint"
+                           and command = @dda_cmd_sub
+                    }
+                }
+            } &
+            /* Include child and action DDA's */
+            {
+                [select dda_child_id as dda_id_sub
+                   from dda_child
+                  where dda_id = @dda_id
+                    and @include_dda_child = 1
+                 union
+                 select action as dda_id_sub
+                   from dda_action
+                  where dda_id = @dda_id
+                    and @include_dda_child = 1
+                 union
+                 select link_dda_id as dda_id_sub
+                   from dda_field
+                  where dda_id = @dda_id
+                    and link_dda_id is not null
+                    and @include_dda_child = 1] catch(-1403) >> res_dda_id_sub
+                |
+                if (rowcount(@res_dda_id_sub) > 0)
+                {
+                    publish data
+                     where type = "comment"
+                       and comment = "DDA CHILDREN, ACTIONS AND LINKS " || @dda_id &
+                    {
+                        publish data combination
+                         where res = @res_dda_id_sub
+                        |
+                        /* Child and action DDA's */
+                        publish data
+                         where type = "dda"
+                           and dda_id = @dda_id_sub
+                           and include_dda_command = @include_dda_command
+                           and include_dda_child = @include_dda_child
+                           and include_dda_action = @include_dda_action
+                    }
+                }
+            }
+        } >> res_dda_rollout
+        |
+        create usr rollout package
+         where rollout_name = @rollout_name
+           and res_rollout = @res_dda_rollout
+           and ignore_mload_nodata = 1
+           and remove_rollout_dir_if_exists = 0
+           and recursive_call = 1
+    };
+    noop
+}
+|
+/* Create a msql file containing updates in the usr_rollout_install table*/
+{
+    [select substr(@rollout_name, charindex('.', @rollout_name) + 1, 5) as rollout_id,
+            substr(@rollout_name, charindex('.', @rollout_name) + 7, 3) as rollout_type,
+            right(@rollout_name, 3) as rollout_version,
+            @rollout_name as rollout_name,
+            @rollout_readme_release_notes as rollout_readme]
+    |
+    publish data
+     where script_line = "[insert into usr_rollout_install(rollout_id, rollout_type, rollout_version, rollout_name, rollout_readme)
+        values ('" || @rollout_id || "','" || @rollout_type || "','" || @rollout_version || "','" || @rollout_name || "','" || @rollout_readme || "')];" || [["\r\n"]]
+       and script_line = @script_line || "commit;" || [["\r\n"]]
+       and script_line = @script_line || "/" || [["\r\n"]]
+       and script_line = @script_line || "exit"
+    |
+    create directory
+     where directory = @dir_rollout_scripts
+    |
+    write output file
+     where path = @dir_rollout_scripts
+       and filnam = "90_Rollout_install_insert.msql"
+       and data = @script_line
+       and mode = 'W';
+}
+|
+/* Create a msql file containing requirements*/
+{
+    if (@required_rollouts)
+    {
+        create directory
+         where directory = @dir_rollout_scripts
+        |
+        {
+            publish data combination
+             where res = @required_rollouts
+            |
+            if (@rollout_type)
+            {
+                publish data
+                 where type_line = "       and rollout_type = '" || @rollout_type || "'" || [["\r\n"]]
+            }
+            |
+            publish data
+             where script_line = "publish data" || [["\r\n"]]
+               and script_line = @script_line || "     where required_rollout_id = '" || @required_rollout_id || "'" || [["\r\n"]]
+               and script_line = @script_line || @type_line
+               and script_line = @script_line || "       and minimal_version = '" || @minimal_version  || "'" || [["\r\n"]]
+               and script_line = @script_line || "       and excluded_server_types = [" || @excluded_server_types || "]"
+        } >> req
+        |
+        convert usr column results to string
+         where resultset = @req
+           and colnam = 'script_line'
+           and distinct = 1
+           and separator = '& '
+        |
+        [[
+            import java.nio.file.Path;
+            import java.nio.file.Paths;
+            import java.nio.file.Files;
+            import java.nio.charset.StandardCharsets;
+
+            Path requirementsTemplatePath = Paths.get(MocaUtils.expandEnvironmentVariables(moca, dir_requirements_template));
+            String text = new String(Files.readAllBytes(requirementsTemplatePath), StandardCharsets.UTF_8);
+            text = text.replaceAll("<REQUIREMENTS>", result_string);
+                        
+            Path requirementsGeneratedPath = Paths.get(MocaUtils.expandEnvironmentVariables(moca, file_requirements_output));
+            Files.write(requirementsGeneratedPath, text.getBytes());
+
+            EditableResults retRes = moca.newResults();  
+            retRes.addColumn("requirements_generated_path", MocaType.STRING);
+            retRes.addColumn("requirements_generated_directory", MocaType.STRING);
+            retRes.addColumn("requirements_generated_file", MocaType.STRING);
+            retRes.addRow();
+            retRes.setStringValue("requirements_generated_path", requirementsGeneratedPath.toString());
+            retRes.setStringValue("requirements_generated_directory", requirementsGeneratedPath.getParent().toString());
+            retRes.setStringValue("requirements_generated_file", requirementsGeneratedPath.getFileName().toString());
+            return retRes;
+        ]]
+        |
+        if (@? != 0)
+        {
+            set return status
+             where status = 999
+               and message = 'Failed creating rollout requirements file (dest: ' || @requirements_generated_path || '). ' || @!
+        };
+        noop
+    }
+}
+|
+/* Create the Readme File on source and destination location */
+{
+    validate stack variable not null
+     where name = 'rollout_readme_release_notes'
+    |
+    expand environment variable
+     where name = @dir_script_rollout
+    |
+    execute os command in directory
+     where directory = @value
+       and cmd = 'rm .*ReadMe.txt' catch(@?)
+    |
+    [[
+            import java.nio.file.Path;
+            import java.nio.file.Paths;
+            import java.nio.file.Files;
+            import java.nio.charset.StandardCharsets;
+
+            Path readmeTemplatePath = Paths.get(MocaUtils.expandEnvironmentVariables(moca, dir_rollout_readme_template));
+            String text = new String(Files.readAllBytes(readmeTemplatePath), StandardCharsets.UTF_8);
+            text = text.replaceAll("<ROLLOUT_NAME>", rollout_readme_name);
+            text = text.replaceAll("<ROLLOUT_DATE>", rollout_readme_date);
+            text = text.replaceAll("<ROLLOUT_RELEASE_NOTES>", rollout_readme_release_notes);
+                        
+            Path readmeGeneratedPath = Paths.get(MocaUtils.expandEnvironmentVariables(moca, file_readme_output));
+            Files.write(readmeGeneratedPath, text.getBytes());
+            Path readmeGeneratedPathRolloutGen = Paths.get(MocaUtils.expandEnvironmentVariables(moca, file_readme_output_script_rollout));
+            Files.write(readmeGeneratedPathRolloutGen, text.getBytes());
+
+            EditableResults retRes = moca.newResults();  
+            retRes.addColumn("readme_generated_path", MocaType.STRING);
+            retRes.addColumn("readme_generated_directory", MocaType.STRING);
+            retRes.addColumn("readme_generated_file", MocaType.STRING);
+            retRes.addRow();
+            retRes.setStringValue("readme_generated_path", readmeGeneratedPath.toString());
+            retRes.setStringValue("readme_generated_directory", readmeGeneratedPath.getParent().toString());
+            retRes.setStringValue("readme_generated_file", readmeGeneratedPath.getFileName().toString());
+            return retRes;
+        ]]
+    |
+    if (@? != 0)
+    {
+        set return status
+         where status = 999
+           and message = 'Failed creating/copying ReadMe file (dest: ' || @file_readme_output_script_rollout || '). ' || @!
+    };
+    noop
+}
+|
+{
+    if (@generate_rollout_shared = 1)
+    {
+        create directory
+         where directory = @dir_rollout_shared_mload
+        |
+        list session variables
+        |
+        [select substr(@name, (charindex('|', @name, charindex('|', @name) + 1) + 1), 4) as wh_id,
+        substr(@name, 1, charindex('|', @name) -1) as db_prefix,
+        substr(@name, charindex('|', @name, charindex('|', @name)) + 1, charindex('|', @name, charindex('|', @name) + 1) - charindex('|', @name, charindex('|', @name)) -1) as tab] catch (@?)
+        |
+        remove file
+         where filnam = @dir_rollout_shared_mload || @wh_id || '_' || @tab || '.csv' catch(@?)
+        |
+        execute server command
+         where cmd = @db_prefix || '[select * from ' || @tab || '];' catch(-1403) >> res_table
+        |
+        write csv file
+         where resdata = @res_table
+           and path = @dir_rollout_shared_mload
+           and filnam = @wh_id || '_' || @tab || '.csv'
+    };
+    noop
+}
+|
+/* Create a file containing the contents of the package. */
+{
+    expand environment variable
+     where name = @dir_rollout_base
+    |
+    publish data
+     where dir_rollout_base_expanded = @value
+    |
+    expand environment variable
+     where name = @file_package_contents
+    |
+    publish data
+     where file_package_contents_expanded = @value
+       and cmd = "tree -af " || @rollout_name || " > """ || @file_package_contents_expanded || """" catch(@?)
+    |
+    execute os command in directory
+     where directory = @dir_rollout_base_expanded
+       and cmd = @cmd catch(@?)
+    |
+    if (@? != 0)
+    {
+        set return status
+         where status = 999
+           and message = 'Failed creating content file (cmd: ' || @zip_cmd_expanded || '). ' || @!
+    };
+    noop
+}
+|
+if (@zip_rollout = 1)
+{
+    expand environment variable
+     where name = @dir_rollout_base
+    |
+    execute os command in directory
+     where directory = @value
+       and cmd = 'zip -r '||@file_name_rollout_zip || ' ' ||@rollout_name catch(@?)
+    |
+    if (@? != 0)
+    {
+        set return status
+         where status = 999
+           and message = 'Failed zipping rollout (cmd: ' || @cmd || '). ' || @!
+    }
+}
+|
+if (@list_content_after_create = 1)
+{
+    expand environment variable
+     where name = @dir_rollout_base
+    |
+    publish data
+     where dir_rollout_base_expanded = @value
+       and cmd = "tree -af " || @rollout_name catch(@?)
+    |
+    execute os command in directory
+     where directory = @dir_rollout_base_expanded
+       and cmd = @cmd catch(@?)
+    |
+    if (@? != 0)
+    {
+        set return status
+         where status = 999
+           and message = 'Failed listing content (cmd: ' || @cmd || '). ' || @!
+    }
+    else
+    {
+        filter data
+         where moca_filter_level = 2
+    }
+}
+else
+{
+    publish data
+     where generate_rollout_dir = @dir_rollout
+       and generated_rollout_zip = @file_rollout_zip
+}
+]]>
+</local-syntax>
+  <argument name="rollout_name" required="yes" datatype="string">rollout_name</argument>
+  <argument name="res_rollout" required="yes" datatype="results">res_rollout</argument>
+  <argument name="ignore_mload_nodata" datatype="flag">ignore_mload_nodata</argument>
+  <argument name="remove_rollout_dir_if_exists" datatype="flag">remove_rollout_dir_if_exists</argument>
+  <argument name="recursive_call" datatype="flag">recursive_call</argument>
+  <argument name="zip_rollout" datatype="flag">zip_rollout</argument>
+  <argument name="list_content_after_create" datatype="flag">list_content_after_create</argument>
+</command>

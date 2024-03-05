@@ -1,0 +1,7 @@
+colnam,colval,locale_id,lngdsc,short_dsc
+"prtnum|prt_client_id|wh_id_tmpl","000011-038-030|RFH|3","DUTCH_HOLLAND","Tulipa (Triumph Grp) 'Winterberg' 038 030","test"
+"prtnum|prt_client_id|wh_id_tmpl","000011-038-030|RFH|3","US_ENGLISH","Tulipa (Triumph Grp) 'Winterberg' 038 030","test"
+"prtnum|prt_client_id|wh_id_tmpl","DUMMYITEM|RFH|----","DUTCH_HOLLAND","Dummy Item","Dummy Item"
+"prtnum|prt_client_id|wh_id_tmpl","DUMMYITEM|RFH|----","US_ENGLISH","Dummy Item","Dummy Item"
+"prtnum|prt_client_id|wh_id_tmpl","DUMMYITEM|RFH|3","DUTCH_HOLLAND","Dummy Item","Dummy Item"
+"prtnum|prt_client_id|wh_id_tmpl","DUMMYITEM|RFH|3","US_ENGLISH","Dummy Item","Dummy Item"

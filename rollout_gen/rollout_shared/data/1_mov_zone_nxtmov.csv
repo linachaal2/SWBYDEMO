@@ -1,0 +1,3 @@
+src_mov_zone_id,dst_mov_zone_id,lodlvl,seqnum,oprcod,pricod,u_version,ins_dt,last_upd_dt,ins_user_id,last_upd_user_id
+10016,10018,"L",1,"TRN",50,0,"","","",""
+10017,10018,"L",1,"TRN",50,0,"","","",""

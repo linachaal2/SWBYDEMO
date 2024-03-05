@@ -1,0 +1,38 @@
+<command>
+  <name>mark usr short</name>
+  <description>mark usr short</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* mark usr short
+ *
+ * Version history:
+ *  2023-08-16  Radina Ivanova - Initial version
+ */
+    [update rplwrk
+	    set waybil = nvl(@usr_id, @@usr_id)
+      where rplref = @rplref
+        and waybil is null] catch(-1403)
+    |
+    if (@? != 0)
+    {
+        set return status where status = 90060
+    }
+    |
+    [update rplwrk
+	    set waybil = nvl(@usr_id, @@usr_id)
+      where waybil is null
+        and prtnum = @prtnum
+        and exists (select 'x'
+                      from alloc_rule_dtl
+                     where field_name = 'lotnum'
+                       and value = @lotnum
+                       and rule_nam = rplwrk.rule_nam
+                       and wh_id = rplwrk.wh_id)] catch(-1403)
+    
+]]>
+</local-syntax>
+<argument name="rplref" required="yes" datatype="string">Replenishment Reference</argument>
+<argument name="prtnum" required="yes" datatype="string">Item Number</argument>
+<argument name="lotnum" required="yes" datatype="string">Lot Number</argument>
+</command>

@@ -1,0 +1,19 @@
+<action>
+  <id>downloadmonitoring</id>
+  <name>downloadmonitoring</name>
+  <description>monitor integrator download queue</description>
+  <type>LIST</type>
+  <ws>
+     <method>GET</method>
+	 <href>/downloadmonitoring</href>
+  </ws>
+  <impl>
+     <command>get usr download status</command>
+  	 <!--arguments>
+		<argument name ="wh_id" type="string" location="body" required="false" description="Vestiging Code"/>
+	 </arguments-->
+  </impl>
+  <auth>
+     <opt>optOpen</opt>
+  </auth>
+</action>

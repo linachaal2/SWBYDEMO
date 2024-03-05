@@ -1,0 +1,50 @@
+<command>
+  <name>purge usr unused item footprints</name>
+  <description>purge usr unused item footprints</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* purge usr unused item footprints
+ * Called after archiving, removes the footprints if unused:
+ *  - Footprint is not in use within the four-wall inventory (production)
+ *  - Footprint is not in use outside the four-wall inventory (production)
+ *  - Footprint is not marked as default
+ * Version history:
+ *  2020-02-03  Radina Ivanova     Initial version.
+ */
+ 
+[select 'x'
+   from prtftp
+  where prtftp.ftpcod = @ftpcod
+    and prtftp.prt_client_id = @prt_client_id
+    and prtftp.prtnum = @prtnum
+    and prtftp.wh_id = @wh_id
+    and defftp_flg = 0
+    and not exists (select 'x'
+                      from invlod
+                      join invsub
+                        on invlod.lodnum = invsub.lodnum
+                      join invdtl
+                        on invsub.subnum = invdtl.subnum
+                     where invdtl.ftpcod = @ftpcod
+                       and invdtl.prt_client_id = @prt_client_id
+                       and invdtl.prtnum = @prtnum
+                       and invlod.wh_id = @wh_id)
+] catch(-1403)
+|
+if (@? = 0)
+{
+    remove part footprint
+     where ftpcod = @ftpcod
+       and prt_client_id = @prt_client_id
+       and prtnum = @prtnum
+       and wh_id = @wh_id
+}
+
+]]>
+</local-syntax>
+  <argument name="ftpcod" datatype="string">Footprint code</argument>
+  <argument name="prtnum" datatype="string">Item number</argument>
+  <argument name="prt_client_id" datatype="string">Item Client ID</argument>
+  <argument name="wh_id" datatype="string">Warehouse ID</argument>
+</command>

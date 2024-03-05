@@ -1,0 +1,23 @@
+#include <../../../include/usrddl.h>
+#include <../../../include/varddl.h>
+#include <usrcolwid.h>
+#include <varcolwid.h>
+#include <usrtbldef.h>
+#include <vartbldef.h>
+#include <sqlDataTypes.h>
+
+create table table1
+(
+    column1 STRING_TY(COLUMN1_LEN)
+            PRIMARY_KEY_FIELD(table1_column1_pk),
+    column2 STRING_TY(COLUMN2_LEN)
+            NOT_NULL_CONSTRAINT(table1_column2_nl),
+    column3 FLAG_TY 
+            FLAG_CONSTRAINT(table1_column3_ck, column3)
+)
+TABLESPACE_INFO (TABLE1_TBL_TBLSPC, TABLE1_TBL_STORAGE)
+RUN_SQL
+
+#include <table1_pk.idx>
+#include <table1_idx1.idx>
+

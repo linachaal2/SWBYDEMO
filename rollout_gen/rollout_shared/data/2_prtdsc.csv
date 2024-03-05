@@ -1,0 +1,9 @@
+colnam,colval,locale_id,lngdsc,short_dsc
+"prtnum|prt_client_id|wh_id_tmpl","000011-038-030|RFH|2","DUTCH_HOLLAND","Tulipa (Triumph Grp) 'Winterberg' 038 030","test"
+"prtnum|prt_client_id|wh_id_tmpl","000011-038-030|RFH|2","US_ENGLISH","Tulipa (Triumph Grp) 'Winterberg' 038 030","test"
+"prtnum|prt_client_id|wh_id_tmpl","025653-017-075|RFH|2","DUTCH_HOLLAND","Euphorbia ingens 'Variegata'","test"
+"prtnum|prt_client_id|wh_id_tmpl","025653-017-075|RFH|2","US_ENGLISH","Euphorbia ingens 'Variegata'","test"
+"prtnum|prt_client_id|wh_id_tmpl","DUMMYITEM|RFH|----","DUTCH_HOLLAND","Dummy Item","Dummy Item"
+"prtnum|prt_client_id|wh_id_tmpl","DUMMYITEM|RFH|----","US_ENGLISH","Dummy Item","Dummy Item"
+"prtnum|prt_client_id|wh_id_tmpl","DUMMYITEM|RFH|2","DUTCH_HOLLAND","Dummy Item","Dummy Item"
+"prtnum|prt_client_id|wh_id_tmpl","DUMMYITEM|RFH|2","US_ENGLISH","Dummy Item","Dummy Item"

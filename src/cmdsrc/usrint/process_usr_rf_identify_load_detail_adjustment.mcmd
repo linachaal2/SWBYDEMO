@@ -1,0 +1,86 @@
+<command>
+  <name>process usr rf identify load detail adjustment</name>
+  <description>process usr rf identify load detail adjustment</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* process usr rf identify load detail adjustment
+ * Processes a detail adjustment done in the USR_IDENTIFY_LOAD_ADJ_DTL screen.
+ * This will not yet do the actual adjust but will just store it so we can do it when the user actually confirms the receipt of the load.
+ * Version history:
+ *  2018-09-11  Salem Hamze  Initial version.
+ */
+validate stack variable not null
+ where name = 'dtlnum'
+|
+validate stack variable not null
+ where name = 'untqty'
+|
+get warehouse id
+|
+publish data
+ where devcod = nvl(@devcod, @@devcod)
+|
+{
+    list usr rf identify load detail information
+     where dtlnum = @dtlnum
+    |
+    publish data
+     where org_untqty = @org_untqty
+       and fr_untqty = @untqty
+}
+|
+{
+    /* Store the changed values in the device context so we can commit it later. */
+    if (int(@fr_untqty) != int(@untqty))
+    {
+        /* If this detail was adjusted before just remove the value. */
+        pop device context value
+         where devcod = @devcod
+           and wh_id = @wh_id
+           and dev_varnam = 'USR_IDENTIFY_LOAD_ADJ_DTL|DTLNUM:' || @dtlnum
+           and value like 'UNTQTY:%' catch(@?)
+        |
+        /* Only add the value if it is not the original value, if it is the original value we don't need to adjust anything. */
+        if (int(@org_untqty) != int(@untqty))
+        {
+            /* Add the value to the device context. */
+            push device context value
+             where devcod = @devcod
+               and wh_id = @wh_id
+               and dev_varnam = 'USR_IDENTIFY_LOAD_ADJ_DTL|DTLNUM:' || @dtlnum
+               and value = 'UNTQTY:' || int(@untqty)
+        }
+    };
+
+    /* Store the changed values in the device context so we can commit it later. */
+    if (@fr_reacod != @reacod)
+    {
+        /* If this detail was adjusted before just remove the value. */
+        pop device context value
+         where devcod = @devcod
+           and wh_id = @wh_id
+           and dev_varnam = 'USR_IDENTIFY_LOAD_ADJ_DTL|DTLNUM:' || @dtlnum
+           and value like 'REACOD:%' catch(@?)
+        |
+        /* Only add the value if it is not the original value, if it is the original value we don't need to adjust anything. */
+        if (@org_reacod != @reacod)
+        {
+            /* Add the value to the device context. */
+            push device context value
+             where devcod = @devcod
+               and wh_id = @wh_id
+               and dev_varnam = 'USR_IDENTIFY_LOAD_ADJ_DTL|DTLNUM:' || @dtlnum
+               and value = 'REACOD:' || @reacod
+        }
+    }
+};
+
+/* Don't return anything becasue we won't do anything with it on the RF. */
+noop
+]]>
+</local-syntax>
+  <argument name="dtlnum" required="yes" datatype="string">dtlnum</argument>
+  <argument name="untqty" required="yes" datatype="string">untqty</argument>
+  <argument name="devcod" datatype="string">devcod</argument>
+</command>

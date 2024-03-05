@@ -1,0 +1,14 @@
+======================================================
+Rollout: USR-RFH-WM.00186.DEV.GFF-CFG-115_LO_DASHBOARD_SPLIT_V07
+Generation timestamp: 2023-10-03 13:28:36
+======================================================
+
+Release Notes:
+
+-V01: add policies and commands for splitted dashbaords To Pick and Picked
+-V02: Adjustment to pick command and removed comments
+-V03: Correction on picked quantity (picks)
+-V04: take earliest late ship date for pallet moves
+-V05: count correctly picked pallet picks grouped by zones
+-V06: fix filters
+-V07: more filter related fixes

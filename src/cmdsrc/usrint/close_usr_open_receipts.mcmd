@@ -1,0 +1,51 @@
+<command>
+  <name>close usr open receipts</name>
+  <description>close usr open receipts </description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* close usr open receipts
+ * Close open receipts and remove outstanding ASN's from the system.
+ * All truck receipts with a modification date/time or last receipt date/time earlier then system date/time - (policy value USR-INTEGRATOR-CLEANUP-ASN) will be automatically closed
+ * Version history:
+ *  2018-11-20  Marco Schouwenaar  Initial version (NAI-S04-11).
+ *  2019-03-01  Marco Schouwenaar Correction on different days on inventory type
+ *  2019-08-05 Marco Schouwenaar Hypercare, commit after close to avoid locking
+ */
+list warehouses
+|
+[select rtnum1 as cleanup_days,
+        rtstr1 as inv_type
+   from poldat_view
+  where wh_id = @wh_id
+    and polcod = 'USR-INTEGRATOR'
+    and polvar = 'CLEANUP'
+    and polval = 'ASN'] catch(-1403)
+|
+if (@? = 0 and @cleanup_days > 1)
+{
+    [select rcvtrk.trknum
+       from rcvtrk,
+            rcvinv
+      where rcvinv.trknum = rcvtrk.trknum
+        and rcvinv.invtyp = @inv_type
+        and nvl(rcvtrk.last_rcpt_conf_dte, rcvtrk.moddte) < sysdate - @cleanup_days
+        and rcvtrk_stat <> 'C'] catch(-1403)
+    |
+    if (@? = 0)
+    {
+        Close Receive Truck
+         where wh_id = @wh_id
+           and trknum = @trknum catch(@?);
+        if (@? = 0)
+        {
+            commit
+        }else
+        {
+            rollback
+        }
+    }
+}
+]]>
+</local-syntax>
+</command>

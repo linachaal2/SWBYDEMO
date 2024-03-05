@@ -1,0 +1,75 @@
+<command>
+  <name>get usr lpn asset type</name>
+  <description>get usr lpn asset type</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* get usr lpn asset type
+ * Find if the scanned value matches any mask and return the asset type 
+ *
+ * Version history:
+ *  2023-04-05  Radina Ivanova     Initial version
+*/
+{
+    [select pv2.rtstr1 asset_typ,
+            pv2.rtstr2 as mask_typ
+       from poldat_view pv2
+      where pv2.wh_id = @wh_id
+        and pv2.polcod = 'USR-RF-FORM'
+        and pv2.polvar = 'ASSET_IDENTIFY'
+        and pv2.polval = 'MASK_ASSET_TYP'
+        and pv2.rtnum1 = 1] catch(-1403)
+    |
+    [select masks.rtstr1 as pol_scan_id_mask,
+            masks.rtstr2 as pol_scan_id_mask_type,
+            masks.rtnum2 as pol_scan_id_mask_dsp_len
+       from poldat_view masks
+      where masks.wh_id = @wh_id
+        and masks.polcod = 'USR-RF-FORM'
+        and masks.polvar = 'USR_IDENTIFY_LOAD'
+        and masks.polval = 'SCAN_ID_MASK'
+        and masks.rtnum1 = 1
+        and masks.rtstr2 = @mask_typ
+      order by masks.srtseq] catch(-1403)
+    |
+    get session variable
+     where name = 'mask_found' catch(-1403)
+    |
+    /* No match yet so try to match the next mask. */
+    if (@? = -1403)
+    {
+        /* The masks support moca variables so translate these first. */
+        execute server command
+         where cmd = 'publish data where pol_scan_mask_id_trans=' || @pol_scan_id_mask
+        |
+        /* Check if the scanned value matches the mask using Groovy, this just returns a boolean true or false. */
+        [[lodnum!= null && pol_scan_mask_id_trans != null && lodnum.matches(pol_scan_mask_id_trans); ]]
+        |
+        if (@result = 1)
+        {
+            /* If we found a match we want to stop and not try to match all the other masks. */
+            save session variable
+             where name = 'mask_found'
+               and value = @asset_typ
+        }
+    }
+} catch(@?)
+|
+get session variable
+ where name = 'mask_found' catch(-1403)
+|
+if (@? != 0)
+{
+    set return status
+     where status = 90004
+}
+else
+{
+    publish data
+     where asset_typ = @value
+       and dvc_var_nam = 'asset_typ,load_attr1_flg'
+       and dvc_ena_flg = '0,0' 
+}
+]]>
+</local-syntax>
+</command>

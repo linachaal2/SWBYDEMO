@@ -1,0 +1,134 @@
+<command>
+  <name>produce lbl compliant document</name>
+  <description>produce lbl compliant document</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* produce lbl compliant document
+ * Temporary fix for issue where subnum is not passed correct and printing of multiple labels. (JDA-GEN-008 / JDA case: 01561355)
+ * Version history:
+ * V01, 2019-08-07  Salem Hamze  Initial version.
+ * 
+ */
+validate stack variable not null
+       where name = 'exitpnt'
+    |
+    validate stack variable not null
+       where name = 'doc_typ'
+    |
+    validate stack variable not null
+       where name = 'data_cmd'
+    |
+    /* Each Document Type May Have Additional Arguments To Attach */
+    list lbl document type arguments
+       where doc_typ = @doc_typ catch(@?) >> res
+    |
+    if (@? = 0)
+    {
+        /* Build Extra Argument Clause Here For Use In Command */
+        build document type argument clause
+            where resultset = @res
+              and doc_typ   = @doc_typ
+        |
+        if (@bld_clause_err_sts = 0)
+        {
+            publish data
+              where doc_typ_arg_clause = @doc_typ_arg_clause
+        }
+        else
+        {
+            /* Error:  Required Argument Is Missing */
+            set return status
+                 where status = 10312
+        }
+    }
+    else
+    {
+        /* No Document Type Arguments Available - Just Continue */
+        publish data
+          where doc_typ_arg_clause = ''
+    }
+    |
+    /* Build the command here and execute via server */
+    publish data
+      where cmd =
+             'hide stack variable '
+          || '     where name = ''data_cmd'' '
+          || '| '
+          || 'hide stack variable '
+          || '    where name = ''prtnum'' '
+          || '| '
+          || @data_cmd
+          || '   where doc_typ = @doc_typ '
+          || '     and exitpnt = @exitpnt '
+          || @doc_typ_arg_clause || ' '
+          || '     and @* catch(-1403) >> cmdRes'
+          || '| '
+          || 'if(rowcount(@cmdRes) > 0) '
+          || '{ '
+          || 'publish data '
+          || '  where docfmt = @docfmt '
+          || '    and doc_typ_cod = @doc_typ_cod '
+          || '    and devsrc = @devsrc '
+          || '| '
+          || 'if (@docfmt != '''' and @printer = '''') '
+          || '{ '
+          || '    get lbl compliant printer '
+          || '      where @* '
+          || '    | '
+          || '    if (@printer is null) '
+          || '    { '
+          || '        set return status '
+          || '            where status = 11572 '
+          || '     } '
+          || '     |'
+          || '     publish data '
+          || '         where docfmt = @docfmt '
+          || '           and doc_typ_cod = @doc_typ_cod '
+          || '           and devsrc = @devsrc '
+          || '           and printer = @printer '
+          || '} '
+          || '|'
+          || 'publish data combination'
+          || '    where cmdRes = @cmdRes '
+          || '|'
+          || 'filter data'
+          || '    where moca_filter_level = 1 '
+          || '      and docfmt = @docfmt '
+          || '      and docqty = @docqty '
+          || '      and doc_typ_cod = @doc_typ_cod '
+          || '      and devsrc = @devsrc '
+          || '      and printer = @printer '
+          || '      and prtnum = @prtnum '
+          || '      and subnum = @subnum '
+          || '} '
+          || 'else '
+          || '{ '
+          ||'    publish data '
+          || '      where docfmt = '''' '
+          || '        and doc_typ_cod = '''' '
+          || '        and devsrc = '''' '
+          || '        and printer = '''' '
+          || '        and prtnum = '''' '
+          || '        and subnum = '''' '
+          || '}'
+    |
+    execute server command
+]]>
+</local-syntax>
+  <argument name="exitpnt" datatype="string">Exit Point</argument>
+  <argument name="doc_typ" datatype="string">Document Type</argument>
+  <argument name="data_cmd" datatype="string">Data Command to Execute</argument>
+  <argument name="docfmt" datatype="string">Document Format</argument>
+  <argument name="doc_typ_cod" datatype="string">Document Type Code</argument>
+  <argument name="devsrc" datatype="string">Device Source</argument>
+  <documentation>
+<remarks></remarks>
+<exception value="eOK">Normal successful completion</exception>
+<exception value="eDB_NO_ROWS_AFFECTED">No rows found</exception>
+<seealso cref="produce lbl compliant documents"></seealso>
+<seealso cref="list lbl document type arguments"></seealso>
+<seealso cref="get lbl compliant printer"></seealso>
+
+</documentation>
+</command>

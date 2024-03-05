@@ -1,0 +1,112 @@
+<command>
+  <name>create receive invoice line</name>
+  <description>create receive invoice line wrapper</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* Wrapper on original create receive invoice line command.
+ * get the actual supnum from the uc_supnum field on the work order header
+ *
+ * Version history:
+ *  2023-03-30 Radina Ivanova    Initial version
+ *  2023-05-08 Marco Schouwenaar Skip return supplier
+ *  2023-05-24 Raoul Scholten    fixed issues with invalid dates
+ *  2023-05-31 Radina Ivanova    moved the publish for the supnum inside the if statement where we need the value
+ */
+if (@supnum!='RET')
+{
+[select uc_supnum supnum_wko
+   from wkohdr
+  where wkonum = @trknum
+    and wkorev = @invnum
+    and client_id = @client_id
+    and wh_id = @wh_id] catch(-1403)
+}
+|
+if (@? = 0)
+{
+    publish data where supnum=nvl(@supnum_wko,@supnum)
+    |
+    /* check if a line for the same criteria was already created */
+    [select rcvkey old_rcvkey
+       from rcvlin
+      where trknum = @trknum
+        and wh_id = @wh_id
+        and supnum = @supnum
+        and client_id = @client_id
+        and invnum = @invnum
+        and invlin = '0001'
+        and invsln = '0000'
+        and rcvsts = @rcvsts
+        and (mandte = to_date(@mandte) or mandte is null and to_date(@mandte) is null)
+        and (expire_dte = to_date(@expire_dte) or expire_dte is null and to_date(@expire_dte) is null)
+        and prtnum = @prtnum
+        and prt_client_id = @prt_client_id
+        and nvl(lotnum, '----') = nvl(@lotnum, '----')
+        and nvl(sup_lotnum, '----') = nvl(@sup_lotnum, '----')
+        and nvl(revlvl, '----') = nvl(@revlvl, '----')
+        and nvl(orgcod, '----') = nvl(@orgcod, '----')
+        and @+inv_attr_str1
+        and @+inv_attr_str2
+        and @+inv_attr_str3
+        and @+inv_attr_str4
+        and @+inv_attr_str5
+        and @+inv_attr_str6
+        and @+inv_attr_str7
+        and @+inv_attr_str8
+        and @+inv_attr_str9
+        and @+inv_attr_str10
+        and @+inv_attr_str11
+        and @+inv_attr_str12
+        and @+inv_attr_str13
+        and @+inv_attr_str14
+        and @+inv_attr_str15
+        and @+inv_attr_str16
+        and @+inv_attr_str17
+        and @+inv_attr_str18
+        and @+inv_attr_int1
+        and @+inv_attr_int2
+        and @+inv_attr_int3
+        and @+inv_attr_int4
+        and @+inv_attr_int5
+        and @+inv_attr_flt1
+        and @+inv_attr_flt2
+        and @+inv_attr_flt3
+		and (inv_attr_dte1 = to_date(@inv_attr_dte1) or inv_attr_dte1 is null and to_date(@inv_attr_dte1) is null)
+	    and (inv_attr_dte2 = to_date(@inv_attr_dte2) or inv_attr_dte2 is null and to_date(@inv_attr_dte2) is null)] catch(-1403)
+    |
+    if (@? = 0)
+    {
+        [update rcvlin
+            set rcvkey = @rcvkey
+          where rcvkey = @old_rcvkey]
+        |
+        [update invdtl
+            set rcvkey = @rcvkey
+          where rcvkey = @old_rcvkey]
+        |
+        [select *
+           from rcvlin
+          where rcvkey = @rcvkey]
+    }
+    else
+    {
+        [select nvl(max(seqnum), 0) + 1 seqnum
+           from rcvlin
+          where trknum = @trknum
+            and wh_id = @wh_id
+            and supnum = @supnum
+            and client_id = @client_id
+            and invnum = @invnum]
+        |
+        ^create receive invoice line
+    }
+}
+else
+{
+    ^create receive invoice line
+}
+
+]]>
+</local-syntax>
+</command>

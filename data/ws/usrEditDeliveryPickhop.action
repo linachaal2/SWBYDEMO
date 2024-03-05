@@ -1,0 +1,23 @@
+<action>
+  <id>usrEditDeliveryPickhop</id>
+  <name>usrEditDeliveryPickhop</name>
+  <description>Edit Delivery Pickhop</description>
+  <type>EDIT</type>
+  <ws>
+     <method>PUT</method>
+	 <href>usrEditDeliveryPickhop/{pk}</href>
+  </ws>
+  <impl>
+     <command>change usr delivery pickhop</command>
+     <arguments>
+        <argument name="uc_delivery_id" type="int" required="true" location="path" />
+        <argument name="dst_mov_zone_id" type="int" required="true" location="path" />
+        <argument name="seqnum" type="int" required="true" location="path" />
+        <argument name="stoloc" type="string" required="true" />
+     </arguments>
+  </impl>
+  <auth>
+     <opt>optOpen</opt>
+  </auth>
+  <primary>true</primary>
+</action>

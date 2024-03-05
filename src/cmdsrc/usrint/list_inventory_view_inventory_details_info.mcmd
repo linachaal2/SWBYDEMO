@@ -1,0 +1,728 @@
+<command>
+
+<name>list inventory view inventory details info</name>
+
+<description>
+   Get Inventory Details like the part master details, location master details
+   Inventory load, sub and details for the Inventory Display
+</description>
+
+<api-level>Protected</api-level>
+<type>Local Syntax</type>
+
+<local-syntax>
+<![CDATA[
+/* Overrule on command list inventory view inventory details info
+ * RFH uses specific suppliers as the stock is produced like that.
+ * removed default supplier on retrieve command for produced items (produced_clause ) but excluded RET supplier to exclude returns
+ *
+ * 2023-10-23 Radina Ivanova Initial version
+ */
+
+	validate stack variable not null
+        where name = 'loadnumbers'
+    |
+	publish data
+      where filterByClause = nvl(@filterByClause,  [1=1])
+        and inv_identifier_clause = nvl(@inv_identifier_clause, [1=1])
+        and locale = nvl(@locale_id, @@locale_id)		
+    |
+
+    /** If only showing inventory within the four walls, add that restriction */
+    if(@showFourWallOnly = 1) {
+        publish data where fourWallRestriction = 'and loc_typ.fwiflg = 1'
+    }
+    else {
+        publish data where fourWallRestriction = ''
+    }
+    |
+    if(@gridTitle and @gridTitle = 'inventorymassupdate') {
+        publish data where invMassRestriction = ' and (loc_typ.fwiflg = 1
+                                                     or loc_typ.expflg = 1
+                                                     or loc_typ.shpflg = 1
+                                                     or loc_typ.wip_expflg = 1
+                                                     or loc_typ.wipflg = 1) '
+    }
+    else {
+        publish data where invMassRestriction = ''
+    } 
+	|
+    if(!@notToValidateThreePL#onstack) {
+        /* client_id on stack is not prt_client_id but gets implicitly passed to the command.
+        ** If prt_client_id is not on stack, return parts for all clients.
+        */
+	   get client in clause for user
+         where usr_id = nvl(@usr_id,@@usr_id)
+            and @+wh_id
+            and table_prefix = 'all_inventory_view'
+            and prt_client_id_flg = 1
+            and client_id = nvl(@prt_client_id, '')
+    }
+    else {
+        publish data where client_in_clause = '1=1'
+    }	
+	|
+	sl_replace string
+		 where str = @filterByJoins
+		   and look_for = '@client_in_clause:raw'
+		   and repl_with = @client_in_clause
+	|
+	publish data where filterByJoins = @o_value
+	|
+	sl_replace string
+		 where str = @filterByJoins
+		   and look_for = '@locale_id_value'
+		   and repl_with = nvl(@locale_id,@@locale_id)
+	|
+	publish data where filterByJoins = @o_value
+	|
+	/* Required for Pick List to narrow down search */
+	if(@pcklst.asset_typ) {
+			publish data where pcklstAssetTypCond = ' and pcklst.asset_typ = ' || @pcklst.asset_typ
+		} 
+		else {
+			publish data where pcklstAssetTypCond = ''''''
+	}		
+	|
+	sl_replace string
+		 where str = @filterByJoins
+		   and look_for = '@pcklstAssetTypCond'
+		   and repl_with = @pcklstAssetTypCond
+	|
+	publish data where filterByJoins = @o_value
+	|
+    /**
+     * If looking for holds, restrict where we look. Note that the four-walls
+     * restiction is more restrictive and so we do not set it if that is
+     * already present.
+     */
+    if (@hld_flg = 1 and @fourWallRestriction = '') {
+        publish data where holdFlagRestriction = ' and (loc_typ.fwiflg = 1
+                                                    or (loc_typ.fwiflg =0 and loc_typ.expflg = 1)) '
+    }
+    else{
+        publish data where holdFlagRestriction = ''
+    }
+    |   
+
+    /*
+     * If hldnum is provided as a stack argument, provide the necessary joins and where clause to allow filtering
+     */
+    if (@hldnum#onstack) {
+        publish data where holdJoin = ' join (select distinct ih.dtlnum,
+                                                                   ih.hldnum
+                                        from hldmst xh
+                                        left join invhld ih
+                                          on xh.hldnum = ih.hldnum
+                                         and xh.hldpfx = ih.hldpfx
+                                         and xh.wh_id  = ih.wh_id
+                                       where ih.hldnum = ''' || @hldnum || ''') hold
+                                          on hold.dtlnum = all_inventory_view.dtlnum '
+                        and holdWhere = ' hold.hldnum = ''' || @hldnum || ''''                       
+    }
+    else {
+        publish data where holdJoin = ''
+                       and holdWhere = ' 1 = 1 '
+    }
+    |
+
+
+    /*
+     * If ship_id, client_id, or ordnum is provided as a stack argument, provide the necessary joins and where clause to allow stack filtering
+     */
+    if (@ship_id#onstack or @client_id#onstack or @ordnum#onstack) {
+        /*
+         * A client ID could be linked to the inventory in other ways, so
+         * his may be an outer join.
+         */
+        if (@client_id#onstack) {
+            publish data where clientJoinWhere = ' (shipment_line.client_id = ''' || @client_id || ''' or shipment_line.client_id is null)'
+                           and shipJoinType = ' left'
+        }
+        else {
+            publish data where clientJoinWhere = ' 1 = 1 '
+                           and shipJoinType = ''
+        }
+        |
+        if (@ship_id#onstack) {
+            publish data where shipJoinWhere = ' (shipment_line.ship_id = ''' || @ship_id || ''')'
+                           and shipJoinType = ''
+        }
+        else {
+            publish data where shipJoinWhere = ' 1 = 1 '
+        }
+        |
+        if (@ordnum#onstack) {
+            publish data where ordNumJoinWhere = ' (shipment_line.ordnum = ''' || @ordnum || ''')'
+                           and shipJoinType = ''
+        }
+        else {
+            publish data where ordNumJoinWhere = ' 1 = 1 '
+        }
+        |
+
+        /*
+         * Create a join to restrict the output as required. This is an
+         * outer join because a client ID could be linked to the inventory
+         * in other ways.
+         */
+        publish data where shipJoin = @shipJoinType || ' join (select ship_line_id
+                                        from shipment_line
+                                       where ' || @shipJoinWhere || '
+                                         and ' || @clientJoinWhere || '
+                                         and ' || @ordNumJoinWhere || ') ship
+                                          on ship.ship_line_id = all_inventory_view.ship_line_id '
+    }
+    else {
+
+        /** No restriction by ship_id, client_id nor ordnum, so no join required */
+        publish data where shipJoin = ''
+    }
+    |
+
+
+    /*
+     * If car_move_id is provided as a stack argument, provide the necessary joins and where clause to allow filtering
+     */
+    if (@car_move_id#onstack) {
+        publish data where carMoveJoin = ' join (select ship_line_id
+                                        from shipment_line
+                                        join shipment
+                                          on shipment_line.ship_id = shipment.ship_id
+                                        join stop
+                                          on shipment.stop_id = stop.stop_id
+                                       where stop.car_move_id = ''' || @car_move_id || ''') cmove
+                                          on cmove.ship_line_id = all_inventory_view.ship_line_id '
+    }
+    else {
+        publish data where carMoveJoin = ''
+    }
+    |
+
+
+    /* wko_picked and wko_produced  will be sent as 1 for WO picked and
+     * Produced child lpn records
+     */
+     if (@wko_picked = 1 and @wko_produced = 1 and @wkonum) {
+         publish data where pickinv_clause = '(wkopickedinfo.wkonum =''' || @wkonum ||'''
+                                                 or rcvlin.trknum =''' || @wkonum ||''')'
+					 and workOrderJoin = ' left join (select wrkref,
+																wkonum,
+																wkorev,
+																client_id
+														   from pckwrk_dtl
+													   group by wrkref,
+																wkonum,
+																wkorev,
+																client_id) wkopickedinfo
+													 on wkopickedinfo.wrkref = all_inventory_view.wrkref'
+     }
+     else {
+         /* wko_picked = 1  for WO - Picked inventory details */
+         if (@wko_picked = 1 and !@wko_produced) {
+             publish data where pickclause = ' wkopickedinfo.wrkref is not null
+                                                and wkopickedinfo.wkonum =''' || @wkonum ||'''
+                                                and wkopickedinfo.wkorev =''' || @wkorev ||'''
+                                                 and (wkopickedinfo.client_id is null or wkopickedinfo.client_id =''' || nvl(@wko_clientid, @client_id) ||''')'
+         }
+         /* wko_produced = 1  for WO - Produced inventory details */
+         else if(@wko_produced = 1 and !@wko_picked) {
+              get cached policy
+                     where polcod = 'WORK-ORDER-PROCESSING'
+                      and polvar = 'MISCELLANEOUS'
+                      and polval = 'CREATE-INV-DEFAULTS'
+                      and wh_id = nvl(@wh_id,@@wh_id)
+             |
+             publish data where produced_clause = 'rcvlin.supnum != ''RET''
+                                                  and rcvlin.trknum is not null
+                                                  and rcvlin.trknum =''' || @wkonum ||'''
+                                                  and rcvlin.invnum =''' || @wkorev ||'''
+                                                    and rcvlin.client_id =''' || nvl(@wko_clientid, @client_id) ||''''
+         }
+     }
+	 |
+     if (@wko_picked = 1 and !@wko_produced) {
+		publish data where workOrderJoin = ' left join (select wrkref,
+																wkonum,
+																wkorev,
+																client_id
+														   from pckwrk_dtl
+													   group by wrkref,
+																wkonum,
+																wkorev,
+																client_id) wkopickedinfo
+												on wkopickedinfo.wrkref = all_inventory_view.wrkref
+												and ' || @pickclause
+	 }
+     |
+     publish data where pickinv_clause = nvl(nvl(@pickclause, @pickinv_clause), '1 = 1')
+                    and producedinv_clause = nvl(@produced_clause, '1 = 1')
+					and workOrderJoin = nvl(@workOrderJoin, '')
+    |
+    if (@filterByClause like ('%cat_qty_cap.oot_flg%')) {
+        publish data where filterByClause = @filterByClause || " and all_inventory_view.catch_qty > 0 "
+    }
+    |
+	if (@filterByClause like ('%cntzon.%' )) {
+		publish data where cntzon_cod_select = "cntzon.cnt_zone_cod,"	
+	} 
+	else { 
+		publish data where cntzon_cod_select = " null cnt_zone_cod,"	
+	}
+	|
+	if (@filterByClause like ('%alt_prtmst.%' )) {
+		publish data where alt_prtmst_select = "alt_prtmst.alt_prtnum,"	
+	} 
+	else { 
+		publish data where alt_prtmst_select = " null alt_prtnum,"	
+	}
+	|
+	if (@filterByClause like ('%pck_zone.%' )) {
+		publish data where pck_zone_select = "pck_zone.pck_zone_cod,"	
+	} 
+	else { 
+		publish data where pck_zone_select = " null pck_zone_cod,"	
+	}
+	|
+	if (@filterByClause like ('%prthrcy_lvl.%' )) {
+
+	 publish data where prthrcy_lvl_select = 'prthrcy_lvl.hrcy_level1,
+								prthrcy_lvl.hrcy_level2,
+								prthrcy_lvl.hrcy_level3,
+								prthrcy_lvl.hrcy_level4,
+								prthrcy_lvl.hrcy_level5,
+								prthrcy_lvl.hrcy_level6,
+								prthrcy_lvl.hrcy_level7,'
+	} 
+	else { 
+		publish data where prthrcy_lvl_select = 'null hrcy_level1,
+									null hrcy_level2,
+									null hrcy_level3,
+									null hrcy_level4,
+									null hrcy_level5,
+									null hrcy_level6,
+									null hrcy_level7,'	
+	}
+	|	
+    publish data where serialInfoJoin = 'left join (/*#nobind*/select dtlnum,
+                                                                      ser_num,
+                                                                      ser_num_typ_id
+                                                                 from invsub
+                                                                 join invdtl
+                                                                   on invsub.subnum = invdtl.subnum
+                                                                 join inv_ser_num
+                                                                   on inv_ser_num.ser_lvl = ''L''
+                                                                  and invsub.lodnum = inv_ser_num.invtid
+                                                                union
+                                                               select dtlnum,
+                                                                      ser_num,
+                                                                      ser_num_typ_id
+                                                                 from invdtl
+                                                                 join inv_ser_num
+                                                                   on inv_ser_num.ser_lvl = ''S''
+                                                                  and invdtl.subnum = inv_ser_num.invtid
+                                                                union
+                                                               select dtlnum,
+                                                                      ser_num,
+                                                                      ser_num_typ_id
+                                                                 from invdtl
+                                                                 join inv_ser_num
+                                                                   on inv_ser_num.ser_lvl = ''D''
+                                                                  and invdtl.dtlnum = inv_ser_num.invtid/*#bind*/) inv_ser_num
+                                           on all_inventory_view.dtlnum = inv_ser_num.dtlnum 
+                                        left join ser_num_typ
+                                           on ser_num_typ.ser_num_typ_id = inv_ser_num.ser_num_typ_id'
+	|
+    if(@stoloc)
+    {
+      [select stoloc from trlr
+        where trlr.yard_loc = @stoloc
+          and trlr.yard_loc_wh_id = @wh_id
+          and rownum < /*#nobind*/ 2 /*#bind*/] catch(-1403)
+    }
+    |
+[
+    /*#limit=@offset,@limit,true*/
+	select distinct 
+			-1 inv_hist_id,
+			aremst.arecod,
+            aremst.bldg_id,         
+            all_inventory_view.age_pflnam,
+            all_inventory_view.asnflg,
+            all_inventory_view.bill_through_dte,
+            to_char(all_inventory_view.bill_through_dte,'MM/DD/YYYY HH24:MI:SS') bill_through_date,
+            nvl(all_inventory_view.catch_qty, 0) catch_qty,
+            nvl(all_inventory_view.rcv_catch_qty, 0) rcv_catch_qty,
+            all_inventory_view.cmpkey,
+            all_inventory_view.cnsg_flg,
+            all_inventory_view.cstms_bond_flg,
+            all_inventory_view.cstms_cmmdty_cod,
+            all_inventory_view.cstms_cnsgnmnt_id,
+            all_inventory_view.cstms_crncy,
+            all_inventory_view.cstms_cst,
+            all_inventory_view.cstms_typ,
+            all_inventory_view.cstms_vat_cod,
+            all_inventory_view.distro_flg,
+            all_inventory_view.dtlnum,
+			all_inventory_view.dtlnum pk_dtlnum, /* This is used for the PK for Structured Inventory */
+            all_inventory_view.dty_stmp_flg,
+            all_inventory_view.dty_stmp_trk_flg,
+            all_inventory_view.expire_dte,
+            to_char(all_inventory_view.expire_dte,'MM/DD/YYYY HH24:MI:SS') expire_date,
+            all_inventory_view.fifdte,
+            to_char(all_inventory_view.fifdte,'MM/DD/YYYY HH24:MI:SS') fifdate,
+            all_inventory_view.ftpcod,
+            all_inventory_view.hld_flg,
+            all_inventory_view.inv_attr_dte1,
+            all_inventory_view.inv_attr_dte2,
+            to_char(all_inventory_view.inv_attr_dte1,'MM/DD/YYYY HH24:MI:SS') inv_attr_date1,
+            to_char(all_inventory_view.inv_attr_dte2,'MM/DD/YYYY HH24:MI:SS') inv_attr_date2,
+            all_inventory_view.inv_attr_flt1,
+            all_inventory_view.inv_attr_flt2,
+            all_inventory_view.inv_attr_flt3,
+            all_inventory_view.inv_attr_int1,
+            all_inventory_view.inv_attr_int2,
+            all_inventory_view.inv_attr_int3,
+            all_inventory_view.inv_attr_int4,
+            all_inventory_view.inv_attr_int5,
+            all_inventory_view.inv_attr_str1,
+            all_inventory_view.inv_attr_str10,
+            all_inventory_view.inv_attr_str11,
+            all_inventory_view.inv_attr_str12,
+            all_inventory_view.inv_attr_str13,
+            all_inventory_view.inv_attr_str14,
+            all_inventory_view.inv_attr_str15,
+            all_inventory_view.inv_attr_str16,
+            all_inventory_view.inv_attr_str17,
+            all_inventory_view.inv_attr_str18,
+            all_inventory_view.inv_attr_str2,
+            all_inventory_view.inv_attr_str3,
+            all_inventory_view.inv_attr_str4,
+            all_inventory_view.inv_attr_str5,
+            all_inventory_view.inv_attr_str6,
+            all_inventory_view.inv_attr_str7,
+            all_inventory_view.inv_attr_str8,
+            all_inventory_view.inv_attr_str9,
+            all_inventory_view.invsts,
+            all_inventory_view.lotnum,
+            all_inventory_view.mandte,
+            to_char(all_inventory_view.mandte,'MM/DD/YYYY HH24:MI:SS') mandate,
+            all_inventory_view.orgcod,
+            all_inventory_view.phdflg,
+            all_inventory_view.prt_client_id,
+            all_inventory_view.prtnum,
+            all_inventory_view.rcvdte,
+            to_char(all_inventory_view.rcvdte,'MM/DD/YYYY HH24:MI:SS') rcvdate,
+            all_inventory_view.rcvkey,
+            all_inventory_view.revlvl,
+            all_inventory_view.rttn_id,
+            all_inventory_view.ship_line_id,
+            all_inventory_view.sup_lotnum,
+            all_inventory_view.supnum,
+            all_inventory_view.untcas,
+            all_inventory_view.untpak,
+            all_inventory_view.untqty,
+            all_inventory_view.wrkref,
+            all_inventory_view.wrkref_dtl,
+            all_inventory_view.pck_sub_flg,
+            decode(all_inventory_view.ship_line_id, null, 0, 1) picked_flg,
+            round(moca_util.date_diff_days(sysdate, all_inventory_view.expire_dte)) days_to_expire,
+
+            case when nvl(to_char(all_inventory_view.lstmov), ' ') > nvl(to_char(all_inventory_view.lstmov), ' ')
+                   then (case when nvl(to_char(all_inventory_view.lstmov), ' ') > nvl(to_char(all_inventory_view.lstmov), ' ')
+                               then all_inventory_view.lstmov
+                               else (case when nvl(to_char(all_inventory_view.lstmov), ' ') > nvl(to_char(all_inventory_view.lstmov), ' ')
+                                           then all_inventory_view.lstmov
+                                           else all_inventory_view.lstmov
+                                   end)
+                           end)
+                   else (case when nvl(to_char(all_inventory_view.lstmov), ' ') > nvl(to_char(all_inventory_view.lstmov), ' ')
+                               then all_inventory_view.lstmov
+                               else (case when nvl(to_char(all_inventory_view.lstmov), ' ') > nvl(to_char(all_inventory_view.lstmov), ' ')
+                                           then all_inventory_view.lstmov
+                                       else all_inventory_view.lstmov
+                                   end)
+                         end)
+            end lstmov,     
+            null dtl_deliv_date,
+            '' dtl_reacod_dsc,
+            null dtl_last_upd_dt,
+            '' dtl_last_upd_user_id,
+            case when nvl(to_char(all_inventory_view.lstdte), ' ') > nvl(to_char(all_inventory_view.lstdte), ' ')
+                   then (case when nvl(to_char(all_inventory_view.lstdte), ' ') > nvl(to_char(all_inventory_view.lstdte), ' ')
+                                then all_inventory_view.lstdte
+                              else (case when nvl(to_char(all_inventory_view.lstdte), ' ') > nvl(to_char(all_inventory_view.lstdte), ' ')
+                                           then all_inventory_view.lstdte
+                                         else all_inventory_view.lstdte
+                                    end)
+                         end)
+                 else (case when nvl(to_char(all_inventory_view.lstdte), ' ') > nvl(to_char(all_inventory_view.lstdte), ' ')
+                              then all_inventory_view.lstdte
+                            else (case when nvl(to_char(all_inventory_view.lstdte), ' ') > nvl(to_char(all_inventory_view.lstdte), ' ')
+                                         then all_inventory_view.lstdte
+                                       else all_inventory_view.lstdte
+                                  end)
+                       end)
+            end lstdte,
+            all_inventory_view.adddte,
+            to_char(all_inventory_view.adddte,'MM/DD/YYYY HH24:MI:SS') adddate,
+            all_inventory_view.asset_typ,
+            all_inventory_view.avg_unt_catch_qty,
+            all_inventory_view.load_attr1_flg,
+            all_inventory_view.load_attr2_flg,
+            all_inventory_view.load_attr3_flg,
+            all_inventory_view.load_attr4_flg,
+            all_inventory_view.load_attr5_flg,
+            all_inventory_view.lodnum,
+			all_inventory_view.lodnum pk_lodnum, /* This is used for the PK for Structured Inventory */
+            all_inventory_view.lodtag,
+            all_inventory_view.loducc,         
+			all_inventory_view.wh_id,
+			null load_deliv_date,
+            '' load_reacod_dsc,
+            null load_last_upd_dt,
+            '' load_last_upd_user_id,
+            null sub_deliv_date,
+            '' sub_reacod_dsc,
+            null sub_last_upd_dt,
+            '' sub_last_upd_user_id,
+            all_inventory_view.sub_asset_typ,
+            all_inventory_view.ctnflg,
+            all_inventory_view.phyflg,
+            all_inventory_view.subnum,
+			all_inventory_view.subnum pk_subnum, /* This is used for the PK for Structured Inventory */
+            all_inventory_view.subtag,
+            all_inventory_view.subucc, 
+            loc_type.loc_typ,
+            loc_type.stgflg,
+            loc_type.fwiflg,
+            locmst.cipflg,
+            locmst.pckflg,           
+            locmst.useflg,			
+			locmst.locsts,         				
+            prtftp_dtl.uomcod casuom,
+            prtdsc.lngdsc,
+			prtmst_view.prtcolor,
+            prtmst_view.prtfam,
+            prtmst_view.prt_class_name,
+            prtmst_view.prtfit,
+            prtmst_view.prtsize,
+            prtmst_view.prtstyle,
+            prtmst_view.catch_unttyp,
+            prtmst_view.cstms_itm_typ,
+            prtmst_view.dflt_orgcod,
+            prtmst_view.dsp_prtnum,
+            prtmst_view.hazmat_flg,
+            prtmst_view.lodlvl,
+            prtmst_view.ser_lvl,
+            prtmst_view.ser_typ,
+            prtmst_view.stkuom,
+            prtmst_view.dte_code,
+            decode(prtmst_view.prtadjflg, null, 0, 1) prtadjflg,
+			
+			@cntzon_cod_select:raw 
+			@alt_prtmst_select:raw
+			@pck_zone_select:raw
+			@prthrcy_lvl_select:raw
+
+            rcvlin.trknum, 
+            rcvlin.invlin, 
+            rcvinv.po_num, 
+            rcvinv.invtyp,         		
+
+            all_inventory_view.completed_receiving_date,
+			are_dsc.lngdsc area_dsc,
+			inv_ser_num.ser_num,
+			inv_ser_num.ser_num_typ_id,
+			decode(inv_ser_num.ser_num, null, 0, 1) serialized,
+			ser_num_typ.srtseq ser_num_typ_seq		
+      
+	  from all_inventory_view	  
+	  join locmst
+         on all_inventory_view.stoloc = locmst.stoloc
+        and all_inventory_view.wh_id = locmst.wh_id		
+		
+	   join aremst
+         on aremst.wh_id  = locmst.wh_id
+        and aremst.arecod = locmst.arecod		
+	   join dscmst are_dsc
+         on aremst.arecod || '|' || aremst.wh_id = are_dsc.colval 
+         and are_dsc.colnam = 'arecod|wh_id' 
+         and are_dsc.locale_id = @locale		
+       join ( select loc_typ_id,
+                     wipflg,
+                     fwiflg,
+                     loc_typ,
+                     expflg,
+                     shpflg,
+                     wip_expflg,
+                     stgflg
+                from loc_typ
+                where                
+				    @+stgflg          
+					@fourWallRestriction:raw
+				    @holdFlagRestriction:raw
+					@invMassRestriction:raw					    
+            ) loc_type
+         on loc_type.loc_typ_id = locmst.loc_typ_id
+	
+       join prtmst_view
+         on all_inventory_view.prtnum = prtmst_view.prtnum
+        and locmst.wh_id = prtmst_view.wh_id
+        and prtmst_view.prt_client_id = all_inventory_view.prt_client_id
+       join prtdsc
+         on prtdsc.colnam = 'prtnum|prt_client_id|wh_id_tmpl'
+        and prtdsc.colval = /*=varchar(*/prtmst_view.prtnum||'|'||prtmst_view.prt_client_id||'|'||prtmst_view.wh_id_tmpl /*=)*/
+        and prtdsc.locale_id = @locale
+
+		join prtftp_dtl
+			on prtmst_view.prtnum = prtftp_dtl.prtnum
+			and prtmst_view.wh_id = prtftp_dtl.wh_id
+			and prtmst_view.prt_client_id = prtftp_dtl.prt_client_id
+			and all_inventory_view.ftpcod = prtftp_dtl.ftpcod
+	
+
+		
+        
+		-- hold join for hold LPNs
+            @holdJoin:raw
+		-- shipment join for shipment-related LPNs
+            @shipJoin:raw
+        -- carrier move join for carrier move-related LPNs
+            @carMoveJoin:raw		 
+			
+		-- Dynamic Joins for Filter 
+			@filterByJoins:raw	
+		
+		-- start of dynamic joins for filters			
+			
+			@workOrderJoin:raw
+			@serialInfoJoin:raw	
+			
+            left join rcvlin 
+              on rcvlin.rcvkey = all_inventory_view.rcvkey
+            left join rcvinv 
+              on rcvlin.wh_id = rcvinv.wh_id 
+             and rcvlin.trknum = rcvinv.trknum 
+             and rcvlin.invnum = rcvinv.invnum 
+             and rcvlin.supnum = rcvinv.supnum 
+             and rcvlin.client_id = rcvinv.client_id
+		 
+		  	where prtftp_dtl.cas_flg = 1		
+                and all_inventory_view.prtnum != 'RETURNPART'
+				and all_inventory_view.inv_hist_id = -1
+                and @+all_inventory_view.prtnum
+                and @+all_inventory_view.prt_client_id
+                and @+aremst.arecod
+                and @+aremst.bldg_id
+                and @+all_inventory_view.adddte:date
+                and @+all_inventory_view.age_pflnam
+                and @+all_inventory_view.dtlnum
+                and @+all_inventory_view.expire_dte:date
+                and @+all_inventory_view.fifdte:date
+                and @+all_inventory_view.ftpcod
+                and @+all_inventory_view.inv_attr_dte1
+                and @+all_inventory_view.inv_attr_dte2
+                and @+all_inventory_view.inv_attr_flt1
+                and @+all_inventory_view.inv_attr_flt2
+                and @+all_inventory_view.inv_attr_flt3
+                and @+all_inventory_view.inv_attr_int1
+                and @+all_inventory_view.inv_attr_int2
+                and @+all_inventory_view.inv_attr_int3
+                and @+all_inventory_view.inv_attr_int4
+                and @+all_inventory_view.inv_attr_int5
+                and @+all_inventory_view.inv_attr_str1
+                and @+all_inventory_view.inv_attr_str10
+                and @+all_inventory_view.inv_attr_str11
+                and @+all_inventory_view.inv_attr_str12
+                and @+all_inventory_view.inv_attr_str13
+                and @+all_inventory_view.inv_attr_str14
+                and @+all_inventory_view.inv_attr_str15
+                and @+all_inventory_view.inv_attr_str16
+                and @+all_inventory_view.inv_attr_str17
+                and @+all_inventory_view.inv_attr_str18
+                and @+all_inventory_view.inv_attr_str2
+                and @+all_inventory_view.inv_attr_str3
+                and @+all_inventory_view.inv_attr_str4
+                and @+all_inventory_view.inv_attr_str5
+                and @+all_inventory_view.inv_attr_str6
+                and @+all_inventory_view.inv_attr_str7
+                and @+all_inventory_view.inv_attr_str8
+                and @+all_inventory_view.inv_attr_str9
+                and @+all_inventory_view.invsts
+                and @+all_inventory_view.lotnum
+                and @+all_inventory_view.lstdte:date
+                and @+all_inventory_view.mandte:date
+                and @+all_inventory_view.orgcod
+                and @+all_inventory_view.prt_client_id
+                and @+all_inventory_view.prtnum
+                and @+all_inventory_view.revlvl
+                and @+all_inventory_view.sup_lotnum
+                and @+pcklst.asset_typ
+                and @+pcklst_slot_load.lodnum^trolley_lodnum
+                and @+trolley_asset_link.asset_id
+                and @+all_inventory_view.supnum
+                and @+all_inventory_view.untqty
+                and @+all_inventory_view.adddte:date
+                and @+all_inventory_view.asset_typ
+                and @+all_inventory_view.lodnum
+                and @+all_inventory_view.lstdte:date
+                and @+all_inventory_view.uccdte:date
+                and @+all_inventory_view.wh_id
+                and @+inv_ser_num.ser_num
+                and @+all_inventory_view.adddte:date
+                and @+all_inventory_view.asset_typ^sub_asset_typ
+                and @+all_inventory_view.lstdte:date
+                and @+all_inventory_view.subnum
+                and @+all_inventory_view.uccdte:date
+                and @+loc_type.fwiflg
+                and @+locmst.abccod
+                and @+locmst.cntdte:date
+                and @+locmst.lstdte:date
+                and @+locmst.stoloc
+                and @+locmst.stoloc^trlr_id
+                and @+locmst.velzon
+                and @+locmst.wh_id
+                and @+prtmst_view.ser_typ
+                and @+rcvlin.rcvkey
+                and @+rcvlin.trknum
+                and @+rcvlin.invlin
+                and @+rcvlin.invnum
+                and @+rcvlin.invsln
+                and @inv_identifier_clause:raw
+                and @client_in_clause:raw
+                and @producedinv_clause:raw
+                and @pickinv_clause:raw
+                and @holdWhere:raw
+                and @+cat_qty_cap.oot_flg	
+                and @filterByClause:raw	
+				and @loadnumbers:raw
+				
+     
+		order by all_inventory_view.lodnum,
+				 all_inventory_view.subnum,
+				 all_inventory_view.dtlnum
+]			
+]]>
+</local-syntax>
+
+<documentation>
+
+<argument name="loadnumbers" datatype="string" required="true">Inventory LoadNumbers identifier</argument>
+
+<remarks>
+<![CDATA[
+  <p>
+    This Command is used to get most of the Inventory Details given
+	a list of LPN numbers. This command is used to get Inventory Details
+	for each LPN provided 
+	This is used for the Live Inventory Details
+  </p>
+]]>
+</remarks>
+
+<exception value="eOK">Normal successful completion</exception>
+
+</documentation>
+
+</command>

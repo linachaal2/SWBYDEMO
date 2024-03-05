@@ -1,0 +1,17 @@
+======================================================
+Rollout: USR-RFH-WM.00189.DEV.GFF-CFG-122_ADD_HU_TYPES_FOR_PICKING_V02
+Generation timestamp: 2023-10-16 11:51:20
+======================================================
+
+Release Notes:
+
+-V01: New Handling types conform given values
+-V01: New pick rules Aalsmeer based on current situation
+-V01: New pick rules Naaldwijk based on current situation
+-V01: New pick rules Rijnsburg based on current situation
+-V01: New pick rules Eelde based on current situation
+-V01: Shorten Mobile messages to avoid error on mobile app
+-V01: Policies to convert assets to correct assets and auto release new picklist rules
+-V01: Missing exit point workflow
+-V01: Additional check on production asset
+-V02: Missing policy in rollout to check barcode of new assets

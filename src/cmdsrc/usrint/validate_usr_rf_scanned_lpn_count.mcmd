@@ -1,0 +1,44 @@
+<command>
+  <name>validate usr rf scanned lpn count</name>
+  <description>Validates the number of LPNs at the location scanned by RF device along with the number of LPNs already on the device against the equipment limit. </description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* User command to validate the LPNs scan against the equipment limit.
+ *
+ * Version history:
+ * 2020-04-07  Shailesh Raina     Initial version.
+ */
+validate stack variable not null
+ where name = 'scn_loc'
+|
+get warehouse id
+|
+publish data
+ where devcod = nvl(@devcod, @@devcod)
+|
+[select vt.veh_lod_limit limit
+   from vehtyp vt
+   join rftmst rm
+     on vt.vehtyp_id = rm.vehtyp
+   join rf_term_mst rtm
+     on rtm.devcod = rm.devcod
+  where rm.devcod = @devcod]
+|
+get usr rf scanned lpn count
+ where devcod = @devcod
+   and wh_id = @wh_id
+|
+[select count(distinct lodnum) lpns_on_loc
+   from inventory_view
+  where stoloc = @scn_loc]
+ |
+ if (@scanned_lpn_cnt + @lpns_on_loc > @limit)
+ {
+     /* ERROR: Exceeds equipment limit. */
+     set return status
+      where status = 90024
+ }
+]]>
+</local-syntax>
+</command>

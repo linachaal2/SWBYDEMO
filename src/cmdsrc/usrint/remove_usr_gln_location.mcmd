@@ -1,0 +1,54 @@
+<command>
+  <name>remove usr gln location</name>
+  <description>remove usr gln location</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* remove usr gln location
+ *
+ * Version history:
+ *  2021-04-05  Radina Ivanova - Initial version
+ *  2022-02-18	Raoul Scholten - Adjusted command due to changing primary key usr_delivery_gln table
+ *  2022-02-18	Raoul Scholten - Whenever removing the usr_gln_location remove the children in the usr_delivery_gln table as well
+ */
+    publish data where wh_id = nvl(@wh_id, @@wh_id)
+    |
+    if (@wh_id = '')
+    {
+        [select wh_id
+           from wh]
+    }
+    |
+    [select stoloc
+       from usr_gln_location
+      where gln = @gln
+        and wh_id = @wh_id]
+    |
+	[select count(0) as loc_exists
+		from usr_gln_location
+		where stoloc = @stoloc
+		and wh_id = @wh_id] catch(-1403)
+	|
+	if (@loc_exists = 1)
+	{
+		[update locmst
+			set locvrc = @stoloc
+		where stoloc = @stoloc
+			and wh_id = @wh_id]
+	}
+    |
+    remove record
+     where table = 'usr_gln_location'
+	 |
+	[select * from usr_delivery_gln where gln = @gln] catch (-1403)
+	|
+	if (@? = 0)
+	{
+		remove usr delivery gln where gln = @gln and wh_id = @wh_id and uc_delivery_id = @uc_delivery_id 
+	}
+     
+]]>
+</local-syntax>
+<argument name="gln" required="yes" datatype="string">GLN</argument>
+<argument name="wh_id" required="no" datatype="string">Warehouse ID</argument>
+</command>

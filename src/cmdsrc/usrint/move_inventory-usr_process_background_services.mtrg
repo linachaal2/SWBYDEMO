@@ -1,0 +1,134 @@
+<trigger>
+  <name>usr_process_background_services</name>
+  <on-command>move inventory</on-command>
+  <description />
+  <fire-sequence>9810</fire-sequence>
+  <local-syntax>
+<![CDATA[
+/* This trigger is not necessary during auto ASN receiving process.*/
+	if(@allowAutoRcv is null)
+	{
+		if (!@ship_id)
+		{
+			/* The REL-PCK-STG background workflow releases held picks in a
+			 * shipment if total staged quantity over pick quantity exceeds a
+			 * threshold. Determine the ship_id here so that processing for the
+			 * shipment can occur.
+			 */  
+			if (@dtlnum)
+			{
+				[select shipment_line.ship_id
+				   from invdtl,
+						shipment_line
+				  where shipment_line.ship_line_id=invdtl.ship_line_id
+					and invdtl.dtlnum=@dtlnum] catch (@?)
+			}
+			else if (@subnum)
+			{
+				[select distinct shipment_line.ship_id
+				   from invsub,
+						invdtl,
+						shipment_line
+				  where shipment_line.ship_line_id=invdtl.ship_line_id
+					and invdtl.subnum=invsub.subnum
+					and invsub.subnum=@subnum] catch (@?)
+			}
+			else if (@lodnum ) 
+			{
+				/*make sure USR-SEND-STATUS event if fired once per lpn for multiple shipments*/
+    hide stack variable where name = 'ship_id'
+			}
+	/*		{
+				[select distinct shipment_line.ship_id
+				   from invlod,
+						invsub,
+						invdtl,
+						shipment_line
+				  where shipment_line.ship_line_id=invdtl.ship_line_id
+					and invdtl.subnum=invsub.subnum
+					and invsub.lodnum=invlod.lodnum
+					and invlod.lodnum=@lodnum] catch (@?)
+			}*/
+		}
+		|
+		process background services
+			where lodnum = @lodnum
+			  and exitpnt = 'INVMOV'
+			  and wh_id = @wh_id
+			  and src_mov_zone_id = @src_mov_zone_id
+			  and dst_mov_zone_id = @dst_mov_zone_id
+			  and @+subnum
+			  and @+dtlnum
+			  and @+prtnum
+			  and @+prt_client_id
+			  and @+untqty
+			  and @+ship_id
+		|
+		if (@distro_resid = 1)
+		{
+			/*
+			 * We are depositing residuals 
+			 * during the distribution process
+			 * If distro id has value, the residuals
+			 * is distinated for some put to store location.
+			 * It is unexcepted residuals since now it is 
+			 * deposited to some storage location but it is 
+			 * supposed to be deposited to some put to store
+			 * location.
+			 */
+			if (@dtlnum)
+			{
+				[select 'x'
+				   from invdtl
+				  where dtlnum=@dtlnum
+					and distro_id is not null] catch (@?)
+			}
+			else if (@subnum)
+			{
+				[select 'x'
+				   from invsub,
+						invdtl
+				  where invdtl.subnum=invsub.subnum
+					and invsub.subnum=@subnum
+					and invdtl.distro_id is not null] catch (@?)
+			}
+			else if (@lodnum)
+			{
+				[select 'x'
+				   from invlod,
+						invsub,
+						invdtl
+				  where invdtl.subnum=invsub.subnum
+					and invsub.lodnum=invlod.lodnum
+					and invlod.lodnum=@lodnum
+					and invdtl.distro_id is not null] catch (@?)
+			}
+			|
+			if (@? = 0)
+			{
+				/*
+				 * We are depositing unexpected residuals
+				 */
+				process background services
+					where lodnum = nvl(@dstlod, @lodnum)
+					  and exitpnt = 'UNEXP-RESID'
+					  and wh_id = @wh_id
+
+			}
+			else
+			{
+				/*
+				 * We are depositing expected residuals
+				 */
+				process background services
+					where lodnum = nvl(@dstlod, @lodnum)
+					  and exitpnt = 'EXP-RESID'
+					  and wh_id = @wh_id
+			}
+
+		}
+	}
+]]>
+</local-syntax>
+  <enable>yes</enable>
+</trigger>

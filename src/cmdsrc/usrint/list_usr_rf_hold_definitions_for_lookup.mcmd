@@ -1,0 +1,90 @@
+<command>
+  <name>list usr rf hold definitions for lookup</name>
+  <description>list usr rf hold definitions for lookup</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* list usr rf hold definitions for lookup
+ * Lists the hold definitions for lookup in rf.
+ * Version history:
+ *  2018-10-31  Salem Hamze     Initial version
+ *  2019-09-11  Salem Hamze     Added authorization
+ */
+get warehouse id
+ where wh_id = @wh_id
+|
+publish data
+ where usr_id = nvl(@usr_id, @@usr_id)
+|
+/* Get the hold we want to list. */
+[select hldmst.hldpfx,
+        hldmst.hldnum,
+        hldmst.wh_id,
+        hldmst.hldtyp,
+        dscmst.short_dsc,
+        dscmst.lngdsc,
+        poldat_view.rtnum2 as srtseq
+   from hldmst
+  inner
+   join dscmst
+     on dscmst.colnam = 'hldpfx|hldnum|wh_id'
+    and dscmst.colval = hldmst.hldpfx || '|' || hldmst.hldnum || '|' || hldmst.wh_id
+    and dscmst.locale_id = nvl(@locale_id, @@locale_id)
+   left
+   join poldat_view
+     on poldat_view.polcod = 'USR-RECEIVING'
+    and poldat_view.polvar = 'EXCEPTION'
+    and poldat_view.polval = 'HOLD-ORDER'
+    and poldat_view.wh_id = hldmst.wh_id
+    and poldat_view.rtstr1 = hldmst.hldnum
+    and poldat_view.rtnum1 = 1
+  where @+hldmst.wh_id
+    and @*
+  order by sign(poldat_view.rtnum2) desc,
+        poldat_view.rtnum2,
+        hldmst.hldnum] >> res_hldmst
+|
+/* Check for which hldtyp authorization is setup and check if the user has the privileges for it. */
+{
+    /* Only check for the hldtyp which are in the results. */
+    [select distinct hldmst.hldtyp
+       from hldmst
+      where @+hldmst.wh_id
+        and @*]
+    |
+    get user privileges
+     where usr_id = @usr_id
+       and opt_typ = 'O'
+       and opt_nam = 'mtfoptUsrLoadIdentifyHldTyp' || @hldtyp catch(-1403)
+    |
+    if (@? = 0)
+    {
+        publish data
+         where hldtyp = @hldtyp
+           and has_privs_flg = 1
+    }
+} >> res_hldtyp_ath
+|
+{
+    merge result sets with data
+     where resultset = @res_hldmst
+       and additionalresultset = @res_hldtyp_ath
+       and keycolumns = 'hldtyp'
+    |
+    /* Return the hldnum if the user has privileges. */
+    if (@has_privs_flg = 1)
+    {
+        publish data
+         where hldnum = @hldnum
+           and dsc = nvl(@short_dsc, @lngdsc)
+           and srtseq = @srtseq
+           and hldtyp = @hldtyp
+    }
+} >> res_data
+|
+pad usr rf lookup result set for single line value
+ where res_data = @res_data
+]]>
+</local-syntax>
+  <argument name="hldtyp" datatype="string">Hold Type</argument>
+</command>

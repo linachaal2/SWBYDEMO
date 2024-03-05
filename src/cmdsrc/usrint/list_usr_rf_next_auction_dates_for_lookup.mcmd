@@ -1,0 +1,23 @@
+<command>
+  <name>list usr rf next auction dates for lookup</name>
+  <description>list usr rf next auction dates for lookup</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* list usr rf next auction dates for lookup
+ * Lists the next aution dates for lookup in rf.
+ * Version history:
+ *  2019-01-21  Salem Hamze     Initial version
+ */
+list usr next auction dates
+ where no_days = @no_days
+|
+publish data
+ where inv_attr_dte1 = to_char(@next_auction_date, nvl(@val_fmt, 'YYYYMMDDHH24MISS'))
+   and dsc = to_char(@next_auction_date, nvl(@dsp_fmt, 'YYYY-MM-DD'))
+]]>
+</local-syntax>
+  <argument name="no_days" datatype="string">The number of next auctions you want to list.</argument>
+  <argument name="val_fmt" default-value="YYYYMMDDHH24MISS" datatype="string">Format of the return value which should be applied to the date.</argument>
+  <argument name="dsp_fmt" default-value="YYYY-MM-DD" datatype="string">Format of the display value which should be applied to the date.</argument>
+</command>

@@ -1,0 +1,25 @@
+[select wh_id
+   from wh]
+|
+if (@wh_id = '1')
+{
+    [select wh_id,
+            stoloc
+       from locmst
+      where arecod = 'H245'
+        and loc_typ_id = 10022]
+    |
+    validate location
+     where wh_id = @wh_id
+       and stoloc = @stoloc
+    |
+    if (@action)
+    {
+        execute server command
+         where cmd = @action catch(@?)
+    }
+};
+[update locmst set rescod = null where 1=1];
+commit;
+/ 
+exit

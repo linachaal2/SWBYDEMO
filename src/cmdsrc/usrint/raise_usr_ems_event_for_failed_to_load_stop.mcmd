@@ -1,0 +1,68 @@
+<command>
+  <name>raise usr ems event for failed to load stop</name>
+  <description>raise usr ems event for failed to load stop</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* raise usr ems event for failed to load stop
+ * User event to indicate that load stop failed during deferred execution
+ * actions of an operator is needed. 
+ * the process of generating this EMS events
+ *
+ * Version history:
+ *  2022-09-29  Raoul SCHOLTEN     Initial version.
+ */
+publish data
+ where evt_nam = 'USR-FAILED-LOAD-STOP'
+|
+/* The EMS definition must be primed in EMS. This means, making sure
+ * there is a record for this evt_name. Its also details the message (EMS event)
+ * that will be sent to the subscribers.
+ */
+get ems source system
+|
+if (@primer_flg and @primer_flg = 1)
+{
+    publish data
+     where evt_msg = 'Failed to load stop for shipment: @ship_id:
+                            Warehouse: @wh_id
+                            Client: @client_id
+                            LPN: @lodnum
+                            Sub LPN: @subnum
+                            Shipment: @ship_id
+                            Order: @ordnum
+                            EAN: @EAN
+                            GLN: @GLN'
+       and evt_subj = 'Failed to load stop for shipment: @ship_id.'
+       and evt_qual = 'wh_id, client_id,lodnum, subnum, 
+                       ship_id, ordnum, EAN, GLN'
+       and evt_grp = 'USR-OUTBOUND'
+       and evt_pri = '1'
+       and evt_nam = @evt_nam
+       and src_sys = @src_sys
+       and lngdsc = 'Failed to load stop for shipment.'
+}
+else
+{
+    get ems event information
+     where evt_nam = @evt_nam
+    |
+    if (@enabled = 1)
+    {
+            log ems event
+             where evt_nam = @evt_nam
+               and key_val = @ship_id 
+            /*om een berichtje uniek te maken*/
+               and Warehouse = @wh_id
+               and Client = @client_id
+               and lodnum = @lodnum
+               and subnum = @subnum
+               and Shipment = @ship_id
+               and Order = @ordnum
+               and EAN = @EAN
+               and GLN = @GLN
+    }
+}
+]]>
+</local-syntax>
+</command>

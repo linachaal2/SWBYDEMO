@@ -1,0 +1,887 @@
+#-------------------------------------------------------------------------------
+#
+# SOURCE FILE: registry
+#
+# DESCRIPTION: JDA environment registry file.
+#
+#-------------------------------------------------------------------------------
+
+
+#
+#Service section
+#
+#The service section is used to define how the server is started up when started via rp start on Linux/UNIX platforms. For Windows you must use the services.xml.  See the Developer Guide for more information.
+#
+
+[SERVICE]
+#
+#The command that is ran when the service starts up. To enable full tracing set this to mocaserver -t* -o
+#command=mocaserver
+#
+#The file that standard output is written to that comes from the server. 
+#output=%LESDIR%\log\mocaserver.log 
+
+#
+#Cluster Section
+#
+#The cluster section is used to configure the server when deployed in a cluster.
+#
+
+[CLUSTER]
+#The name of the cluster. Every node in a cluster must use the same name in order to communicate with each other. 
+#name=
+#
+#The name of the JGroups configuration file that must be located in LESDIR/data. 
+#jgroups-xml=
+#
+#Domain name used when setting the domain for the console session cookie. 
+#cookie-domain=
+#
+#Role Manager used to control what node will manage each job and task. Different Role Managers can be defined on each node in the cluster to control what node will manage each job and task; three are provided. These are the valid values: FIXED, PREFERRED (default) and DYNAMIC.
+#role-manager=PREFERRED
+#
+#A comma-separated list of one or more roles of which the Role Manager will use in determining what role(s) a node should assume ownership when it starts. 
+#roles=
+#
+#A comma-separated list of one or more roles of which the Role Manager should never assume ownership when it starts.
+#exclude-roles=
+#
+#The number of seconds that each node will wait between each acquisition of a role. This wait time staggers the assignment of roles, so a single node will not acquire all roles and then lose them as nodes start. 
+#role-check-rate=10
+#
+#The number of thread runners the server will start that can handle incoming asynchronous execution requests. 
+#async-runners=10
+#
+#The maxiumum amount of asynchronous execution requests the node can do at a time. Any attempt to submit more than this number will block the node until a currently submitted request completes. 
+#async-submit-cap=10000
+#
+#The type of protocol used for clustering. These are the valid values: udp or tcp-mcast or tcp-hosts or tcp-db.
+#jgroups-protocol=udp
+#
+#The ip address in which JGroups will bind to. This can be used when a static ip is configured for this adapter.
+#jgroups-bind-addr=
+#
+#The interface in which JGroups will bind to. This is recommended to be used when multiple network adapters are attached to the machine. I.E. eth0
+#jgroups-bind-interface=
+#
+#The port that JGroups will bind to. This value will default to 7800 for tcp-hosts. Others it will use an ephemeral port.
+#jgroups-bind-port=
+#
+#The initial hosts that JGroups should start with in the view when using TCP. This must be set when using tcp-hosts. This should be a comma separated list of hostport (ex. host1[7800],host2[7800])
+#jgroups-tcp-hosts=
+#
+#The option that will enable compression of messages between nodes. To enable, set to true.
+#jgroups-compress=false
+#
+#The option that will specify the multicast address. This is only used when the protocol is udp or tcp-mcast
+#jgroups-mcast-addr=228.6.7.8
+#
+#The option that will specify the mcast bind port. This is only used when the jgroups-protocol is udp or tcp-mcast
+#jgroups-mcast-port=46655
+#
+#The timeout in milliseconds to wait for initial members.
+#jgroups-tcp-ping-timeout=5000
+#
+#The timeout in milliseconds to wait to complete a merge.
+#jgroups-merge-timeout=15000
+#
+#The maximum number of threads that the JGroups timer thread pool is allowed to create.
+#jgroups-timer-max-threads=
+#
+#Removes all process based tasks from the cluster. Disabling process based tasks in the cluster will reduce network traffic and improve cluster stability. If sharing caches between processes is required, then individual process based tasks can be added to the cluster by specifying the JVM argument -Dmoca.cluster=true or reconfiguring the task to thread may work as well. The use cases for cache sharing needs to be determined on a case by case basis, there's is no easy way to determine what process tasks should or should not be clustered.
+#exclude-process-tasks=false
+#
+#The clustering architecture mode for the server. The new "moca" clustering mode is enabled by default because it provides a much more stable cluster. It is possible to switch back to the old "infinispan" mode if any issues are found. Switching back to the old mode is highly discouraged.
+#mode=moca
+#
+#The range of ports from the specified bind-port to the specified bindport + X, where X is the value of tcp-port-range, to which the current host will try to connect if its bind-port is unavailable for a clustering setup using tcp-protocol.
+#tcp-port-range=0
+#
+#The range of ports from the specified bind-port to the specified bindport + X, where X is the value of tcpping-port-range, to which the current host will try to connect if its bind-port is unavailable for a clustering setup using tcpping-protocol.
+#tcpping-port-range=0
+#
+#Timeout setting for a node joining the cluster
+#jgroups-join-timeout=
+#
+#Optional. This is used only by integrator. Sets the type of async execution when customer requires to set the execution mechanism for tasks in integrator. There are three possible settings. 
+#    false - setting value to 'false' in the registry will select the cluster async executor
+#    true - setting value to 'true' in the registry will select the standard async executor
+#integrator-use-local-async-executor=true
+#
+
+#
+#Server section
+#
+#The server section is used to configure server-based applications that consist of the MOCA server as well 
+#as other applications running in server mode.
+#
+
+[SERVER]
+rpweb-url=http://rfh-portal-server:8060
+url=http://localhost:8010/service
+mailbox-file=$LESDIR/data/mailbox.mem
+rmi-port=8011
+port=8010
+prod-dirs=$LESDIR:$LESWEBDIR:$DCSDIR:$EMSDIR:$MTFDIR:$SALDIR:$MCSDIR:$SLDIR:$MOCADIR:$REPORTINGDIR
+memory-file=$LESDIR/data/commands.mem
+query-limit=200000
+#
+#The URL that clients will use to connect to the environment. 
+#url=
+#
+#The port number to listen on if a jetty.xml file does not exist.  
+#port=4500
+#
+#The port number for the RMI registry to use.
+#rmi-port=4501
+#
+#The object port number for the RMI registry to use. Value 0 (default) implies using ephemeral port.
+#NOTE: connecting through firewall normally requires static ports.
+#rmi-object-port=0
+#
+#The hostname or ip address for the RMI registry to use.
+#rmi-host=localhost
+#
+#The port number to be used for the "classic" MOCA server. If not present, the classic MOCA listener is not started. 
+#classic-port= 
+#
+#The pathname of the trace file. 
+#trace-file= 
+#
+#The trace levels to enable. Valid trace levels are W, M, X, A, S and R. A value of * enables all trace levels. 
+#trace-level= 
+#
+#The pathname of the command profile file or "off". The server's command profile will be written to the given pathname appended with "-server.csv". (e.g. mocaprofile-server.csv). By default, if this key is not specified or left empty, command profiling will be on but stored in memory only.
+#command-profile=
+#
+#The pathname of the commands file. 
+#memory-file=%LESDIR%\data\commands.mem 
+#
+#The pathname of the mailbox file. 
+#mailbox-file= 
+#
+#The path-separated list of installed products, supplied in order of highest to lowest layered product. Sub directories of products can also be added such as %DCSDIR%\webclient. 
+#prod-dirs= 
+#
+#A list of server directories the 'compress file' MOCA command is allowed to access. The directories should be delimited by their OS specific path separator; ':' for UNIX systems and ';' for Microsoft Windows. By default the LESDIR 'log' directory is white-listed to support the Trace Analyzer application. 
+#compress-dirs=%LESDIR%\log
+#
+#The minimum amount of idle native processes that will be maintained in the pool. If the idle and busy amount of processes equals the max then another process will not be spawned. Setting this value to 0 will cause processes to only be created as requested. Setting this value equal to max-pool-size will make sure that the pool always has that many proceses in it.
+#min-idle-pool-size=1
+#
+#The largest size the native process pool will become. If this is reached each request will wait until a busy process becomes idle. 
+#max-pool-size=20
+#
+#The number of threads to be used for executing incoming socket requests on the MOCA classic protocol listener. 
+#classic-pool-size=20
+#
+#The encoding to be used to communicate with classic clients. This must be a valid Java encoding, and must be the same as US-ASCII in the lower 7 bits. UTF-8 and the typical 8-bit ISO-8859-x encodings/charsets all qualify. 
+#classic-encoding=UTF-8
+#
+#The amount of time a classic MOCA (socket) connection can be idle and still be connected to the server. If unset, or set to 0, connected sockets are kept indefinitely. 
+#classic-idle-timeout=0
+#
+#This dictates how long the server will wait for a process to start up before throwing an error. 
+#process-timeout=20
+#
+#This dictates how long a MOCA session can be idle(no recent request) in seconds before it is automatically removed. 
+#session-idle-timeout=3600
+#
+#Indicates if the server response is compressed. Set this key to true to enable compression of the server response.  
+#compression=false
+#
+#This dictates how many MOCA sessions can be open at once for a server. If this number is reached any new requests will try to terminate the next idle session to be removed. If no idle sessions are available then the request will wait until one becomes available.
+#session-max=10000
+#
+#Maximum number of rows that a query can return. If an SQL query returns more rows than the number specified by query-limit, an exception is thrown and the transaction rolls back. The value of query-limit can be set to a number between 1 and 2,000,000 inclusive. If you set query-limit to a number outside of the valid range of values (for example, 0), the MOCA server will not start and a message will be added to the log stating that the query-limit value is not in the valid range. The maximum valid value of 2,000,000 is set to prevent out of memory errors that might occur on the server if all rows are read into memory.
+#query-limit=100000
+#
+#Specifies Minimum DB Query Duration in milliseconds above which Logger should log the DB Query, and If Span Reporting is enabled, then the corresponding DB Query Span should be reported.
+#slow-query-threshold-ms=2000
+#
+#This number dictates after how many requests that this native process been used that it will shutdown. 
+#max-commands=10000
+#
+#A comma-separated list of blacklisted argument names. 
+#arg-blacklist= 
+#
+#The maximum number of asynchronous threads that are available to execute asynchronous execution tasks. 
+#max-async-thread=20
+#
+#Default locale for the MOCA Console (including the login page). This key must be a locale name as defined in the locale-mapping.xml file. For more information, see Localization.
+#console-default-locale=en-us
+#
+#Maximum number of rows that can be accumulated when piping together commands in local syntax. This value is used to prevent an excessively large number of rows from being accumulated which could cause performance or memory issues on the server. If the accumulation limit is reached, an exception is thrown. For more information (including a description of how to handle cases when you want to temporarily exceed the row accumulation limit), see Row Accumulation Limits.
+#row-accumulation-limit=1000000
+#
+#Indicates whether Monitoring and Diagnostics probes are enabled.
+#mad-probing-enabled=true
+#
+#Indicates whether to inhibit MOCA tasks. Turning this option on will run MOCA without tasks.
+#inhibit-tasks=false
+#
+#Indicates whether to inhibit MOCA jobs. Turning this option on will run MOCA without jobs.
+#inhibit-jobs=false
+#
+#Milliseconds to wait for custom support ZIP hooks to finish running. This timeout may be increased if there are custom support ZIP hooks that rely on expensive operations to complete.
+#support-zip-timeout=2000
+#
+#Indicates that MOCA is to delete the expanded web archive files (WARs) that are deployed by Jetty every time the MOCA server is shut down. This action eliminates potential disk space issues, but at the cost of a longer shut down time. The daemon thread that is spawned to delete the expanded WARs takes time and uses resources that cannot be used by other processes while the daemon thread is running. If a shorter shut down time is more important than a potential disk space issue or you have processes in place to delete the WARs, set this key to false.
+#clean-war-deploy=true
+#
+#Required.  Specifies the REFS service URL to facilitate communication between the two systems.
+#rpweb-url=
+#
+#Specifies the REFS service URL where the default media data is stored.
+This use case is specific to load balancer configurations and proxy service url's configured on top of load balancers.
+We will have to configure the actual refs server url so that the default media gets loaded correctly.
+#rpweb-media-url=
+#
+#Milliseconds to wait between indexing executions before MOCA reindexes all hibernate tables that have an entity that is annotated with@Index. To disable indexing, do not include this MOCA registry key. If you include this MOCA registry key, but do not specify its value (mass���index���interval=), indexing starts and stops without performing any indexing, which produces a line in trace files that states that the index is disabled.
+#mass-index-interval=
+#
+#Max time in milliseconds that a call to disable a trace may block while waiting to ensure that all asynchronous log messages have been delivered. This setting should only be increased if the system is very busy, clients are losing messages at the end of a trace, and the log messages are critical to the operation. Increasing the value on a very busy system may introduce blocking for other areas that close traces such as tasks with a log configured. If MOCA detects that trace messages have been lost, it logs an error in the server trace.
+#async-trace-close-wait-ms=15000
+#
+#The default context path for Configurable Web Services. This will determine the prefix for all CWS action paths.
+#ws-cws-context=cws
+#
+#The maximum allowed request size (in kilobytes) before file uploads are refused by the RESTful web service framework.
+#ws-max-upload-size-kb=1000
+#
+#Optional. Defines the base path the system will use for all REST web resource links included in web service responses.  By default, the system creates links using the scheme, host and port of the current request. This approach may not be adequate for customers with sophisticated deployments. This setting provides customers the option to deterministically define the base path to be use instead of mirroring the current request. The base path should contain the scheme, host and port (optional).
+#    Example: https://prod.server.corp:8080
+#ws-base-url=
+#
+#Optional. Defines the base path the system will use to expand REST web resource links. This configuration option is only available when ws-base-url is defined. By default, during web service link expansion the system will perform a web service call using the base path defined by ws-base-url. If ws-base-url points to a load balancer or other network appliance it may be preferable for the system to expand links using a different base path (such as localhost) for improved performance.
+#    Example: http://localhost:4500
+#ws-expansion-url=
+#
+#Optional. Defines the base path the system will use for the MOCA console.  The MOCA console contains several flows that utilize HTTP redirects (302) which by default are executed using the current request���s scheme, host and port. This setting provides customers the option to define the base path to be use instead of mirroring the current request. The base path should contain the scheme, host and port (optional).
+#    Example: https://prod.server.corp:8080
+#console-base-url=
+#
+#Optional. Defines number of threads for accepting native process connections. Higher value improves resilience against non-native process connections, but also uses more resources. Value of 0 forces legacy non-threading behavior. Intended for situations when the box is experiencing a lot of nuisance socket connections, such as caused by running port security scans.
+#process-watcher-threads=1
+#
+#Optional. Timeout when reading process id from new native process connection.
+#process-id-timeout-millis=500
+#
+#Optional. Timeout when waiting to accept new native process connection.
+#process-accept-timeout-millis=100
+#
+#Optional. Specifies the mechanism MOCA will utilize for persisting user authentication sessions. MOCA relies on session persistence to support shared logins across a MOCA cluster. Available configuration options:
+#    database - the default. It offers good performance and reliability. Requires MOCA to be configured with a database.
+#    infinispan - MOCA will utilize an Infinispan replicated cache to maintain sessions across a cluster. This option offers the best performance and does not require a database but it's less reliable (existing user logins not visible to all nodes of the cluster). Infinispan is the default persistence provider in prior releases (2017.1 and older) but is no longer recommended. The Infinispan option is intended as a fall back if a customer encounters difficulties using the recommended default.
+#user-auth-persistence-provider=database
+#
+#Optional. Specifies how often to schedule a thread that updates last access dates for user sessions. Larger values reduce database activity resulting in better performance, but add a rounding error to the session expiration timeout.
+#user-auth-persistence-update-interval-sec=60
+#
+#Optional. Specifies the threshold for updating last access date for user sessions. If the difference between session last access date and the database value is less than this threshold, then the database record is not updated. Larger threshold values reduce database activity resulting in better performance, but add a rounding error to the session expiration timeout. By default this value is calculated as 1/2*user-auth-persistence-update-interval-sec.
+#user-auth-persistence-update-threshold-sec=30
+#
+#Optional. Specifies which algorithm MOCA uses by default to page SQL queries. Queries that explicitly specify an algorithm will use that algorithm over the one set by this registry setting. Available configuration options:
+#    classic - For Oracle database. Uses a sub-query select for the page data.
+#    cte - For Oracle database. Uses a common table expression for the main query.
+#    over - For Oracle database. Uses analytical count over the whole data set. Note that this algorithm may not be compatible with some types of queries, so great care should be taken before selecting it for a production environment.
+#oracle-limit-syntax=cte
+#
+#Supplemental log file for capturing JDBC activity details
+#bind-log=
+#
+#The default number of records returned in a single page for a CWS endpoint configured for paging. Individual CWS endpoint configurations override this value.
+#default-cws-paging-limit=
+#
+#Optional. Sets the default filtering behavior for the Dlx(Apex) thick client, some screens will not respect this setting due to the performance implications. There are three possible settings.
+#    suffix(Default) - setting value to 'suffix' in the registry will add the wildcard * at the end of the string that the user tries to filter. 
+#    full - setting value to 'full' in the registry will add the wildcard * at both begining and the end of the string that the user tries to filter. 
+#    exact - setting value to 'exact' in the registry will return the same string without adding any wild card to the string the user searches.
+#Note : If the value is not set in the registry then from 9.1 till 2019.1 the default value is full , and from 2020.1 it is suffix
+#default-apex-filtering-wildcard-behavior=suffix
+#
+#Purges the configured war extraction directory of files with the war extraction extension(.dir).
+#Note: This should only be enabled on Windows systems where the configured war extraction directory is known and not shared by other resources as this feature may risk deleting them.
+enable-war-extract-dir-purge=true
+#
+#Read timeout in milliseconds that is passed to the "do http request" MOCA command. This is a global setting for all requests invoked by this MOCA command, but override is possible by passing the readTimeout setting to the command.
+#The default setting is 0, which implies no timeout.
+#do-http-request-timeout-ms=0
+#
+#The max resident size a native process is able to take up before it is discarded from the native process pool. Measured in megabytes. The default is 0, which implies no maximum size.
+#max-native-process-memory-mb=0
+#
+#The percentage of maximum physical memory value to check before we spawn a new native process, If the utilized memory on the system is more than the given percentage value then do not allow to spawn new native process. Measured in percentage. The default value is 100, so this is disabled by default.
+#Note: If max-physical-memory-percentage=100 then it allows the native processes to spawn new object even though the current physical memory utilized is greater than the default or given percentage value. By enabling this you are allowing the system to use all of the available memory to create new native process objects, System may continue to create the new native process objects untill the native process pool size i.e. max-pool-size is reached and this may cause server to go down.
+#max-physical-memory-percentage=100
+#
+#Additional list of classes from MOCA's core classes which may be considered safe to deserialize from a multi-dimensional array of objects in a client connection's MocaResults
+#json-deserializable-classes=
+#
+#Controls whether the json deserialization filter is enabled. It is not recommended to set this to false as it can pose a security risk.
+#json-deserializer-filter-enabled=true
+#
+#Indicates if caches will be cleared when soft restarting the MOCA server from the console
+#cache-clear-on-restart=true
+#
+#Specifies the app-server's timezone in the form of a Java TimeZone ID for the JVM on Windows only. The purpose of this is to separate the Java-supported Olson-format dates from
+#the format supported by the Windows SDK. On Windows both of these values need to be set in order to have the timezone be accurate for Java and native code. When either is not set,
+#the valid values and corresponding mapping of both of these settings are documented in $LESDIR/log/timezones.txt on server startup.
+#app-server-timezone=
+#
+#Timeout in seconds when attempting to make an initial connection to a remote instance with the "remote" keyword.
+#default-remote-connect-timeout=5
+#
+#Default timeout in seconds for all HTTP connections to read from an input stream
+#default-http-read-timeout=600
+#
+
+#
+#Database section
+#
+#The database section is used to configure connection information for the databsae. 
+#
+
+[DATABASE]
+username=sa
+url=jdbc:sqlserver://starware-db-server:1433;databaseName=RBGWMSMD22
+dba-username=sa
+driver=com.microsoft.sqlserver.jdbc.SQLServerDriver
+dba-password=|B|6mj58sb9kvobt9YaeDqLzUEcnQbhsOYh2g0q5x23H3Q=
+password=|B|6mj58sb9kvobt9YaeDqLzUEcnQbhsOYh2g0q5x23H3Q=
+#The username that should be used to connect to the database. 
+#username= 
+#
+#The password that should be used to connect to the database. 
+#password= 
+#
+#The username that should be used by the installsql and dbupgrade utilities to connect to the database. If this parameter is not set the username parameter will be used instead. 
+#dba-username= 
+#
+#The password that should be used by the installsql and dbupgrade utilities to connect to the database. If this parameter is not set the password parameter will be used instead.
+#dba-password= 
+#
+#The URL that should be used to connect to the database. URLs are specific to a database driver. For more information on URLs please see the documentation for the database driver specified via the driver parameter.
+#Note that MOCA disables the encrypt setting by default for SQL Server as MSSQL driver on 11.2 enables this by default, causing issues if the database server is not setup properly for encryption. However, if this 
+#is required, it must be set manually with encrypt=true; as in older versions of the driver.
+#url= 
+#
+#The class name of the JDBC driver that should be used to connect to the database. If this key is not defined database support will be disabled. 
+#driver= 
+#
+#The minimum amount of idle database connections that will be maintained in the pool. If the idle and busy amount of connections equals the max then another connected will not be created. Setting this value to 0 will cause connections to only be created as requested. Setting this value equal to max-pool-size will make sure that the pool always has that many connections in it.
+#min-idle-conn=1
+#
+#The maximum number of database connections that can exist in the database connection pool. 
+#max-conn=100
+#
+#Controls whether the connection pool tests the validity of connections before providing them to requests. If this is enabled each transaction that requires a database connection
+#will submit a simple query to check if the connection is valid. If the connection is not valid, then it is removed from the pool and this process is repeated
+#until a valid connection is found. Connections can become stale (invalid) if issues such as network outages or the database server being restarted occur.
+#Setting this to true improves the stability of the server at the cost of some performance (one additional simple query per transaction). If this is disabled
+#then requests could potentially receive stale connections which will result in the request failing, however, that stale connection will then be removed from the pool.
+#pool-validate-on-checkout=true
+#
+#The number of seconds to wait before timing out connection attempts. 
+conn-timeout=600
+#
+#	The isolation level to use. This parameter is only valid for SQL Server databases. Valid trace levels are read_committed, read_uncommitted, repeatable_read, serializable, snapshot and default. 
+#isolation= 
+#
+#The name of the class to use for translation of SQL. If a dialect is not specified it will be derived from the driver parameter. Valid class names are com.redprairie.moca.server.db.translate.DB2Dialect, com.redprairie.moca.server.db.translate.OracleDialect and com.redprairie.moca.server.db.translate.SQLServerDialect
+#dialect=
+#
+#Timeout in seconds for SQL statements that are called only though a web service. Timeout of 0 implies no timeout.
+#web-statement-timeout=300
+#
+#Timeout in seconds for all SQL statements that are executed by the application. Timeout of 0 implies no timeout.
+#global-sql-statement-timeout=1800
+#
+#The number of database checkouts that a database connection remains valid. This feature requires database.pool-validate-on-checkout functionality
+#to be enabled, which is enabled by default. If this parameter is set to zero, this feature will be disabled.
+#connection-max-reuse-count=1000000
+#
+#The length of time, in seconds, that a database connection remains valid. This feature requires database.pool-validate-on-checkout functionality
+#to be enabled, which is enabled by default. If this parameter is set to zero, this feature will be disabled.
+#connection-max-lifetime-sec=86400
+#
+#Specifies whether the legacy function or new sysdate function, which converts the date value to the localized app-server timezone value
+#use-app-server-sysdate=true
+
+
+
+#
+#Data as a Service (DAAS) section
+#
+#The DAAS section is used to configure connection information for the DAAS archive database.
+#
+
+[DAAS]
+#The JDBC URL of the DAAS database.
+#url=
+#
+#The username used to connect to the DAAS database.
+#username=
+#
+#The password used to connect to the DAAS database.
+#password=
+#
+#A generated unique value that maps data to a specific installation.
+#Leaving this value blank will result in all data being pulled back
+#across all WM/LM installations.
+#instance-id=
+#
+#The number of seconds to wait before timing out connection attempts.
+#connection-timeout=
+#
+#The minimum amount of idle database connections that will be maintained in the pool. If the idle and busy amount of connections equals the max then another connected will not be created. Setting this value to 0 will cause connections to only be created as requested. Setting this value equal to max-pool-size will make sure that the pool always has that many connections in it.
+#min-idle-connections=
+#
+#The maximum number of database connections that can exist in the database connection pool.
+#max-connections=
+
+
+#
+#Environment section
+#
+#The environment section is used to configure environment variables through the registry. 
+#The environment variables defined in this section are used when processes that are looking for environment variables
+#cannot find them in the actual running environment. Environment variables defined in the registry file 
+#can be thought of as default environment variables. Environment variables in the registry file do not take 
+#affect until after #a process starts; consequently, setting an environment variable such as PATH is not effective.
+#
+# <name>=<value>
+#
+#NOTE: CLASSPATH environment variable is dynamically regenerated during upgrades on Windows.
+#To preserve custom CLASSPATH changes during upgrades, use special variables VAR_CLASSPATH_PRE and VAR_CLASSPATH_POST.
+#The values of those variables is preserved during upgrades and they are automatically appended to the value of CLASSPATH.
+
+[ENVIRONMENT]
+REFSDIR=
+SPRING_MAPPINGS=$LESDIR/src/mappings/spring
+
+
+#
+#Server Mapping section
+#
+#The server mapping section is used to provide a mechanism for mapping aliases (usually host/port pairs) used
+#for remote execution to a connection URL. 
+#
+# <alias>=<url>
+#
+#Examples:
+#prod.server.corp:4550=http://prod.server.corp/service
+#http://localhost:4500/service=http://prod.server.corp/service
+
+[SERVER MAPPING]
+
+
+#
+#Security section
+#
+#The security section is used to configure the security attributes of the environment, including which 
+#environments can interact with each other and how users are authenticated externally via LDAP.
+#
+
+[SECURITY]
+#
+#The domain that this environment belongs to. This should be a single word that somewhat uniquely identifies the system. 
+#domain= 
+#
+#A space-separated list of domains that are allowed to access this environment. This is useful for allowing a login in one environment to execute remote commands on another environment. 
+#trusted-domains= 
+#
+#Secret salt to be used when generating session keys. See Security section of the MOCA Developer Guide for more information.
+#private-session-salt=
+#
+#The URL that should be used to connect to the LDAP server. Multiple semi-colon separated URLs can be provided. 
+#ldap-url=
+#
+#The distinguished name of the user to bind to the LDAP server. If this key is not defined an anonymous bind will be attempted. 
+#ldap-bind-dn= 
+#
+#The password associated with the user defined by the ldap-bind-dn key. 
+#ldap-bind-password= 
+#
+#The authentication type to use when authenticating users. One of the following: "NONE", "SIMPLE', "DIGEST-MD5". 
+#ldap-auth-type= 
+#
+#The behavior that should be used when the LDAP server issues a referral to another LDAP server. One of the following: "IGNORE", "FOLLOW". 
+#ldap-referrals= 
+#
+#The name of the LDAP attribute that contains the user's login name. This is usually "sAMAccountName" for ActiveDirectory servers and "uid" for other LDAP servers. 
+#ldap-uid-attr= 
+#
+#The name of the LDAP attribute that contains the list of roles a user has been assigned to. 
+#ldap-role-attr= 
+#
+#The limit on the number of results to be returned by an LDAP search.
+#ldap-search-count-limit=
+#
+#Indicates whether legacy (socket) connections are allowed in the server. 
+#allow-legacy-sessions=true
+#
+#Number of seconds a client connection can be idle before automatically forcing a reauthentication request. 
+#session-key-idle-timeout=1800
+#
+#Number of seconds a remote connection can last before automatically being cancelled. 
+#remote-timeout=86400
+#
+#Administrative user that can be used to log in to the MOCA Console or to support remote access by Java Management Extensions (JMX). Typically, you should only use the administrative user for a MOCA server instance that is not associated with a database or database access is not possible. When using a MOCA server instance that is associated with a database, you should instead use standard authentication to authenticate the user against the database. For more information, see the "Administrative password" section in the Security chapter
+#admin-user=
+#
+#Hashed password associated with admin-user. A new hashed password can be generated using the mpasswd utility.
+#admin-password=
+#
+#Behavior of the admin-user. If set to "read", the admin will only have read-level console permissions, and if set to "all", the admin will have all console permissions instead.
+#admin-user-role=read
+#
+#(0=unlimited) Maximum size limit of an http request that Moca will handle.
+#size-limit-http-request=0
+#
+#(0=unlimited) Maximum size limit of a regular file read by Moca code into memory.
+#size-limit-read-file=0
+#
+#(0=unlimited) Maximum size of a log file read by Moca code into memory.
+#size-limit-log-file=0
+#
+#(16777216 =16M) Maximum size of EMS alert file read by Moca into memory.
+#size-limit-alert-file=16777216
+#
+#(16777216=16M) Maximum size of source code file read by Moca into memory.
+#size-limit-code-file=16777216
+#
+#(268435456=256M) Maximum size of email attachement that Moca will handle.
+#size-limit-email-attachment=268435456
+#
+#(0=Unlimited) Maximum size of string identifier bridge.
+#size-limit-string_identifier-bridge=0
+#
+#(65536=64K) Maximum line size when reading output from a process. If line length exceeds this value, it will be split into smaller chunks.
+#line-length-limit-process-output=65536
+#
+#Location of the keystore where the keys for encryption are stored
+#keystore-location=
+#
+#Password of the keystore configured
+#keystore-password=
+#
+#Alias of the key to be used for encryption
+#key-alias=
+#
+#Password of the key configured
+#key-password=
+#
+#Restricts log file creation to the specified directory. 
+#Prevents malicious users from using the logging system to overwrite application and system files. Leaving the value empty will disable this security feature.
+#log-directory-restriction=%LESDIR%\log
+#
+#When enabled, this option suppresses the web service authorization subsystem.  Users with inadequate permissions will 
+#NOT be blocked from accessing web services and instead, additional logging will be captured to help identify the 
+#missing user permissions.  
+#disable-web-service-auth=false
+#
+#The client-key mode to use for the server. Can be set to "classic" for the legacy client key mode or "apikey" for the new client key check mode. See the MOCA Developer Guide - Security section for more information about client keys.
+#client-key-check-mode=classic
+#
+#The location of the client key datastore. This is only applicable to the apikey client key check mode.
+#client-key-config=$LESDIR/data/client-key-config.json
+#
+#A key that authorizes independent public APIs to perform tasks (e.g. deployment) upon their startup or in the background.
+#This value can either be in clear text (not recommended) or be encrypted via the `mpasswd` tool using the `-k` option.
+#This is required in order to use PUBLIC APIs. If left blank, the API server(s) will not be functional.
+#api-key=
+#
+#Toggle that will restrict sessions initiated from the /login endpoint for WS sessions only and fail any attempt to use the session token against the MOCA servlet to directly execute local syntax.
+#restrict-ws-tokens=false
+#
+
+
+#
+#Java section
+#
+#The java section is used to define the configuration of Java VMs
+#
+#
+# Additional executables can be configured by the following format:
+# vmargs.appname=
+# Where appname is replaced by the name of your application.
+#
+
+
+[JAVA]
+vm=/usr/lib/jvm/jre-17-openjdk/bin/java
+vmargs=-Xmx10g
+vmargs.mgendoc=-server -Xmx756m
+native-vmargs=-server -Xmx128m -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=$LESDIR/log
+vmargs.msql=-Xmx1024M
+#
+#The name of the 64 bit Java executable to use, used for all java based processes (both the main server and native processes) 
+#vm=java
+#
+#The arguments to pass to the main server Java VM. 
+#vmargs= 
+#
+#The arguments to pass to the Java VM used for native processes.
+#native-vmargs= 
+#
+#Arguments passed to the Java VM when launching the application <appname>
+#vmargs.<appname>=
+#
+
+
+[EMS]
+spooler-start=N
+spooler-sleep=60
+SmtpServer=
+#
+#The URL that should be used to connect to the EMS server. 
+#url= 
+#
+#The directory that files should be read from. 
+#spool-dir= 
+#
+#The directory that files should be moved to after successful processing. 
+#processed-dir= 
+#
+#The directory that files should be moved to that can not be successfully processed.
+#bad-dir= 
+
+[MOCARPT]
+report-server=http://localhost:8010/service
+app-server=http://localhost:8010/service
+archive-is-local=1
+#
+#The URL to use when connecting to the MOCA server. This value is typically used in a clustered environment in order to load balance report requests. 
+#app-server=server.url
+#
+#The URL to use when connecting to the Reporting server. If Reporting is installed in the same environment this value should not be set. 
+#report-server= 
+#
+#The pathname of the directory for archived reports. 
+#archive-folder=%LESDIR%\report-archive
+#
+#The pathname of the directory for cache files.
+#cache-folder=%LESDIR%\report-cache
+#
+#The date/time format to use for the archive database. Typical values for each database engine are as follows: 
+#
+#	Access: #yyyy-mm-dd Hh:Nn:Ss#
+#	DB2:
+#	Oracle: 'yyyymmddHhNnSs'
+#	SQL Server: 'mm/dd/yyy Hh:Nn:Ss' 
+#db-date-time-format=#yyyy-mm-dd Hh:Nn:Ss#  
+#
+#The command to execute when a connection to the archive database is established. This is primarily used to setup data/time formats.
+#db-init-command= 
+#
+#The locale id to use if it is not passed to the Reporting server components. The locale id is used when translating report text via the multi-language system. 
+#default-locale-id=US_ENGLISH
+#
+#The format to export reports to for attaching to EMS events.
+#ems-attachment-format=PDF
+#
+#The pathname for EMS attachments. 
+#ems-folder=%LESDIR%\report-ems
+#
+#The pathname of the directory containing DLLs or shared libraries to load. 
+#lib-folder=%LESDIR%\report-libs
+#
+#The pathname of the directory for report failure log files. 
+#failure-log-path=%LESDIR%\log\report-failure-logs
+#
+#Number of days worth of report failure logs to keep. The Reporting server will automatically purge report failure logs when writing new ones.
+#failure-log-keep-days=1
+#
+#The database connection string for the archive database. This should be an OLEDB or Windows DSN connection name. 
+#local-db-connection=Provider=Microsoft.Jet.OLEDB.4.0;Data Source=$LESDIR\db\mocarpt.mdb 
+
+[MONITORING]
+#
+#Indicates whether the Monitoring and Diagnostics CSV Reporter is enabled. The CSV Reporter periodically saves Monitoring and Diagnostics probe data to the local file system in CSV format for historical monitoring purposes.
+#csv-reporter-enabled=true
+#
+#Directory to which the CSV Reporter writes probe data CSV files. This directory should only be used by the CSV reporter. Additionally, the MOCA server process must have write access to this directory.
+#csv-reporter-directory=%LESDIR%/data/csv_probe_data
+#
+#Number of hours that the CSV Reporter should retain probe data CSV files. Any probe data CSV files with a time stamp that has aged past the keep period defined by csv-reporter-keep-hours, are automatically deleted from the csv-reporter-directory.
+#Note: to archive a probe data CSV file before it is deleted, specify a directory for the csv-reporter-archive-directory key.
+#csv-reporter-keep-hours=72
+#
+#Directory to which the CSV Reporter can optionally archive probe data CSV files:
+#   If csv-reporter-archive-directory is not defined, archiving is not enabled (default).
+#   If csv-reporter-archive-directory is defined, archiving is enabled.
+#If enabled, archiving occurs before a probe data CSV file is deleted from the csv-reporter-directory directory based on the csv-reporter-keep-hours time period. Archiving consists of compressing the probe data CSV files into ZIP files and storing them in the csv-reporter-archive-directory directory. This directory should only be used by the CSV Reporter. Additionally, the MOCA server process must have write access to this directory.
+#csv-reporter-archive-directory=
+#
+#Number of hours to retain archived probe data ZIP files on the file system. Archive probe data ZIP files with a time stamp that has aged past the keep period defined by csv-reporter-archive-keep-hours, are automatically deleted from the csv-reporter-archive-directory directory.
+#csv-reporter-archive-keep-hours=168
+#
+#Number of hours of probe data CSV files that should be included in the support ZIP file. This data is useful for debugging purposes to gain a historical perspective of the system.
+#csv-reporter-support-default-hours=24
+#
+#MOCA auth model for Jolokia connections. Can be
+#    "simple" - a fast, stateless protocol that is limited to the MOCA Console admin user or
+#    "persisted" - which uses normal MOCA auth protocol, allowing advanced logins like LDAP and setting up cookies.
+#Note that the "persisted" auth scheme may create a lot of user sessions in the MOCA system. This may have an effect on the performance of the system, especially if clustering is configured. The "simple" auth model recommended.
+#jolokia-auth-model=simple
+
+[GRPC-SERVER]
+grpc-server-port=8012
+#
+#Enables the gRPC server used by MOCA's public API.
+#grpc-server-enabled=true
+#
+#Host name of the gRPC server. This should be the same as the application url.
+#grpc-server-host=<FQDN of the server running the application>
+#
+#The port to be used by the gRPC server communications. This needs to be set to a valid port number in order to start the gRPC server. 
+#Note: Port 0 (dynamic port) is no longer supported.
+#grpc-server-port=
+#
+#Specifies the source of the gRPC server's TLS configuration. There are 3 possible configurations:
+# * none - do not use TLS (default)
+# * pemfiles - Use TLS settings from grpc-keystore-location, grpc-keystore-password, grpc-keystore-type, grpc-keystore-key-alias, grpc-keystore-key-password
+# * keystore - Use TLS settings from grpc-server-cert-file and grpc-tls-key-file
+#grpc-tls-config=none
+#
+#File containing server certificates in PEM format used by gRPC client connections when TLS is enabled
+#grpc-client-cert-file=
+#
+#Location of the keystore to be used for TLS communications. Applicable to the keystore configuration only.
+#grpc-keystore-location=
+#
+#Password for the keystore to be used for TLS communications. Applicable to the keystore configuration only.
+#grpc-keystore-password=
+#
+#Keystore type to be used for this TLS configuration. It is recommended not to change this configuration, as pkcs12 is currently the only tested and verified keystore type. Applicable to the keystore configuration only.
+#grpc-keystore-type=pkcs12
+#
+#Alias of the key within the keystore to be used for this TLS configuration. Applicable to the keystore configuration only.
+#grpc-keystore-key-alias=
+#
+#Password for the key within the keystore to be used by this TLS configuration.  Applicable to the keystore configuration only.
+#grpc-keystore-key-password=
+#
+#Path to the file containing TLS certificates for the current configuration. Applicable to the pemfiles configuration only.
+#grpc-tls-cert-file=
+#
+#Path to the file containing TLS private keys for the current configuration. Applicable to the pemfiles configuration only.
+#grpc-tls-key-file=
+
+[OIDC]
+# OpenID Connect (OIDC)
+# Enables OIDC-based authentication
+#enabled=true
+# Enables Identity Context authentication, which is used as part of the perimeter security model within the BY API gateway. This allows
+# the usage of an unsigned JWT containing a sub claim to call APIs.
+#identity-context-enabled=false
+#
+# Enable auto creation of authenticated Open ID user. Users authenticated by IDP are trustable
+#user-provisioning-enabled=false
+# Comma separated roles which needs to be assigned for an authenticated user. By default, "SYSTEM_USER" role is assigned
+# The role can be from seed data or custom roles defined in the system.
+#default-user-roles=
+#
+# Limits maximum concurrent requests to OIDC service. 
+#max-concurrent-requests=16
+#
+# OIDC service provider url
+#provider=
+#
+# OIDC service client id
+#client-id=
+#
+# OIDC service client secret. Can be encrypted using the mpasswd utility -o option.
+#client-secret=
+#
+# OIDC Keyvault URL.
+#key-vault-url=
+#
+# OIDC Keyvault's Client Secret Name for which secret value is retrieved.
+#client-secret-name=
+#
+# OIDC service client authentication type. Allowed values: basic and post
+#client-authentication=basic
+#
+# OIDC service client redirect url
+#redirect-url=
+#
+# OIDC service client audience (needs to match client-id)
+#audience=
+#
+# OIDC service client scopes. Scope openid is currently required.
+#scopes=openid
+#
+# Access token validate mode, allowed values: direct/introspection/dynamic(default)
+#access-token-validate-mode=dynamic
+#
+# Access token cache lifespan seconds. Needs to be > 0 to take effect.
+#access-token-cache-lifespan-sec=-1
+#
+#Optional url for ending a OIDC session. This is only needed for MOCA console OIDC.
+#logout-url=
+#
+
+# Additional Authorization Params. Optional, and can be used to configure IDP-specific authorization parameters like "domain_hint" for Azure B2C. The property is specified in the following format <key_name:value;key_name2:value2>
+#additional-auth-params=domain_hint:by_realm
+#
+
+# Access Token Custom Claim Validation. This is an optional entry. The entry can assigned with multiple claims and its values in the following format <claim name>:<comma separated values>;<claim name>:<comma separated values>
+# Eg: by_scopes:wms,tms;by_realm:by-realm;scp:Inventory,Configuration
+#required-access-token-claims=
+#
+
+# ID Token Custom Claim Validation. This is an optional entry. The entry can assigned with multiple claims and its values in the following format <claim name>:<comma separated values>;<claim name>:<comma separated values>
+# Eg: by_scopes:wms,tms;by_realm:by-realm
+#required-id-token-claims=
+#
+
+[DISTRIBUTED_TRACING]
+# Specifies if Distributed Tracing is enabled
+#trace-id-enabled=
+#
+# Specifies Collector URL for collecting Jaeger Spans
+#span-collector-url=
+#
+# Specifies Splunk HEC Token for sending Spans to Splunk
+#splunk-hec-token=
+#
+# Specifies maximum number of spans to send to Splunk at one time
+#max-splunk-spans=
+
+[INSTALLER]
+HOST-NAME=localhost
+INSTALLED-COMPONENTS=mcs.server,moca.server,sal.server,reporting.common,dcs.server,voice.server,mtf.server,ems.server,seamles.server,reporting.server,dcs.voice
+INSTALLED-PRODUCTS=EMS_PRODUCT,REPORTING_PRODUCT,WMD_VOICE_PRODUCT,WMD_PRODUCT
+jredir=/usr/lib/jvm/jre-17-openjdk
+vmargs=-Xmx10g
+vmargs.dbupgrade=-Xmx1024M
+vmargs.installsql=-Xmx256M
+vmargs.mbuild=-Xmx1024M
+vmargs.mload_all=-Xmx1024M
+vmargs.msql=-Xmx1024M
+vmargs.sldbupgrade=-Xmx1024M
+vmargs.wsdeploy=-Xmx1024M
+WEB-ENABLEMENT-TYPE=
+
+[LICENSE]
+expdate=@LICENSE_EXPDATE@
+key=@LICENSE_KEY@
+licensee=@LICENSE_OWNER@
+product-list=@LICENSE_PRODUCTS@
+users=@LICENSE_USERS@
+
+[MOBILE]
+forms-dir=$LESDIR/src/rfsrc;$DCSDIR/src/rfsrc;$SALDIR/src/rfsrc
+mtflibs=DCSmtf
+
+[REPORTING]
+archive-folder=$REPORTINGDIR/report-archive
+archive-is-local=1
+cache-folder=$REPORTINGDIR/report-cache
+errorpage-filepath=$REPORTINGDIR/reports/error.jrprint
+
+[JMS]
+wms-event-queue=WMS-WMA
+wms-event-url=tcp://localhost:61616

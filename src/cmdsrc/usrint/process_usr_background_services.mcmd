@@ -1,0 +1,62 @@
+<command>
+  <name>process usr background services</name>
+  <description>process usr background services</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* process usr background services
+ * Triggers background services (workflows) for user defined exit points..
+ * Version history:
+ *  2018-07-20  Salem Hamze  Initial version.
+ */
+validate stack variable not null
+ where name = 'wh_id'
+|
+validate stack variable not null
+ where name = 'exitpnt'
+|
+try
+{
+    [select distinct 'x'
+       from wh_serv ws,
+            wh_serv_exitpnt wse
+      where ws.serv_id = wse.serv_id
+        and ws.wh_id = wse.wh_id
+        and wse.exitpnt_typ = 'SERVICE-BACKGROUND'
+        and ws.wh_id = @wh_id
+        and wse.exitpnt = @exitpnt
+        and ws.serv_enaflg = 1]
+    |
+    get background services for exit point
+     where exitpnt = @exitpnt
+       and wh_id = @wh_id
+    |
+    publish data
+     where cmd = "[select '" || @serv_id || "' serv_id from dual where 1 = 1] | " || @cmd
+    |
+    try
+    {
+        execute server command
+         where cmd = @cmd
+        |
+        create confirm background service
+         where serv_id = @serv_id
+           and wh_id = @wh_id
+           and exitpnt = @exitpnt
+    } catch(@?)
+    {
+        raise ems event for fail background service
+         where serv_id = @serv_id
+           and wh_id = @wh_id
+           and exitpnt = @exitpnt
+    }
+} catch(-1403)
+{
+    set return status
+     where status = 0
+}
+]]>
+</local-syntax>
+  <argument name="wh_id" required="yes" datatype="string">wh_id</argument>
+  <argument name="exitpnt" required="yes" datatype="string">exitpnt</argument>
+</command>

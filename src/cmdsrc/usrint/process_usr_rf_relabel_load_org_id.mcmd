@@ -1,0 +1,41 @@
+<command>
+  <name>process usr rf relabel load org_id</name>
+  <description>process usr rf relabel load org_id</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* process usr rf relabel load org_id
+ * Process the org_id entered in the USR_RELABEL_LOAD screen.
+ * Version history:
+ *  2018-10-18  Salem Hamze  Initial version.
+ */
+validate stack variable not null
+ where name = 'wh_id'
+|
+validate stack variable not null
+ where name = 'org_id'
+|
+get translated inventory identifier
+ where wh_id = @wh_id
+   and id = @org_id
+|
+if (@colnam != 'lodnum')
+{
+    /* Error: Invalid Identifier. */
+    set return status
+     where status = 90010
+}
+|
+validate client for user for inventory
+ where wh_id = @wh_id
+   and usr_id = nvl(@usr_id, @@usr_id)
+   and lodnum = @lodnum
+|
+publish data
+ where colnam = @colnam
+   and lodlvl = decode(@colnam, 'lodnum', 'L', 'subnum', 'S', 'dtlnum', 'D', null)
+]]>
+</local-syntax>
+  <argument name="wh_id" required="yes" datatype="string">wh_id</argument>
+  <argument name="org_id" required="yes" datatype="string">org_id</argument>
+</command>

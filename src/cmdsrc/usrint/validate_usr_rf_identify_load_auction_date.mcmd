@@ -1,0 +1,39 @@
+<command>
+  <name>validate usr rf identify load auction date</name>
+  <description>validate usr rf identify load auction date</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* validate usr rf identify load auction date
+ * Validates the auction date (inv_attr_dte1) for the RF form USR_IDENTIFY_LOAD.
+ * 2019-01-21   Salem Hamze     Initial version.
+ */
+validate stack variable not null
+ where name = 'devcod'
+|
+publish data
+ where inv_attr_dte1 = @auction_date
+|
+if (@inv_attr_dte1 != '')
+{
+    {
+        list usr rf identify load adjust load information
+         where devcod = @devcod
+        |
+        publish data
+         where org_inv_attr_dte1 = @org_inv_attr_dte1
+           and fr_inv_attr_dte1 = @inv_attr_dte1
+    }
+    |
+    /* Only validate the value if it is not the original value, if it is the original value we don't need to validate it. */
+    if (@org_inv_attr_dte1 != @inv_attr_dte1)
+    {
+        validate usr auction date
+         where auction_date = @inv_attr_dte1
+    }
+}
+]]>
+</local-syntax>
+  <argument name="devcod" required="yes" datatype="string">Device code</argument>
+  <argument name="auction_date" required="yes" datatype="string">Auction date in the format YYYYMMDD or YYYYMMDDHH24MISS.</argument>
+</command>

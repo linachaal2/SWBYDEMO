@@ -1,0 +1,31 @@
+<trigger>
+  <name>purge usr vas details</name>
+  <on-command>purge adjusted inventory</on-command>
+  <description>Remove unused vas records</description>
+  <fire-sequence>1000</fire-sequence>
+  <local-syntax>
+  <![CDATA[
+/* Trigger to remove vas details for removed details
+ *
+ * Version history:
+ *  2023-02-17 Marco Schouwenaar   Initial version
+ */
+[select *
+   from usr_invdtl_vas
+  where not exists (select 'x'
+                     from invdtl
+                    where invdtl.dtlnum = usr_invdtl_vas.dtlnum)
+    and not exists (select 'x'
+                     from invdtl_hist
+                    where invdtl_hist.dtlnum = usr_invdtl_vas.dtlnum)] catch(-1403)
+|
+if (@? = 0)
+{
+    remove record
+     where table = 'usr_invdtl_vas'
+}
+]]>
+  </local-syntax>
+
+  <enable>yes</enable>
+</trigger>

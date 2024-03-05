@@ -1,0 +1,96 @@
+<command>
+  <name>get usr shipby consolidation key</name>
+  <description>get usr shipby consolidation key</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* get usr shipby consolidation key
+ * Returns the consolidation key for an order, which is used to determine which orders can be consolidated in a shipment.
+ * Version history:
+ *  2019-06-20  Salem Hamze     Initial version
+ *
+ */
+/* Get the warehouse id. */
+get warehouse id
+|
+/* Check if we have all the needed field to identify an order. */
+validate stack variable not null
+ where name = 'ordnum'
+|
+validate stack variable not null
+ where name = 'wh_id'
+|
+validate stack variable not null
+ where name = 'client_id'
+|
+{
+    get cached policies
+     where wh_id = @wh_id
+       and polcod = 'USR-ORDER-CONSOLIDATION'
+       and polvar = 'CONSOLIDATION'
+       and polval = 'COLUMNS'
+    |
+    publish data
+     where column_name = @rtstr1 || ' as col' || @srtseq
+} catch(-1403) >> res_cons_columns
+|
+if (@? = 0)
+{
+    convert column results to string
+     where resultset = @res_cons_columns
+       and colnam = 'column_name'
+    |
+    publish data
+     where uc_shipby_key_columns = @result_string
+    |
+    [select @uc_shipby_key_columns:raw
+       from ord
+      inner
+       join cstmst as btcust
+         on btcust.cstnum = ord.btcust
+      inner
+       join cstmst as stcust
+         on stcust.cstnum = ord.stcust
+      inner
+       join cstmst as rtcust
+         on rtcust.cstnum = ord.rtcust
+      inner
+       join adrmst as bt_adr_id
+         on bt_adr_id.adr_id = ord.bt_adr_id
+      inner
+       join adrmst as st_adr_id
+         on st_adr_id.adr_id = ord.st_adr_id
+      inner
+       join adrmst as rt_adr_id
+         on rt_adr_id.adr_id = ord.rt_adr_id
+      where ord.ordnum = @ordnum
+        and ord.client_id = @client_id
+        and ord.wh_id = @wh_id] >> res_uc_shipby_key
+    |
+    get command columns
+     where res = @res_uc_shipby_key >> res_uc_shipby_key_columns
+    |
+    convert column results to string
+     where resultset = @res_uc_shipby_key_columns
+       and colnam = 'var_nam'
+       and separator = "|| '|' || @"
+    |
+    publish data
+     where uc_shipby_statement = '@' || @result_string
+    |
+    publish data combination
+     where res = @res_uc_shipby_key
+    |
+    execute server command
+     where cmd = 'publish data where uc_shipby=' || @uc_shipby_statement
+    |
+    publish data
+     where shipby = 'ordnum'
+       and uc_shipby = @uc_shipby
+}
+]]>
+</local-syntax>
+  <argument name="ordnum" required="yes" datatype="string">Order Number</argument>
+  <argument name="client_id" required="yes" datatype="string">Client Id</argument>
+  <argument name="wh_id" required="yes" datatype="string">Warehouse Id</argument>
+</command>

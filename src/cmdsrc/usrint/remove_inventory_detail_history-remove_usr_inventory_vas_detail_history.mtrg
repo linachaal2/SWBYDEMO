@@ -1,0 +1,32 @@
+<trigger>
+  <name>remove usr inventory vas detail history</name>
+  <on-command>remove inventory detail history</on-command>
+  <description>remove connected vas detail history record</description>
+  <fire-sequence>1000</fire-sequence>
+  <local-syntax>
+<![CDATA[
+/* Trigger to remove vas details for removed detail hist
+ *
+ * Version history:
+ *  2023-02-17 Marco Schouwenaar   Initial version
+ */
+validate stack variable not null
+ where name = 'inv_hist_id'
+|
+validate stack variable not null
+ where name = 'dtlnum'
+|
+[select *
+   from usr_invdtl_vas_hist
+  where dtlnum = @dtlnum
+    and inv_hist_id = @inv_hist_id] catch(-1403)
+|
+if (@? = 0)
+{
+    remove record
+     where table = 'usr_invdtl_vas'
+}
+]]>
+</local-syntax>
+  <enable>yes</enable>
+</trigger>

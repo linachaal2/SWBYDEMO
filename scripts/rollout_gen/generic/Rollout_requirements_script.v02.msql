@@ -1,0 +1,57 @@
+<REQUIREMENTS>
+|
+/*check environment before any other checks*/
+{
+    get warehouse id
+    |
+    [select poldat_view.rtstr1 as server_type
+       from poldat_view
+      where poldat_view.wh_id = @wh_id
+        and poldat_view.polcod = 'SYSTEM-INFORMATION'
+        and poldat_view.polvar = 'SERVER'
+        and poldat_view.polval = 'TYPE'
+        and rtstr1 in (@excluded_server_types:raw)] catch(-1403)
+    |
+    if (@server_type != '')
+    {
+        publish data
+         where result = 'STOP server type ' || @server_type || ' is excluded for this rollout'
+    }
+}
+|
+if (@result not like 'STOP%' and @required_rollout_id != '')
+{
+    /*find rollout or return rollout id with minus(-) prefix for sorting purposes*/
+    {
+        [select nvl(max(rollout_name), '-' || @required_rollout_id) rollout
+           from usr_rollout_install
+          where rollout_id = @required_rollout_id
+            and @+rollout_type
+            and rollout_version >= @minimal_version] catch(-1403)
+    } >> rollout_results
+    |
+    sort result set
+     where result_set = @rollout_results
+       and sort_list = 'rollout desc' catch(@?)
+    |
+    /*it is important to have the Not Found option shown last if it exists in the list, the rollout script only checks the last line of the results*/
+    if (@rollout not like '-%')
+    {
+        publish data
+         where result = 'ROLLOUT_FOUND: ' || @rollout
+    }
+    else
+    {
+        publish data
+         where result = 'STOP ROLLOUT_NOT_FOUND: ' || @rollout
+    }
+}
+else
+{
+    publish data
+         where result = 'no limitations found'
+}
+|
+publish data where result = @result;
+/
+exit

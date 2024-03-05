@@ -1,0 +1,8 @@
+entity: Page
+version: '1.0'
+data:
+
+- pageId: services-VersionsApp
+  appId: services
+  component: LES.sample.VersionsApp
+  resourceBundle: services-VersionsApp

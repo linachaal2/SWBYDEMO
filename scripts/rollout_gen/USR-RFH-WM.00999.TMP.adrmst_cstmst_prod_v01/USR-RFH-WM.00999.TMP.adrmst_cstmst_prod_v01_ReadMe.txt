@@ -1,0 +1,8 @@
+======================================================
+Rollout: USR-RFH-WM.00999.TMP.adrmst_cstmst_prod_v01
+Generation timestamp: 2023-12-05 14:05:23
+======================================================
+
+Release Notes:
+
+-V01: grab data from prods

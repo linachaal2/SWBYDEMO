@@ -1,0 +1,265 @@
+<command>
+  <name>create usr stops and loads for shipments</name>
+  <description>create usr stops and loads for shipments</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* create usr stops and loads for shipments
+ *
+ * For fulfilment Naaldwijk a requirement is to automatically
+ * plan/create shipments into stops and assign stops to 
+ * loads. Loads (JDA_2018) are called carrier moves in older versions. 
+ * Version history:
+ *  2018-09-10 Tim van den Akker    Initial version
+ *  2018-10-14 Salem Hamze          Added stoloc_wh_id to "create trailer" to fix default warehouse on shipment.
+ *  2019-08-23 Tim van den AKker    zendesk 253 en incident M19071602 - added filterering in sql op ship_id, otherwise it was pulling all the shipments for an ordertype and that is giving issues. 
+ *  2020-07-10 Raoul Scholten	    Check on several shipments on one invlod - if so bind them to one stop whenever shipment status is staged
+ *             Raoul Scholten       whenever one shipment in status staged - create a stop and assign 
+ *  2020-10-27 Marco Schouwenaar    adjusted stop assignment to multiple shipments to a stop
+ *  2021-02-12 Marco Schouwenaar    adjusted stop assignment to multiple shipments to a stop which is not closed yet to avoid multiple stops on 1 lpn
+ *  2021-02-12 Raoul Scholten       fix issue with non assigned shipments caused by deferred execution of this command 
+ *  2021-06-22 Raoul Scholten       added proces auto load command due to deferred multi thread solution
+ */
+get warehouse id
+|
+publish data
+ where orig_ship_id = @ship_id
+   and pref_stop_id = '-'
+|
+[select rtstr1 as ordtyp
+   from poldat_view
+  where wh_id = nvl(@wh_id, @@wh_id)
+    and polcod = 'USR-SHIPPING'
+    and polvar = 'MISCELLANEOUS'
+    and polval = 'AUTO-CRT-STOPS-LOADS'
+    and rtnum1 = 1] catch(-1403)
+|
+if (@? = 0)
+{
+    /* Check if order type of the connected orders are set for autoloading */
+    [select distinct shipment.ship_id,
+            shipment.wh_id,
+            shipment.carcod,
+            shipment.srvlvl,
+            shipment.shpsts,
+            shipment.rt_adr_id,
+            shipment.stop_id,
+            ord.uc_shipby,
+            ord_line.uc_shipby ol_shipby
+       from shipment
+      inner
+       join shipment_line
+         on shipment_line.ship_id = shipment.ship_id
+        and shipment_line.linsts <> 'B'
+      inner
+       join ord
+         on ord.ordnum = shipment_line.ordnum
+        and ord.wh_id = shipment_line.wh_id
+        and ord.client_id = shipment_line.client_id
+       left
+       join ord_line
+         on shipment_line.ordnum = ord_line.ordnum
+        and shipment_line.ordlin = ord_line.ordlin
+        and shipment_line.ordsln = ord_line.ordsln
+        and shipment_line.client_id = ord_line.client_id
+        and shipment_line.wh_id = ord_line.wh_id
+      where ord.ordtyp = @ordtyp
+        and shipment.shpsts = 'S'
+        and shipment.ship_id = @ship_id
+        and shipment.carcod is not null] catch(-1403)
+    |
+    if (@? = 0)
+        /* check if all shipments are staged and ready to bound to a stop */
+    {
+        [select min(decode(shipment.shpsts, 'S', '1', '0')) CreateStopForShipment,
+                nvl(max(stop.stop_id), '-') as pref_stop_id
+           from inventory_view,
+                shipment_line,
+                ord_line,
+                ord,
+                shipment
+           left
+           join stop
+             on stop.stop_id = shipment.stop_id
+            and stop.stop_cmpl_flg = 0
+          where inventory_view.ship_line_id = shipment_line.ship_line_id
+            and shipment_line.ship_id = shipment.ship_id
+            and shipment_line.client_id = ord_line.client_id
+            and shipment_line.ordlin = ord_line.ordlin
+            and shipment_line.ordnum = ord_line.ordnum
+            and shipment_line.ordsln = ord_line.ordsln
+            and shipment_line.wh_id = ord_line.wh_id
+            and ord.ordnum = ord_line.ordnum
+            and ord.wh_id = ord_line.wh_id
+            and ord.client_id = ord_line.client_id
+            and shipment.rt_adr_id = @rt_adr_id
+            and nvl(ord.uc_shipby, '-') = nvl(@uc_shipby, '-')
+            and nvl(ord_line.uc_shipby, '-') = nvl(@ol_shipby, '-')
+            and exists(select 0
+                         from inventory_pckwrk_view ipv
+                        where ipv.lodnum = inventory_view.lodnum
+                          and ipv.ship_id = @ship_id)] catch(-1403)
+        |
+        if (@? = 0)
+        {
+            publish data
+             where pref_trlr_id = ''
+               and pref_car_move_id = ''
+            |
+            if (nvl(@pref_stop_id, '-') <> '-')
+            {
+                [select stop.stop_id,
+                        car_move.car_move_id as car_move_id,
+                        trlr.trlr_id as pref_trlr_id
+                   from stop
+                   left
+                   join car_move
+                     on car_move.car_move_id = stop.car_move_id
+                   left
+                   join trlr
+                     on car_move.trlr_id = trlr.trlr_id
+                    and trlr.trlr_stat not in ('C', 'D')
+                  where stop.stop_id = @pref_stop_id
+                    and stop.stop_cmpl_flg = 0] catch(-1403)
+            }
+            else
+            {
+                [select top 1 stop.stop_id,
+                        car_move.car_move_id as car_move_id,
+                        trlr.trlr_id as pref_trlr_id
+                   from shipment,
+                        shipment_line,
+                        ord,
+                        ord_line,
+                        stop
+                   left
+                   join car_move
+                     on car_move.car_move_id = stop.car_move_id
+                   left
+                   join trlr
+                     on car_move.trlr_id = trlr.trlr_id
+                    and trlr.trlr_stat not in ('C', 'D')
+                  where stop.stop_cmpl_flg = 0
+                    and stop.stop_id = shipment.stop_id
+                    and shipment_line.ship_id = shipment.ship_id
+                    and shipment_line.client_id = ord_line.client_id
+                    and shipment_line.ordlin = ord_line.ordlin
+                    and shipment_line.ordnum = ord_line.ordnum
+                    and shipment_line.ordsln = ord_line.ordsln
+                    and shipment_line.wh_id = ord_line.wh_id
+                    and ord.ordnum = ord_line.ordnum
+                    and ord.wh_id = ord_line.wh_id
+                    and ord.client_id = ord_line.client_id
+                    and shipment.rt_adr_id = @rt_adr_id
+                    and nvl(ord.uc_shipby, '-') = nvl(@uc_shipby, '-')
+                    and nvl(ord_line.uc_shipby, '-') = nvl(@ol_shipby, '-')] catch(-1403)
+            }
+            /*create trailer/carmove/stop combination and assign shipment to it*/
+            |
+            if (nvl(@pref_trlr_id, '') = '')
+            {
+                generate next number
+                 where numcod = 'trlr_id'
+                |
+                publish data
+                 where trlr_id = @nxtnum
+                |
+                create trailer
+                 where wh_id = @wh_id
+                   and stoloc_wh_id = @wh_id
+                   and trlr_id = @trlr_id
+                   and trlr_num = @trlr_id
+                   and carcod = @carcod
+                   and trlr_cod = 'SHIP'
+                |
+                generate next number
+                 where numcod = 'car_move_id'
+                |
+                publish data
+                 where car_move_id = @nxtnum
+                |
+                create carrier move
+                 where wh_id = @wh_id
+                   and car_move_id = @car_move_id
+                   and carcod = @carcod
+                   and srvlvl = @srvlvl
+                   and trlr_id = @trlr_id
+                   and rte_tmpl_flg = 0
+                |
+                [select adr_id as car_adr_id,
+                        @car_move_id
+                   from carhdr
+                  where carcod = @carcod]
+                |
+                if (nvl(@stop_id, '') = '')
+                {
+                    create stop
+                     where car_move_id = @car_move_id
+                       and adr_id = @car_adr_id
+                }
+            }
+            |
+            assign shipment to stop
+             where ship_id = @ship_id
+               and stop_id = @stop_id catch (@?)
+               |
+               if (@? != 0)
+               {
+                    [select  ipv.wh_id, ipv.client_id, ipv.lodnum,ipv.subnum, ipv.ordnum, ipv.ship_id ,  ipv.rtcust as EAN, adrmst.host_ext_id as GLN from inventory_pckwrk_view ipv
+                    join ord on ord.ordnum = ipv.ordnum
+                    join adrmst on adr_id = ord.rt_adr_id where ship_id = @ship_id and rownum = 1] catch (-1403)
+                    |
+                    raise usr ems event for failed to create stop where @* 
+               }
+			|
+			process usr auto load of shipments deferred where wh_id = @wh_id and  ship_id = @orig_ship_id
+            |
+            /*because of the command being executed deferred some of the shipments staged before have not been attached to a stop*/
+            [select distinct (shipment1.ship_id)
+               from shipment
+               join shipment_line
+                 on shipment_line.ship_id = shipment.ship_id
+               join invdtl
+                 on shipment_line.ship_line_id = invdtl.ship_line_id
+               join invsub
+                 on invsub.subnum = invdtl.subnum
+               join invsub invsub1
+                 on invsub.lodnum = invsub1.lodnum
+               join invdtl invdtl1
+                 on invdtl1.subnum = invsub1.subnum
+               join shipment_line shipment_line1
+                 on invdtl1.ship_line_id = shipment_line1.ship_line_id
+               join shipment shipment1
+                 on shipment1.ship_id = shipment_line1.ship_id
+                and shipment1.stgdte < shipment.stgdte
+                and shipment1.stop_id is null
+				and shipment1.shpsts = 'S'
+              where shipment.ship_id = @ship_id] catch(-1403)
+            |
+            if (@? = 0)
+            {
+                assign shipment to stop
+                 where ship_id = @ship_id
+                   and stop_id = @stop_id catch (@?)
+               |
+               if (@? != 0)
+               {
+                    [select  ipv.wh_id, ipv.client_id, ipv.lodnum,ipv.subnum, ipv.ordnum, ipv.ship_id ,  ipv.rtcust as EAN, adrmst.host_ext_id as GLN from inventory_pckwrk_view ipv
+                    join ord on ord.ordnum = ipv.ordnum
+                    join adrmst on adr_id = ord.rt_adr_id where ship_id = @ship_id and rownum = 1] catch (-1403)
+                    |
+                    raise usr ems event for failed to create stop where @* 
+               }
+            }
+            |
+            commit;
+        }
+        else
+        {
+            noop
+        }
+    }
+}
+]]>
+</local-syntax>
+</command>

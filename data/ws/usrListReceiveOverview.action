@@ -1,0 +1,16 @@
+<action>
+  <id>usrListReceiveOverview</id>
+  <name>usrListReceiveOverview</name>
+  <description>List Received LPN Overview</description>
+  <type>LIST</type>
+  <ws>
+     <method>GET</method>
+	 <href>/usrListReceiveOverview</href>
+  </ws>
+  <impl>
+     <command>list usr received lpn overview</command>
+  </impl>
+  <auth>
+     <opt>optOpen</opt>
+  </auth>
+</action>

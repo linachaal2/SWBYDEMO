@@ -1,0 +1,73 @@
+<command>
+  <name>scan usr rf multiple lpns from loc</name>
+  <description>Takes all the LPNs from a location, on to the RF device when the location is scanned.</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+validate stack variable not null
+ where name = 'src_id'
+|
+publish data
+ where devcod = nvl(@devcod, @@devcod)
+|
+get warehouse id
+|
+[select max(lodnum) as lodnum,
+        'stoloc' as scanlevel
+   from invlod
+  where stoloc = @src_id] catch(-1403)
+|
+if (@lodnum = '')
+{
+    [select lodnum as lodnum,
+            'lodnum' as scanlevel
+       from invlod
+      where lodnum = @src_id] catch(-1403)
+}
+|
+if (@scanlevel = '')
+{
+    /* ERROR: No location nor lpn scanned */
+    set return status
+     where status = 90025
+}
+|
+publish data
+ where scanlevel = @scanlevel
+|
+validate usr rf scanned lpn count
+ where scn_loc = @src_id
+   and scanlevel = @scanlevel
+|
+[select distinct lodnum lpns_on_loc, sum(untqty) as untqty
+   from inventory_view
+  where @scanlevel:raw = @src_id group by lodnum]
+|
+publish data
+ where srclod= @lpns_on_loc and srcqty = @untqty
+ |
+ move inventory where devcod = @devcod
+ and srclod = @srclod
+ and dstloc = @dstloc
+ and srcloc = @srcloc
+ |
+[select 'x'
+   from locmst,
+        poldat_view
+  where poldat_view.wh_id = nvl(@wh_id, @@wh_id)
+    and poldat_view.polcod = 'USR-INVENTORY'
+    and poldat_view.polvar = 'MULTIPLE-LPN-HANDLING'
+    and poldat_view.polval = 'CREATE_PICK_DEP_MOVE'
+    and poldat_view.rtnum1 = 1
+    and poldat_view.rtstr1 = locmst.mov_zone_id
+    and locmst.stoloc = @srcloc] catch(-1403)
+|
+if (@?)
+{
+    process rf reserving location for next step
+     where invid = @srclod
+       and wh_id = nvl(@wh_id, @@wh_id)
+}
+]]>
+</local-syntax>
+</command>

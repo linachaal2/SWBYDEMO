@@ -1,0 +1,1065 @@
+<command>
+  <name>complete usr rf identify load</name>
+  <description>complete usr rf identify load</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* complete usr rf identify load
+ * Completes the load receipt in the USR_IDENTIFY_LOAD screen.
+ * Version history:
+ * v01, 2018-09-04  Salem Hamze     Initial version.
+ * v02, 2018-10-22  Salem Hamze     Added dlytrn for 'USR-PAB-MERGE'.
+ * v03, 2018-10-28  Salem Hamze     Added load adjustments.
+ * v04, 2018-11-26  Jasper Ringoir  Added Asset Qty adjustment.
+ * v05, 2018-11-30  Stephan Doens   Fixed scope/context for asset_qty change check
+ * v05, 2018-12-04  Salem Hamze     Changed the hold logic, added hoogbeladen(invlod.load_attr1_flg) adjustment.
+ * v06, 2018-12-05  Jasper Ringoir  Added Asset insert for correction from 0.
+ * v07, 2018-12-05  Salem Hamze     Added the skip_non_ser_asset_mod flag to process asset move.
+ * v08, 2019-04-26  Salem Hamze     Added PAB.MERGE logging in hldhst.
+ * v09, 2019-05-03  Raoul Scholten  Fixed 2 holds created whenever processing dummyload on exception location	
+ * v10, 2020-01-03  Shailesh Raina  803601 Modified the code to capture PAB info during dummy item creation in case of PABs without EABs.	
+ * v11, 2020-08-04  Radina Ivanova  Pass the asset_typ to process inventory move so that it is stored in dlytrn
+ * v12, 2020-06-22  Raoul Scholten  removed firing inventory adjustment for qty change and captured actual rcvlin.rcvqty and invdtl.untqty 
+ * v13, 2020-10-13  Radina Ivanova  inventory adjustment should be fired when adjusting an existing load
+ * v14, 2020-10-21  Radina Ivanova  inventory adjusted to 0 should be removed after firing the interfaces
+ * v15, 2020-10-28  Radina Ivanova  when adding to an existing load, update the completed_receiving_date to null only before the last subnum is moved
+                                    so that the INV-RCV event is triggered after all sub-loads are received (all sub-loads get included in the message)
+ */
+publish data
+ where devcod = nvl(@devcod, @@devcod)
+|
+get warehouse id
+|
+/* Track start time for performance tracking. */
+{
+    get datetime with milliseconds
+    |
+    publish data
+     where perf_start_datetimemilli = @datetimemilli
+}
+|
+/* Check the scan status of the device, for example if a location is already scanned, etc. Run the command to see the fields. */
+list usr rf identify load device scan status
+ where devcod = @devcod
+   and wh_id = @wh_id
+|
+list usr rf identify load exception information
+ where devcod = @devcod
+   and wh_id = @wh_id
+|
+if (@dc_stoloc = '')
+{
+    /* Error: Destination Location cannot be empty. */
+    set return status
+     where status = 90002;
+}
+|
+if (@dc_finish_identifier = '')
+{
+    /* Error: Scan Id cannot be empty. */
+    set return status
+     where status = 90001;
+}
+|
+/* Check if we are adding to an existing load or not. */
+[select nvl(decode(max(invlod.lodnum), null, 1, 0), 0) as recv_new_load,
+        nvl(max(loc_typ.expflg), 0) as recv_asn_load,
+        nvl(max(loc_typ.fwiflg), 0) as recv_existing_load
+   from invlod
+  inner
+   join locmst
+     on locmst.stoloc = invlod.stoloc
+    and locmst.wh_id = invlod.wh_id
+  inner
+   join loc_typ
+     on loc_typ.loc_typ_id = locmst.loc_typ_id
+  where invlod.lodnum = @dc_finish_identifier]
+|
+/* Check if the destination load is a dummy load. */
+get usr dummy load information
+ where lodnum_list = @dc_finish_identifier
+|
+{
+    {
+        if ((@recv_existing_load = 0 and @dc_no_lodnum > 0) or (@recv_existing_load = 1 and @dc_no_lodnum > 1))
+        {
+            /* Get the loads which we need to receive. */
+            [select value as dc_lodnum,
+                    srtseq as dc_srtseq
+               from device_context
+              where wh_id = @wh_id
+                and devcod = @devcod
+                and dev_varnam = 'USR_IDENTIFY_LOAD|LODNUM'
+              order by dc_srtseq] catch(-1403)
+            |
+            /* Check in the master receipt(s) for which the load contains inventory. */
+            {
+                /* Get the trknum and status for the inventory. */
+                [select distinct rcvtrk.trknum,
+                        rcvtrk.rcvtrk_stat
+                   from invlod
+                  inner
+                   join invsub
+                     on invsub.lodnum = invlod.lodnum
+                  inner
+                   join invdtl
+                     on invdtl.subnum = invsub.subnum
+                  inner
+                   join rcvlin
+                     on rcvlin.rcvkey = invdtl.rcvkey
+                  inner
+                   join rcvinv
+                     on rcvinv.trknum = rcvlin.trknum
+                    and rcvinv.supnum = rcvlin.supnum
+                    and rcvinv.invnum = rcvlin.invnum
+                    and rcvinv.wh_id = rcvlin.wh_id
+                    and rcvinv.client_id = rcvlin.client_id
+                  inner
+                   join rcvtrk
+                     on rcvtrk.trknum = rcvinv.trknum
+                    and rcvtrk.wh_id = rcvinv.wh_id
+                  where invlod.lodnum = @dc_lodnum] catch(-1403)
+                |
+                /* Check in the truck if needed. */
+                if (@rcvtrk_stat = 'EX')
+                {
+                    /* Check in the trailer in a new transaction because otherwise it will (probably) cause deadlocks. */
+                    execute server command with new transaction
+                     where cmd = "check in master receipt where trknum = '" || @trknum || "' and stoloc = '" || @dc_stoloc || "' and wh_id = '" || @wh_id || "' | [update rcvtrk set rcvtrk_stat = 'R' where rcvtrk.trknum = '" || @trknum || "' and rcvtrk.wh_id = '" || @wh_id || "' and rcvtrk.rcvtrk_stat = 'CI'] "
+                }
+                |
+                /* Publish the trknum so we can use it outside this context in the command which follow, mainly "process inventory move"/"move inventory". */
+                publish data
+                 where trknum = @trknum
+            }
+            |
+            /* Move the inventory to the RDT. */
+            {
+                if (@recv_existing_load = 1)
+                {
+                    if (@dc_srtseq = 0)
+                    {
+                        /* If we are adding to an existing received load the first load is the already existing laod so we can skip it. */
+                        publish data
+                         where skip_lodnum = 1
+                    }
+                    else if (@dc_srtseq = 1)
+                    {
+                        /* We will use the first added load as a temporary load which we can move in one time to the existing load. */
+                        save session variable
+                         where name = 'rdt_lodnum'
+                           and value = @dc_lodnum
+                        |
+                        publish data
+                         where dstlod = null
+                    }
+                    else
+                    {
+                        /* We add all the other loads to the first added load which we stored in dc_srtseq=1. */
+                        get session variable
+                         where name = 'rdt_lodnum' catch(-1403)
+                        |
+                        publish data
+                         where dstlod = @value
+                    }
+                }
+                else
+                {
+                    if (@dc_srtseq = 0)
+                    {
+                        /* We will use the first added load as a temporary load which we can move in one time from the rdt to the destination location. */
+                        save session variable
+                         where name = 'rdt_lodnum'
+                           and value = @dc_lodnum
+                        |
+                        publish data
+                         where dstlod = null
+                    }
+                    else
+                    {
+                        /* We add all the other loads to the first added/moved load which we stored in dc_srtseq=0. */
+                        get session variable
+                         where name = 'rdt_lodnum' catch(-1403)
+                        |
+                        publish data
+                         where dstlod = @value
+                    }
+                }
+                |
+                /* Skip the load if indicated (only the case when adding to an existing load. */
+                if (@skip_lodnum != 1)
+                {
+                    /* Receive the asset if needed. */
+                    {
+                        [select asset_cat
+                           from invlod
+                          inner
+                           join asset_typ
+                             on asset_typ.asset_typ = invlod.asset_typ
+                          where invlod.lodnum = @dc_lodnum] catch(-1403)
+                        |
+                        if (@? = 0)
+                        {
+                            list warehouse asset categories
+                             where wh_id = @wh_id
+                               and asset_cat = @asset_cat catch(-1403)
+                            |
+                            if (@? = 0 and @ena_flg = 1)
+                            {
+                                /* Check if we need to store the non_ser_asset data. */
+                                get cached policy
+                                 where wh_id = @wh_id
+                                   and polcod = 'USR-RF-FORM'
+                                   and polvar = 'USR_IDENTIFY_LOAD'
+                                   and polval = 'PROCESS-ASSET-MOVE'
+                                   and colnam = 'rtstr1'
+                                   and colval = 'SKIP_NON_SER_ASSET_MOD' catch(-1403)
+                                |
+                                /* Default is to do the update. */
+                                if (@? = -1403)
+                                {
+                                    publish data
+                                     where rtnum1 = 0
+                                }
+                                |
+                                process asset move
+                                 where trndte = sysdate
+                                   and lodnum = @dc_lodnum
+                                   and trknum = @trknum
+                                   and wh_id = @wh_id
+                                   and no_more_to_receive = '0'
+                                /* Skip the update of the non_ser_asset because this causes blocking locks which affect the performance. */
+                                   and skip_non_ser_asset_mod = @rtnum1
+                            }
+                        }
+                    };
+
+                    /* Move the inventory to the RDT. */
+                    {
+                        process inventory move
+                         where trndte = sysdate
+                           and wh_id = @wh_id
+                           and srcloc = @trknum
+                           and srclod = @dc_lodnum
+                           and dstloc = @devcod
+                           and dstlod = @dstlod
+                           and actcod = 'ASN_NONTRUST'
+                           and oprcod = 'URC'
+                           and new_train_flg = @dc_new_train_flg
+                           and asset_typ = nvl(@asset_typ, nvl(@dc_finish_asset_typ, @dc_asset_typ));
+
+                        /* The device context variable "lpn_on_device-<lodnum>" is added by move inventory and in the regular receiving process it would be removed by DEPOSIT_A. 
+                         * Remove it because we deposit it ourselves, otherwise it will never be removed.
+                         */
+                        [delete
+                           from device_context
+                          where devcod = @devcod
+                            and wh_id = @wh_id
+                            and dev_varnam in ('lpn_on_device-' || @dc_lodnum, 'lpn_on_device-' || @dstlod)] catch(-1403)
+                    }
+                }
+            }
+        }
+        else if (@dc_no_lodnum = 0 and @hldnum != '')
+        {
+            /* If we have an exception set but no loads are on the device we need to create a dummy load. */
+            if (@dummy_prtnum = '' or @dummy_prt_client_id = '')
+            {
+                /* Error 90012: No dummy inventory item setup in policy USR-RF-FORM, USR_EXCEPTION, DUMMY-PRTNUM. */
+                set return status
+                 where status = 90012
+            }
+            |
+            [select value as dc_PAB
+               from device_context
+              where wh_id = @wh_id
+                and devcod = @devcod
+                and dev_varnam = 'USR_IDENTIFY_LOAD|IDENTIFIER'] catch(-1403)
+            |
+            /* Create the dummy item/load. */
+            create inventory
+             where trndte = sysdate
+               and wh_id = @wh_id
+               and prtnum = @dummy_prtnum
+               and prt_client_id = @dummy_prt_client_id
+               and untqty = 1
+               and untcas = 1
+               and invsts = nvl(@dummy_invsts, 'H')
+               and dstloc = @devcod
+               and lodnum = @dc_finish_identifier
+               and asset_typ = @asset_typ
+               and inv_attr_str8 = @dc_PAB
+            |
+            save session variable
+             where name = 'rdt_lodnum'
+               and value = @dc_finish_identifier;
+            noop
+        }
+        |
+		/* RLS 220620- Here we need to update the invdtl and rcvlin.rcvqty */
+        /* RI 121020 - only for new loads, for existing loads - adjustment */
+        if (@recv_existing_load = 0 or (@recv_existing_load = 1 and @dummy_load_flg = 1))
+        {
+		    change usr rf reveice qty
+        }
+		|	
+        /* Move the load to the receipt staging location. This also triggers the standard receipt confirmation. */
+
+        {
+            get session variable
+             where name = 'rdt_lodnum' catch(-1403)
+            |
+            publish data
+             where rdt_lodnum = @value
+            |
+            if (@rdt_lodnum != '')
+            {
+                /* Check if the destination load is a dummy load. */
+                if (@recv_existing_load = 1 and @dummy_load_flg = 1)
+                {
+                    /* If we are adding to a dummy load we need to remove the dummy load first. */
+                    [select distinct inventory_view.dtlnum as dummy_dtlnum,
+                            invhld.hldpfx as dummy_hldpfx,
+                            invhld.hldnum as dummy_hldnum,
+                            invhld.reacod as dummy_reacod,
+                            invhld.uc_invtyp as dummy_uc_invtyp,
+                            invhld.uc_nottxt as dummy_uc_nottxt
+                       from inventory_view
+                       left
+                       join invhld
+                         on invhld.dtlnum = inventory_view.dtlnum
+                      where inventory_view.lodnum = @dc_finish_identifier
+                        and inventory_view.prtnum = @dummy_prtnum
+                        and inventory_view.prt_client_id = @dummy_prt_client_id] catch(-1403) >> res_dummy_load_hldnum
+                    |
+                    {
+                        if (@? = 0)
+                        {
+                            publish data combination
+                             where res = @res_dummy_load_hldnum
+                            |
+                            {
+                                if (@hldnum != '')
+                                {
+                                    /* Remove the holds on the dummy items. */
+                                    process usr rf exception
+                                     where trndte = sysdate
+                                       and dtlnum = @dummy_dtlnum
+                                       and acttyp = 'R'
+                                       and prc_hldpfx = @dummy_hldpfx
+                                       and prc_hldnum = @dummy_hldnum
+                                       and prc_reacod = @dummy_reacod
+                                       and invtyp = @dummy_uc_invtyp
+                                       and nottxt = @dummy_uc_nottxt
+                                };
+
+                                /* Remove the dummy items. */
+                                move inventory
+                                 where trndte = sysdate
+                                   and srcdtl = @dummy_dtlnum
+                                   and dstloc = 'PERM-ADJ-LOC'
+                                   and oprcod = 'INVADJ'
+                                   and actcod = 'INVDEL'
+                            }
+                        };
+
+                        /* If we are replacing a dummy load we have collected it on the first load. We need to check if we need to "relabel" the load to the "finish" identifier. */
+                        if (@rdt_lodnum != @dc_finish_identifier)
+                        {
+                            change inventory identifier
+                             where trndte = sysdate
+                               and wh_id = @wh_id
+                               and lodlvl = 'L'
+                               and from_id = @rdt_lodnum
+                               and to_id = @dc_finish_identifier
+                        }
+                        |
+                        /* For dummy loads we already put the current hold in hldhst because for the receipt confirmation this is already needed in some cases (asnflg). */
+                        {
+                            publish data combination
+                             where res = @res_dummy_load_hldnum
+                            |
+                            /* Get all the historical holds. */
+                            [select hldpfx as dummy_hldpfx,
+                                    hldnum as dummy_hldnum,
+                                    reacod as dummy_reacod,
+                                    uc_invtyp as dummy_uc_invtyp,
+                                    uc_nottxt as dummy_uc_nottxt
+                               from hldhst
+                              where dtlnum = @dummy_dtlnum
+                                and acttyp = 'A'] catch(-1403)
+                            |
+                            if (@? = 0)
+                            {
+                                process usr rf exception
+                                 where trndte = sysdate
+                                   and lodnum = @dc_finish_identifier
+                                   and acttyp = 'L'
+                                   and prc_hldpfx = @dummy_hldpfx
+                                   and prc_hldnum = @dummy_hldnum
+                                   and prc_reacod = @dummy_reacod
+                                   and invtyp = @dummy_uc_invtyp
+                                   and nottxt = @dummy_uc_nottxt
+                                   and initflg = 1
+                            };
+                            noop
+                        }
+                        |
+                        /* Move the load to the receipt staging location. */
+                        process inventory move
+                         where trndte = sysdate
+                           and wh_id = @wh_id
+                           and srcloc = @devcod
+                           and srclod = @dc_finish_identifier
+                           and dstloc = @dc_stoloc
+                           and dstlod = null
+                           and actcod = 'ASN_NONTRUST'
+                           and oprcod = 'URC'
+                           and mergeondep = '1'
+                           and new_train_flg = @dc_new_train_flg
+                           and asset_typ = nvl(@asset_typ, nvl(@dc_finish_asset_typ, @dc_asset_typ));
+
+                        /* If we are replacing a dummy load it has a hold, apply it to all the inventory for registration and consistency. */
+                        publish data combination
+                         where res = @res_dummy_load_hldnum
+                        |
+                        if (@dummy_hldnum != '' and @mode != 'L')
+                        {
+                            process usr rf exception
+                             where trndte = sysdate
+                               and lodnum = @dc_finish_identifier
+                               and dtlnum = ''
+                               and acttyp = 'A'
+                               and prc_hldpfx = @dummy_hldpfx
+                               and prc_hldnum = @dummy_hldnum
+                               and prc_reacod = @dummy_reacod
+                               and invtyp = @dummy_uc_invtyp
+                               and nottxt = @dummy_uc_nottxt
+                               and initflg = 1
+                        }
+                    };
+                    noop
+                }
+                else if (@recv_existing_load = 1 and @dummy_load_flg = 0)
+                {
+                    /* We are adding to an existing load.
+                     * Normally we would move all inventory from one load to another using "process inventory move", but this just moves each sub-load.
+                     * Each sub-load move would trigger the receipt confirmation.
+                     * To prevent this we need to recognize when the last sub-load is moved so we can prevent sending the unnecessary receipt confirmations.
+                     */
+                    /* Get the sub-loads and mark the last one so we can send the receipt confirmation based on that in "complete client receiving level". */
+                    [select invsub.subnum as rdt_subnum,
+                            decode((max(invsub.subnum) over(partition by null)), invsub.subnum, 1, 0) as last_subnum_flg
+                       from invsub
+                      where invsub.lodnum = @rdt_lodnum
+                      order by last_subnum_flg]
+                    |
+                    if (@last_subnum_flg = 1)
+                    {
+                        /* Reset the "receipt confirmation sent flag". 
+                         * Normally JDA would do this automatically in "move inventory" but there is a bug in version 2018.1.2 (which was not in 2018.1.0). 
+                         */
+                        [update invlod
+                            set completed_receiving_date = null
+                          where lodnum = @dc_finish_identifier]
+                    }
+                    |
+                    move inventory
+                     where trndte = sysdate
+                       and wh_id = @wh_id
+                       and srcloc = @devcod
+                       and srclod = @rdt_lodnum
+                       and srcsub = @rdt_subnum
+                       and dstloc = null
+                       and dstlod = @dc_finish_identifier
+                       and actcod = 'ASN_NONTRUST'
+                       and oprcod = 'URC'
+                       and mergeondep = '1'
+                       and new_train_flg = @dc_new_train_flg
+                       and log_receipt_transaction_override_flg = @last_subnum_flg
+                       and asset_typ = nvl(@asset_typ, nvl(@dc_finish_asset_typ, @dc_asset_typ));
+
+                    /* If we are adding to an existing load and a detail has a hold, apply it to all the inventory for registration and consistency. */
+                    [select distinct invhld.hldpfx,
+                            invhld.hldnum,
+                            invhld.reacod,
+                            invhld.uc_invtyp,
+                            invhld.uc_nottxt
+                       from invsub
+                      inner
+                       join invdtl
+                         on invdtl.subnum = invsub.subnum
+                      inner
+                       join invhld
+                         on invhld.dtlnum = invdtl.dtlnum
+                      where invsub.lodnum = @dc_finish_identifier] catch(-1403)
+                    |
+                    if (@? = 0)
+                    {
+                        process usr rf exception
+                         where trndte = sysdate
+                           and lodnum = @dc_finish_identifier
+                           and acttyp = 'A'
+                           and prc_hldpfx = @hldpfx
+                           and prc_hldnum = @hldnum
+                           and prc_reacod = @reacod
+                           and invtyp = @uc_invtyp
+                           and nottxt = @uc_nottxt
+                           and initflg = 1
+                    };
+                    noop
+                }
+                else
+                {
+                    /* If we are receiving a new load we have collected it on the first load. We need to check if we need to "relabel" the load to the "finish" identifier. */
+                    if (@rdt_lodnum != @dc_finish_identifier)
+                    {
+                        change inventory identifier
+                         where trndte = sysdate
+                           and wh_id = @wh_id
+                           and lodlvl = 'L'
+                           and from_id = @rdt_lodnum
+                           and to_id = @dc_finish_identifier
+                    }
+                    |
+                    /* Move the load to the receipt staging location. */
+                    process inventory move
+                     where trndte = sysdate
+                       and wh_id = @wh_id
+                       and srcloc = @devcod
+                       and srclod = @dc_finish_identifier
+                       and dstloc = @dc_stoloc
+                       and dstlod = null
+                       and actcod = 'ASN_NONTRUST'
+                       and oprcod = 'URC'
+                       and mergeondep = '1'
+                       and new_train_flg = @dc_new_train_flg
+                       and asset_typ = nvl(@asset_typ, nvl(@dc_finish_asset_typ, @dc_asset_typ));
+                    noop
+                }
+            }
+        }
+    };
+
+    /* Log information for certain scenarios which needs to be registered. */
+    {
+        /* Unlinked PABs 
+         * If we have multiple scanned loads it would indicate that these are unlinked pabs  
+         * For a new load this is obvious if it is more than 1
+         * For an existing load the existing load is part of the dc_no_lodnum but should be included because it is a pab as well
+         * For adding to a dummy load the dummy load should not be included which is why we subtract 1(dummy_load_flg) if it is a dummy load
+         */
+        if ((@dc_no_lodnum - @dummy_load_flg) > 1)
+        {
+            process usr rf exception
+             where trndte = sysdate
+               and lodnum = @dc_finish_identifier
+               and acttyp = 'L'
+               and prc_hldpfx = @wh_id
+               and prc_hldnum = 'PAB.MERGE'
+               and prc_reacod = 'OVERIG'
+               and invtyp = ''
+               and nottxt = ''
+               and initflg = 1
+        }
+    };
+
+    /* Process any detail inventory adjustments. */
+    /* RLS 220620 - no need for creating this adjustments as standard is rcvinv is fired */
+    /* RLS 220620 - however we need to set the rcvlin and invdtl qty to the received qty */
+    /* RI 121020 -  for existing loads - we create an adjustment */
+    if (@recv_existing_load = 1 and @dummy_load_flg = 0)
+    {
+       /* Get the details for which we have adjustments in hte device context. */
+       {
+       list usr rf identify load detail information
+       where wh_id = @wh_id
+       and devcod = @devcod
+       |
+       publish data
+       where dtlnum = @dtlnum
+       and org_untqty = @org_untqty
+       and untqty = @untqty
+       and org_reacod = @org_reacod
+       and reacod = @reacod
+       } catch(-1403)
+       |
+       if (@org_untqty != @untqty)
+       {
+       /* Generate a session number for all the adjustments. Session variable need to not waste a session number in case of no adjustment. */
+       {
+       get session variable
+       where name = 'sesnum' catch(-1403)
+       |
+       if (@? = -1403)
+       {
+       generate next number
+       where numcod = 'sesnum'
+       |
+       save session variable
+       where name = 'sesnum'
+       and value = @nxtnum
+       |
+       publish data
+       where sesnum = @nxtnum
+       }
+       else
+       {
+       publish data
+       where sesnum = @value
+       }
+       }
+       |
+       generate next number
+       where numcod = 'invadj_id'
+       |
+       publish data
+       where invadj_id = @nxtnum
+       |
+       if (@org_untqty - @untqty > 0)
+       {
+       /* Delete inventory. */
+       move inventory
+       where trndte = sysdate
+       and srcdtl = @dtlnum
+       and dstloc = 'PERM-ADJ-LOC'
+       and untqty = (@org_untqty - @untqty)
+       and oprcod = 'INVADJ'
+       and actcod = 'INVDEL'
+       and movref = @sesnum
+       and reacod = nvl(@reacod, 'INV-RCV-ADJ')
+       and adj_ref2 = @dtlnum
+       }
+       else if (@org_untqty - @untqty < 0)
+       {
+       /* Add inventory. */
+       publish data
+       where new_untqty = @untqty
+       |
+       /* Use all the properties from the original detail number. */
+       [select *
+       from invdtl
+       where dtlnum = @dtlnum]
+       |
+       generate next number
+       where numcod = 'dtlnum'
+       |
+       publish data
+       where new_dtlnum = @nxtnum
+       |
+       create inventory
+       where trndte = sysdate
+       and srcloc = 'PERM-ADJ-LOC'
+       and stoloc = @dc_stoloc
+       and dstlod = @dc_finish_identifier
+       and dstsub = @subnum
+       and lodnum = ''
+       and subnum = ''
+       and dtlnum = @new_dtlnum
+       and untqty = (@new_untqty - @org_untqty)
+       and oprcod = 'INVADJ'
+       and movref = @sesnum
+       and reacod = nvl(@reacod, 'INV-RCV-ADJ')
+       and adj_ref2 = @new_dtlnum
+       } } 
+       };
+    /* Process any load inventory adjustments. */
+    {
+        /* Check if something was adjusted. */
+        {
+            /* Get the load properties so we can check if something was adjusted. */
+            list usr rf identify load adjust load information
+             where wh_id = @wh_id
+               and devcod = @devcod
+            |
+            /* Values that need to be changed on invdtl. */
+            if (@org_inv_attr_str7 != @inv_attr_str7 or @org_inv_attr_str10 != @inv_attr_str10 or @org_inv_attr_str11 != @inv_attr_str11 or @org_inv_attr_dte1 != @inv_attr_dte1 or @org_load_attr1_flg != @load_attr1_flg)
+            {
+                [select inventory_view.dtlnum,
+                        inventory_view.prtnum,
+                        inventory_view.prt_client_id,
+                        inventory_view.lotnum,
+                        inventory_view.inv_attr_str4,
+                        inventory_view.inv_attr_str9,
+                        /* Values to prevent the INV-ATTR-CHANGE interface to contain "(null)" text in fields. */
+                        inventory_view.asset_typ,
+                        inventory_view.inv_attr_str1,
+                        inventory_view.inv_attr_str2,
+                        inventory_view.inv_attr_str3,
+                        /* inventory_view.inv_attr_str4, */
+                        inventory_view.inv_attr_str5,
+                        inventory_view.inv_attr_str6,
+                        /* inventory_view.inv_attr_str7, */
+                        inventory_view.inv_attr_str8,
+                        /* inventory_view.inv_attr_str9, */
+                        /* inventory_view.inv_attr_str10, */
+                        /* inventory_view.inv_attr_str11, */
+                        inventory_view.inv_attr_str12,
+                        inventory_view.inv_attr_str13,
+                        inventory_view.inv_attr_str14,
+                        inventory_view.inv_attr_str15,
+                        inventory_view.inv_attr_str16,
+                        inventory_view.inv_attr_str17,
+                        inventory_view.inv_attr_str18,
+                        inventory_view.inv_attr_int1,
+                        inventory_view.inv_attr_int2,
+                        inventory_view.inv_attr_int3,
+                        inventory_view.inv_attr_int4,
+                        inventory_view.inv_attr_int5,
+                        inventory_view.inv_attr_flt1,
+                        inventory_view.inv_attr_flt2,
+                        inventory_view.inv_attr_flt3,
+                        /* inventory_view.inv_attr_dte1, */
+                        inventory_view.inv_attr_dte2
+                   from inventory_view
+                  where inventory_view.lodnum = @dc_finish_identifier
+                    and inventory_view.stoloc = @dc_stoloc
+                    and inventory_view.wh_id = @wh_id]
+                |
+                /* To prevent "Error 10712: Cannot change inventory property for inventory in location with pending quantity." we need to change the pndqvl to 0. 
+                 * The "change inventory property" does a "validate location" so we don't need to change it back. 
+                 */
+                [update locmst
+                    set pndqvl = 0
+                  where stoloc = @dc_stoloc
+                    and wh_id = @wh_id]
+                |
+                change inventory property
+                 where trndte = sysdate
+                   and dtlnum = @dtlnum
+                   and wh_id = @wh_id
+                /* Required fields for the interface */
+                   and from_prtnum = @prtnum
+                   and to_prtnum = @prtnum
+                   and from_prt_client_id = @prt_client_id
+                   and to_prt_client_id = @prt_client_id
+                   and from_lotnum = @lotnum
+                   and to_lotnum = @lotnum
+                   and from_inv_attr_str4 = nvl(@inv_attr_str4, '')
+                   and to_inv_attr_str4 = nvl(@inv_attr_str4, '')
+                   and from_inv_attr_str9 = nvl(@inv_attr_str9, '')
+                   and to_inv_attr_str9 = nvl(@inv_attr_str9, '')
+                /* Actual changes */
+                   and from_inv_attr_str7 = nvl(@org_inv_attr_str7, '')
+                   and to_inv_attr_str7 = nvl(@inv_attr_str7, '')
+                   and from_inv_attr_str10 = nvl(@org_inv_attr_str10, '')
+                   and to_inv_attr_str10 = nvl(@inv_attr_str10, '')
+                   and from_inv_attr_str11 = nvl(@org_inv_attr_str11, '')
+                   and to_inv_attr_str11 = nvl(@inv_attr_str11, '')
+                   and from_inv_attr_dte1 = nvl(@org_inv_attr_dte1, '')
+                   and to_inv_attr_dte1 = nvl(@inv_attr_dte1, '')
+                   and from_load_attr1_flg = nvl(@org_load_attr1_flg, '')
+                   and to_load_attr1_flg = nvl(@load_attr1_flg, '')
+                   and adj_ref2 = @dtlnum
+                   and initflg = 1
+                /* Prevent (null) in interface. */
+                   and from_asset_typ = nvl(@asset_typ, '')
+                   and to_asset_typ = nvl(@asset_typ, '')
+                   and from_inv_attr_str1 = nvl(@inv_attr_str1, '')
+                   and to_inv_attr_str1 = nvl(@inv_attr_str1, '')
+                   and from_inv_attr_str2 = nvl(@inv_attr_str2, '')
+                   and to_inv_attr_str2 = nvl(@inv_attr_str2, '')
+                   and from_inv_attr_str3 = nvl(@inv_attr_str3, '')
+                   and to_inv_attr_str3 = nvl(@inv_attr_str3, '')
+                   and from_inv_attr_str5 = nvl(@inv_attr_str5, '')
+                   and to_inv_attr_str5 = nvl(@inv_attr_str5, '')
+                   and from_inv_attr_str6 = nvl(@inv_attr_str6, '')
+                   and to_inv_attr_str6 = nvl(@inv_attr_str6, '')
+                   and from_inv_attr_str8 = nvl(@inv_attr_str8, '')
+                   and to_inv_attr_str8 = nvl(@inv_attr_str8, '')
+                   and from_inv_attr_str12 = nvl(@inv_attr_str12, '')
+                   and to_inv_attr_str12 = nvl(@inv_attr_str12, '')
+                   and from_inv_attr_str13 = nvl(@inv_attr_str13, '')
+                   and to_inv_attr_str13 = nvl(@inv_attr_str13, '')
+                   and from_inv_attr_str14 = nvl(@inv_attr_str14, '')
+                   and to_inv_attr_str14 = nvl(@inv_attr_str14, '')
+                   and from_inv_attr_str15 = nvl(@inv_attr_str15, '')
+                   and to_inv_attr_str15 = nvl(@inv_attr_str15, '')
+                   and from_inv_attr_str16 = nvl(@inv_attr_str16, '')
+                   and to_inv_attr_str16 = nvl(@inv_attr_str16, '')
+                   and from_inv_attr_str17 = nvl(@inv_attr_str17, '')
+                   and to_inv_attr_str17 = nvl(@inv_attr_str17, '')
+                   and from_inv_attr_str18 = nvl(@inv_attr_str18, '')
+                   and to_inv_attr_str18 = nvl(@inv_attr_str18, '')
+                   and from_inv_attr_int1 = nvl(@inv_attr_int1, '')
+                   and to_inv_attr_int1 = nvl(@inv_attr_int1, '')
+                   and from_inv_attr_int2 = nvl(@inv_attr_int2, '')
+                   and to_inv_attr_int2 = nvl(@inv_attr_int2, '')
+                   and from_inv_attr_int3 = nvl(@inv_attr_int3, '')
+                   and to_inv_attr_int3 = nvl(@inv_attr_int3, '')
+                   and from_inv_attr_int4 = nvl(@inv_attr_int4, '')
+                   and to_inv_attr_int4 = nvl(@inv_attr_int4, '')
+                   and from_inv_attr_int5 = nvl(@inv_attr_int5, '')
+                   and to_inv_attr_int5 = nvl(@inv_attr_int5, '')
+                   and from_inv_attr_flt1 = nvl(@inv_attr_flt1, '')
+                   and to_inv_attr_flt1 = nvl(@inv_attr_flt1, '')
+                   and from_inv_attr_flt2 = nvl(@inv_attr_flt2, '')
+                   and to_inv_attr_flt2 = nvl(@inv_attr_flt2, '')
+                   and from_inv_attr_flt3 = nvl(@inv_attr_flt3, '')
+                   and to_inv_attr_flt3 = nvl(@inv_attr_flt3, '')
+                   and from_inv_attr_dte2 = nvl(@inv_attr_dte2, '')
+                   and to_inv_attr_dte2 = nvl(@inv_attr_dte2, '')
+                |
+                /* The command "change inventory property" does not throw an error ut returns the status in the field exec_sts, so we throw it.  */
+                if (@exec_sts != 0)
+                {
+                    set return status
+                     where status = @exec_sts
+                }
+            }
+        };
+        {
+            {
+                /* Get the load asset properties so we can check if something was adjusted. */
+                list usr rf identify load adjust load information
+                 where wh_id = @wh_id
+                   and devcod = @devcod
+                |
+                publish data
+                 where org_asset_qty = @org_asset_qty
+                   and asset_qty = @asset_qty
+                   and org_asset_qty_reacod = @org_asset_qty_reacod
+                   and asset_qty_reacod = @asset_qty_reacod
+            }
+            |
+            if (@asset_qty != @org_asset_qty)
+            {
+                /* Process the asset type adjustments. */
+                process usr rf inventory asset type
+                 where trndte = sysdate
+                   and invtid = @dc_finish_identifier
+                   and untqty = @asset_qty
+                   and reacod = @asset_qty_reacod
+            }
+        }
+    };
+
+    /* If an exception was registered or removed. */
+    {
+        list usr rf identify load exception information
+         where devcod = @devcod
+           and wh_id = @wh_id
+        |
+        [select rtstr2 as mode
+           from poldat_view
+          where wh_id = @wh_id
+            and polcod = 'USR-RF-FORM'
+            and polvar = 'USR_EXCEPTION'
+            and polval = 'HLDNUM'
+            and rtstr1 = @hldnum
+            and rtnum1 = 1] catch(-1403)
+        |
+        if (@? != -1403)
+        {
+            if (@mode = 'L')
+                /* Logging only. */
+            {
+                {
+                    process usr rf exception
+                     where trndte = sysdate
+                       and lodnum = @dc_finish_identifier
+                       and acttyp = @mode
+                       and prc_hldpfx = @hldpfx
+                       and prc_hldnum = @hldnum
+                       and prc_reacod = @reacod
+                       and invtyp = @invtyp
+                       and nottxt = @nottxt
+                       and initflg = 1
+                }
+            }
+        }
+        else
+        {
+            /* Hold removed or changed(remove original hold). */
+            if ((@org_hldnum != '' and @hldnum = '') or (@org_hldnum != @hldnum and @org_hldnum != '' and @hldnum != ''))
+            {
+                process usr rf exception
+                 where trndte = sysdate
+                   and lodnum = @dc_finish_identifier
+                   and acttyp = 'R'
+                /* @mode */
+                   and prc_hldpfx = @org_hldpfx
+                   and prc_hldnum = @org_hldnum
+                   and prc_reacod = @org_reacod
+                   and invtyp = @org_invtyp
+                   and nottxt = @org_nottxt
+                   and initflg = 1
+            }
+            |
+            /* Hold removed or changed(add changed hold). */
+            if ((@org_hldnum = '' and @hldnum != '') or (@org_hldnum != @hldnum and @org_hldnum != '' and @hldnum != ''))
+            {
+                /* Hold added. */
+                process usr rf exception
+                 where trndte = sysdate
+                   and lodnum = @dc_finish_identifier
+                   and acttyp = 'A'
+                /* @mode */
+                   and prc_hldpfx = @hldpfx
+                   and prc_hldnum = @hldnum
+                   and prc_reacod = @reacod
+                   and invtyp = @invtyp
+                   and nottxt = @nottxt
+                   and initflg = 1
+            }
+        }
+    };
+    /* Remove any details adjusted to 0 */
+    {
+        list usr rf identify load detail information
+        where wh_id = @wh_id
+         and devcod = @devcod
+        |
+        if (@untqty = 0)
+        {
+            [delete
+               from invdtl
+              where dtlnum = @dtlnum];
+            [delete
+               from invsub
+              where subnum = @subnum
+                and not exists (select 'x'
+                                  from invdtl
+                                 where invdtl.subnum = invsub.subnum)] catch(-1403)
+        }
+    };
+    [select 1
+       from poldat_view
+      where polcod = 'USR-RF-FORM'
+        and polvar = 'USR_IDENTIFY_LOAD'
+        and polval = 'SKIP-AUTO-ALLOC'
+        and wh_id = @wh_id
+        and (rtstr1 = @dc_invtyp and rtnum1 = 1)
+        and (rtstr2 = nvl(@hldnum, 'null') and rtnum2 = 1)] catch(-1403)
+    |
+    /* Allocate a location (after the adjustments because the adjustment might affect the location). If there is an exception we don't need to  */
+    if (@? = -1403 and @dc_allocate_location_flg = 1)
+    {
+        /* Just deallocate the location if the inventory has outstanding moves. (Which is the case when we are adding to an existing load). */
+        deallocate location
+         where trndte = sysdate
+           and lodnum = @dc_finish_identifier catch(@?)
+        |
+        allocate location
+         where trndte = sysdate
+           and invmov_typ = 'RCV'
+           and lodnum = @dc_finish_identifier
+           and wh_id = @wh_id
+        |
+        if (@? = 0)
+        {
+            /* Create a next move if it exists. Normally this would be done by move inventory but the inventory is already moved to the fwi location before a location is allocated. */
+            [select 1
+               from invlod
+               join locmst
+                 on locmst.stoloc = invlod.stoloc
+                and locmst.wh_id = invlod.wh_id
+               join mov_zone_nxtmov
+                 on locmst.mov_zone_id = mov_zone_nxtmov.src_mov_zone_id
+              where invlod.lodnum = @dc_finish_identifier
+                and rownum <= 1] catch(-1403)
+            |
+            if (@? = 0)
+            {
+                create next move
+                 where trndte = sysdate
+                   and lodnum = @dc_finish_identifier
+                   and wh_id = @wh_id
+            };
+
+            /* Auto deposit the inventory to the next location if indicated. */
+            if (@dc_auto_deposit_flg = 1)
+            {
+                [select distinct nxtloc_view.lodnum,
+                        nxtloc_view.pndloc as auto_deposit_stoloc,
+                        aremst.arecod as auto_deposit_arecod,
+                        dscmst_aremst.lngdsc as auto_deposit_arecod_lngdsc,
+                        dscmst_aremst.short_dsc as auto_deposit_arecod_short_dsc,
+                        mov_zone.mov_zone_id as auto_deposit_mov_zone_id,
+                        mov_zone.mov_zone_cod as auto_deposit_mov_zone_cod,
+                        dscmst_mov_zone.lngdsc as auto_deposit_mov_zone_lngdsc,
+                        dscmst_mov_zone.short_dsc as auto_deposit_mov_zone_short_dsc,
+                        nxtloc_view.wh_id
+                   from nxtloc_view
+                  inner
+                   join aremst
+                     on aremst.arecod = nxtloc_view.nxtare
+                    and aremst.wh_id = nxtloc_view.wh_id
+                  inner
+                   join dscmst dscmst_aremst
+                     on dscmst_aremst.colnam = 'arecod|wh_id'
+                    and dscmst_aremst.colval = aremst.arecod || '|' || aremst.wh_id
+                    and dscmst_aremst.locale_id = 'US_ENGLISH'
+                  inner
+                   join mov_zone
+                     on mov_zone.mov_zone_id = nxtloc_view.nxt_mov_zone_id
+                  inner
+                   join dscmst dscmst_mov_zone
+                     on dscmst_mov_zone.colnam = 'mov_zone_cod|wh_id'
+                    and dscmst_mov_zone.colval = mov_zone.mov_zone_cod || '|' || mov_zone.wh_id
+                    and dscmst_mov_zone.locale_id = 'US_ENGLISH'
+                  where nxtloc_view.lodnum = @dc_finish_identifier] >> res_lodnum_nxtloc
+                |
+                /* We will only auto deposit the inventory to the next move location if all the details go to the same location. */
+                if (rowcount(@res_lodnum_nxtloc) = 1)
+                {
+                    publish data combination
+                     where res = @res_lodnum_nxtloc
+                    |
+                    move inventory
+                     where trndte = sysdate
+                       and lodnum = @lodnum
+                       and dstloc = @auto_deposit_stoloc
+                       and wh_id = @wh_id
+                    |
+                    publish data
+                     where auto_deposit_stoloc = @auto_deposit_stoloc
+                       and auto_deposit_arecod = @auto_deposit_arecod
+                       and auto_deposit_arecod_lngdsc = @auto_deposit_arecod_lngdsc
+                       and auto_deposit_arecod_short_dsc = @auto_deposit_arecod_short_dsc
+                       and auto_deposit_mov_zone_id = @auto_deposit_mov_zone_id
+                       and auto_deposit_mov_zone_cod = @auto_deposit_mov_zone_cod
+                       and auto_deposit_mov_zone_lngdsc = @auto_deposit_mov_zone_lngdsc
+                       and auto_deposit_mov_zone_short_dsc = @auto_deposit_mov_zone_short_dsc
+                }
+            }
+        }
+    }
+}
+|
+/* Track end time for performance tracking, write to daily transaction. */
+{
+    get datetime with milliseconds
+    |
+    publish data
+     where perf_finish_datetimemilli = @datetimemilli
+    |
+    write daily transaction
+     where trndte = sysdate
+       and actcod = 'USR-LPNRCV'
+       and lodnum = @dc_finish_identifier
+       and var_nam = 'perf_start_datetimemilli|perf_finish_datetimemilli'
+       and fr_value = @perf_start_datetimemilli || '|' || @perf_finish_datetimemilli
+}
+|
+/* Publish variables for use in triggers. */
+get session variable
+ where name = 'sesnum' catch(-1403)
+|
+publish data
+ where wh_id = @wh_id
+   and lodnum = @dc_finish_identifier
+   and invadj_sesnum = @value
+/* publish the auto deposit information because we need to show this in the messages. */
+   and auto_deposit_stoloc = @auto_deposit_stoloc
+   and auto_deposit_arecod = @auto_deposit_arecod
+   and auto_deposit_arecod_lngdsc = @auto_deposit_arecod_lngdsc
+   and auto_deposit_arecod_short_dsc = @auto_deposit_arecod_short_dsc
+   and auto_deposit_mov_zone_id = @auto_deposit_mov_zone_id
+   and auto_deposit_mov_zone_cod = @auto_deposit_mov_zone_cod
+   and auto_deposit_mov_zone_lngdsc = @auto_deposit_mov_zone_lngdsc
+   and auto_deposit_mov_zone_short_dsc = @auto_deposit_mov_zone_short_dsc
+]]>
+</local-syntax>
+  <argument name="devcod" datatype="string">devcod</argument>
+</command>

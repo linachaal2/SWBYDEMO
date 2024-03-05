@@ -1,0 +1,35 @@
+<trigger>
+  <name>execute usr triggers</name>
+  <on-command>job pick release manager</on-command>
+  <description>Execute policy-defined moca commands as triggers</description>
+  <fire-sequence>9000</fire-sequence>
+  <local-syntax>
+<![CDATA[
+/* execute usr triggers
+ * Execute policy-defined moca commands as triggers
+ * Version history:
+ *  2021-03-11  Radina Ivanova  Initial version.
+ *  2021-06-09  Radina Ivanova  catch all errors from the trigger commands
+ */
+[select wh_id
+   from wh
+where @+wh_id]
+|
+[select rtstr1 cmd
+   from poldat_view
+  where polcod = 'USR-PICKING'
+    and polvar = 'PICK-RELEASE'
+    and polval = 'PICK-RELEASE-TRIGGERS'
+    and wh_id = @wh_id
+    and rtnum1 = 1
+  order by srtseq] catch(-1403)
+|
+if (@? = 0)
+{
+    execute server command
+      where cmd = @cmd catch(@?)
+}
+]]>
+</local-syntax>
+  <enable>yes</enable>
+</trigger>

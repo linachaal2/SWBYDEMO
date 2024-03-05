@@ -1,0 +1,15 @@
+
+For deploying the usr REFS app into a REFS environment:
+
+* Shutdown the local REFS environment if it is already running.
+
+* Setup sample app in the usr folder. 
+    customerApp folder can be copied from LESDIR/samples/web/refs into the usr folder as a starting point for your custom app.
+
+* From a command line where environment is bootstrapped, change directory into the customerApp folder.
+
+* Run ant to deploy the app to the REFS folder (REFSDIR must be set).
+
+* Run REFS database migration to load the custom app data
+
+* Start the REFS environment.

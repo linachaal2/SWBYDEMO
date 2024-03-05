@@ -1,0 +1,199 @@
+<command>
+  <name>send usr asn download request</name>
+  <description>send usr asn download request</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* send usr asn download request
+ * Version history:
+ *  2020-12-09  Radina Ivanova    Initial version.
+ *  2022-07-22  Marco Schouwenaar Added additional error when policy is not available and changed the return value based on existing value i_have_confirmation
+ */
+[select rtnum1
+   from poldat_view
+  where polcod = 'USR-RECEIVING'
+    and polvar = 'ASN-DOWNLOAD-REQUEST'
+    and polval = 'ENABLED'
+    and rtnum1 = 1
+    and wh_id = @wh_id] catch(-1403)
+|
+if (@? = 0)
+{
+    [select rtstr1 url,
+            rtstr2 http_header
+       from poldat_view
+      where polcod = 'USR-RECEIVING'
+        and polvar = 'ASN-DOWNLOAD-REQUEST'
+        and polval = 'URL'
+        and wh_id = @wh_id
+        and rtstr1 is not null] catch(-1403)
+    |
+    if (@? = 0)
+    {
+        do http request
+         where url = @url
+           and method = 'POST'
+           and http_header_1 = @http_header
+           and http_header_2 = 'Content-Type: application/json'
+           and body = '{
+                "command": "ASN_request",
+                "wh_id": "' || @wh_id || '",
+                "KEY1": "INV_ATTR_STR8",
+                "VALUE1": "' || @inv_attr_str8 || '"
+            }' catch(@?)
+    
+        |
+        /* Request could return status 404 but correct information in body (at least when using mock requests in postman) */
+        if (len(@body) > 0 and instr(@body, 'downloadSequence') > 0)
+        {
+            publish data where json = '[' || @body || ']'
+            |
+            [[
+                import com.redprairie.moca.*;
+                import org.json.JSONException;
+                import org.json.JSONObject;
+                import org.json.JSONArray;
+
+                MocaResults res = moca.newResults();
+                
+                JSONArray jsonArray = null;
+                try {
+                    jsonArray = new JSONArray(json);
+                }
+                catch (JSONException e) {
+                    throw new InvalidArgumentException("json");
+                }
+
+                JSONObject jsonObject = jsonArray.getJSONObject(0);
+                String[] names = JSONObject.getNames(jsonObject);
+                
+                for (String name : names) {
+                    res.addColumn(name, MocaType.STRING, 20);
+                }
+                
+                for (int i = 0; i < jsonArray.length(); ++i) {
+                    jsonObject = jsonArray.getJSONObject(i);
+                    names = JSONObject.getNames(jsonObject);
+                    
+                    res.addRow();
+                    for (String name : names) {
+                        res.setValue(name, jsonObject.get(name).toString());
+                    }
+                }
+                return res;
+            ]]
+            |
+            if (@downloadSequence > 0 and @status = 0)
+            {
+                execute server command
+                  where cmd = 'sl_process dwnld where dwnld_seq = ' || @downloadSequence
+                    and inline = 0 catch(@?) >> res
+                |
+                if (@? = 0)
+                {
+                    [select distinct 'x'
+                       from inventory_view
+                      where inv_attr_str8 = @inv_attr_str8] catch(-1403)
+                    |
+                    if (@? != 0)
+                    {
+                        /* Override logic map config to display error message and flow to exception */
+                        publish data
+                          where show_message = null
+                            and show_error = 'err90040'
+                            and open_rf_frm = null
+                            and open_rf_frm_parms_cmd = null
+                            and show_parms = null
+                            and show_confirmation = 'dlgMaskPABUnknownInvtyp[1|2]'
+                            and i_have_confirmation = decode(@i_have_confirmation, NULL, '', @i_have_confirmation || ',') || 'hldnum=EAB.ABS'
+                    }
+                    else
+                    {
+                        /* re-run the logic to pick up the downloaded ASN */
+                        save session variable
+                        where name = 'usr_clean_retry'
+                          and value = '1'
+                    }
+                }
+                else
+                {
+                    /* Override logic map config to display error message and flow to exception */
+                    publish data
+                      where show_message = null
+                        and show_error = 'err90040'
+                        and open_rf_frm = null
+                        and open_rf_frm_parms_cmd = null
+                        and show_parms = null
+                        and show_confirmation = 'dlgMaskPABUnknownInvtyp[1|2]'
+                        and i_have_confirmation = decode(@i_have_confirmation, NULL, '', @i_have_confirmation || ',') || 'hldnum=EAB.ABS'
+                }
+            }
+            else
+            {
+                /* Get the correct hold to be used based on the returned status and override logic map config to display error message and flow to exception */
+                [select rtstr2 hldnum
+                   from poldat_view
+                  where polcod = 'USR-RECEIVING'
+                    and polvar = 'ASN-DOWNLOAD-REQUEST'
+                    and polval = 'HOLD-TYPES'
+                    and wh_id = @wh_id
+                    and rtstr1 = @status] catch(-1403)
+                |
+                if (@? != 0)
+                {
+                    publish data 
+                      where hldnum = 'EAB.ABS'
+                }
+                |
+                publish data
+                  where show_message = null
+                    and show_error = 'err90040'
+                    and open_rf_frm = null
+                    and open_rf_frm_parms_cmd = null
+                    and show_parms = null
+                    and show_confirmation = 'dlgMaskPABUnknownInvtyp[1|2]'
+                    and i_have_confirmation =decode(@i_have_confirmation, NULL, '', @i_have_confirmation || ',') || 'hldnum=' || @hldnum
+            }
+        }
+        else
+        {
+            /* Override logic map config to display error message and flow to exception */
+            publish data
+              where show_message = null
+                and show_error = 'err90040'
+                and open_rf_frm = null
+                and open_rf_frm_parms_cmd = null
+                and show_parms = null
+                and show_confirmation = 'dlgMaskPABUnknownInvtyp[1|2]'
+                and i_have_confirmation = decode(@i_have_confirmation, NULL, '', @i_have_confirmation || ',') || 'hldnum=EAB.ABS'
+        }
+    }
+    else
+    {
+        /* Override logic map config to display error message and flow to exception */
+        publish data
+          where show_message = null
+            and show_error = 'err90040'
+            and open_rf_frm = null
+            and open_rf_frm_parms_cmd = null
+            and show_parms = null
+            and show_confirmation = 'dlgMaskPABUnknownInvtyp[1|2]'
+            and i_have_confirmation = decode(@i_have_confirmation, NULL, '', @i_have_confirmation || ',') || 'hldnum=EAB.ABS'
+    }
+}
+else
+{
+        /* Override logic map config to display error message and flow to exception */
+        publish data
+          where show_message = null
+            and show_error = null
+            and open_rf_frm = null
+            and open_rf_frm_parms_cmd = null
+            and show_parms = null
+            and show_confirmation = 'dlgMaskPABUnknownInvtyp[1|2]'
+            and i_have_confirmation = decode(@i_have_confirmation, NULL, '', @i_have_confirmation || ',') || 'hldnum=EAB.ABS'
+}
+]]>
+</local-syntax>
+  <argument name="inv_attr_str8" required="yes" datatype="string">PAB</argument>
+</command>

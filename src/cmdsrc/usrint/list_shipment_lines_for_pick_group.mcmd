@@ -1,0 +1,25 @@
+<command>
+  <name>list shipment lines for pick group</name>
+  <description>overrule to sort the results</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* list shipment lines for pick group
+ *
+ * overrule of original command to sort the output of the results of the original command
+ * sorting is arranged in a policy (if no policy only on item level ascending). 
+ * 
+ * Version history:
+ * 2021-02-19 Marco Schouwenaar   Initial version
+ */
+
+[select top 1 rtstr1 sortlist from poldat_view where wh_id=@wh_id and polcod='USR-ALLOCATE' and polvar='SORTING' and polval='PICKGROUP' and rtnum1=1 order by srtseq] catch (-1403)
+|
+if (@?=-1403) publish data where sortlist='prt_client_id'
+|
+^list shipment lines for pick group WHERE @* >> result_unsorted
+|
+sort result set where result_set=@result_unsorted and sort_list=@sortlist
+]]>
+</local-syntax>
+</command>

@@ -1,0 +1,108 @@
+<command>
+
+<name>clear destination location</name>
+
+<description>Clear Destination Location</description>
+
+<type>Local Syntax</type>
+
+<local-syntax>
+<![CDATA[ 
+/* clear destination location
+ * Version history:
+ *  2022-09-22 Radina Ivanova    Initial version, when depositing to the manual delivery location, update the pending quantities on original locations
+ */
+    validate stack variable not null
+       where name = 'lodnum'
+    |
+    validate stack variable not null
+       where name = 'wh_id'
+    |
+    /*
+     * If any of the inventory within our inventory identifier has a shipment
+     * line associated with it, it means that it has been "picked".  This 
+     * also could mean that our inventory has been committed to a cross dock.
+     */
+    [select 'x'
+       from inventory_view
+       where lodnum = @lodnum
+          and wh_id = @wh_id
+          and ship_line_id is not null ] catch(-1403)
+    |
+    if (@? = 0)
+    {
+        /*
+         * If we have results from this query, then it means that the
+         * given inventory is committed to a shipment line.
+         */
+         /* check if this is a manual delivery location */
+         [select distinct 'x'
+            from poldat_view
+           where polcod = 'USR-SHIPPING'
+             and polvar = 'MISCELLANEOUS'
+             and polval = 'MANUAL-DELIVERY-LOCATION'
+             and rtstr1 = @dstloc
+             and wh_id = @wh_id] catch(-1403)
+        |
+        if (@? != 0)
+        {
+            set return status
+            where status = 11589
+        }
+    }
+    |
+    {
+        /* 
+         * check to see if our inventory is part of a cross dock
+         */
+        [select 'x'  
+           from nxtloc_view
+           join locmst
+             on locmst.stoloc = nxtloc_view.pndloc
+            and locmst.arecod = nxtloc_view.nxtare
+            and locmst.wh_id  = nxtloc_view.wh_id
+           join loc_typ
+             on loc_typ.loc_typ_id = locmst.loc_typ_id
+          where nxtloc_view.lodnum = @lodnum
+            and loc_typ.xdaflg = '1' 
+            and rownum < 2 ] catch(-1403)
+        |
+        if (@? = 0)
+        {
+            set return status
+              where status = 11589
+        }
+        else
+        {
+            deallocate location
+            where lodnum = @lodnum
+            and wh_id = @wh_id
+            catch(-1403)
+        }
+    }
+
+]]>
+</local-syntax>
+
+<argument name="lodnum" datatype="string"> </argument>
+
+<argument name="wh_id" datatype="string"> </argument>
+
+<documentation>
+<remarks>
+<![CDATA[
+  <p>
+    This command is used to try to deallocate any locations to which
+    the inventory may be pending if the inventory is moved
+    to a Clear Destination Location area.   
+  </p>
+]]>
+</remarks>
+<exception value="eOK">Normal successful completion</exception>
+
+<seealso cref="allocate location"></seealso>
+<seealso cref="deallocate location"></seealso>
+
+</documentation>
+
+</command>

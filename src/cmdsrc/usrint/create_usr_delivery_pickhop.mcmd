@@ -1,0 +1,92 @@
+<command>
+  <name>create usr delivery pickhop</name>
+  <description>create usr delivery pickhop</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* create usr delivery pickhop
+ *
+ * Version history:
+ *  2020-04-29  Radina Ivanova - Initial version
+ */
+    publish data where wh_id = nvl(@wh_id, @@wh_id)
+    |
+    if (@wh_id = '')
+    {
+        get warehouse id
+    }
+    |
+    [select distinct 'x'
+       from usr_delivery_gln
+      where uc_delivery_id = @uc_delivery_id] catch(-1403)
+    |
+    if (@? != 0)
+    {
+         /* Delivery ID does not exist */
+         set return status where status = 90027
+    }
+    |
+    [select distinct 'x'
+       from usr_delivery
+      where uc_delivery_id = @uc_delivery_id
+        and wh_id = @wh_id
+        and dst_mov_zone_id = @dst_mov_zone_id
+        and seqnum = @seqnum] catch(-1403)
+    |
+    if (@? = 0)
+    {
+        /* Delivery ID already exists */
+        set return status where status = 90025
+    }
+    |
+    [select 'x'
+       from mov_zone
+      where mov_zone_id = @dst_mov_zone_id] catch(-1403)
+    |
+    if (@? != 0)
+    {
+        /* Invalid movement zone id */
+        set return status where status = 90026
+    }
+    |
+    if (@seqnum < 0)
+    {
+        /* Invalid sequence */
+        set return status where status = 2009
+    }
+    |
+    [select distinct 'x'
+       from locmst
+      where stoloc = @stoloc
+        and wh_id = @wh_id] catch(-1403)
+    |
+    if (@? = 0)
+    {
+        create record
+         where table = 'usr_delivery'
+           and uc_multi_drop = 0 >> res
+        |
+        write daily transaction
+        where actcod = 'USR-DELIVERY-PICKHOP'
+          and var_nam = 'uc_delivery_id|dst_mov_zone_id|seqnum|stoloc'
+          and fr_value = ''
+          and to_value = @uc_delivery_id || '|' || @dst_mov_zone_id || '|' || @seqnum || '|' || @stoloc
+          and wh_id = @wh_id
+        |
+        publish data combination
+          where res = @res
+    }
+    else
+    {
+        /* Invalid location */
+        set return status where status = 90006
+    }
+      
+]]>
+</local-syntax>
+<argument name="wh_id" required="no" datatype="string">Warehouse ID</argument>
+<argument name="uc_delivery_id" required="yes" datatype="integer">Delivery ID</argument>
+<argument name="dst_mov_zone_id" required="yes" datatype="integer">Destination Movement Zone ID</argument>
+<argument name="seqnum" required="yes" datatype="integer">Sequence number</argument>
+<argument name="stoloc" required="yes" datatype="string">Destination Location for the movement</argument>
+</command>

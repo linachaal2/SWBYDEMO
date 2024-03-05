@@ -1,0 +1,541 @@
+<command>
+  <name>process usr rf identify load scan_id</name>
+  <description>process usr rf identify load scan_id</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* process usr rf identify load scan_id
+ * Processes the scanid entered in the USR_IDENTIFY_LOAD screen.
+ * TODO: stoloc should include wh_id, hide usr stack might be inefficient.
+ * Version history:
+ *  2018-09-04  Salem Hamze         Initial version.
+ *  2018-10-04  Salem Hamze         Added logic map.
+ *  2018-10-25  Salem Hamze         Added grofsortering validation.
+ *  2018-11-21  Salem Hamze         Moved the finish logic from the RF form to this command. Added hide usr stack.
+ *  2019-10-23  Tim van den Akker   CR803580 - Added i_sts_photo_miss 
+ *  2020-01-09  Salem Hamze         Modified train and lpn invmix validation.
+ *  2020-01-28  Shailesh Raina      803601 PAB info for dummy items.
+ *  2020-01-28	Shailesh Raina		GAI-CHK-001 Check on Plant Passport
+ *  2020-12-10  Radina Ivanova      Allow for pre- and post-commands to overwrite values from the logic map
+ *  2021-06-07  Radina Ivanova      Logic map fields containing lists of values (i_wh_id, i_sts_vg_ais etc) should support only exact match
+ *  2022-04-25  Raoul Scholten		Removed error 90009 in order to receive the same PAB multiple times 
+ */
+save session variable
+where name = 'usr_clean_retry'
+  and value = '0'
+|
+publish data
+ where devcod = nvl(@devcod, @@devcod)
+|
+get warehouse id
+|
+if (@scan_id = '')
+{
+    /* Error: Scan Id cannot be empty. */
+    set return status
+     where status = 90001;
+}
+|
+/* Check what the user scanned, the command will return inv_attr_str8 before lodnum if both match. */
+get usr translated inventory identifier
+ where identifier = @scan_id >> res_inventory_identifier
+|
+if (rowcount(@res_inventory_identifier) > 1)
+{
+    convert usr column results to string
+     where resultset = @res_inventory_identifier
+       and colnam = 'colnam'
+       and separator = ','
+       and distinct = 1
+    |
+    /* There is 1 situation in which we can have an identifier for two different loads.
+     * This is in case of a PAB exception/dummy load on a deen and a the asn load with the PAB which had the issue.
+     * In this situation if the user does not have a load on his RDT we return the load so he can add to it.
+     * And if he does have a load on the 
+     */
+    if (@result_string = 'lodnum,inv_attr_str8')
+    {
+        /* When we created a dummy load for a PAB we have two loads with can be resolved by the same identifier.
+         * Which are: lodnum for the dummy load and inv_attr_str8 for the PAB on the expected receipt area.
+         * We will always return lodnum, except when the user has a dummy load on his RDT.
+         */
+        get usr rf identify load dummy load flag
+         where devcod = @devcod
+           and wh_id = @wh_id
+        |
+        if (@dummy_load_flg = 1)
+        {
+            publish data
+             where colnam = 'inv_attr_str8' >> res_filter_colnam
+        }
+        else
+        {
+            publish data
+             where colnam = 'lodnum' >> res_filter_colnam
+        }
+        |
+        merge result sets with data
+         where keycolumns = 'colnam'
+           and resultset = @res_filter_colnam
+           and additionalresultset = @res_inventory_identifier >> res_inventory_identifier
+    }
+	else if (@result_string = 'inv_attr_str8')
+    {
+        /* When we created a dummy load for a PAB we have two loads with can be resolved by the same identifier.
+         * Which are: lodnum for the dummy load and inv_attr_str8 for the PAB on the expected receipt area.
+         * We will always return lodnum, except when the user has a dummy load on his RDT.
+         */
+        get usr rf identify load dummy load flag
+         where devcod = @devcod
+           and wh_id = @wh_id
+        |
+        if (@dummy_load_flg = 1)
+        {
+            publish data
+             where colnam = 'inv_attr_str8'
+               and dummy_load_flg = 0 >> res_filter_colnam
+        }
+        else
+        {
+            publish data
+             where colnam = 'inv_attr_str8'
+               and dummy_load_flg = 1 >> res_filter_colnam
+        }
+        |
+        {
+            publish data combination
+             where res = @res_inventory_identifier
+            |
+            get usr dummy load information
+             where lodnum = @lodnum
+            |
+            filter data
+             where moca_filter_level = 2
+               and dummy_load_flg = @dummy_load_flg
+        } >> res_inventory_identifier
+        |
+        /* Check if one is a dummy load. */
+        {
+            {
+                publish data combination
+                 where res = @res_inventory_identifier
+                |
+                if (@dummy_load_flg = 1)
+                {
+                    filter data
+                     where moca_filter_level = 1
+                }
+            } >> res_dummy_loads
+            |
+            if (rowcount(@res_dummy_loads) = 0)
+            {
+                /* ERROR: Multiple loads found, and none a dummy load. */
+				publish data where have_confirmation = "MultiplePABS"
+            }
+        }
+        |
+        merge result sets with data
+         where keycolumns = 'colnam,dummy_load_flg'
+           and resultset = @res_filter_colnam
+           and additionalresultset = @res_inventory_identifier >> res_inventory_identifier
+    }
+    else
+    {
+        /* ERROR: Multiple loads found. */
+		publish data where have_confirmation = "MultiplePABS"
+    }
+}
+|
+publish data combination
+ where res = @res_inventory_identifier
+|
+/* Check the scan status of the device, for example if a location is already scanned, etc. Run the command to see the fields. */
+list usr rf identify load device scan status
+ where devcod = @devcod
+   and identifier = @scan_id
+   and lodnum = @lodnum
+   and stoloc = @stoloc
+|
+list usr rf identify load exception information
+ where devcod = @devcod
+   and wh_id = @wh_id
+|
+/* Check the lpn mixing rules. We will match the loads already scanned (including the newly scanned one) with the newly scanned one. */
+if (@dc_stoloc != '' and @lodnum != '')
+{
+    [select @lodnum as lodnum_on_dc
+       from dual
+     union all
+     select value as lodnum_on_dc
+       from device_context
+      where wh_id = @wh_id
+        and devcod = @devcod
+        and dev_varnam = 'USR_IDENTIFY_LOAD|LODNUM'] catch(-1403) >> res_loads_on_dc
+    |
+    convert usr column results to string
+     where resultset = @res_loads_on_dc
+       and colnam = 'lodnum_on_dc'
+       and separator = ','
+    |
+    check usr inventory mix
+     where invmix_rule = 'lpn'
+       and wh_id = @wh_id
+       and srclod = @lodnum
+       and dstlod_list = @result_string
+       and dstloc = @dc_stoloc
+    |
+    publish data
+     where invmix_lpn_diff_flg = @diff_flg
+       and invmix_lpn_diff_typ = @diff_typ
+       and invmix_lpn_diff_list = @diff_list
+}
+|
+/* Check the train mixing rules. */
+if (@dc_stoloc != '' and @lodnum != '')
+{
+    check usr inventory mix
+     where invmix_rule = 'train'
+       and wh_id = @wh_id
+       and srclod = @lodnum
+       and dstloc = @dc_stoloc
+    |
+    publish data
+     where invmix_train_diff_flg = @diff_flg
+       and invmix_train_diff_typ = @diff_typ
+       and invmix_train_diff_list = @diff_list
+}
+|
+if (@hldnum <> ''){[select hldtyp from hldmst where hldnum = @hldnum]}
+|
+if (@wh_id = ''){publish data where  wh_clause = 'Not Available'} else {publish data where wh_clause = @wh_id}
+|
+if (@dc_invtyp = ''){publish data where  invtyp_clause = 'Not Available'} else {publish data where invtyp_clause = @dc_invtyp}
+|
+if (@hldnum = ''){publish data where  exception_clause = 'Not Available'} else {publish data where exception_clause = @hldnum}
+|
+if (@dc_vg_ais = ''){publish data where  vg_ais_clause = 'Not Available'} else {publish data where vg_ais_clause = @dc_vg_ais}
+|
+if (@dc_vg_kweker = ''){publish data where  vg_kweker_clause = 'Not Available'} else {publish data where vg_kweker_clause = @dc_vg_kweker}
+|
+publish data
+ where i_colnam = @colnam
+   and i_mask = @mask
+   and i_sts_stoloc_set = @dc_stoloc_flg
+   and i_sts_lodnum_set = @dc_lodnum_flg
+   and i_sts_lodnum_add = @dc_add_to_lodnum_flg
+   and i_sts_exception_set = decode(@hldnum, null, 0, 1)
+   and i_sts_exception = @hldnum
+   and i_sts_gp = @dc_gp_flg
+   and i_sts_gp_mb = @dc_gp_mb_flg
+   and i_sts_gp_fwi = @dc_gp_fwi_flg
+   and i_sts_invtyp = @dc_invtyp
+   and i_sts_prtfam = @dc_prtfam
+   and i_sts_vg_ais = @dc_vg_ais
+   and i_sts_vg_kweker = @dc_vg_kweker
+   and i_sts_vg_diff = @dc_vg_diff
+   and i_sts_photo_miss = @i_sts_photo_miss
+   and i_sts_asset_typ = @dc_asset_typ
+   and i_stoloc_exploc = @stoloc_exploc_flg
+   and i_stoloc_rcvloc_new = @stoloc_rcvloc_new_flg
+   and i_stoloc_rcvloc_add = @stoloc_rcvloc_add_flg
+   and i_stoloc_rexcploc = @stoloc_rexcploc_flg
+   and i_invmix_train = @invmix_train_diff_typ
+   and i_invmix_lpn = @invmix_lpn_diff_typ
+   and inv_attr_str17 = @inv_attr_str17_ind
+   and i_stoloc_on_dc = @dc_stoloc_on_dc_flg
+   and i_lodnum_on_dc = @dc_lodnum_on_dc_flg
+   and i_identifier_on_dc = @dc_identifier_on_dc_flg
+   and i_have_confirmation = @have_confirmation
+   and wh_clause = '''%,'|| @wh_clause ||',%'''
+   and invtyp_clause = '''%,'|| @invtyp_clause ||',%'''
+   and exception_clause = '''%,'|| @exception_clause ||',%'''
+   and vg_ais_clause = '''%,'|| @vg_ais_clause ||',%'''
+   and vg_kweker_clause = '''%,'|| @vg_kweker_clause ||',%'''
+
+|
+/* Get the actions we should take from the logic map. Store in a result set because we need it multiple times later. */
+[select @identifier as identifier,
+        usr_rf_load_identify_logic_map.*
+   from usr_rf_load_identify_logic_map
+  where (i_wh_id = '----' or ',' || i_wh_id || ',' like @wh_clause:raw)
+    and i_colnam = @i_colnam
+    and (i_mask = '%' or @i_mask like i_mask)
+    and (i_sts_stoloc_set = '%' or @i_sts_stoloc_set like i_sts_stoloc_set)
+    and (i_sts_lodnum_set = '%' or @i_sts_lodnum_set like i_sts_lodnum_set)
+    and (i_sts_lodnum_add = '%' or @i_sts_lodnum_add like i_sts_lodnum_add)
+    and (i_sts_exception_set = '%' or @i_sts_exception_set like i_sts_exception_set)
+    and (i_sts_exception = '%' or ',' || i_sts_exception || ',' like @exception_clause:raw or i_sts_exception = @hldtyp)
+    and (i_sts_gp = '%' or @i_sts_gp like i_sts_gp)
+    and (i_sts_gp_mb = '%' or @i_sts_gp_mb like i_sts_gp_mb)
+    and (i_sts_gp_fwi = '%' or @i_sts_gp_fwi like i_sts_gp_fwi)
+    and (i_sts_invtyp = '%' or ',' || i_sts_invtyp || ',' like @invtyp_clause:raw)
+    and (i_sts_prtfam = '%' or @i_sts_prtfam like i_sts_prtfam)
+    and (i_sts_vg_ais = '%' or ','|| i_sts_vg_ais || ',' like @vg_ais_clause:raw or (@i_sts_vg_ais is null and i_sts_vg_ais is null))
+    and (i_sts_vg_kweker = '%' or ',' || i_sts_vg_kweker || ',' like @vg_kweker_clause:raw or (@i_sts_vg_kweker is null and i_sts_vg_kweker is null))
+    and (i_sts_vg_diff = '%' or @i_sts_vg_diff like i_sts_vg_diff)
+    and (i_sts_photo_miss = '%' or @i_sts_photo_miss like i_sts_photo_miss)
+    and (i_sts_asset_typ = '%' or @i_sts_asset_typ like i_sts_asset_typ)
+    and (i_stoloc_exploc = '%' or @i_stoloc_exploc like i_stoloc_exploc)
+    and (i_stoloc_rcvloc_new = '%' or @i_stoloc_rcvloc_new like i_stoloc_rcvloc_new)
+    and (i_stoloc_rcvloc_add = '%' or @i_stoloc_rcvloc_add like i_stoloc_rcvloc_add)
+    and (i_stoloc_rexcploc = '%' or @i_stoloc_rexcploc like i_stoloc_rexcploc)
+    and (i_invmix_train = '%' or @i_invmix_train like i_invmix_train)
+    and (i_invmix_lpn = '%' or @i_invmix_lpn like i_invmix_lpn)
+	and (i_inv_attr_str17 = '%' or @inv_attr_str17_ind like i_inv_attr_str17)
+    and (i_stoloc_on_dc = '%' or @i_stoloc_on_dc like i_stoloc_on_dc)
+    and (i_lodnum_on_dc = '%' or @i_lodnum_on_dc like i_lodnum_on_dc)
+    and (i_identifier_on_dc = '%' or @i_identifier_on_dc like i_identifier_on_dc)
+    and (i_have_confirmation = '%' or @i_have_confirmation like i_have_confirmation or (@i_have_confirmation is null and i_have_confirmation is null))
+  order by seqnum offset 0 rows fetch first 1 row only] catch(-1403) >> res_logic_map
+|
+if (@? = -1403)
+{
+    set return status
+     where status = 999
+       and message = 'No logic setup. Start a trace and redo the action to see the details.'
+}
+|
+{
+    /* Publish the resultset. */
+    publish data combination
+     where res = @res_logic_map
+    |
+    /* change rf device     where devcod = 'RDT_HAMZES' and wh_id = '2' and rftmod='R' */
+    [update rftmst
+        set actdte = sysdate,
+            moddte = sysdate
+      where wh_id = @wh_id
+        and devcod = @devcod] catch(-1403)
+    |
+    if (@use_location = 1)
+    {
+        pop device context value
+         where wh_id = @wh_id
+           and devcod = @devcod
+           and dev_varnam = 'USR_IDENTIFY_LOAD|STOLOC' catch(@?);
+        push device context value
+         where wh_id = @wh_id
+           and devcod = @devcod
+           and dev_varnam = 'USR_IDENTIFY_LOAD|STOLOC'
+           and value = @stoloc;
+
+        /* Store the current storage location in rftmst, in case when RF location (the one in the device context) is cleared for example in case of exception.
+         * We still want to have the location to see where someone is working for auto closing trains(sleeps).
+         * Is also useful because this is also used by WM to check where someone is working.
+         */
+        change rf device
+         where devcod = @devcod
+           and wh_id = @wh_id
+           and curstoloc = @stoloc
+           and rftmod = 'U';
+        noop
+    }
+    |
+    if (@add_to_lodnum = 1)
+    {
+        push device context value
+         where wh_id = @wh_id
+           and devcod = @devcod
+           and dev_varnam = 'USR_IDENTIFY_LOAD|ADD_TO_LODNUM'
+           and value = '1';
+        noop
+    }
+    |
+    /* Based on the actions returned from the logic map we do things. */
+    if (@start_scan = 1)
+    {
+        /* If start scan is not found then this is it, so register it */
+        push device context value
+         where wh_id = @wh_id
+           and devcod = @devcod
+           and dev_varnam = 'USR_IDENTIFY_LOAD|START_IDENTIFIER'
+           and value = @scan_id;
+        push device context value
+         where wh_id = @wh_id
+           and devcod = @devcod
+           and dev_varnam = 'USR_IDENTIFY_LOAD|IDENTIFIER'
+           and value = @scan_id;
+        noop
+    }
+    |
+    if (@add_scan = 1)
+    {
+        push device context value
+         where wh_id = @wh_id
+           and devcod = @devcod
+           and dev_varnam = 'USR_IDENTIFY_LOAD|LODNUM'
+           and value = nvl(@lodnum, '-');
+        noop
+    }
+    |
+    if (@new_train = 1)
+    {
+        push device context value
+         where wh_id = @wh_id
+           and devcod = @devcod
+           and dev_varnam = 'USR_IDENTIFY_LOAD|NEW_TRAIN'
+           and value = '1';
+        noop
+    }
+    |
+    if (@allocate_location = 1)
+    {
+        push device context value
+         where wh_id = @wh_id
+           and devcod = @devcod
+           and dev_varnam = 'USR_IDENTIFY_LOAD|ALLOCATE_LOCATION'
+           and value = '1';
+        noop
+    }
+    |
+    if (@auto_deposit = 1)
+    {
+        push device context value
+         where wh_id = @wh_id
+           and devcod = @devcod
+           and dev_varnam = 'USR_IDENTIFY_LOAD|AUTO_DEPOSIT'
+           and value = '1';
+        noop
+    }
+    |
+    if (@clear_pre != '')
+    {
+        execute server command
+         where cmd = @clear_pre >> resClearPre
+        |
+        update usr logic map stack values
+         where res = @resClearPre
+    } >> resClearPre
+    |
+    if (@resClearPre != null and rowcount(@resClearPre) > 0)
+    {
+        [[
+            res_logic_map.next();
+            resClearPre.next();
+            for (int i = 0; i < resClearPre.getColumnCount() ; i++)
+            {
+                res_logic_map.setValue(resClearPre.getColumnName(i), resClearPre.getValue(i));
+            }
+            res_logic_map.reset();
+            return res_logic_map;
+        ]] >> res_logic_map
+    }
+    |
+    if (@finish_scan = 1)
+    {
+        /* Register the finish scan here. */
+        push device context value
+         where wh_id = @wh_id
+           and devcod = @devcod
+           and dev_varnam = 'USR_IDENTIFY_LOAD|FINISH_IDENTIFIER'
+           and value = @scan_id;
+        if (@finish_asset_typ != '')
+        {
+            /* Register the finish scan here. */
+            push device context value
+             where wh_id = @wh_id
+               and devcod = @devcod
+               and dev_varnam = 'USR_IDENTIFY_LOAD|FINISH_ASSET_TYP'
+               and value = @finish_asset_typ
+        };
+        hide usr stack
+         where exclude_variables = 'devcod'
+        |
+        /* If this is a finish scan then process everything. */
+        complete usr rf identify load
+         where devcod = @devcod
+    }
+    |
+    if (@clear_post != '')
+    {
+        execute server command
+         where cmd = @clear_post >> resClearPost
+        |
+        update usr logic map stack values
+         where res = @resClearPost
+    } >> resClearPost
+    |
+    if (@resClearPost != null and rowcount(@resClearPost) > 0)
+    {
+        [[
+            res_logic_map.next();
+            resClearPost.next();
+            for (int i = 0; i < resClearPost.getColumnCount() ; i++)
+            {
+                res_logic_map.setValue(resClearPost.getColumnName(i), resClearPost.getValue(i));
+            }
+            res_logic_map.reset();
+            return res_logic_map;
+        ]] >> res_logic_map
+    }
+    |
+    if (@show_error != '')
+    {
+        noop
+    }
+    |
+    if (@show_message != '')
+    {
+        noop
+    }
+    |
+    if (@show_confirmation != '')
+    {
+        noop
+    }
+    |
+    if (@show_parms != '')
+    {
+        expand usr statement variables
+         where string = @show_parms
+           and seperator = '|'
+    }
+}
+|
+/* Publish the actions so the RF form can do what it needs to. We always have one row (becasue we only retrieve one). */
+publish data combination
+ where res = @res_logic_map
+   and show_parms = @exdstr
+   and devcod = @devcod
+/* This is returned by "get usr translated inventory identifier" and used to show a trimmed scan id for the "last scan" based on the mask, just add it here so we dont need to merge another resultset.
+ * manual_scan indicates if it is a identifier scanned by the user (1) or a logic identifier which is for example used for the funtion keys (F1-F12).
+ */
+   and identifier_dsp = decode(@manual_scan, 1, @identifier_dsp, null) >> res_logic_map
+|
+/* Publish the new status of the device so the RF form can use/display the values. For example the location. */
+list usr rf identify load device scan status
+ where devcod = @devcod
+   and identifier = @scan_id
+   and lodnum = @lodnum
+   and stoloc = @stoloc >> res_device_status
+|
+/* Publish both the the result sets so we can use it in the RF form. */
+merge result sets with data
+ where keycolumns = 'devcod'
+   and resultset = @res_logic_map
+   and additionalresultset = @res_device_status
+|
+get session variable
+where name = 'usr_clean_retry' catch(-1403)
+|
+if (@? = 0 and @value = '1')
+{
+    execute server command
+      where cmd = 'process usr rf identify load scan_id ' ||
+                  '  where devcod = ''' || @devcod || ''' ' ||
+                  '    and scan_id = ''' || @scan_id || ''' ' ||
+                  '    and manual_scan = 1 ' ||
+                  '    and have_confirmation = '''' '
+        and inline = 0
+}
+else
+{
+    filter data
+     where moca_filter_level = 3
+}
+]]>
+</local-syntax>
+  <argument name="scan_id" required="yes" datatype="string">Scan ID</argument>
+  <argument name="manual_scan" datatype="integer">Indicates if this is a scan_id entered by the user (1) or a logical scan by the screen (0/absent)</argument>
+  <argument name="have_confirmation" datatype="string">Contains any confirmations given by the user in response to "questions" in the RF screen.</argument>
+</command>

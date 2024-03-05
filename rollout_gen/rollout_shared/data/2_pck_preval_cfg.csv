@@ -1,0 +1,5 @@
+pck_preval_id,info_cd,action_cd,skip_limit,cancod,ins_dt,last_upd_dt,ins_user_id,last_upd_user_id
+"DEF_DISABLE","DISABLE","S",10,"C-RA","","","",""
+"DEF_NO_PROMPT","NO-PROMPT","S",1,"C-RA","","","",""
+"DEF_NOTIFY","NOTIFY","S",10,"C-RA","","","",""
+"DEF_PROMPT","PROMPT","S",10,"C-RA","","","",""

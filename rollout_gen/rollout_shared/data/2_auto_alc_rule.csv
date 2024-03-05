@@ -1,0 +1,2 @@
+wh_id,auto_alc_num,auto_alc_mtd,rule_type,time_in_mins,date_type,ena_flg,ins_dt,last_upd_dt,ins_user_id,last_upd_user_id,incl_unpln_ord_flg,pln_rule_nam
+"2","GENERAL","SCH","ORD",60,"ESD",1,"20200714144819","20200714144819","943378","943378",1,"STD-ORDERSELECTION"

@@ -1,0 +1,5 @@
+usr_id,evt_nam,priority,client_id,ena_flg,auto_sub_flg,incl_att_flg,add_dte,moddte,mod_usr_id
+"SUPPORT","USR-READY-FOR-LIST",1,"",1,0,0,"","20200624131102","938673"
+"SUPPORT","USR-REPORTS",1,"",1,0,1,"","20200731125708","940409"
+"SUPPORT","USR-SHORT-ALLOC",1,"",1,0,0,"","20200515155138","SUPER"
+"SUPPORT","WMD-ERRORED-LOCATION",1,"",1,0,0,"","20200515155212","SUPER"

@@ -1,0 +1,493 @@
+<command>
+<name>list base columns of workqueue</name>
+<description>List Base Columns Of WorkQueue</description>
+<type>Local Syntax</type>
+<local-syntax>
+<![CDATA[
+publish data where locale_id = nvl(@locale_id, @@locale_id)
+        |
+        publish data where filterByClause = nvl(@filterByClause, '1 = 1')
+        |
+        get workqueue filter conditions where filterByClause = @filterByClause and @* catch(-1403)
+        |
+        if(@? = -1403){
+            publish data where filtered_join_clauses = ""
+               and weight_volume_join_clause = ""
+               and manual_filtered_join_clause = ""
+               and description_join_clauses = ""
+        }
+        |
+        get client in clause for user
+            where usr_id = @@usr_id
+            and @+wh_id
+            and table_prefix = 'pckwrk_view'
+            and prt_client_id_flg = 0
+        |
+        publish data where pck_client_clause = @client_in_clause
+        |
+        get client in clause for user
+            where usr_id = @@usr_id
+              and @+wh_id
+              and table_prefix = 'wrkque'
+              and prt_client_id_flg = 0
+        |
+        filter data where moca_filter_level = 2 and
+          wrkq_client_clause = @client_in_clause and
+          pck_client_clause = @pck_client_clause
+        |
+        get mls text
+            where mls_id = 'lblManyDsp'
+              and locale_id = @locale_id
+        |
+        publish data
+            where mlsMultiple = nvl(@mls_text, 'Many')
+        |
+        [
+            /* This command needs to return all the columns from all the tables involved 
+             * for the purpose of filtering data. Joins like "column_name = '-1'" have been
+             * added so that the filterbyclause can be used for each subquery without causing
+             * any failures. The assumption is that '-1' will not be an actual value in the db
+             * for that column.
+             */             
+             
+            /*#limit=@offset,@limit,true */
+            select /*+ INLINE */ finallist.* from (
+
+                 /* Directed Records */
+                select to_char(wrkque.reqnum) as reqnum,
+                       @mlsMultiple as wrkref,
+                       max(wrkque.adddte) as adddte,
+                       @mlsMultiple as list_id,
+                       @mlsMultiple as ctnnum,
+					   @mlsMultiple as lblbat,
+                       @mlsMultiple as rfaudit_reqnum,
+                       @mlsMultiple as countwrk_id,
+                       count(*) count,
+                       max(wrkque.wh_id) as wh_id
+                  from wrkque
+             left join pckwrk_view
+                    on (wrkque.wrkref  = pckwrk_view.wrkref or
+                        wrkque.list_id = pckwrk_view.list_id)
+             left join cntwrk on cntwrk.cntgrp = '-1'
+             left join cnthdr on cnthdr.cntbat = '-1'
+             left join cnttyp on cnttyp.cnttyp = '-1'
+             left join out_aud_dtl on out_aud_dtl.out_aud_dtl_id = '-1'
+             left join (select 1 as directed, 
+                               0 as manualSeqWork 
+                          from dual) directed_table on (1=1)
+                       @description_join_clauses:raw
+                       @filtered_join_clauses:raw
+                       @weight_volume_join_clause:raw
+                 where pckwrk_view.ctnnum is null and /* Ignoring carton child directed picks */
+                       (wrkque.client_id is null 
+                        or @wrkq_client_clause:raw)
+                   and @+wrkque.wh_id
+                   and not exists (select 1 from wrkque wq 
+                                    where wq.reqnum = wrkque.reqnum
+                                      and wq.oprcod = 'RFOUTAUD')
+                   and (@filterByClause:raw)
+              group by wrkque.reqnum
+
+
+
+                 union
+
+
+                /* Manual Sequence records */
+                select to_char(wrkque.reqnum)  as reqnum,
+                       @mlsMultiple as wrkref,
+                       max(wrkque.adddte) as adddte,
+                       @mlsMultiple as list_id,
+                       @mlsMultiple as ctnnum,
+					   @mlsMultiple as lblbat,
+                       @mlsMultiple as rfaudit_reqnum,
+                       @mlsMultiple as countwrk_id,
+                       count(*) count,
+                       max(wrkque.wh_id) as wh_id
+                  from wrkque
+             left join cntwrk on cntwrk.cntgrp = '-1'
+             left join cnthdr on cnthdr.cntbat = '-1'
+             left join cnttyp on cnttyp.cnttyp = '-1'
+             left join out_aud_dtl on out_aud_dtl.out_aud_dtl_id = '-1'
+             left join (select 0 as directed, 
+                               1 as manualSeqWork 
+                          from dual) directed_table on (1=1)
+                  join pckwrk_view
+                    on pckwrk_view.wrkref = wrkque.wrkref
+                   and pckwrk_view.wh_id = wrkque.wh_id
+                   and pckwrk_view.list_id is null
+                   and pckwrk_view.ctnnum is null
+                   and pckwrk_view.subnum is null
+                  join shipment
+                    on shipment.ship_id = pckwrk_view.ship_id
+                   and shipment.wh_id = pckwrk_view.wh_id
+                   and shipment.stop_id is not null
+                  join stop
+                    on shipment.stop_id = stop.stop_id
+                  join car_move
+                    on car_move.wh_id = shipment.wh_id 
+                   and car_move.wrk_rel_typ = 'MANUAL'
+                   and stop.car_move_id = car_move.car_move_id
+                       @description_join_clauses:raw
+                       @manual_filtered_join_clause:raw
+                       @weight_volume_join_clause:raw
+                 where wrkque.wrksts = 'LOCK'
+                   and @+wrkque.wh_id
+                   and (@filterByClause:raw)
+              group by wrkque.reqnum
+
+
+                 union
+
+
+                select to_char(wrkque.reqnum)  as reqnum,
+                       @mlsMultiple as wrkref,
+                       max(wrkque.adddte) as adddte,
+                       @mlsMultiple as list_id,
+                       @mlsMultiple as ctnnum,
+					   @mlsMultiple as lblbat,
+                       @mlsMultiple as rfaudit_reqnum,
+                       @mlsMultiple as countwrk_id,
+                       count(*) count,
+                       max(wrkque.wh_id) as wh_id
+                  from wrkque
+             left join cntwrk on cntwrk.cntgrp = '-1'
+             left join cnthdr on cnthdr.cntbat = '-1'
+             left join cnttyp on cnttyp.cnttyp = '-1'
+             left join out_aud_dtl on out_aud_dtl.out_aud_dtl_id = '-1'
+             left join (select 0 as directed, 
+                               1 as manualSeqWork 
+                          from dual) directed_table on (1=1)
+                  join pckwrk_view
+                    on pckwrk_view.wh_id = wrkque.wh_id
+                   and pckwrk_view.list_id is not null
+                   and pckwrk_view.list_id = wrkque.list_id
+                  join pcklst
+                    on pcklst.list_id = pckwrk_view.list_id
+                  join shipment
+                    on shipment.ship_id = pckwrk_view.ship_id
+                   and shipment.wh_id = pckwrk_view.wh_id
+                   and shipment.stop_id is not null
+                  join stop
+                    on shipment.stop_id = stop.stop_id
+                  join car_move
+                    on car_move.wh_id = shipment.wh_id 
+                   and car_move.wrk_rel_typ = 'MANUAL'
+                   and stop.car_move_id = car_move.car_move_id
+                       @description_join_clauses:raw
+                       @manual_filtered_join_clause:raw
+                       @weight_volume_join_clause:raw
+                 where wrkque.wrksts = 'LOCK'
+                   and @+wrkque.wh_id
+                   and (@filterByClause:raw)
+              group by wrkque.reqnum
+
+
+                 union
+
+
+                select to_char(wrkque.reqnum)  as reqnum,
+                       @mlsMultiple as wrkref,
+                       max(wrkque.adddte) as adddte,
+                       @mlsMultiple as list_id,
+                       @mlsMultiple as ctnnum,
+					   @mlsMultiple as lblbat,
+                       @mlsMultiple as rfaudit_reqnum,
+                       @mlsMultiple as countwrk_id,
+                       count(*) count,
+                       max(wrkque.wh_id) as wh_id
+                       /* Get count for normal carton picks */
+                  from wrkque
+             left join cntwrk on cntwrk.cntgrp = '-1'
+             left join cnthdr on cnthdr.cntbat = '-1'
+             left join cnttyp on cnttyp.cnttyp = '-1'
+             left join out_aud_dtl on out_aud_dtl.out_aud_dtl_id = '-1'
+             left join (select 0 as directed, 
+                               1 as manualSeqWork 
+                          from dual) directed_table on (1=1)
+             left join pckwrk_view
+                    on pckwrk_view.wrkref = wrkque.wrkref
+                   and pckwrk_view.wh_id = wrkque.wh_id
+                   and pckwrk_view.list_id is null
+                   and pckwrk_view.subnum is not null
+                   and pckwrk_view.wrktyp = 'K'
+                   and pckwrk_view.prtnum = 'KITPART'
+                  join shipment
+                    on shipment.ship_id = pckwrk_view.ship_id
+                   and shipment.wh_id = pckwrk_view.wh_id
+                   and shipment.stop_id is not null
+                  join stop
+                    on shipment.stop_id = stop.stop_id
+                  join car_move
+                    on car_move.wh_id = shipment.wh_id 
+                   and car_move.wrk_rel_typ = 'MANUAL'
+                   and car_move.car_move_id = stop.car_move_id
+                       @description_join_clauses:raw
+                       @manual_filtered_join_clause:raw
+                       @weight_volume_join_clause:raw
+                 where wrkque.wrksts = 'LOCK'
+                   and @+wrkque.wh_id
+                   and (@filterByClause:raw)
+              group by wrkque.reqnum
+
+
+                 union
+
+
+                /* Undirected Non List and Non Carton pick child records */
+                select @mlsMultiple as reqnum,
+                       pckwrk_view.wrkref,
+                       max(pckwrk_view.adddte) as adddte,
+                       @mlsMultiple as list_id,
+                       @mlsMultiple as ctnnum ,
+					   @mlsMultiple as lblbat ,
+                       @mlsMultiple as rfaudit_reqnum,
+                       @mlsMultiple as countwrk_id,
+                       count(*) count,
+                       max(pckwrk_view.wh_id) as wh_id
+                  from pckwrk_view
+             left join wrkque
+                    on (wrkque.wrkref  = pckwrk_view.wrkref or
+                        wrkque.list_id = pckwrk_view.list_id)
+             left join cntwrk on cntwrk.cntgrp = '-1'
+             left join cnthdr on cnthdr.cntbat = '-1'
+             left join cnttyp on cnttyp.cnttyp = '-1'
+             left join out_aud_dtl on out_aud_dtl.out_aud_dtl_id = '-1'
+             left join (select 0 as directed, 
+                               0 as manualSeqWork 
+                          from dual) directed_table on (1=1)
+                       @description_join_clauses:raw
+                       @filtered_join_clauses:raw
+                       @weight_volume_join_clause:raw
+                 where pckwrk_view.pcksts = 'R'
+                   and wrkque.wrkref is null
+                   and pckwrk_view.list_id is null
+				   and pckwrk_view.lblbat is null
+                   and pckwrk_view.ctnnum is null
+                   and pckwrk_view.subnum is null
+                   and pckwrk_view.dtl_appqty < pckwrk_view.dtl_pckqty
+                   and @+pckwrk_view.wh_id 
+                   and (pckwrk_view.client_id is null 
+                        or @pck_client_clause:raw)
+                   and (@filterByClause:raw)
+              group by pckwrk_view.wrkref
+
+
+                 union
+
+
+                /* undirected carton picks */
+                select @mlsMultiple as reqnum,
+                       @mlsMultiple as wrkref,
+                       max(pckwrk_view.adddte) as adddte,
+                       @mlsMultiple as list_id,
+                       nvl(pckwrk_view.subnum,max(pckwrk_view.ctnnum)) as ctnnum,
+					   @mlsMultiple as lblbat,
+                       @mlsMultiple as rfaudit_reqnum,
+                       @mlsMultiple as countwrk_id,
+                       count(*) count,
+                       max(pckwrk_view.wh_id) as wh_id
+                  from pckwrk_view
+             left join wrkque
+                    on (wrkque.wrkref  = pckwrk_view.wrkref or
+                        wrkque.list_id = pckwrk_view.list_id)
+             left join cntwrk on cntwrk.cntgrp = '-1'
+             left join cnthdr on cnthdr.cntbat = '-1'
+             left join cnttyp on cnttyp.cnttyp = '-1'
+             left join out_aud_dtl on out_aud_dtl.out_aud_dtl_id = '-1'
+             left join (select 0 as directed, 
+                               0 as manualSeqWork 
+                          from dual) directed_table on (1=1)
+                       @description_join_clauses:raw
+                       @filtered_join_clauses:raw
+                       @weight_volume_join_clause:raw
+                 where pckwrk_view.pcksts = 'R'
+                   and wrkque.wrkref is null
+                   and pckwrk_view.list_id is null
+				   and pckwrk_view.lblbat is null
+                   and exists (select 1 
+                                 from pckwrk_view p2 
+                                where p2.ctnnum = pckwrk_view.subnum
+                             group by p2.ctnnum 
+                               having (sum(p2.pckqty) - sum(p2.appqty)) > 0)
+                   and exists (select 1 
+                                 from pckwrk_view pwv
+                                where pwv.wh_id = pckwrk_view.wh_id
+                                  and (pwv.subnum = pckwrk_view.subnum 
+                                       or pwv.subnum = pckwrk_view.ctnnum))
+                   and @+pckwrk_view.wh_id
+                   and (pckwrk_view.client_id is null 
+                        or @pck_client_clause:raw)
+                   and (@filterByClause:raw)
+              group by pckwrk_view.subnum
+
+
+                 union
+
+
+                /*  Undirected list pick records*/
+                select @mlsMultiple as reqnum,
+                       @mlsMultiple as wrkref,
+                       max(pckwrk_view.adddte) as adddte,
+                       pckwrk_view.list_id,
+                       @mlsMultiple as ctnnum,
+					   @mlsMultiple as lblbat,
+                       @mlsMultiple as rfaudit_reqnum,
+                       @mlsMultiple as countwrk_id,
+                       count(*) count,
+                       max(pckwrk_view.wh_id) as wh_id
+                  from pckwrk_view
+             left join wrkque on wrkque.reqnum = '-1'
+             left join cntwrk on cntwrk.cntgrp = '-1'
+             left join cnthdr on cnthdr.cntbat = '-1'
+             left join cnttyp on cnttyp.cnttyp = '-1'
+             left join out_aud_dtl on out_aud_dtl.out_aud_dtl_id = '-1'
+             left join (select 0 as directed, 
+                               0 as manualSeqWork 
+                          from dual) directed_table on (1=1)
+                       @description_join_clauses:raw
+                       @filtered_join_clauses:raw
+                       @weight_volume_join_clause:raw
+                 where pckwrk_view.pcksts = 'R'
+                   and pckwrk_view.list_id is not null
+                   and pckwrk_view.dtl_appqty < pckwrk_view.dtl_pckqty
+                   and @+pckwrk_view.wh_id
+                   and pckwrk_view.list_id not in (select distinct list_id 
+                                                     from wrkque 
+                                                    where @+wrkque.wh_id 
+                                                      and list_id is not null
+                                                      and not exists (select 1 
+                                                                        from wrkque wq 
+                                                                       where wq.reqnum = wrkque.reqnum
+                                                                         and wq.oprcod = 'RFOUTAUD'))
+                   and (pckwrk_view.client_id is null 
+                        or @pck_client_clause:raw)
+                   and (@filterByClause:raw)
+              group by pckwrk_view.list_id
+
+
+                 union
+
+
+                /* RF OUT AUDIT records */
+                select @mlsMultiple as reqnum,
+                       @mlsMultiple as wrkref,
+                       max(wrkque.adddte) as adddte,
+                       @mlsMultiple as list_id,
+                       @mlsMultiple as ctnnum,
+					   @mlsMultiple as lblbat,
+                       to_char(wrkque.reqnum) as rfaudit_reqnum,
+                       @mlsMultiple as countwrk_id,
+                       count(*) count,
+                       max(wrkque.wh_id) as wh_id
+                  from wrkque
+             left join pckwrk_view
+                    on (wrkque.wrkref  = pckwrk_view.wrkref or
+                        wrkque.list_id = pckwrk_view.list_id)
+             left join cntwrk on cntwrk.cntgrp = '-1'
+             left join cnthdr on cnthdr.cntbat = '-1'
+             left join cnttyp on cnttyp.cnttyp = '-1'
+             left join out_aud_dtl on (wrkque.rf_out_aud_id  = out_aud_dtl.out_aud_hdr_id)
+             left join (select 1 as directed, 
+                               0 as manualSeqWork 
+                          from dual) directed_table on (1=1)
+                       @description_join_clauses:raw
+                       @filtered_join_clauses:raw
+                       @weight_volume_join_clause:raw
+                 where wrkque.oprcod = 'RFOUTAUD' 
+                   and (wrkque.client_id is null or 
+                        @wrkq_client_clause:raw)
+                   and (@filterByClause:raw)
+              group by wrkque.reqnum
+
+
+                 union
+
+
+                /* Undirected Count work records */
+                select @mlsMultiple as reqnum,
+                       @mlsMultiple as wrkref,
+                       cnthdr.adddte as adddte,
+                       @mlsMultiple as list_id,
+                       @mlsMultiple as ctnnum,
+					   @mlsMultiple as lblbat,
+                       @mlsMultiple as rfaudit_reqnum,
+                       (
+                         /* Concatenate fields together to form the count work ID */
+                         concat(nvl(cntwrk.cntbat,'-'), 
+                         concat('|',
+                         concat(nvl(cntwrk.stoloc,'-'), 
+                         concat('|', 
+                         concat(nvl(cntwrk.cntgrp,'-'), 
+                         concat('|', 
+                         concat(nvl(cntwrk.cnttyp,'-'), 
+                         concat('|', 
+                         concat(nvl(cntwrk.prtnum,'-'), 
+                         concat('|', 
+                                nvl(cntwrk.prt_client_id,'-')
+                         ))))))))))
+                       ) as countwrk_id,
+                       1 as  count,
+                       cntwrk.wh_id as wh_id
+                  from cntwrk
+             left join pckwrk_view on pckwrk_view.wrkref = '-1'
+             left join wrkque on wrkque.reqnum = '-1'
+             left join adrmst on adrmst.adr_id = '-1'
+             left join out_aud_dtl on out_aud_dtl.out_aud_dtl_id = '-1'
+             left join rcvtrk on rcvtrk.trknum = '1' and rcvtrk.wh_id = '-1'
+             left join rcvlin on rcvlin.rcvkey = '-1'
+             left join shipment on shipment.ship_id = '-1'
+             left join stop on stop.stop_id = '-1'
+             left join sys_dsc_mst 
+                    on sys_dsc_mst.colnam = '1' 
+                   and sys_dsc_mst.colval = '1'
+                   and sys_dsc_mst.locale_id = '1' 
+                   and sys_dsc_mst.cust_lvl = '1' 
+                   and (1=2)
+             left join cnthdr on (cntwrk.cntbat = cnthdr.cntbat)
+             left join cnttyp on (cntwrk.cnttyp = cnttyp.cnttyp)
+             left join locmst on (cntwrk.wh_id = locmst.wh_id 
+                                  and cntwrk.stoloc = locmst.stoloc)
+             left join zonmst on (locmst.wrk_zone_id = zonmst.wrk_zone_id)
+             left join prtmst
+                    on cntwrk.prtnum = prtmst.prtnum
+                   and cntwrk.prt_client_id = prtmst.prt_client_id
+                   and cntwrk.wh_id = prtmst.wh_id_tmpl
+             left join alt_prtmst
+                    on prtmst.prtnum = alt_prtmst.prtnum
+                   and prtmst.prt_client_id = alt_prtmst.prt_client_id
+             left join prtdsc 
+                    on (prtdsc.colnam = 'prtnum|prt_client_id|wh_id_tmpl'
+                        and prtdsc.colval = cntwrk .prtnum || '|' || cntwrk .prt_client_id || '|' || cntwrk.wh_id
+                   and prtdsc.locale_id = @locale_id)
+             left join (select 0 as directed, 
+                               0 as manualSeqWork 
+                          from dual) directed_table on (1=1)
+             left join (select 0 as agg_pckqty 
+                          from dual) aggregated_pcktbl on (1=2)
+                       @description_join_clauses:raw
+                       @weight_volume_join_clause:raw
+                 where @+cntwrk.wh_id 
+                   and cntwrk.cntsts = 'R'
+                   and not exists (select 1 
+                                     from wrkque wq
+                                    where wq.cntgrp = cntwrk.cntgrp)
+                   and (@filterByClause:raw)
+
+            ) finallist order by finallist.adddte desc
+
+        ] catch (-1403)
+]]>
+</local-syntax>
+<argument name="@*">Any pick or workqueue or count work field value</argument>
+<documentation>
+<remarks>
+<![CDATA[
+  <p>
+  This command is used to list the workqueue records. </p>
+]]>
+</remarks>
+<exception value="eOK">Normal successful completion</exception>
+<exception value="eDB_NO_ROWS_AFFECTED">Specified record not found</exception>
+</documentation>
+</command>

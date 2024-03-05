@@ -1,0 +1,87 @@
+<command>
+  <name>move usr shipmentline to shipment</name>
+  <description>move usr shipmentline to shipment</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* move usr shipmentline to shipment
+ *
+ * move shipmentline to a given shipment by dtlnum
+ * plan/create shipments into stops and assign stops to 
+ * loads. Loads (JDA_2018) are called carrier moves in older versions. 
+ * Version history:
+ *  2020-13-07 Raoul Scholten    Initial version
+ *  2020-24-07 Raoul Scholten    added logic to run this from a scheduled job on lpn level
+ */
+validate stack variable not null
+ where name = 'ship_id'
+|
+get warehouse id
+|
+publish data
+ where orig_ship_id = @ship_id
+|
+if (@mode = 'job')
+    /*now the lpn and the shipment are passed */
+{
+    [select shipment.ship_id,
+            inventory_view.dtlnum
+       from inventory_view,
+            shipment_line,
+            shipment
+      where inventory_view.ship_line_id = shipment_line.ship_line_id
+        and shipment_line.ship_id = shipment.ship_id
+        and shipment.ship_id <> @ship_id
+        and inventory_view.lodnum = @lodnum
+        and exists(select 0
+                     from inventory_pckwrk_view ipv
+                    where ipv.lodnum = inventory_view.lodnum
+                      and ipv.ship_id = @ship_id)
+      group by shipment.ship_id,
+            inventory_view.dtlnum] catch(-1403)
+    |
+    if (@? = 0)
+    {
+        change inventory ship sequence
+         where create_dest = 1
+           and wh_id = @wh_id
+           and dtlnum = @dtlnum
+           and new_ship_id = @orig_ship_id
+    }
+}
+else
+{
+    [select shipment.ship_id,
+            inventory_view.dtlnum
+       from inventory_view,
+            shipment_line,
+            shipment
+      where inventory_view.ship_line_id = shipment_line.ship_line_id
+        and shipment_line.ship_id = shipment.ship_id
+        and shipment.ship_id <> @ship_id
+        and exists(select 0
+                     from inventory_pckwrk_view ipv,
+                          locmst,
+                          loc_typ
+                    where ipv.lodnum = inventory_view.lodnum
+                      and ipv.ship_id = @ship_id
+                      and locmst.loc_typ_id = loc_typ.loc_typ_id 
+                      and locmst.stoloc = ipv.stoloc
+                      and  loc_typ.loc_typ = 'SSTG')
+      group by shipment.ship_id,
+            inventory_view.dtlnum] catch(-1403)
+    |
+    if (@? = 0)
+    {
+        change inventory ship sequence
+         where create_dest = 1
+           and wh_id = @wh_id
+           and dtlnum = @dtlnum
+           and new_ship_id = @orig_ship_id
+    }
+}
+|
+commit;
+]]>
+</local-syntax>
+</command>

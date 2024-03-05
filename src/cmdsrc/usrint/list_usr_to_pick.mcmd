@@ -1,0 +1,268 @@
+<command>
+  <name>list usr to pick</name>
+  <description>list usr to pick</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[/* list usr to pick
+ * Lists open picks for dashboard on detail level
+ * Version history:
+ *  2023-06-14  Jasper Ringoir    Initial setup
+ *  2023-07-28  Marco Schouwenaar Removed comments
+ * 2023-09-14 Radina Ivanova take earliest late ship date for pallet moves
+ */
+get warehouse id
+|
+validate stack variable not null
+ where name = 'wh_id'
+|
+{
+	[select rtstr1 as palletpick_oprcod
+	   from poldat
+	  where polcod = 'USR-PICKING' 
+	    and polvar = 'WRKOPR-GROUP' 
+	    and polval = 'PALLETPICK' 
+	    and rtnum1 = 1] catch(-1403) >> palletpick_oprcods
+	|
+	convert column results to string
+	 where resultset = @palletpick_oprcods
+	   and colnam = 'palletpick_oprcod'
+	   and separator = ','
+	|
+	convert list to in clause
+	 where string = @result_string
+	/* and table_prefix = 'temp' */
+	   and column_name = 'nvl(wq1.oprcod, wq2.oprcod)'
+	   and separator = ','
+	|
+	convert list
+	 where string = @result_string
+	   and type = 'S'
+	   and separator = ','
+	|
+	publish data
+	 where wqx_palletpick_oprcods = @in_clause
+	   and wq1_oprcods_palletpick = @retstr
+}
+|
+{
+	[select rtstr1 as palletmove_oprcod
+	   from poldat
+	  where polcod = 'USR-PICKING' 
+	    and polvar = 'WRKOPR-GROUP' 
+	    and polval = 'PALLETMOVE' 
+	    and rtnum1 = 1] catch(-1403) >> palletmove_oprcods
+	|
+	convert column results to string
+	 where resultset = @palletmove_oprcods
+	   and colnam = 'palletmove_oprcod'
+	   and separator = ','
+	|
+	convert list to in clause
+	 where string = @result_string
+	/* and table_prefix = 'temp' */
+	   and column_name = 'nvl(wq1.oprcod, wq2.oprcod)'
+	   and separator = ','
+	|
+	convert list
+	 where string = @result_string
+	   and type = 'S'
+	   and separator = ','
+	|
+	publish data
+	 where wqx_palletmove_oprcods = @in_clause
+	   and wq2_oprcods_palletmove = @retstr
+}
+|
+{
+	[select rtstr1 as list_oprcod
+	   from poldat
+	  where polcod = 'USR-PICKING' 
+	    and polvar = 'WRKOPR-GROUP' 
+	    and polval = 'LIST' 
+	    and rtnum1 = 1] catch(-1403) >> list_oprcods
+	|
+	convert column results to string
+	 where resultset = @list_oprcods
+	   and colnam = 'list_oprcod'
+	   and separator = ','
+	|
+	convert list to in clause
+	 where string = @result_string
+	/* and table_prefix = 'temp' */
+	   and column_name = 'nvl(wq1.oprcod, wq2.oprcod)'
+	   and separator = ','
+	|
+	convert list
+	 where string = @result_string
+	   and type = 'S'
+	   and separator = ','
+	|
+	publish data
+	 where wqx_list_oprcods = @in_clause
+	   and wq2_oprcods_list = @retstr
+}
+|
+{
+	[select rtnum2 as excl_pck_zone_id
+	   from poldat
+	  where polcod = 'USR-PICKING' 
+	    and polvar = 'PICK-TASK-DASHBOARD' 
+	    and polval = 'EXCL-PCKZONE' 
+	    and rtnum1 = 1
+	    and wh_id_tmpl = @wh_id] catch(-1403) >> excl_pck_zone_ids
+	|
+	if (@? = -1403)
+	{
+		publish data
+		 where zone_excl_clause = '1 = 1'
+	}
+	else
+	{
+		convert column results to string
+		 where resultset = @excl_pck_zone_ids
+		   and colnam = 'excl_pck_zone_id'
+		   and separator = ','
+		|
+		publish data
+		 where zone_excl_clause = 'pck_zone.pck_zone_id not in(' || @result_string || ')'
+	}
+}
+|
+[select rtnum2 max_time_frames
+   from poldat_view
+  where polcod = 'USR-PICKING' 
+    and polvar = 'PICK-TASK-DASHBOARD' 
+    and polval = 'MAX-TIME-FRAMES' 
+    and rtnum1 = 1
+    and wh_id = @wh_id
+    and rownum = 1] catch(-1403)
+|
+if (@? = -1403)
+{
+	publish data
+	 where lateshipdate_clause = '1 = 1'
+}
+else
+{
+	publish data
+	 where lateshipdate_clause = 'shipment.late_shpdte < CONVERT(DATETIME, to_char(sysdate + ((0.5*' || @max_time_frames || ') / 24), ''YYYY-MM-DD HH24'') || decode(sign(to_char(sysdate + ((0.5*' || @max_time_frames || ') / 24), ''mi'') -29), 1, '':30:00'', '':00:00''))'
+}
+|
+publish data
+ where filterByClause = nvl(@filterByClause, [1 = 1])
+   and sortOrderClause = nvl(@sortOrderClause, 'decode(time_frame, ''Total'', ''0'', time_frame), pck_zone_id')
+|
+[/*#limit=@offset,@limit,true*/
+ select * from (select case
+            when pick_detail.time_frame is null then 'Total' else pick_detail.time_frame
+         end time_frame,
+        (pick_detail.pck_zone_id) as pck_zone_id,
+        (pick_detail.pck_zone_cod) as pck_zone_cod,
+        min(pick_detail.zone_description) as zone_description,
+        sum(pick_detail.open_picks + pick_detail.open_pallet_picks + pick_detail.open_pallet_move) as total_open,
+        sum(pick_detail.open_headers) as open_headers,
+        sum(pick_detail.open_picks) as open_picks,
+        sum(pick_detail.open_pallet_picks) as open_pallet_picks,
+        sum(pick_detail.open_pallet_move) as open_pallet_move
+   from(select to_char(late_shpdte, 'YY-MM-DD') || ' ' || substr(to_char(late_shpdte, 'YYYY-MM-DD HH24') || decode(sign(to_char(late_shpdte, 'mi') - 29), 1, ':30:00', ':00:00'), 12, 5) || ' - ' || to_char(CONVERT(DATETIME, to_char(late_shpdte, 'YYYY-MM-DD HH24') || decode(sign(to_char(late_shpdte, 'mi') - 29), 1, ':30:00', ':00:00')) + (30.0 / 60) / 24, 'HH24:mi') as time_frame,
+               pck_zone.pck_zone_id as pck_zone_id,
+               pck_zone.pck_zone_cod as pck_zone_cod,
+               lngdsc as zone_description,
+               pck_zone.wh_id,
+               case
+                   when @wqx_list_oprcods:raw then count(distinct pckwrk_hdr.list_id) else 0
+                end as open_headers,
+               case
+                   when @wqx_list_oprcods:raw then count(distinct pckwrk_hdr.wrkref) else 0
+                end as open_picks,
+               case
+                   when @wqx_palletpick_oprcods:raw then count(distinct pckwrk_hdr.wrkref) else 0
+                end as open_pallet_picks,
+               0 as open_pallet_move
+          from pckwrk_hdr
+          join pckwrk_dtl
+            on pckwrk_dtl.wrkref = pckwrk_hdr.wrkref
+          join locmst
+            on pckwrk_hdr.srcloc = locmst.stoloc
+           and pckwrk_hdr.wh_id = locmst.wh_id
+         inner
+          join pck_zone
+            on pck_zone.pck_zone_id = locmst.pck_zone_id
+          join dscmst
+            on dscmst.colnam = 'pck_zone_cod|wh_id' 
+           and dscmst.colval = pck_zone.pck_zone_cod || '|' || pck_zone.wh_id
+           and dscmst.locale_id = nvl(@locale_id, @@locale_id) 
+          join shipment
+            on shipment.ship_id = pckwrk_dtl.ship_id
+            /* and @lateshipdate_clause:raw */
+          left
+          join wrkque as wq1
+            on pckwrk_hdr.wrkref = wq1.wrkref
+           and wq1.oprcod in(@wq1_oprcods_palletpick:raw) 
+          left
+         outer
+          join wrkque as wq2
+            on pckwrk_hdr.list_id = wq2.list_id
+           and wq2.oprcod in(@wq2_oprcods_list:raw, @wq2_oprcods_palletmove:raw) 
+         where pckwrk_hdr.pckqty > pckwrk_hdr.appqty
+           and pckwrk_hdr.pcksts = 'R'
+           and (@wqx_list_oprcods:raw or @wqx_palletpick_oprcods:raw)           
+         group by pck_zone.wh_id,
+               pck_zone.pck_zone_id,
+               pck_zone.pck_zone_cod,
+               lngdsc,
+               nvl(wq1.oprcod, wq2.oprcod),
+               late_shpdte
+         union all
+         select to_char(min(late_shpdte), 'YY-MM-DD') || ' ' || substr(to_char(min(late_shpdte), 'YYYY-MM-DD HH24') || decode(sign(to_char(min(late_shpdte), 'mi') - 29), 1, ':30:00', ':00:00'), 12, 5) || ' - ' || to_char(CONVERT(DATETIME, to_char(min(late_shpdte), 'YYYY-MM-DD HH24') || decode(sign(to_char(min(late_shpdte), 'mi') - 29), 1, ':30:00', ':00:00')) + (30.0 / 60) / 24, 'HH24:mi') as time_frame,
+               pck_zone.pck_zone_id as pck_zone_id,
+               pck_zone.pck_zone_cod as pck_zone_cod,
+               lngdsc as zone_description,
+               pck_zone.wh_id,
+               0 as open_headers,
+               0 open_picks,
+               0 open_pallet_picks,
+               count(distinct pckwrk_hdr.list_id) as open_pallet_move
+          from pckwrk_hdr
+          join pckwrk_dtl
+            on pckwrk_dtl.wrkref = pckwrk_hdr.wrkref
+          join locmst
+            on pckwrk_hdr.srcloc = locmst.stoloc
+           and pckwrk_hdr.wh_id = locmst.wh_id
+         inner
+          join pck_zone
+            on pck_zone.pck_zone_id = locmst.pck_zone_id
+          join dscmst
+            on dscmst.colnam = 'pck_zone_cod|wh_id' 
+           and dscmst.colval = pck_zone.pck_zone_cod || '|' || pck_zone.wh_id
+           and dscmst.locale_id = nvl(@locale_id, @@locale_id) 
+          join shipment
+            on shipment.ship_id = pckwrk_dtl.ship_id
+            /* and @lateshipdate_clause:raw */
+          left
+          join wrkque as wq1
+            on pckwrk_hdr.wrkref = wq1.wrkref
+           and wq1.oprcod in(@wq1_oprcods_palletpick:raw) 
+          left
+         outer
+          join wrkque as wq2
+            on pckwrk_hdr.list_id = wq2.list_id
+           and wq2.oprcod in(@wq2_oprcods_list:raw, @wq2_oprcods_palletmove:raw) 
+         where pckwrk_hdr.pckqty > pckwrk_hdr.appqty
+           and pckwrk_hdr.pcksts = 'R'
+           and @wqx_palletmove_oprcods:raw          
+         group by pck_zone.wh_id,
+               pck_zone.pck_zone_id,
+               pck_zone.pck_zone_cod,
+               lngdsc,
+               nvl(wq1.oprcod, wq2.oprcod),
+               pckwrk_hdr.list_id) pick_detail
+  where @zone_excl_clause:raw
+  group by pick_detail.pck_zone_id,
+        pick_detail.pck_zone_cod,
+        rollup(pick_detail.time_frame) ) pick_final
+  where @filterByClause:raw
+  order by @sortOrderClause:raw]
+  ]]>
+</local-syntax>
+</command>

@@ -1,0 +1,169 @@
+<trigger>
+  <name>set usr one pass flag if applicable</name>
+  <on-command>process pick list</on-command>
+  <description>set usr one pass flag if applicable</description>
+  <fire-sequence>1000</fire-sequence>
+  <local-syntax>
+<![CDATA[
+/* set usr one pass flag if applicable, trigger on process pick list
+ *
+ * Speed up performance as Blue Yonder can not set lists blocked for relisting
+ * exclude pick zones which are not set for cubing (odd size) to avoid adding to the list....
+ * only applicable for 'trolley picking' and activated on asset level
+ * 
+ * Version history:
+ * 2023-06-21 Marco Schouwenaar `Initial version
+ * 2023-09-20 Radina Ivanova     For 0S assets we need to take the height of the main asset as they don't have slots
+ */
+[select nvl(slot.asset_hgt, main.asset_hgt) asset_hgt,
+        decode(nvl(sum(slot.max_vol), 0), 0, main.max_vol, sum(slot.max_vol)) asset_max_vol,
+        nvl(poldat_view.rtnum2, 100) percentage
+   from pcklst
+   join asset_typ main
+     on main.asset_typ = pcklst.asset_typ
+   join poldat_view
+     on poldat_view.polcod = 'USR-PICKING'
+    and poldat_view.polvar = 'CUBING'
+    and poldat_view.polval = 'MARK-FULL'
+    and poldat_view.rtstr1 = main.asset_typ
+    and poldat_view.wh_id = @wh_id
+    and poldat_view.rtnum1 = 1
+   left
+   join pcklst_asset_slot
+     on pcklst_asset_slot.asset_typ = main.asset_typ
+   left
+   join asset_typ slot
+     on slot.asset_typ = pcklst_asset_slot.slot_asset_typ
+  where pcklst.list_id = @list_id
+    and nvl(pcklst.one_pass_only,0)<> 1
+    and not exists (select 'x' 
+                      from pckwrk_hdr, locmst,pck_zone, poldat_view pv
+                     where locmst.stoloc = pckwrk_hdr.srcloc 
+                       and locmst.wh_id = pckwrk_hdr.wh_id
+                       and pck_zone.pck_zone_id = locmst.pck_zone_id
+                       and pv.wh_id = pckwrk_hdr.wh_id
+                       and pv.polcod = 'USR-PICKING'
+                       and pv.polvar = 'CUBING'
+                       and pv.polval = 'EXCLUDED-PICK-ZONES'
+                       and pv.rtnum1 = 1
+                       and pv.rtstr1 = pck_zone.pck_zone_cod
+                       and pckwrk_hdr.list_id = pcklst.list_id)
+  group by nvl(slot.asset_hgt, main.asset_hgt),
+        main.max_vol,
+        poldat_view.rtnum2] catch(-1403)
+|
+if (@? = 0)
+{
+    [select pckwrk_hdr.*,
+            pckwrk_hdr.list_id group_by_combined,
+            0 cube_rem_flg,
+            0.0 totvol,
+            0.0 totwgt,
+            0.0 caswgt,
+            0.0 extvol,
+            0.0 intvol,
+            CAST(pd2.untqty as INT) pd2_qty,
+            pd2.len pd2_len,
+            pd2.wid pd2_wid,
+            pd2.hgt pd2_hgt,
+            pd2.grswgt pd2_grswgt
+       from pckwrk_hdr
+       join prtftp_dtl pd2
+         on pckwrk_hdr.ftpcod = pd2.ftpcod
+        and pckwrk_hdr.wh_id = pd2.wh_id
+        and pckwrk_hdr.prt_client_id = pd2.prt_client_id
+        and pckwrk_hdr.prtnum = pd2.prtnum
+        and pd2.cas_flg = 1
+      where pckwrk_hdr.list_id = @list_id
+        and exists(select 'x'
+                     from usr_packing_map
+                    where usr_packing_map.uc_code = pckwrk_hdr.inv_attr_str2
+                      and usr_packing_map.uc_stack = 1)] catch(-1403) >> resStackableItems
+    |
+    if (@? = 0)
+    {
+        get usr volume for trolley shelve
+         where res = @resStackableItems
+           and allow_split_flg = 0 >> resStackableItems
+        |
+        if (rowcount(@resStackableItems) > 0)
+        {
+            get usr volume for stackable items
+             where res = @resStackableItems
+               and allow_split_flg = 0 >> resStackableItems
+        }
+    }
+    |
+    [select pckwrk_hdr.*,
+            pckwrk_hdr.list_id group_by_combined,
+            0 cube_rem_flg,
+            0.0 totvol,
+            0.0 totwgt,
+            0.0 caswgt,
+            0.0 extvol,
+            0.0 intvol,
+            CAST(pd2.untqty as INT) pd2_qty,
+            pd2.len pd2_len,
+            pd2.wid pd2_wid,
+            pd2.hgt pd2_hgt,
+            pd2.grswgt pd2_grswgt
+       from pckwrk_hdr
+       join prtftp_dtl pd2
+         on pckwrk_hdr.ftpcod = pd2.ftpcod
+        and pckwrk_hdr.wh_id = pd2.wh_id
+        and pckwrk_hdr.prt_client_id = pd2.prt_client_id
+        and pckwrk_hdr.prtnum = pd2.prtnum
+        and pd2.cas_flg = 1
+      where pckwrk_hdr.list_id = @list_id
+        and not exists(select 'x'
+                         from usr_packing_map
+                        where usr_packing_map.uc_code = pckwrk_hdr.inv_attr_str2
+                          and usr_packing_map.uc_stack = 1)] catch(-1403) >> resNonStackableItems
+    |
+    if (@? = 0)
+    {
+        get usr volume for trolley shelve
+         where res = @resNonStackableItems
+           and allow_split_flg = 0 >> resNonStackableItems
+    }
+    |
+    publish data combination
+     where res1 = @resStackableItems
+       and res2 = @resNonStackableItems >> resFinal
+    |
+    [[
+
+    double total_volume  = 0.0;
+    int set_flag = 0;
+    while (resFinal.next())
+    {
+        total_volume+=resFinal.getDouble("totvol");
+    }
+    if(asset_max_vol*(percentage/100)<total_volume)
+    {
+      set_flag = 1;
+    }
+    moca.executeCommand("publish data " +
+                             "where set_flag = " + set_flag +
+                             "  and total_volume = " + total_volume +
+                             "  and limit_volume = " + (asset_max_vol*(percentage/100)));
+]]
+|
+if (@set_flag = 1)
+{
+    [update pcklst
+        set pcklst.one_pass_only = 1,
+            pcklst.totvol = @total_volume
+      where pcklst.list_id = @list_id] catch(-1403)
+}
+else
+{
+     [update pcklst
+         set pcklst.totvol = @total_volume
+       where pcklst.list_id = @list_id] catch(-1403)
+}
+}
+]]>
+</local-syntax>
+  <enable>yes</enable>
+</trigger>

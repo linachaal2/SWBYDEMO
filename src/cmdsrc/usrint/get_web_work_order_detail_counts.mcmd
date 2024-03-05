@@ -1,0 +1,217 @@
+<command>
+<name>get web work order detail counts</name>
+<description>Get Web Work Order Detail Counts</description>
+<type>Local Syntax</type>
+<local-syntax>
+<![CDATA[
+/* Overrule on command get web work order detail counts
+ * RFH uses specific suppliers as the stock is produced like that.
+ * removed default supplier on retrieve command for produced items (produced_clause ) but excluded RET supplier to exclude returns
+ *
+ * 2023-10-23 Radina Ivanova Initial version
+ */
+    /* get the count for work order lines */
+    [select count(1) lines_count
+        from wkodtl
+        where wkodtl.wh_id = @wh_id
+          and wkodtl.client_id = @client_id
+          and wkodtl.wkonum = @wkonum
+          and wkodtl.wkorev = @wkorev]
+    |
+    /* get the count for work order picks */
+    [select wh_id
+       from pckwrk_view
+       where pckwrk_view.wh_id = @wh_id
+         and pckwrk_view.client_id = @client_id
+         and pckwrk_view.wkonum = @wkonum
+         and pckwrk_view.wkorev = @wkorev
+        and ctnnum is null
+        and subnum is null
+        and list_id is null
+      group by wh_id, wrkref
+    union all
+
+     select wh_id
+       from pckwrk_view
+       where pckwrk_view.wh_id = @wh_id
+         and pckwrk_view.client_id = @client_id
+         and pckwrk_view.wkonum = @wkonum
+         and pckwrk_view.wkorev = @wkorev
+         and ctnnum is null
+         and subnum is not null
+      group by wh_id, subnum, wrkref
+    union all
+
+     select wh_id
+       from pckwrk_view
+       where pckwrk_view.wh_id = @wh_id
+         and pckwrk_view.client_id = @client_id
+         and pckwrk_view.wkonum = @wkonum
+         and pckwrk_view.wkorev = @wkorev
+        and list_id is not null
+      group by wh_id, list_id] catch (-1403) >> res
+    |
+    if(@? =-1403)
+    {
+        publish data where picks_count = 0
+    } else {
+        publish data where picks_count = rowcount(@res)
+    }
+    |
+    /* get the count for work order shorts */
+    [select sum(counts) shorts_count
+        from (select count(1) counts
+            from rplwrk parantrplwrk
+              left join rplwrk subrplwork
+                     on parantrplwrk.rplref = subrplwork.parref
+                  where parantrplwrk.parref is null
+                    and parantrplwrk.rplsts = 'D'
+                    and parantrplwrk.wh_id = @wh_id
+                    and parantrplwrk.client_id = @client_id
+                    and parantrplwrk.wkonum = @wkonum
+                    and parantrplwrk.wkorev = @wkorev
+                  group by parantrplwrk.rplref, parantrplwrk.pckqty
+                 having parantrplwrk.pckqty - sum(subrplwork.alcqty) > 0
+        union all
+
+    select count(1) counts
+        from rplwrk
+            where rplwrk.wh_id = @wh_id
+              and rplwrk.client_id = @client_id
+              and rplwrk.wkonum = @wkonum
+              and rplwrk.wkorev = @wkorev
+              and rplwrk.rplsts != 'C'  /* Completed */
+              and rplwrk.rplsts != 'D'  /* Pending Deposit */ ) rplwrk
+    ]
+    |
+    /* get the count for work order replens */
+    [select pckwrk_hdr.wrkref from  rplwrk
+       join rplwrk rpl_child
+         on rpl_child.parref = rplwrk.rplref
+       join replen_link
+         on replen_link.rplref = rpl_child.rplref
+       join pckwrk_hdr
+         on pckwrk_hdr.wrkref = replen_link.wrkref
+      where rpl_child.rplsts = 'D'
+        and rplwrk.rplsts != 'E' /* Expired */
+        and pckwrk_hdr.wrktyp = 'E'
+        and rpl_child.parref is not null
+        and rplwrk.wh_id = @wh_id
+          and rplwrk.client_id = @client_id
+          and rplwrk.wkonum = @wkonum
+          and rplwrk.wkorev = @wkorev
+      union all
+      select pckwrk_view.wrkref from pckwrk_view
+       where pckwrk_view.wrktyp in ('M','T','G','R','D')
+         and pckwrk_view.wh_id = @wh_id
+           and pckwrk_view.client_id = @client_id
+           and pckwrk_view.wkonum = @wkonum
+           and pckwrk_view.wkorev = @wkorev]catch (-1403)>> replres
+    |
+    if(@? =-1403)
+    {
+        publish data where replens_count = 0
+    } else {
+        publish data where replens_count = rowcount(@replres)
+    }
+    |
+    /* get the count for work order crossdocks */
+    [select count(1) xdks_count from xdkwrk where xdkwrk.wh_id = @wh_id
+      and xdkwrk.client_id = @client_id
+      and xdkwrk.wkonum = @wkonum
+      and xdkwrk.wkorev = @wkorev]
+    |
+    [
+    select count(1) waiting_count from (
+       select wh_id
+         from shipment_line
+        where wkonum = @wkonum
+          and client_id = @client_id
+          and wkorev = @wkorev
+          and wh_id = @wh_id
+      UNION ALL
+       select wh_id
+         from wkodtl
+        where sub_wkonum = @wkonum
+          and client_id = @client_Id
+          and sub_wkorev = @wkorev
+          and wh_id = @wh_id
+       UNION ALL
+       select wh_id
+         from wkohdr
+        where sub_wkonum = @wkonum
+          and client_id = @client_Id
+          and sub_wkorev = @wkorev
+          and wh_id = @wh_id) parent
+   ]
+   |
+   [select count(1) picked_count from
+    (select invlod.lodnum
+        from loc_typ,
+            locmst,
+            pckwrk_dtl,
+            invdtl,
+            invsub,
+            invlod
+          where invlod.lodnum = invsub.lodnum
+            and invsub.subnum = invdtl.subnum
+            and locmst.stoloc = invlod.stoloc
+            and locmst.wh_id  = invlod.wh_id
+            and loc_typ.loc_typ_id = locmst.loc_typ_id
+            and pckwrk_dtl.wrkref = invdtl.wrkref
+            and pckwrk_dtl.wrkref_dtl = invdtl.wrkref_dtl
+            and pckwrk_dtl.wkonum is not null
+            and pckwrk_dtl.wkonum = @wkonum
+            and pckwrk_dtl.client_id = @client_Id
+            and pckwrk_dtl.wkorev = @wkorev
+            and pckwrk_dtl.wh_id = @wh_id group by invlod.lodnum) wkopickedinfo]
+   |
+   [select count(1) produced_count from
+        (select invlod.lodnum from rcvlin, invdtl, invsub, invlod
+          where rcvlin.supnum != 'RET'
+            and invlod.lodnum = invsub.lodnum
+            and invsub.subnum = invdtl.subnum
+            and rcvlin.rcvkey = invdtl.rcvkey
+            and rcvlin.rcvkey = invdtl.rcvkey
+            and rcvlin.trknum = @wkonum
+            and rcvlin.client_id = @client_Id
+            and rcvlin.invnum = @wkorev
+            and rcvlin.wh_id = @wh_id group by invlod.lodnum) wkoproducedinfo]
+   |
+   publish data where
+         name = 'picks'
+         and count = @picks_count &
+   publish data where
+         name = 'crossdocks'
+         and count = @xdks_count &
+   publish data where
+         name = 'orderLines'
+         and count = @lines_count &
+   publish data where
+         name = 'shorts'
+         and count = @shorts_count &
+   publish data where
+         name = 'replenishments'
+         and count = @replens_count &
+   publish data where
+         name = 'waitingWorkOrder'
+         and count = @waiting_count &
+   publish data where
+         name = 'pickedInv'
+         and count = @picked_count &
+   publish data where
+         name = 'producedInv'
+         and count = @produced_count
+]]>
+</local-syntax>
+<documentation>
+<remarks>
+<![CDATA[
+  <p>
+  This command is used to get the counts of different grid entities of a work order view
+  </p>
+]]>
+</remarks>
+<exception value="eOK">Normal successful completion</exception>
+</documentation>
+</command>

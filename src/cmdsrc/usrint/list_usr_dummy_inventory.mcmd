@@ -1,0 +1,26 @@
+<command>
+  <name>list usr dummy inventory</name>
+  <description>list usr dummy inventory</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* list usr dummy inventory
+ * Lists information for all dummy loads 
+ * Version history:
+ * V01, 2019-12-09  Raoul Scholten Initial version.
+ */ 
+[select iv.prtnum, iv.lodnum, iv.asset_typ, iv.inv_attr_str8, dscmst.short_dsc short_dsc, iv.stoloc
+   from inventory_view iv   
+   join locmst on locmst.stoloc = iv.stoloc and locmst.arecod <> 'ADJS'
+   left join invhld on invhld.dtlnum = iv.dtlnum
+   left join hldmst on hldmst.hldpfx = invhld.hldpfx
+    and hldmst.hldnum = invhld.hldnum
+    and hldmst.wh_id = invhld.wh_id
+   left join dscmst on dscmst.colval = /*=varchar(*/ hldmst.hldpfx || '|' || hldmst.hldnum || '|' || hldmst.wh_id /*=)*/
+    and dscmst.colnam = 'hldpfx|hldnum|wh_id'
+    and dscmst.locale_id = nvl(@locale_id, @@locale_id)
+    where iv.prtnum = 'DUMMYITEM'
+]
+]]>
+</local-syntax>
+</command>

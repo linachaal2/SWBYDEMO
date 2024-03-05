@@ -1,0 +1,104 @@
+<command>
+  <name>list usr rf identify load exception information</name>
+  <description>list usr rf identify load exception information</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* list usr rf identify load exception information
+ * Lists information for the adjust load USR_IDENTIFY_LOAD_EX screen.
+ * Version history:
+ *  2018-11-01  Salem Hamze  Initial version.
+ *  2018-11-20  Salem Hamze  Added uc columns.
+ */
+get warehouse id
+|
+publish data
+ where devcod = nvl(@devcod, @@devcod)
+|
+/* Get the loads which were scanned by the user. */
+[select value
+   from device_context
+  where wh_id = @wh_id
+    and devcod = @devcod
+    and dev_varnam in ('USR_IDENTIFY_LOAD|LODNUM', 'USR_IDENTIFY_LOAD|FINISH_IDENTIFIER')] catch(-1403) >> res_loads
+|
+if (@? != -1403)
+{
+    convert column results to string
+     where resultset = @res_loads
+       and colnam = 'value'
+    |
+    convert list to in clause
+     where string = @result_string
+       and table_prefix = 'invlod'
+       and column_name = 'lodnum'
+       and separator = ','
+}
+else
+{
+    publish data
+     where in_clause = ' 1 = 2 '
+}
+|
+/* Get the load information. We use the flags with decode because if we use an nvl we would not be able to see the difference between originally empty or set to empty. */
+[select max(decode(dc_ex.mode_flg, 1, dc_ex.mode, null)) as mode,
+        max(invhld.hldpfx) as org_hldpfx,
+        max(decode(dc_ex.hldpfx_flg, 1, dc_ex.hldpfx, invhld.hldpfx)) as hldpfx,
+        max(invhld.hldnum) as org_hldnum,
+        max(decode(dc_ex.hldpfx_flg, 1, dc_ex.hldnum, invhld.hldnum)) as hldnum,
+        max(invhld.reacod) as org_reacod,
+        max(decode(dc_ex.reacod_flg, 1, dc_ex.reacod, invhld.reacod)) as reacod,
+        max(invhld.uc_invtyp) as org_invtyp,
+        max(decode(dc_ex.invtyp_flg, 1, dc_ex.invtyp, invhld.uc_invtyp)) as invtyp,
+        max(invhld.asset_typ) as org_asset_typ,
+        max(decode(dc_ex.asset_typ_flg, 1, dc_ex.asset_typ, invhld.asset_typ)) as asset_typ,
+        max(invhld.uc_nottxt) as org_nottxt,
+        max(decode(dc_ex.nottxt_flg, 1, dc_ex.nottxt, invhld.uc_nottxt)) as nottxt
+   from (select invhld.hldpfx,
+                invhld.hldnum,
+                invhld.reacod,
+                invhld.uc_invtyp,
+                invlod.asset_typ,
+                invhld.uc_nottxt
+           from invlod
+          inner
+           join invsub
+             on invsub.lodnum = invlod.lodnum
+          inner
+           join invdtl
+             on invdtl.subnum = invsub.subnum
+          inner
+           join invhld
+             on invhld.dtlnum = invdtl.dtlnum
+          where @in_clause:raw) invhld
+   full outer
+   join (select device_context.wh_id,
+                device_context.devcod,
+                device_context.dev_varnam,
+                max(decode(substr(device_context.value, 0, instr(device_context.value, ':')), 'MODE', 1, 0)) as mode_flg,
+                max(decode(substr(device_context.value, 0, instr(device_context.value, ':')), 'MODE', substr(device_context.value, instr(device_context.value, ':') + 1))) as mode,
+                max(decode(substr(device_context.value, 0, instr(device_context.value, ':')), 'HLDPFX', 1, 0)) as hldpfx_flg,
+                max(decode(substr(device_context.value, 0, instr(device_context.value, ':')), 'HLDPFX', substr(device_context.value, instr(device_context.value, ':') + 1))) as hldpfx,
+                max(decode(substr(device_context.value, 0, instr(device_context.value, ':')), 'HLDNUM', 1, 0)) as hldnum_flg,
+                max(decode(substr(device_context.value, 0, instr(device_context.value, ':')), 'HLDNUM', substr(device_context.value, instr(device_context.value, ':') + 1))) as hldnum,
+                max(decode(substr(device_context.value, 0, instr(device_context.value, ':')), 'REACOD', 1, 0)) as reacod_flg,
+                max(decode(substr(device_context.value, 0, instr(device_context.value, ':')), 'REACOD', substr(device_context.value, instr(device_context.value, ':') + 1))) as reacod,
+                max(decode(substr(device_context.value, 0, instr(device_context.value, ':')), 'INVTYP', 1, 0)) as invtyp_flg,
+                max(decode(substr(device_context.value, 0, instr(device_context.value, ':')), 'INVTYP', substr(device_context.value, instr(device_context.value, ':') + 1))) as invtyp,
+                max(decode(substr(device_context.value, 0, instr(device_context.value, ':')), 'ASSET_TYP', 1, 0)) as asset_typ_flg,
+                max(decode(substr(device_context.value, 0, instr(device_context.value, ':')), 'ASSET_TYP', substr(device_context.value, instr(device_context.value, ':') + 1))) as asset_typ,
+                max(decode(substr(device_context.value, 0, instr(device_context.value, ':')), 'NOTTXT', 1, 0)) as nottxt_flg,
+                max(decode(substr(device_context.value, 0, instr(device_context.value, ':')), 'NOTTXT', substr(device_context.value, instr(device_context.value, ':') + 1))) as nottxt
+           from device_context
+          where device_context.dev_varnam = 'USR_IDENTIFY_LOAD_EX'
+            and device_context.devcod = @devcod
+            and device_context.wh_id = @wh_id
+          group by device_context.devcod,
+                device_context.wh_id,
+                device_context.dev_varnam) dc_ex
+     on 1 = 1] catch(-1403)
+]]>
+</local-syntax>
+  <argument name="wh_id" datatype="string">wh_id</argument>
+  <argument name="devcod" datatype="string">devcod</argument>
+</command>

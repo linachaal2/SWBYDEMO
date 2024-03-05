@@ -1,0 +1,9 @@
+[delete from usr_rf_load_identify_logic_map where seqnum = 675] catch(-1403);
+[delete from lblfmt where lblfmt = 'USR-RFH003'] catch(-1403);
+[delete from poldat where polcod = 'USR-LABELS' and rtstr1 = 'USR-RFH003'] catch(-1403);
+[delete from poldat where polcod = 'LABEL-EDITOR' and polvar = 'SERVER' and polval = 'URL'] catch(-1403);
+[delete from doc_typ where doc_typ = 'USR-RFH003'] catch(-1403);
+[delete from poldat where polcod = 'USR-RF-FORM' and polvar = 'CONNECTED-WA' and wh_id_tmpl='1'] catch(-1403);
+commit;
+/
+exit

@@ -1,0 +1,20 @@
+<trigger>
+  <name>convert usr fifo date</name>
+  <on-command>create inventory</on-command>
+  <description>Convert fifo timestamp as date</description>
+  <fire-sequence>10</fire-sequence>
+  <local-syntax>
+<![CDATA[
+/* Trigger on create inventory command.
+ * FIFO date instead date/time (due to mismatch FIFO window (Blue Yonder bug)) if no fifo date found, use current date-time
+ *
+ * Version history:   
+ *  2023-07-31 Marco Schouwenaar Initial version
+ */
+format date where date=nvl(@fifdte, sysdate) and fmt_str='yyyyMMdd000000' 
+|
+[update invdtl set invdtl.fifdte=to_date(@fmt_dte) where invdtl.dtlnum=@dtlnum] catch(-1403) 
+]]>
+</local-syntax>
+  <enable>yes</enable>
+</trigger>

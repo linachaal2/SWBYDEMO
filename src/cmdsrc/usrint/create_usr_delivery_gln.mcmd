@@ -1,0 +1,54 @@
+<command>
+  <name>create usr delivery gln</name>
+  <description>create usr delivery gln</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* create usr delivery gln
+ *
+ * Version history:
+ *  2020-04-22  Radina Ivanova - Initial version
+ */
+    publish data where wh_id = nvl(@wh_id, @@wh_id)
+    |
+    if (@wh_id = '')
+    {
+        get warehouse id
+    }
+    |
+    if (@uc_delivery_id < 0)
+    {
+        /* Invalid delivery id */
+        set return status where status = 90028
+    }
+    |
+    [select distinct 'x'
+       from adrmst
+      where host_ext_id = @gln] catch(-1403)
+    |
+    if (@? = 0)
+    {
+        create record
+         where table = 'usr_delivery_gln' >> res
+        |
+        write daily transaction
+        where actcod = 'USR-GLN-SETUP'
+          and var_nam = @gln
+          and to_value = @uc_delivery_id
+          and wh_id = @wh_id
+        |
+        publish data combination
+          where res = @res
+    }
+    else
+    {
+        /* GLN does not exist */
+        set return status where status = 90029
+    }
+      
+]]>
+</local-syntax>
+<argument name="gln" required="yes" datatype="string">GLN</argument>
+<argument name="wh_id" required="no" datatype="string">Warehouse ID</argument>
+<argument name="uc_delivery_id" required="yes" datatype="string">Delivery ID</argument>
+</command>

@@ -1,0 +1,108 @@
+<command>
+  <name>job pick release manager</name>
+  <description>job pick release manager</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* job pick release manager
+ *
+ * Speed up performance as Blue Yonder can not handle a lot of pick groups without performance loss, logic build to include/exclude zones depending the rule
+ * 
+ * Version history:
+ * 2023-06-12 Marco Schouwenaar Initial version
+ * 2023-06-26 Marco Schouwenaar Check on already running async processes
+ */
+
+if (@async = 1)
+{   list warehouses where @+wh_id
+    |
+    list asynchronous resource groups where async_typ='PCKLSTRULES' and s.async_sts is not null and wh_id=@wh_id catch(-1403)
+    |
+    if (@?=-1403)
+    {
+    [select schbat, pricod, batcod from (select pw.schbat,
+            CAST(coalesce(pb.pricod, '0') as INT) as pricod,
+            pb.batcod
+       from pckwrk_hdr pw
+       join pckwrk_dtl pwd
+         on pw.wrkref = pwd.wrkref
+       left
+       join shipment sh
+         on sh.ship_id = pwd.ship_id
+       join pckbat pb
+         on pw.schbat = pb.schbat
+      where pw.pcksts in ('P', 'L')
+        and pw.pipflg != 1
+        and pb.batsts != 'AINP'
+        and pw.wh_id = @wh_id
+     union
+     select distinct pw.schbat,
+            CAST(coalesce(pb.pricod, '0') as INT) as pricod,
+            pb.batcod
+       from pckwrk_hdr pw
+       join pckwrk_dtl pwd
+         on pw.wrkref = pwd.wrkref
+       left
+       join shipment sh
+         on sh.ship_id = pwd.ship_id
+       join pckbat pb
+         on pw.schbat = pb.schbat
+      where exists(select 'x'
+                     from pcklst pl
+                    where pl.list_id = pw.list_id
+                      and pl.list_sts = 'P')
+        and pw.pipflg != 1
+        and pb.batsts != 'AINP'
+        and pw.wh_id = @wh_id) batch_overview
+      group by schbat,
+            pricod,
+            batcod
+      order by 2,
+            1] catch(-1403)
+    |
+    add to session variable list where name='schbat_lst' and value=@schbat
+    ;
+    get session variable list where name='schbat_lst'
+    |
+    publish data where schbat_lst=@value
+    |
+    list warehouses where @+wh_id
+    |
+    process pick release 
+      where comflg = nvl(@comflg, 1) 
+        and wh_id = @wh_id
+        and prcmod = 'r'
+
+    |
+    save session variable where name='schbat_lst' and value=@schbat_lst
+    |
+    process pick release 
+      where comflg = nvl(@comflg, 1) 
+        and wh_id = @wh_id
+        and prcmod = 'L' 
+        and schbat_lst = @schbat_lst 
+    |
+    [select wrkref from pckwrk_hdr where pcksts='P' and wh_id = nvl(@wh_id,@@wh_id)  and pck_mthd_id in (select pck_mthd_id from pck_mthd where wh_id=pckwrk_hdr.wh_id and list_flg=0)] catch(-1403)
+    |
+    if(@?=0)
+    {
+       process pick release 
+         where comflg = 1 
+           and wh_id =  nvl(@wh_id,@@wh_id)  
+           and prcmod = 'R' 
+           and wrkref=@wrkref 
+    } 
+    }
+    else
+    {
+       set return status where code=999999 and error_message='job already running'
+    }
+}
+else
+{
+    ^job pick release manager
+      where @*
+}
+]]>
+</local-syntax>
+</command>

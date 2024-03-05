@@ -1,0 +1,35 @@
+<command>
+  <name>send usr inventory asset type change interface</name>
+  <description>send usr inventory asset type change interface</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* send usr inventory asset type change interface
+ * Send the asset change interface, we trigger the event INV-ADJ.
+ * Version history:
+ *  2019-01-04  Salem Hamze  Initial version.
+ */
+if (@invtid)
+{
+    get integrator system id
+     where systyp = 'WMD'
+    |
+    sl_log event
+     where evt_id = 'INV-ADJ'
+       and sys_id = @sys_id
+       and wh_id = @wh_id
+       and lodnum = @invtid
+       and asset_typ = @asset_typ
+       and asset_qty = @adj_untqty
+       and from_asset_qty = @from_untqty
+       and to_asset_qty = @to_untqty
+       and from_untqty = ''
+       and to_untqty = ''
+       and adj_untqty = ''
+       and prt_client_id = '<null>'
+       and prtnum = '<null>'
+       and untqty = ''
+}
+]]>
+</local-syntax>
+</command>

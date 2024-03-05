@@ -1,0 +1,34 @@
+[select wh_id
+   from wh] catch(-1403)
+|
+if (@wh_id='1')
+{
+   [delete from dscmst where colnam='alloc_search_path_id' and colval='10003']catch (-1403);
+   [delete from alloc_search_path where alloc_search_path_id='10003']catch (-1403);
+   [delete from alloc_search_path_criteria where alloc_search_path_id='10003']catch (-1403);
+}
+|
+if (@wh_id='2')
+{
+   [delete from dscmst where colnam='alloc_search_path_id' and colval='10003']catch (-1403);
+   [delete from alloc_search_path where alloc_search_path_id='10003']catch (-1403);
+   [delete from alloc_search_path_criteria where alloc_search_path_id='10003']catch (-1403);
+}
+|
+if (@wh_id='3')
+{
+   [delete from dscmst where colnam='alloc_search_path_id' and colval='10003']catch (-1403);
+   [delete from alloc_search_path where alloc_search_path_id='10003']catch (-1403);
+   [delete from alloc_search_path_criteria where alloc_search_path_id='10003']catch (-1403);
+}
+|
+if (@wh_id='7')
+{
+   [delete from dscmst where colnam='alloc_search_path_id' and colval='10007']catch (-1403);
+   [delete from alloc_search_path where alloc_search_path_id='10007']catch (-1403);
+   [delete from alloc_search_path_criteria where alloc_search_path_id='10007']catch (-1403);
+}
+;
+commit;
+/
+exit

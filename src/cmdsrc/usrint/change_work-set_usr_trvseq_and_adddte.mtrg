@@ -1,0 +1,34 @@
+<trigger>
+  <name>set usr trvseq and adddte</name>
+  <on-command>change work</on-command>
+  <description>set usr trvseq and adddte</description>
+  <fire-sequence>90010</fire-sequence>
+  <local-syntax>
+<![CDATA[
+/* set usr trvseq and adddte
+ * Trigger which sets the travel sequence and add date.
+ * Version history:
+ *  2023-03-02  Marco Schouwenaar   Initial version. 
+ *  2023-04-11  Zhivko Zhekov     correction on add date for pallet move (sometimes empty)
+ */
+/* Get the details for the work becasue we only get the reqnum. */
+[select *
+   from wrkque
+  where reqnum = @reqnum] catch(-1403)
+|
+if (@? = 0 and @list_id != null)
+{
+    [select min(adddte) addte  
+       from pckwrk_hdr 
+     where list_id=@list_id
+       and adddte is not null] catch(-1403)
+    |
+    [update wrkque 
+           set adddte=nvl(to_date(@addte), sysdate),
+               loctrvseq='999999999999999' 
+       where reqnum = @reqnum] catch(-1403)
+}
+]]>
+</local-syntax>
+  <enable>yes</enable>
+</trigger>

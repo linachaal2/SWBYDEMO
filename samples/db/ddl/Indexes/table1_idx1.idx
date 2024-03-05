@@ -1,0 +1,9 @@
+#include <../../../include/usrddl.h>
+#include <../../../include/varddl.h>
+#include <usrtbldef.h>
+#include <vartbldef.h>
+#include <sqlDataTypes.h>
+
+create index table1_idx1 on table1 (column2)
+TABLESPACE_INFO (TABLE1_IDX1_TBLSPC, TABLE1_IDX1_STORAGE)
+RUN_SQL

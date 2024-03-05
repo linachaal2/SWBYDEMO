@@ -1,0 +1,17 @@
+<action>
+  <id>usrListDeliveryPickhop</id>
+  <name>usrListDeliveryPickhop</name>
+  <description>List Delivery Pickhop</description>
+  <type>LIST</type>
+  <ws>
+     <method>GET</method>
+	 <href>/usrListDeliveryPickhop</href>
+  </ws>
+  <impl>
+     <command>list usr delivery pickhop</command>
+  </impl>
+  <auth>
+     <opt>optOpen</opt>
+  </auth>
+  <primary>true</primary>
+</action>

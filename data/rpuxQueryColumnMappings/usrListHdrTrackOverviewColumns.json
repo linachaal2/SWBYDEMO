@@ -1,0 +1,28 @@
+{
+    "columns": {
+        "mov_zone_id":{
+            "type": "java.lang.Integer",
+            "alias": "mov_zone.mov_zone_id"
+        },
+        "wh_id": {
+            "type": "java.lang.String",
+            "alias": "mov_zone.wh_id"
+        },
+        "mov_zone_cod": {
+            "type": "java.lang.String",
+            "alias": "mov_zone.mov_zone_cod"
+        },
+        "zone": {
+            "type": "java.lang.String",
+            "alias": "zone"
+        },
+        "occupied": {
+            "type": "java.lang.Integer",
+            "alias": "occupied"
+        },
+        "min_late_ship_date":{
+            "type": "java.util.Date",
+            "alias": "min_late_ship_date"
+        }
+    }
+}

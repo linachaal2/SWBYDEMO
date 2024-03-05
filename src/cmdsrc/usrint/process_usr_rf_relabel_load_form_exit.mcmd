@@ -1,0 +1,39 @@
+<command>
+  <name>process usr rf relabel load form_exit</name>
+  <description>process usr rf relabel load form_exit</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* process usr rf relabel load form_exit
+ * Process the form_exit in the USR_RELABEL_LOAD screen.
+ * Version history:
+ *  2018-10-18  Salem Hamze  Initial version.
+ */
+validate stack variable not null
+ where name = 'wh_id'
+|
+validate stack variable not null
+ where name = 'lodlvl'
+|
+validate stack variable not null
+ where name = 'org_id'
+|
+validate stack variable not null
+ where name = 'new_id'
+|
+validate stack variable not null
+ where name = 'reacod'
+|
+change usr inventory identifier
+ where wh_id = @wh_id
+   and lodlvl = @lodlvl
+   and from_id = @org_id
+   and to_id = @new_id
+]]>
+</local-syntax>
+  <argument name="wh_id" required="yes" datatype="string">wh_id</argument>
+  <argument name="lodlvl" required="yes" datatype="string">lodlvl</argument>
+  <argument name="org_id" required="yes" datatype="string">org_id</argument>
+  <argument name="new_id" required="yes" datatype="string">new_id</argument>
+  <argument name="reacod" required="yes" datatype="string">reacod</argument>
+</command>

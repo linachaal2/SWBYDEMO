@@ -1,0 +1,97 @@
+<command>
+  <name>process usr pallet move</name>
+  <description>process usr pallet move</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* process usr pallet move
+ * Version history:
+ *  2021-03-15 Radina Ivanova    Initial version
+ */
+ 
+generate next number
+   where numcod = 'lodnum'
+|
+publish data
+  where temp_lodnum = @nxtnum
+|
+{
+    [select *
+       from inv_asset
+      where invtid = @lodnum
+        and exists (select 'x'
+                      from poldat_view
+                     where polcod = 'USR-RF-FORM'
+                       and polvar = 'ASSET_IDENTIFY'
+                       and polval = 'ASSET_GROUPS'
+                       and rtstr2 = 'LADINGDRAGER'
+                       and rtstr1 = inv_asset.asset_typ)] catch(-1403)
+    |
+    if (@? = 0)
+    {
+        create record
+         where table = 'inv_asset'
+           and invtid = @temp_lodnum
+    }
+    ;
+    [select oprcod
+       from wrkque
+      where reqnum = @reqnum]
+    |
+    [select wrkref,
+            pckqty,
+            lotnum,
+            prtnum,
+            prt_client_id,
+            untcas,
+            untpak
+       from pckwrk_hdr
+      where list_id = @list_id]
+    |
+    reset asset type for pick 
+    where wrkref = @wrkref
+      and lodnum = @lodnum
+      and wh_id = @wh_id
+    |
+    [select 0 newdst
+       from invlod
+      where lodnum = @temp_lodnum] catch(-1403)
+    |
+    process inventory move 
+      where srcloc = @srcloc
+        and srclod = @lodnum
+        and prtnum = @prtnum
+        and prt_client_id = @prt_client_id
+        and srcqty = @pckqty
+        and dstloc = @@devcod
+        and dstlod = @temp_lodnum
+        and newdst = nvl(@newdst, 1)
+        and untcas = @untcas
+        and untpak = @untpak
+        and srcref = @wrkref
+        and usr_id = @@usr_id
+        and devcod = @@devcod
+        and oprcod = @oprcod
+        and wh_id = @wh_id
+        and lotnum = @lotnum
+        and reqnum = @reqnum
+    ;
+    [update device_context
+        set dev_varnam = 'lpn_on_device-' || @lodnum
+      where devcod = @@devcod
+        and wh_id = @wh_id
+        and dev_varnam = 'lpn_on_device-' || @temp_lodnum] catch(-1403)
+    ;
+    change inventory identifier
+     where wh_id = @wh_id
+       and lodlvl = 'L'
+       and from_id = @temp_lodnum
+       and to_id = @lodnum
+}
+;
+complete work
+   where reqnum = @reqnum
+     and prcmod = 'NOMOVE'
+]]>
+</local-syntax>
+</command>

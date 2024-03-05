@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.11.0.final using JasperReports Library version 6.10.0  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="work order lines (lot)" language="groovy" printOrder="Horizontal" pageWidth="555" pageHeight="595" orientation="Landscape" whenNoDataType="BlankPage" columnWidth="555" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" scriptletClass="com.redprairie.moca.jrds.ReportingIreportScriptlet" resourceBundle="com.redprairie.moca.jrds.Xlate" whenResourceMissingType="Empty" uuid="e151aff3-699c-4d75-bf54-be0b74a1211a">
+	<property name="ireport.zoom" value="1.5"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<property name="ireport.scriptlethandling" value="0"/>
+	<property name="ireport.ireport.encoding" value="UTF-8"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="Local development"/>
+	<property name="com.jaspersoft.studio.report.description" value="Lotnums per Work Order Line"/>
+	<property name="net.sf.jasperreports.page.break.no.pagination" value="apply"/>
+	<import value="net.sf.jasperreports.engine.*"/>
+	<import value="java.util.*"/>
+	<import value="net.sf.jasperreports.engine.data.*"/>
+	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
+		<property name="MOCA" value="true"/>
+		<defaultValueExpression><![CDATA["./"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="MOCA_REPORT_LOCALE" class="java.lang.String" isForPrompting="false">
+		<property name="MOCA" value="true"/>
+		<defaultValueExpression><![CDATA["US_ENGLISH"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="MOCA_REPORT_CONNECTION" class="com.redprairie.moca.jrds.JRMocaConnection" isForPrompting="false">
+		<property name="MOCA" value="true"/>
+		<defaultValueExpression><![CDATA[new com.redprairie.moca.jrds.JRMocaConnection("http://localhost:4600/service", "SUPER", "SUPER", true)]]></defaultValueExpression>
+	</parameter>
+	<parameter name="MOCA_REPORT_DATE" class="java.lang.String" isForPrompting="false">
+		<property name="MOCA" value="true"/>
+		<property name="prompt" value="No"/>
+		<defaultValueExpression><![CDATA[DateFormat.getDateInstance(DateFormat.SHORT).format(new Date())]]></defaultValueExpression>
+	</parameter>
+	<parameter name="MOCA_REPORT_TIME" class="java.lang.String" isForPrompting="false">
+		<property name="MOCA" value="true"/>
+		<defaultValueExpression><![CDATA[DateFormat.getTimeInstance(DateFormat.SHORT).format(new Date())]]></defaultValueExpression>
+	</parameter>
+	<parameter name="MOCA_REPORT_TZ" class="java.lang.String" isForPrompting="false">
+		<property name="MOCA" value="true"/>
+		<defaultValueExpression><![CDATA[new java.text.SimpleDateFormat("z").format(new Date())]]></defaultValueExpression>
+	</parameter>
+	<parameter name="MOCA_REPORT_DATE_FMT" class="java.lang.String" isForPrompting="false">
+		<property name="MOCA" value="true"/>
+		<defaultValueExpression><![CDATA[DateFormat.SHORT]]></defaultValueExpression>
+	</parameter>
+	<parameter name="MOCA_REPORT_TIME_FMT" class="java.lang.String" isForPrompting="false">
+		<property name="MOCA" value="true"/>
+		<defaultValueExpression><![CDATA[DateFormat.SHORT]]></defaultValueExpression>
+	</parameter>
+	<parameter name="wkonum" class="java.lang.String">
+		<parameterDescription><![CDATA[Work order]]></parameterDescription>
+	</parameter>
+	<parameter name="wkorev" class="java.lang.String">
+		<parameterDescription><![CDATA[Work order reference]]></parameterDescription>
+	</parameter>
+	<parameter name="wkolin" class="java.lang.String">
+		<parameterDescription><![CDATA[Work order line]]></parameterDescription>
+	</parameter>
+	<parameter name="client_id" class="java.lang.String">
+		<parameterDescription><![CDATA[Client ID]]></parameterDescription>
+	</parameter>
+	<queryString language="MOCA">
+		<![CDATA[publish data where wkonum=$P{wkonum} and wkorev=$P{wkorev} and wkolin=$P{wkolin} and client_id=$P{client_id}
+|
+   [select wkodtl.linqty/max(prtftp_dtl.untqty) linqty, wkodtl.bom_cnsqty, wkodtl.prtnum, nvl(invdtl.lotnum,nvl( alloc_rule_dtl.value, wkodtl.lotnum)) lotnum , nvl(invdtl.inv_attr_str2 ,wkodtl.inv_attr_str2) fustcod, max(prtftp_dtl.untqty) ftpqty , nvl(poldat_view.rtnum1,0) as case_each
+      from wkodtl
+      left join alloc_rule_dtl
+        on (alloc_rule_dtl.rule_nam = wkodtl.rule_nam 
+       and alloc_rule_dtl.wh_id = wkodtl.wh_id
+       and alloc_rule_dtl.field_name='lotnum')
+      left join invdtl
+        on ((invdtl.lotnum = wkodtl.lotnum or invdtl.lotnum = alloc_rule_dtl.value) 
+       and invdtl.prtnum = wkodtl.prtnum 
+       and invdtl.prt_client_id = wkodtl.prt_client_id)
+      left join prtftp
+        on (nvl(invdtl.prtnum,wkodtl.prtnum) = prtftp.prtnum 
+       and nvl(invdtl.prt_client_id,wkodtl.prt_client_id) = prtftp.prt_client_id 
+       and (nvl(invdtl.ftpcod,wkodtl.ftpcod) = prtftp.ftpcod or (nvl(invdtl.ftpcod,wkodtl.ftpcod) is null and prtftp.defftp_flg=1)))
+      left join prtftp_dtl 
+        on (prtftp_dtl.prtnum = prtftp.prtnum 
+       and prtftp_dtl.prt_client_id = prtftp.prt_client_id 
+       and prtftp_dtl.wh_id = prtftp.wh_id 
+       and prtftp_dtl.ftpcod = prtftp.ftpcod
+       and prtftp_dtl.uomcod = 'CS')
+     left join poldat_view
+       on ( poldat_view.polcod = 'USR-INTEGRATOR'
+    and poldat_view.polvar = 'TRANSACTIONS'
+    and poldat_view.polval = 'FTP-CASE'
+    and poldat_view.wh_id = wkodtl.wh_id)
+     where wkodtl.linqty>0
+       and wkodtl.wkonum=@wkonum
+       and wkodtl.wkorev=@wkorev
+       and wkodtl.client_id=@client_id
+       and wkodtl.wkolin=@wkolin
+    group by wkodtl.prtnum, wkodtl.linqty, nvl(invdtl.lotnum,nvl( alloc_rule_dtl.value, wkodtl.lotnum)) , nvl(invdtl.inv_attr_str2 ,wkodtl.inv_attr_str2), wkodtl.bom_cnsqty, nvl(poldat_view.rtnum1,0)  ] catch(-1403)]]>
+	</queryString>
+	<field name="linqty" class="java.lang.Integer"/>
+	<field name="bom_cnsqty" class="java.lang.Double"/>
+	<field name="prtnum" class="java.lang.String"/>
+	<field name="lotnum" class="java.lang.String"/>
+	<field name="fustcod" class="java.lang.String"/>
+	<field name="ftpqty" class="java.lang.Integer"/>
+	<field name="case_each" class="java.lang.Integer"/>
+	<sortField name="lotnum"/>
+	<columnHeader>
+		<band height="17">
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+			<textField isBlankWhenNull="true">
+				<reportElement x="100" y="0" width="140" height="17" isRemoveLineWhenBlank="true" uuid="610a7889-2123-4fee-884e-1d9cb95eebf1">
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement>
+					<font fontName="Liberation Sans" size="11" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{prtnum}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="500" y="0" width="55" height="17" isRemoveLineWhenBlank="true" uuid="c9127d7a-8f2c-477f-8181-4d96b196d371">
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Right">
+					<font fontName="Liberation Sans" size="11" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{linqty}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="330" y="0" width="69" height="17" uuid="54d7dfa1-19be-47c9-b74f-656a2ff88b41">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+				</reportElement>
+				<textElement>
+					<font fontName="Liberation Sans" size="11" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[IF($F{case_each}==1,$F{bom_cnsqty},$F{ftpqty}/$F{bom_cnsqty})]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="0" width="100" height="17" uuid="71746f89-74c7-4897-bea1-70ed53d2c79c">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement>
+					<font fontName="Liberation Sans" size="11" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$R{^SKU^}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="240" y="0" width="90" height="17" uuid="bc718e65-f41a-4118-afde-dc28c3eae5e3">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement>
+					<font fontName="Liberation Sans" size="11" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$R{^bom_cnsqty^}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="410" y="0" width="90" height="17" uuid="a5e7abf5-8af8-4657-87fe-1d62a4731922">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Right">
+					<font fontName="Liberation Sans" size="11" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$R{^quantity^}]]></textFieldExpression>
+			</textField>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="17" splitType="Stretch">
+			<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.FreeLayout"/>
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+			<textField isBlankWhenNull="true">
+				<reportElement x="100" y="0" width="125" height="17" isRemoveLineWhenBlank="true" uuid="de9cdd27-f2a5-4f0d-ab9f-2a9c5b5f8ac2">
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement>
+					<font fontName="Liberation Sans" size="11" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{lotnum}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="330" y="0" width="100" height="17" isRemoveLineWhenBlank="true" uuid="a2b4df4d-2c46-4672-ad3f-9adadfb56162">
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<textElement>
+					<font fontName="Liberation Sans" size="11" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{fustcod}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="0" width="100" height="17" uuid="d02c10e6-c0f0-4194-822b-f10fd2ee81c4">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement>
+					<font fontName="Liberation Sans" size="11" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$R{^lotnum^}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="240" y="0" width="90" height="17" uuid="c43a213b-4b52-410d-81f2-3e8ca7877a19">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement>
+					<font fontName="Liberation Sans" size="11" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$R{^Fustcode^}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

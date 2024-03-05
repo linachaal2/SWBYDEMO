@@ -1,0 +1,117 @@
+<command>
+  <name>process usr rf exception</name>
+  <description>process usr rf exception</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* process usr rf exception
+ * Process the data in the USR_IDENTIFY_LOAD_EX RF screen.
+ * Version history:
+ *  2018-10-31  Salem Hamze  Initial version.
+ *  2018-11-20  Salem Hamze  Added uc fields, asset_typ.
+ *  2019-01-02  Salem Hamze  Added actyp='L' for logging.
+ */
+validate stack variable not null
+ where name = 'acttyp'
+|
+validate stack variable not null
+ where name = 'prc_hldpfx'
+|
+validate stack variable not null
+ where name = 'prc_hldnum'
+|
+validate stack variable not null
+ where name = 'prc_reacod'
+|
+if (@acttyp != 'A' and @acttyp != 'R' and @acttyp != 'L')
+{
+    /* Error: Mode can only be Add (A), Remove(R) or Log(L). */
+    set return status
+     where status = 90014
+}
+|
+if (@dtlnum != '')
+{
+    publish data
+     where dtlnum_list = @dtlnum
+}
+else if (@lodnum != '')
+{
+    [select inventory_view.dtlnum
+       from inventory_view
+      where inventory_view.lodnum = @lodnum
+        and inventory_view.wh_id = @wh_id] >> res_dtlnum_list
+    |
+    convert column results to string
+     where resultset = @res_dtlnum_list
+       and colnam = 'dtlnum'
+       and separator = ','
+    |
+    publish data
+     where dtlnum_list = @result_string
+}
+|
+if (@acttyp = 'A' or @acttyp = 'R')
+{
+    /* Based on the mode we either add or remove the hold. */
+    process inventory hold change
+     where dtlnum_list = @dtlnum_list
+       and acttyp = @acttyp
+       and wh_id = @wh_id
+       and prc_hldpfx = @prc_hldpfx
+       and prc_hldnum = @prc_hldnum
+       and prc_reacod = @prc_reacod
+       and uc_invtyp = @invtyp
+       and uc_nottxt = @nottxt
+       and initflg = 1
+    |
+    /* If the hold has already been applied we ignore the error (-1). */
+    if (@exec_sts != 0 and @exec_sts != -1)
+    {
+        set return status
+         where status = @exec_sts
+    };
+    noop
+}
+else if (@acttyp = 'L')
+{
+    /* We can also "log" an error in the hold history, just so we have all the inbound exception information in the same table. */
+    convert list to in clause
+     where string = @dtlnum_list
+       and separator = ','
+       and table_prefix = 'inventory_view'
+       and column_name = 'dtlnum'
+    |
+    [select *
+       from inventory_view
+      where @in_clause:raw]
+    |
+    publish data
+     where hlddte = sysdate
+       and hld_usr_id = nvl(@usr_id, @@usr_id)
+       and hldpfx = @prc_hldpfx
+       and hldnum = @prc_hldnum
+       and reacod = @prc_reacod
+       and fr_invsts = @invsts
+       and to_invsts = @invsts
+       and uc_invtyp = @invtyp
+       and uc_nottxt = @nottxt
+    |
+    {
+        create hold history
+         where acttyp = 'A';
+        create hold history
+         where acttyp = 'R';
+        noop
+    }
+}
+]]>
+</local-syntax>
+  <argument name="acttyp" required="yes" datatype="string">acttyp</argument>
+  <argument name="lodnum" required="yes" datatype="string">lodnum</argument>
+  <argument name="prc_hldpfx" required="yes" datatype="string">prc_hldpfx</argument>
+  <argument name="prc_hldnum" required="yes" datatype="string">prc_hldnum</argument>
+  <argument name="prc_reacod" required="yes" datatype="string">prc_reacod</argument>
+  <argument name="invtyp" datatype="string">invtyp</argument>
+  <argument name="nottxt" datatype="string">nottxt</argument>
+</command>

@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.11.0.final using JasperReports Library version 6.10.0  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="GLN Setup" language="groovy" pageWidth="800" pageHeight="595" orientation="Landscape" whenNoDataType="NoPages" columnWidth="800" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" scriptletClass="com.redprairie.moca.jrds.ReportingIreportScriptlet" resourceBundle="com.redprairie.moca.jrds.Xlate" whenResourceMissingType="Empty" uuid="e151aff3-699c-4d75-bf54-be0b74a1211a">
+	<property name="ireport.zoom" value="1.5"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<property name="ireport.scriptlethandling" value="0"/>
+	<property name="ireport.ireport.encoding" value="UTF-8"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="Local development"/>
+	<property name="com.jaspersoft.studio.report.description">
+		<![CDATA[Overview GLN delivery id's on GLN matrix]]>
+	</property>
+	<property name="net.sf.jasperreports.export.xls.metadata.title">
+		<![CDATA[GLN Overview (sub delivery id's)]]>
+	</property>
+	<property name="net.sf.jasperreports.export.xls.metadata.subject">
+		<![CDATA[Overview GLN delivery id's on GLN matrix]]>
+	</property>
+	<property name="net.sf.jasperreports.export.xls.metadata.author" value="Starware"/>
+	<property name="net.sf.jasperreports.export.xls.metadata.application" value="Blue Yonder"/>
+	<property name="net.sf.jasperreports.export.xls.metadata.keywords" value="Royal FloraHolland, Excel, GLN Matrix"/>
+	<property name="net.sf.jasperreports.export.xls.white.page.background" value="false"/>
+	<property name="net.sf.jasperreports.export.xlsx.exclude.origin.band.myPageHeader" value="pageHeader"/>
+	<property name="net.sf.jasperreports.export.xlsx.exclude.origin.band.myPageFooter" value="pageFooter"/>
+	<property name="net.sf.jasperreports.export.xlsx.exclude.origin.keep.first.band.myHeader" value="columnHeader"/>
+	<property name="net.sf.jasperreports.export.xlsx.exclude.origin.band.myTitle" value="title"/>
+	<property name="net.sf.jasperreports.export.xlsx.exclude.origin.band.myGroup" value="groupHeader"/>
+	<property name="net.sf.jasperreports.export.xlsx.exclude.origin.group.myGroup" value="sortArea"/>
+	<property name="net.sf.jasperreports.export.xls.exclude.origin.band.myPageHeader" value="pageHeader"/>
+	<property name="net.sf.jasperreports.export.xls.exclude.origin.band.myPageFooter" value="pageFooter"/>
+	<property name="net.sf.jasperreports.export.xls.exclude.origin.keep.first.band.myHeader" value="columnHeader"/>
+	<property name="net.sf.jasperreports.export.xls.exclude.origin.band.myTitle" value="title"/>
+	<property name="net.sf.jasperreports.export.xls.exclude.origin.band.myGroup" value="groupHeader"/>
+	<property name="net.sf.jasperreports.export.xls.exclude.origin.group.myGroup" value="sortArea"/>
+	<property name="net.sf.jasperreports.export.xls.remove.empty.space.between.rows" value="true"/>
+	<property name="net.sf.jasperreports.export.xls.remove.empty.space.between.columns" value="true"/>
+	<property name="net.sf.jasperreports.export.xls.sheet.names.sheet1" value="GLN Setup"/>
+	<property name="net.sf.jasperreports.export.xls.ignore.graphics" value="true"/>
+	<property name="net.sf.jasperreports.export.xls.detect.cell.type" value="true"/>
+	<property name="net.sf.jasperreports.export.xls.auto.fit.column" value="false"/>
+	<property name="net.sf.jasperreports.page.break.no.pagination" value="apply"/>
+	<import value="net.sf.jasperreports.engine.*"/>
+	<import value="java.util.*"/>
+	<import value="net.sf.jasperreports.engine.data.*"/>
+	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
+		<property name="MOCA" value="true"/>
+		<defaultValueExpression><![CDATA["./"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="MOCA_REPORT_LOCALE" class="java.lang.String" isForPrompting="false">
+		<property name="MOCA" value="true"/>
+		<defaultValueExpression><![CDATA["US_ENGLISH"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="MOCA_REPORT_CONNECTION" class="com.redprairie.moca.jrds.JRMocaConnection" isForPrompting="false">
+		<property name="MOCA" value="true"/>
+		<defaultValueExpression><![CDATA[new com.redprairie.moca.jrds.JRMocaConnection("http://localhost:4600/service", "SUPER", "SUPER", true)]]></defaultValueExpression>
+	</parameter>
+	<parameter name="MOCA_REPORT_DATE" class="java.lang.String" isForPrompting="false">
+		<property name="MOCA" value="true"/>
+		<property name="prompt" value="No"/>
+		<defaultValueExpression><![CDATA[DateFormat.getDateInstance(DateFormat.SHORT).format(new Date())]]></defaultValueExpression>
+	</parameter>
+	<parameter name="MOCA_REPORT_TIME" class="java.lang.String" isForPrompting="false">
+		<property name="MOCA" value="true"/>
+		<defaultValueExpression><![CDATA[DateFormat.getTimeInstance(DateFormat.SHORT).format(new Date())]]></defaultValueExpression>
+	</parameter>
+	<parameter name="MOCA_REPORT_TZ" class="java.lang.String" isForPrompting="false">
+		<property name="MOCA" value="true"/>
+		<defaultValueExpression><![CDATA[new java.text.SimpleDateFormat("z").format(new Date())]]></defaultValueExpression>
+	</parameter>
+	<parameter name="MOCA_REPORT_DATE_FMT" class="java.lang.String" isForPrompting="false">
+		<property name="MOCA" value="true"/>
+		<defaultValueExpression><![CDATA[DateFormat.SHORT]]></defaultValueExpression>
+	</parameter>
+	<parameter name="MOCA_REPORT_TIME_FMT" class="java.lang.String" isForPrompting="false">
+		<property name="MOCA" value="true"/>
+		<defaultValueExpression><![CDATA[DateFormat.SHORT]]></defaultValueExpression>
+	</parameter>
+	<parameter name="GLN" class="java.lang.String">
+		<defaultValueExpression><![CDATA["-"]]></defaultValueExpression>
+	</parameter>
+	<queryString language="MOCA">
+		<![CDATA[publish data
+where gln=nvl ($P{GLN},'-') 
+|
+[select 
+   usr_gln_location.gln,
+   usr_gln_location.stoloc,
+   adrmst.adr_district,
+   locmst.mov_zone_id
+   from usr_gln_location
+   left
+   join adrmst
+     on (adrmst.host_ext_id=usr_gln_location.gln )
+  left 
+  join locmst
+    on (locmst.stoloc=  usr_gln_location.stoloc and locmst.wh_id=usr_gln_location.wh_id)
+  where (usr_gln_location.gln = @gln or @gln = '-')]]]>
+	</queryString>
+	<field name="gln" class="java.lang.String"/>
+	<field name="stoloc" class="java.lang.String"/>
+	<field name="adr_district" class="java.lang.String"/>
+	<field name="mov_zone_id" class="java.lang.Integer"/>
+	<sortField name="gln"/>
+	<sortField name="adr_district"/>
+	<sortField name="stoloc"/>
+	<pageHeader>
+		<band height="31" splitType="Stretch">
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+			<textField>
+				<reportElement positionType="Float" x="0" y="0" width="400" height="30" uuid="1a3a4967-b07f-4b2e-9927-93b2d34cbf1b">
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="net.sf.jasperreports.export.xls.column.width" value="100"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left">
+					<font fontName="Liberation Sans" size="20" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$R{^Usr-RFH-Config_Del_GLN^}]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="20" splitType="Stretch">
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+			<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.spreadsheet.SpreadsheetLayout"/>
+			<textField>
+				<reportElement x="0" y="0" width="90" height="20" isRemoveLineWhenBlank="true" uuid="da546da5-e7e7-408a-8e4e-13c46834af87">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="net.sf.jasperreports.export.xls.column.width" value="100"/>
+				</reportElement>
+				<textElement>
+					<font fontName="Liberation Sans" size="10" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$R{^rptGLN^}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="90" y="0" width="90" height="20" isRemoveLineWhenBlank="true" uuid="da546da5-e7e7-408a-8e4e-13c46834af87">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="net.sf.jasperreports.export.xls.column.width" value="100"/>
+				</reportElement>
+				<textElement>
+					<font fontName="Liberation Sans" size="10" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Floricode"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="180" y="0" width="40" height="20" isRemoveLineWhenBlank="true" uuid="da546da5-e7e7-408a-8e4e-13c46834af87">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="net.sf.jasperreports.export.xls.column.width" value="100"/>
+				</reportElement>
+				<textElement>
+					<font fontName="Liberation Sans" size="10" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$R{^rptdestination2^}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="220" y="0" width="90" height="20" isRemoveLineWhenBlank="true" uuid="da546da5-e7e7-408a-8e4e-13c46834af87">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="net.sf.jasperreports.export.xls.column.width" value="100"/>
+				</reportElement>
+				<textElement>
+					<font fontName="Liberation Sans" size="10" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$R{^stoloc^}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="310" y="0" width="490" height="20" uuid="9d36a3ca-8d48-44b2-b80e-3de778935678">
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="net.sf.jasperreports.export.xls.column.width" value="100"/>
+				</reportElement>
+				<textElement>
+					<font fontName="Liberation Sans" size="10" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$R{^rptDel_id^}]]></textFieldExpression>
+			</textField>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="13" splitType="Stretch">
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+			<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.spreadsheet.SpreadsheetLayout"/>
+			<textField isBlankWhenNull="true">
+				<reportElement x="0" y="0" width="90" height="13" uuid="ba50c539-d48b-4e91-9ca8-9d03294ddab6">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					<property name="net.sf.jasperreports.export.xls.column.width" value="100"/>
+				</reportElement>
+				<textElement>
+					<font fontName="Liberation Sans" size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{gln}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="90" y="0" width="90" height="13" uuid="ba50c539-d48b-4e91-9ca8-9d03294ddab6">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					<property name="net.sf.jasperreports.export.xls.column.width" value="100"/>
+				</reportElement>
+				<textElement>
+					<font fontName="Liberation Sans" size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{adr_district}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="180" y="0" width="40" height="13" uuid="29fc4277-403c-4afc-a8b8-09bed1b22b70">
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					<property name="net.sf.jasperreports.export.xls.column.width" value="100"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left" markup="none">
+					<font fontName="Liberation Sans" size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{mov_zone_id}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="220" y="0" width="90" height="13" uuid="29fc4277-403c-4afc-a8b8-09bed1b22b70">
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					<property name="net.sf.jasperreports.export.xls.column.width" value="100"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left" markup="none">
+					<font fontName="Liberation Sans" size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{stoloc}]]></textFieldExpression>
+			</textField>
+			<subreport>
+				<reportElement x="310" y="0" width="490" height="13" uuid="36901ab3-7028-4ce0-9334-f783750555e2"/>
+				<subreportParameter name="SUBREPORT_DIR">
+					<subreportParameterExpression><![CDATA[$P{SUBREPORT_DIR}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="MOCA_REPORT_LOCALE">
+					<subreportParameterExpression><![CDATA[$P{MOCA_REPORT_LOCALE}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="MOCA_REPORT_CONNECTION">
+					<subreportParameterExpression><![CDATA[$P{MOCA_REPORT_CONNECTION}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="MOCA_REPORT_DATE">
+					<subreportParameterExpression><![CDATA[$P{MOCA_REPORT_DATE}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="MOCA_REPORT_TIME">
+					<subreportParameterExpression><![CDATA[$P{MOCA_REPORT_TIME}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="MOCA_REPORT_TZ">
+					<subreportParameterExpression><![CDATA[$P{MOCA_REPORT_TZ}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="MOCA_REPORT_DATE_FMT">
+					<subreportParameterExpression><![CDATA[$P{MOCA_REPORT_DATE_FMT}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="MOCA_REPORT_TIME_FMT">
+					<subreportParameterExpression><![CDATA[$P{MOCA_REPORT_TIME_FMT}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="GLN">
+					<subreportParameterExpression><![CDATA[$F{gln}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA["usr-rfh008-v0104_sub_report-Delivery-GLN_delivery.jasper"]]></subreportExpression>
+			</subreport>
+		</band>
+	</detail>
+</jasperReport>

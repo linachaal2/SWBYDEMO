@@ -1,0 +1,20 @@
+{
+    "columns": {
+        "pck_zone_id":{
+            "type": "java.lang.Integer",
+            "alias": "pck_zone_id"
+        },
+        "pck_zone_cod": {
+            "type": "java.lang.String",
+            "alias": "pck_zone_cod"
+        },
+        "lngdsc": {
+            "type": "java.lang.String",
+            "alias": "zone_description"
+        },
+        "to_pick": {
+            "type": "java.lang.Integer",
+            "alias": "to_pick"
+        }
+    }
+}

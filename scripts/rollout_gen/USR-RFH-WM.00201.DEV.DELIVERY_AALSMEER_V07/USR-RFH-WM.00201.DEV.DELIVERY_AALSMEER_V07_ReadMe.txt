@@ -1,0 +1,22 @@
+======================================================
+Rollout: USR-RFH-WM.00201.DEV.DELIVERY_AALSMEER_V07
+Generation timestamp: 2023-12-12 09:54:02
+======================================================
+
+Release Notes:
+
+AFF-CFG-006 (IFT-2316/IFTS-7) Afleveren Aalsmeer
+AFF-CFG-008 (IFT-2403/IFTS-11) Final split H245 zones
+GFF-CFG-097 (IFT-1236/2118/S-1) Gebruik electrohangbaan in BY Aalsmeer (EHB bon uit BY)
+GFF-CFG-124 (IFTS-49) show box of route to address on the delivery label
+-V01: split H245 into two zones
+-V01: Delivery process Aalsmeer
+-V01: Label logic and column where you can add the sort-id for the EHB
+-V01: Included new allocation and cubing rules
+-V01: Included label fix
+-V02: add absolute groups to the new allocation search path rules
+-V03: correction on new shelve rules
+-V04: correction for Linux paths and generation on 2022
+-V05: Label change to Route to address
+-V06: Add new work order picklist rule to the correct group
+-V07: Correct multi lpn policies

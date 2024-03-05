@@ -1,0 +1,177 @@
+<command>
+  <name>list usr rf identify load summary information</name>
+  <description>list usr rf identify load summary information</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* list usr rf identify load summary information
+ * Lists information for the loads entered in the USR_IDENTIFY_LOAD screen.
+ * Version history:
+ * V01, 2018-09-04  Salem Hamze  Initial version.
+ * V02, 2018-10-08  Salem Hamze  Changed number of lots to prtnum + lotnum.
+ * V03, 2018-10-25  Salem Hamze  Added aanvullende diensten.
+ * V04, 2018-11-09 Marco schouwenaar Corrected meerdaags veilen to uitgesteld veilen
+ * V05, 2018-11-26 Jasper Ringoir	 updated Asset count
+ * V06, 2018-11-30 Stephan	 updated Asset count, take from device context if set, otherwise from table
+ * V07, 2018-01-24 Salem Hamze  Rewrote the command to handle dummy loads.
+ * 
+ */
+get warehouse id
+|
+publish data
+ where devcod = nvl(@devcod, @@devcod)
+|
+/* First check if this is a dummy load */
+get usr rf identify load dummy load flag
+ where devcod = @devcod
+   and wh_id = @wh_id
+|
+if (@dummy_load_flg = 1)
+{
+    publish data
+     where invtyp = ''
+       and asset_typ = ''
+       and sum_untqty = 0
+       and no_lotnum = 0
+       and add_serv = '<DUMMY LOAD>'
+}
+else
+{
+    /* Get the loads which were scanned by the user. */
+    [select value
+       from device_context
+      where wh_id = @wh_id
+        and devcod = @devcod
+        and dev_varnam = 'USR_IDENTIFY_LOAD|LODNUM'] catch(-1403) >> res_loads
+    |
+    if (@? != -1403)
+    {
+        /* Retrieve the data if a load was already scanned. */
+        convert column results to string
+         where resultset = @res_loads
+           and colnam = 'value'
+        |
+        convert list to in clause
+         where string = @result_string
+           and table_prefix = 'invlod'
+           and column_name = 'lodnum'
+           and separator = ','
+        |
+        [select decode(min(rcvinv.invtyp), max(rcvinv.invtyp), max(rcvinv.invtyp), null, null, '*MULT*') as invtyp,
+                decode(min(invlod.asset_typ), max(invlod.asset_typ), max(invlod.asset_typ), null, null, '*MULT*') as asset_typ,
+                sum(decode(dc_adj_dtl.untqty_flg, 1, dc_adj_dtl.untqty, invdtl.untqty)) as sum_untqty,
+                count(distinct (case when decode(dc_adj_dtl.untqty_flg, 1, dc_adj_dtl.untqty, invdtl.untqty) > 0 then invdtl.prtnum || '|' || invdtl.lotnum
+                                end)) as no_lotnum
+           from invlod
+          inner
+           join invsub
+             on invsub.lodnum = invlod.lodnum
+          inner
+           join invdtl
+             on invdtl.subnum = invsub.subnum
+          inner
+           join rcvlin
+             on rcvlin.rcvkey = invdtl.rcvkey
+          inner
+           join rcvinv
+             on rcvinv.trknum = rcvlin.trknum
+            and rcvinv.supnum = rcvlin.supnum
+            and rcvinv.invnum = rcvlin.invnum
+            and rcvinv.wh_id = rcvlin.wh_id
+            and rcvinv.client_id = rcvlin.client_id
+           left
+           join (select device_context.wh_id,
+                        device_context.devcod,
+                        device_context.dev_varnam,
+                        max(decode(substr(device_context.value, 0, instr(device_context.value, ':')), 'UNTQTY', 1, 0)) as untqty_flg,
+                        max(decode(substr(device_context.value, 0, instr(device_context.value, ':')), 'UNTQTY', substr(device_context.value, instr(device_context.value, ':') + 1))) as untqty
+                   from device_context
+                  where device_context.dev_varnam like 'USR_IDENTIFY_LOAD_ADJ_DTL|DTLNUM:%'
+                  group by device_context.wh_id,
+                        device_context.devcod,
+                        device_context.dev_varnam) dc_adj_dtl
+             on dc_adj_dtl.devcod = @devcod
+            and dc_adj_dtl.wh_id = @wh_id
+            and dc_adj_dtl.dev_varnam = 'USR_IDENTIFY_LOAD_ADJ_DTL|DTLNUM:' || invdtl.dtlnum
+          where @in_clause:raw] catch(-1403)
+    }
+}
+|
+/* Retrieve the services (aanvullende diensten) information separately (also used for dummy loads). */
+list usr rf identify load adjust load information
+ where devcod = @devcod
+   and wh_id = @wh_id
+|
+/* Retrieve the hold information separately (also used for dummy loads). */
+{
+    list usr rf identify load exception information
+     where devcod = @devcod
+       and wh_id = @wh_id
+    |
+    publish data
+     where hldnum = @hldnum
+       and hld_invtyp = @invtyp
+       and hld_asset_typ = @asset_typ
+}
+|
+/* Get the first available auction date, used to check the meerdaagsveilen (MV) service. */
+list usr next auction dates
+ where no_days = 1
+|
+/* Get the descriptions, note that we only get a value if a value is set/valid. */
+[select (select nvl(short_dsc, lngdsc)
+           from dscmst
+          where colnam = 'invtyp'
+            and colval = nvl(@invtyp, @hld_invtyp)
+            and locale_id = nvl(@@locale_id, 'US_ENGLISH')) as invtyp_dsc,
+        (select nvl(short_dsc, lngdsc)
+           from dscmst
+          where colnam = 'asset_typ'
+            and colval = nvl(@asset_typ, @hld_asset_typ)
+            and locale_id = nvl(@@locale_id, 'US_ENGLISH')) as asset_typ_dsc,
+        (select nvl(short_dsc, lngdsc)
+           from dscmst
+          where colnam = 'field_name'
+            and colval = 'inv_attr_str7'
+            and @inv_attr_str7 is not null
+            and locale_id = nvl(@@locale_id, 'US_ENGLISH')) as inv_attr_str7_dsc,
+        (select nvl(short_dsc, lngdsc)
+           from dscmst
+          where colnam = 'field_name'
+            and colval = 'inv_attr_str10'
+            and @inv_attr_str10 is not null
+            and locale_id = nvl(@@locale_id, 'US_ENGLISH')) as inv_attr_str10_dsc,
+        (select nvl(short_dsc, lngdsc)
+           from dscmst
+          where colnam = 'field_name'
+            and colval = 'inv_attr_str11'
+            and @inv_attr_str11 is not null
+            and locale_id = nvl(@@locale_id, 'US_ENGLISH')) as inv_attr_str11_dsc,
+        (select nvl(short_dsc, lngdsc)
+           from dscmst
+          where colnam = 'field_name'
+            and colval = 'inv_attr_int5'
+            and @inv_attr_int5 is not null
+            and locale_id = nvl(@@locale_id, 'US_ENGLISH')) as inv_attr_int5_dsc,
+        (select nvl(short_dsc, lngdsc)
+           from dscmst
+          where colnam = 'field_name'
+            and colval = 'inv_attr_dte1'
+            and @inv_attr_dte1 is not null
+            and substr(@inv_attr_dte1, 1, 8) > substr(@next_auction_date, 1, 8)
+            and locale_id = nvl(@@locale_id, 'US_ENGLISH')) as inv_attr_dte1_dsc
+   from dual]
+|
+/* Publish the values needed for the RF screen, nvl's for invtyp and asset_typ are for the cases where "*MULT*" was returned. */
+publish data
+ where no_asset = @asset_qty
+   and sum_untqty = @sum_untqty
+   and no_lotnum = @no_lotnum
+   and invtyp = nvl(@invtyp_dsc, @invtyp)
+   and lodtyp = nvl(@asset_typ_dsc, @asset_typ)
+   and hldnum = decode(@hldnum, null, null, '## ' || @hldnum || ' ##')
+   and add_serv = nvl(@add_serv, nvl(@inv_attr_str7_dsc, '  ') || ' ' || nvl(@inv_attr_int5_dsc, '  ') || ' ' || nvl(@inv_attr_dte1_dsc, '  ') || ' ' || nvl(@inv_attr_str10_dsc, '  ') || ' ' || nvl(@inv_attr_str11_dsc, '  '))
+]]>
+</local-syntax>
+  <argument name="devcod" datatype="string">Device Code</argument>
+</command>

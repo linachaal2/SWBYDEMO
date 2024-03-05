@@ -1,0 +1,63 @@
+<trigger>
+  <name>set usr refloc to srcloc</name>
+  <on-command>create work</on-command>
+  <description>set usr refloc to srcloc</description>
+  <fire-sequence>90010</fire-sequence>
+  <local-syntax>
+<![CDATA[
+/* set usr refloc to srcloc
+ * Trigger which sets the refloc to the srcloc for work.
+ * Version history:
+ *  2018-10-01  Salem Hamze       Initial version.
+ *  2023-03-02  Marco Schouwenaar Add addditional update on travel seq and add date
+ *  2023-04-11  Zhivko Zhekov     correction on add date for pallet move (sometimes empty)
+ *  2023-04-18  Radina Ivanova    set last escalation date to the updated add date
+ */
+/* Get the details for the work becasue we only get the reqnum. */
+[select *
+   from wrkque
+  where reqnum = @reqnum
+    and refloc is null] catch(-1403)
+|
+if (@? = 0)
+{
+    /* Check if the policy is enabled for the operation code. */
+    [select distinct 'X'
+       from poldat_view
+      where poldat_view.wh_id = @wh_id
+        and poldat_view.polcod = 'USR-DIRECTED-WORK'
+        and poldat_view.polvar = 'CREATE-WORK'
+        and poldat_view.polval = 'SET-REFLOC-TO-SRCLOC'
+        and poldat_view.rtstr1 = @oprcod
+        and poldat_view.rtnum1 = 1] catch(-1403)
+    |
+    if (@? = 0)
+    {
+        [update wrkque
+            set refloc = srcloc
+          where reqnum = @reqnum] catch(-1403)
+    }
+}
+|
+[select list_id, wrkref
+   from wrkque
+  where reqnum = @reqnum] catch(-1403)
+|
+if (@? = 0 and @list_id != null)
+{
+    /* first override adddte and loctrvseq for pick list */
+    [select min(adddte) addte  
+       from pckwrk_hdr 
+     where list_id=@list_id
+       and adddte is not null] catch(-1403)
+    |
+    [update wrkque 
+           set adddte=nvl(to_date(@addte), sysdate),
+               lstescdte=nvl(to_date(@addte), sysdate),
+               loctrvseq='999999999999999' 
+       where reqnum = @reqnum] catch(-1403)
+}
+]]>
+</local-syntax>
+  <enable>yes</enable>
+</trigger>

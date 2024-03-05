@@ -1,0 +1,9 @@
+evt_grp_nam,evt_nam,moddte,mod_usr_id,grp_nam
+"AUTO-ALLOCATION","USR-ALLOC-WAVE","20210713103009","940409",""
+"AUTO-ALLOCATION","USR-READY-FOR-LIST","","",""
+"REPORTS","USR-REPORTS","","",""
+"SYSTEM","EMS-EVENT-LIMIT","","","ems_data"
+"SYSTEM","EMS-HELD-ALERT-LIMIT","","","ems_data"
+"SYSTEM","SYSTEM-CONNECTION-FAILURE","","","ems_data"
+"USR-OUTBOUND","USR-FAILED-CREATE-STOP","","",""
+"USR-OUTBOUND","USR-FAILED-LOAD-STOP","","",""

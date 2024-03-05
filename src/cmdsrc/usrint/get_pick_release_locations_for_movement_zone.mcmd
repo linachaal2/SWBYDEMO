@@ -1,0 +1,115 @@
+<command>
+  <name>get pick release locations for movement zone</name>
+  <description>get pick release locations for movement zone override</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+[select rtstr2 def_rescod
+   from poldat_view
+  where polcod = 'ALLOCATE-INV'
+    and polvar = 'RESCOD-ZONE-DEF-ASSC'
+    and polval = 'RESCOD-ZONE-FIXED'
+    and rtstr1 = @mov_zone_id
+    and wh_id = @wh_id] catch(-1403)
+|
+[select lm.stoloc,
+            nvl(@def_rescod, lm.rescod) rescod,
+            lm.pndqvl, 
+            lm.curqvl,
+            lm.maxqvl,
+            lm.wrk_zone_id,
+            lm.asgflg,
+            lm.wh_id,
+            lm.maxwgt,
+            lm.lochgt,
+            lm.loccod,
+            lt.lvl_typ_id,
+            loc_typ.sigflg,
+            loc_typ.stgflg,
+            COALESCE(lt.maxwgt, 0) lvlmaxwgt 
+        from usr_delivery_gln del_gln, usr_delivery del, adrmst am, shipment sh, locmst lm
+        left join lvl_typ lt
+              on lm.lvl_typ_id = lt.lvl_typ_id
+             and lm.wh_id = lt.wh_id
+             and lm.aisle_id is not null
+             and lm.bay is not null
+             and lm.lvl is not null
+            join loc_typ
+              on loc_typ.loc_typ_id = lm.loc_typ_id
+        where am.host_ext_id=del_gln.gln 
+        and sh.rt_adr_id=am.adr_id
+        and sh.wh_id=del_gln.wh_id
+        and del.uc_delivery_id=del_gln.uc_delivery_id
+        and del.uc_multi_drop=0
+        and del.wh_id=del_gln.wh_id
+        and del.wh_id=lm.wh_id
+        and del.stoloc=lm.stoloc
+        and lm.useflg = 1
+        and lm.locsts <> 'I' 
+        and lm.curqvl + lm.pndqvl < lm.maxqvl 
+        and ((loc_typ.mix_shprcv_flg = 0
+              and lm.rcv_rescod is null)
+             or (loc_typ.mix_shprcv_flg = 1))
+        and sh.ship_id=@ship_id
+        and sh.wh_id=@wh_id
+        and del.dst_mov_zone_id=@mov_zone_id
+        order by del.seqnum]  catch(-1403) >> res  
+ |     
+if(rowcount(@res) > 0)     
+{         
+publish top rows where res = @res and count = 100     
+}
+else
+{
+^get pick release locations for movement zone catch(-1403) >> res
+ |     
+if(rowcount(@res) > 0)     
+{         
+publish top rows where res = @res and count = 100     
+}
+else
+{
+[select lm.stoloc,
+            lm.rescod,
+            lm.pndqvl, 
+            lm.curqvl,
+            lm.maxqvl,
+            lm.wrk_zone_id,
+            lm.asgflg,
+            lm.wh_id,
+            lm.maxwgt,
+            lm.lochgt,
+            lm.loccod,
+            lt.lvl_typ_id,
+            loc_typ.sigflg,
+            loc_typ.stgflg,
+            COALESCE(lt.maxwgt, 0) lvlmaxwgt 
+        from  shipment sh, locmst lm
+        left join lvl_typ lt
+              on lm.lvl_typ_id = lt.lvl_typ_id
+             and lm.wh_id = lt.wh_id
+             and lm.aisle_id is not null
+             and lm.bay is not null
+             and lm.lvl is not null
+            join loc_typ
+              on loc_typ.loc_typ_id = lm.loc_typ_id
+        where lm.wh_id=@wh_id
+        and lm.stoloc in (select max(ord_line.dstloc) from shipment_line, ord_line 
+                                 where shipment_line.ship_id=@ship_id and shipment_line.ordnum = ord_line.ordnum 
+                                    and shipment_line.ordlin = ord_line.ordlin and shipment_line.ordsln = ord_line.ordsln 
+                                    and shipment_line.client_id = ord_line.client_id and shipment_line.wh_id = ord_line.wh_id
+                                    and shipment_line.wh_id=@wh_id)
+        and lm.useflg = 1
+        and lm.locsts <> 'I' 
+        and lm.curqvl + lm.pndqvl < lm.maxqvl 
+        and ((loc_typ.mix_shprcv_flg = 0
+              and lm.rcv_rescod is null)
+             or (loc_typ.mix_shprcv_flg = 1))
+        and sh.ship_id=@ship_id
+        and sh.wh_id=lm.wh_id
+        and lm.mov_zone_id=@mov_zone_id]  
+}
+}
+]]>
+</local-syntax>
+</command>

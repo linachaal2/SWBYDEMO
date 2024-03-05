@@ -1,0 +1,10 @@
+======================================================
+Rollout: USR-RFH-WM.00205.DEV.AFF-CFG-009_ADD_AREA_H255_V03
+Generation timestamp: 2023-12-19 13:53:11
+======================================================
+
+Release Notes:
+
+-V01: Add area H255 and related config
+-V02: Include delete script for old config
+-V03: Deliver locations without resource code

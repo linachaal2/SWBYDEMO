@@ -1,0 +1,90 @@
+<command>
+  <name>expand usr statement variables</name>
+  <description>expand usr statement variables</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* expand usr statement variables
+ * Expands statement variables with nulls as empty sting and dates in a correct format.
+ * Version history:
+ *  2018-09-28      Salem Hamze     Initial version
+ */
+validate stack variable not null
+ where name = 'string'
+|
+[[
+    import java.text.SimpleDateFormat;
+
+    /* Check stack for parameters. */
+    Boolean prefixSeperator = false; 
+    String seperator = " and ";
+
+    if(moca.getStackVariable("prefix_seperator")!=null){
+        prefixSeperator = moca.getStackVariable("prefix_seperator").asBoolean();
+    }
+    if(moca.getStackVariable("seperator")!=null){
+        seperator=moca.getStackVariable("seperator").asString();
+    }
+
+    EditableResults retRes = moca.newResults();
+    StringBuilder returnString = new StringBuilder();
+    
+    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
+    MocaValue string = moca.getStackVariable("string");
+    
+    if (string != null && !string.isNull()){
+        String[] splitString = string.asString().split(",");
+
+        for (String entry : splitString) {
+            String[] splitAlias = entry.split("\\.", 2);
+            String stackArg;
+            String valueArg;
+            if (splitAlias.length == 1) {
+                stackArg = splitAlias[0];
+                valueArg = splitAlias[0];
+            }else{
+                stackArg = splitAlias[0];
+                valueArg = splitAlias[1];
+            }
+
+            MocaValue value = moca.getStackVariable(valueArg);
+            
+            if (value != null)
+            {
+                if (returnString.length() > 0 || prefixSeperator) {
+                    returnString.append(seperator);
+                }
+
+                returnString.append(stackArg);           
+                returnString.append('=');
+                
+                if(value.isNull()){
+                    returnString.append("''");
+                }else if(value.getType() == MocaType.STRING){
+                    returnString.append("'").append(value.asString()).append("'");
+                }else if(value.getType() == MocaType.INTEGER){
+                    returnString.append(value.asInt());
+                }else if(value.getType() == MocaType.DOUBLE){
+                    returnString.append(value.asDouble());
+                }else if(value.getType() == MocaType.BOOLEAN){
+                    returnString.append(value.asBoolean());
+                }else if(value.getType() == MocaType.DATETIME){
+                    returnString.append("'").append(dateFormat.format(value.asDate())).append("'");
+                }else{
+                    returnString.append("'").append(value.getValue()).append("'");
+                }
+            }
+        }
+    }
+    
+    retRes.addColumn("exdstr", MocaType.STRING);
+    retRes.addRow();
+    retRes.setStringValue("exdstr", returnString.toString());
+    return retRes;
+]]
+]]>
+</local-syntax>
+  <argument name="string" required="yes" datatype="string">Comma separated string containing variables</argument>
+  <argument name="seperator" datatype="string">seperator</argument>
+  <argument name="prefix_seperator" datatype="flag">prefix_seperator</argument>
+</command>

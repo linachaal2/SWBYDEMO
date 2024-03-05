@@ -1,0 +1,94 @@
+<command>
+  <name>move inventory</name>
+  <description>Moves inventory</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* move inventory
+ * User override move inventory for checking if pickup from source location is allowed
+ * If policy exists for source move zone, then only inventory from the specified ASN type is allowed
+ * If policy does not exist for source move zone, then all inventory moves are allowed
+ * Version history:
+ *  2020-07-09  Radina Ivanova  Initial version.
+ *  2020-09-10  Raoul Scholten - added positive check in order to exclude dummy loads move to adjustment area/creation of stock and moves from the scanner
+ *  2020-12-18  Marco Schouwenaar - no restriction if receipt is not available anymore (M20122347)
+ */
+ /* We skip these checks when receiving inventory or when creating inventory*/
+ publish data where chkInvMoveAllowed = '1'
+ |
+ if (@actcod = 'IDNTFY' or (@actcod = 'INVDEL' and @oprcod = 'INVADJ' ) or @srcloc = 'PERM-CRE-LOC' or @srcloc = @devcod or @actcod = 'LSTPCK' or @actcod = 'TRLR_LOAD')
+ {
+	publish data where chkInvMoveAllowed = '0'
+ }
+ |
+ if (@chkInvMoveAllowed = 1)
+ {
+     if (@srcloc = '')
+      {
+        [select stoloc
+           from invlod
+          where lodnum = nvl(@srclod, @lodnum)] catch (-1403)
+      }
+      |
+      [select mov_zone_id
+         from locmst
+        where stoloc = @srcloc
+          and wh_id = @wh_id] catch(-1403)
+      |
+      if (@? = 0)
+      {
+         [select distinct 'x'
+            from invsub,invlod,invdtl
+                      left
+            join rcvlin
+              on invdtl.rcvkey = rcvlin.rcvkey
+           left
+            join rcvinv
+              on rcvinv.trknum = rcvlin.trknum
+             and rcvinv.supnum = rcvlin.supnum
+             and rcvinv.invnum = rcvlin.invnum
+             and rcvinv.wh_id = rcvlin.wh_id
+             and rcvinv.client_id = rcvlin.client_id
+           where invlod.lodnum = nvl(@srclod, @lodnum)
+		      and invsub.lodnum=invlod.lodnum
+              and invsub.subnum = invdtl.subnum
+			  and invlod.wh_id=@wh_id
+              and (exists (select 'x'
+                           from poldat_view
+                          where polcod = 'USR-INVENTORY'
+                            and polvar = 'INVENTORY-MOVEMENT'
+                            and polval = 'ALLOW-PICKUP-ONLY-FOR-ASN-TYPE'
+                            and rtstr1 = to_char(@mov_zone_id)
+                            and rtstr2 = rcvinv.invtyp
+                            and wh_id = @wh_id)
+             or not exists (select 'x'
+                           from poldat_view
+                          where polcod = 'USR-INVENTORY'
+                            and polvar = 'INVENTORY-MOVEMENT'
+                            and polval = 'ALLOW-PICKUP-ONLY-FOR-ASN-TYPE'
+                            and rtstr1 = to_char(@mov_zone_id)
+                            and wh_id = @wh_id)
+             or @mov_zone_id is null)] catch(-1403)
+         |
+         if (@? != 0)
+         {
+             set return status where status = 90030
+         }
+      }
+ }
+ ;
+ ^move inventory
+]]>
+</local-syntax>
+  <argument name="srcloc" alias="stoloc" datatype="string" />
+  <argument name="dstlod" datatype="string" />
+  <argument name="prtnum" alias="part" datatype="string" />
+  <argument name="untcas" datatype="integer" />
+  <argument name="wh_id" datatype="string" />
+  <argument name="supnum" alias="supnum" datatype="string" />
+  <argument name="inv_attr_str3" datatype="string" />
+  <argument name="inv_attr_str11" datatype="string" />
+  <argument name="inv_attr_int1" datatype="integer" />
+  <argument name="inv_attr_dte1" datatype="string" />
+  <argument name="trolley_flg" datatype="integer" />
+</command>

@@ -1,0 +1,92 @@
+<command>
+  <name>plan shipment wave by order selection</name>
+  <description>plan shipment wave by order selection (override for sorting)</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* plan shipment wave by order selection
+ *
+ * overrule of original command to sort the output of the results of the original command
+ * sorting is arranged only when the rule is order selection. 
+ * 
+ * Version history:
+ * 2021-02-22 Marco Schouwenaar   Initial version
+ */
+
+if(@rule_nam='STD-ORDERSELECTION')
+[[
+   def results = new SimpleResults();
+   def tempRes = new SimpleResults();
+   String[] splitString1 = ordnum_list.split(',');
+   String[] splitString2 = ordlin_list.split(',');
+   String[] splitString3 = ordsln_list.split(',');
+   String[] splitString4 = client_id_list.split(',');
+   String[] splitString5 = wh_id_list.split(','); 
+   String ordnum_list = "";
+   String client_id_list = "";
+   String orderNumber = "";
+   String clientId = "";
+   String ordLin = "";
+   String ordSln = "";
+   String whId_L = "";
+   String ordlin_list = "";
+   String ordsln_list = "";
+   String wh_id_list = "";
+   tempRes.addColumn('ordnum',MocaType.STRING);
+   tempRes.addColumn('ordlin',MocaType.STRING);
+   tempRes.addColumn('ordsln',MocaType.STRING);
+   tempRes.addColumn('client_id',MocaType.STRING);
+   tempRes.addColumn('wh_id_l',MocaType.STRING);
+   tempRes.addColumn('sort_date',MocaType.DATETIME);
+   for (int i = 0; i < splitString1.length; ++i) {
+      tempRes.addRow();
+      tempRes.setStringValue('ordnum', splitString1[i].trim());
+      tempRes.setStringValue('ordlin', splitString2[i].trim());
+      tempRes.setStringValue('ordsln', splitString3[i].trim());
+      tempRes.setStringValue('client_id', splitString4[i].trim());
+      tempRes.setStringValue('wh_id_l', splitString5[i].trim()); 
+            String command = String.format("[select nvl(entdte,sysdate) sort_date from ord_line where ordnum= '%s' and wh_id='%s' and client_id='%s' and ordlin='%s' and ordsln='%s'] ", splitString1[i].trim(), splitString5[i].trim(), splitString4[i].trim(),splitString2[i].trim(),splitString3[i].trim());
+            rs = this.moca.executeCommand(command);   
+            rs.next();
+      tempRes.setDateValue('sort_date', rs.getDateTime("sort_date")); 
+   }
+   tempRes.sort('sort_date');
+   tempRes.close();
+   tempRes;
+   while (tempRes.hasNext()) {
+                tempRes.next();
+                orderNumber = tempRes.getString("ordnum");
+                clientId = tempRes.getString("client_id");
+                whId_L = tempRes.getString("wh_id_l");
+                ordLin = tempRes.getString("ordlin");
+                ordSln = tempRes.getString("ordsln");
+                ordnum_list = ordnum_list + orderNumber + ",";
+                client_id_list = client_id_list + clientId + ",";
+                wh_id_list = wh_id_list + whId_L + ",";
+                ordlin_list = ordlin_list + ordLin + ",";
+                ordsln_list = ordsln_list + ordSln + ",";
+   }
+   ordnum_list = ordnum_list.substring(0, ordnum_list.length() - 1);
+   client_id_list = client_id_list.substring(0, client_id_list.length() - 1);
+   ordlin_list = ordlin_list.substring(0, ordlin_list.length() - 1);
+   ordsln_list = ordsln_list.substring(0, ordsln_list.length() - 1);
+   wh_id_list = wh_id_list.substring(0, wh_id_list.length() - 1);
+   results.addColumn("ordnum_list", MocaType.STRING);
+   results.addColumn("client_id_list", MocaType.STRING);
+   results.addColumn("ordlin_list", MocaType.STRING);
+   results.addColumn("ordsln_list", MocaType.STRING);
+   results.addColumn("wh_id_list", MocaType.STRING);
+   results.addRow();
+   results.setStringValue("ordnum_list", ordnum_list);
+   results.setStringValue("client_id_list", client_id_list);
+   results.setStringValue("ordlin_list", ordlin_list);
+   results.setStringValue("ordsln_list", ordsln_list);
+   results.setStringValue("wh_id_list", wh_id_list);
+   results.close();
+   results;
+]]
+|
+^plan shipment wave by order selection where @*
+]]>
+</local-syntax>
+</command>

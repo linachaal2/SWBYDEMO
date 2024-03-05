@@ -1,0 +1,8 @@
+======================================================
+Rollout: USR-RFH-WM.00202.DEV.GFF-CFG-117_SHORTS_OVERVIEW_V01
+Generation timestamp: 2023-11-06 11:14:54
+======================================================
+
+Release Notes:
+
+-V01: web services and moca commands for new Shorts overview dashboard

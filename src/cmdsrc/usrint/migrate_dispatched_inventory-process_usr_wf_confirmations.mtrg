@@ -1,0 +1,17 @@
+<trigger>
+  <name>process usr wf confirmations</name>
+  <on-command>migrate dispatched inventory</on-command>
+  <description>Migrate usr vas inventory detail</description>
+  <fire-sequence>9100</fire-sequence>
+  <local-syntax>
+<![CDATA[
+/* Trigger to clean up work flow records for dispatched inventory
+ *
+ * Version history:
+ *  2023-06-14 Radina Ivanova   Initial version
+ */
+    process usr wf confirmations
+]]>
+</local-syntax>
+  <enable>yes</enable>
+</trigger>

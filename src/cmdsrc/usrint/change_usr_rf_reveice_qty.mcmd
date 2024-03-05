@@ -1,0 +1,46 @@
+<command>
+  <name>change usr rf reveice qty</name>
+  <description>change usr rf reveice qty </description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* change usr rf reveice qty 
+ * Changes qty to the actual qty received
+ * Version history:
+ *  2020-06-23  Raoul Scholten  Initial version.
+ */
+list usr rf identify load detail information
+ where wh_id = @wh_id
+   and devcod = @devcod
+|
+publish data
+ where dtlnum = @dtlnum
+   and org_untqty = @org_untqty
+   and rcv_untqty = @untqty
+   and org_reacod = @org_reacod
+   and reacod = @reacod catch(-1403)
+|
+/*RLS - change untqty */
+if (@org_untqty != @rcv_untqty)
+{
+    [select *
+       from invdtl
+      where dtlnum = @dtlnum] catch(-1403)
+    |
+    if (@? = 0)
+    {
+        [update invdtl
+            set invdtl.untqty = @rcv_untqty
+          where dtlnum = @dtlnum] catch(-1403)
+    }
+    |
+    if (@? = 0)
+    {
+        [update rcvlin
+            set rcvqty = @rcv_untqty
+          where rcvlin.rcvkey = @rcvkey] catch(-1403)
+    }
+}
+]]>
+</local-syntax>
+</command>

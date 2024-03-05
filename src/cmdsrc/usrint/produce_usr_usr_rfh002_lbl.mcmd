@@ -1,0 +1,112 @@
+<command>
+  <name>produce usr usr_rfh002 lbl</name>
+  <description>produce usr usr_rfh002 lbl</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* produce usr usr_rfh002 lbl
+ * produce identification label
+ * Version history:
+ *  2018-04-09  Raoul Scholten    Initial version.
+ *  2018-12-20  Tim van den Akker First see if the invtyp is fulfilment (30), if so print label, else do nothing. 
+ *  2019-11-27  Tim van den AKker Added doctyp in first sql, since we moved exit points for CR803600 background workflow
+ *  2020-02-13  Raoul Scholten    Prevent label to be printed whenever destination location is a staging location
+ *  2020-03-19  Raoul Scholten    Added check on devcod to be able to print via print label compliant documents in web client
+ *  2020-03-23  Raoul Scholten    Added check on devcod is null to be able to print via print label compliant documents in web client
+ *  2020-08-04  Radina Ivanova    Write a daily transaction record for the label print
+ *  2023-04-17  Marco Schouwenaar Save correct doc type in daily transaction and prevent multiple loops
+ */
+ [select distinct (poldat_view.rtstr1) as doctyp
+   from poldat_view
+  where polcod = 'USR-LABELS'
+    and polvar = 'doc_typ'
+    and polval = 'Receiving-Label'
+    and rtstr1 = @doc_typ
+    and rtnum1 = 1
+    and wh_id = @wh_id] catch(-1403)
+|
+if (@? = 0)
+{
+if (@dstloc = null and @devcod = null)
+{
+    [select 'Y' as Printlabel
+       from dual]
+}
+else if (@dstloc is not null)
+{
+    [select 'Y' as Printlabel
+       from locmst
+      inner
+       join loc_typ
+         on loc_typ.loc_typ_id = locmst.loc_typ_id
+      where locmst.stoloc = @dstloc
+        and locmst.wh_id = @wh_id
+        and loc_typ.stgflg = 0] catch(-1403)
+        }
+|
+if (@? = 0)
+{
+    [select distinct (poldat_view.rtstr1) as doctyp,
+            (poldat_view.rtstr2) as pol_invtyp
+       from poldat_view
+      inner
+       join rcvinv
+         on rcvinv.invtyp = poldat_view.rtstr2
+      inner
+       join rcvlin
+         on rcvinv.trknum = rcvlin.trknum
+        and rcvinv.supnum = rcvlin.supnum
+        and rcvinv.invnum = rcvlin.invnum
+        and rcvinv.wh_id = rcvlin.wh_id
+        and rcvinv.client_id = rcvlin.client_id
+      inner
+       join invdtl
+         on invdtl.rcvkey = rcvlin.rcvkey
+      inner
+       join invsub
+         on invsub.subnum = invdtl.subnum
+      where rcvinv.wh_id = @wh_id
+        and poldat_view.polcod = 'USR-LABELS'
+        and poldat_view.polvar = 'doc_typ'
+        and poldat_view.polval = 'invtyp'
+        and poldat_view.rtstr2 = rcvinv.invtyp
+        and poldat_view.wh_id = @wh_id
+        and invsub.lodnum = @lodnum
+      group by poldat_view.rtstr1,
+            poldat_view.rtstr2] catch(-1403)
+    |
+    if (@? = 0 or @exitpnt = 'USR-RELABEL')
+    {
+        get lbl document format
+         where doc_typ = @doctyp
+           and exitpnt = @exitpnt
+        |
+        get lbl compliant printer
+         where @*
+        |
+        {
+            [select *
+               from inventory_view
+              where lodnum = @lodnum]
+            |
+            write daily transaction
+            where actcod = 'USR-LABEL-PRINT'
+              and tostol = @printer
+              and devcod = @@devcod
+              and trndte = sysdate
+              and var_nam = 'doc_typ'
+              and fr_value = @doctyp
+              and cmnt = decode(@lstcod, 'IDNTFY', 'Putaway', 'LSTPCK', 'Picking', 'PALPCK', 'Picking', 'Other')
+            ;
+            [select invsub.subnum
+               from invsub
+              where invsub.lodnum = @lodnum
+              group by invsub.subnum]
+        }
+    }
+}
+}
+]]>
+</local-syntax>
+  <argument name="lodnum" required="yes" datatype="string">lodnum</argument>
+</command>

@@ -1,0 +1,246 @@
+<command>
+
+<name>calculate totals for list</name>
+
+<description>Calculate the Totals for a List Pick</description>
+
+<type>Local Syntax</type>
+
+<argument name="list_id" required="yes">The pick list to calculate totals for</argument>
+
+<local-syntax>
+<![CDATA[
+/* get pick list select criteria summary
+ * Version history:
+ *  2021-07-15 Radina Ivanova    Initial version
+ *  2022-09-16 Radina Ivanova    Handle combined picks
+ *  2023-01-20 Radina Ivanova    Handle 1 layer trolley
+ */
+   /* get order count */
+    [select count(*) ord_count
+       from (select distinct ordnum, client_id, wh_id
+               from pckwrk_view
+              where wrktyp in ('P', 'K')
+                and list_id = @list_id
+                and ordnum is not NULL
+                and ship_id != 'dummy') dist_ord]
+    |
+    /* get order line count */
+    [select count(*) ordlin_count
+       from (select distinct ordnum, client_id, wh_id, ordlin, ordsln
+              from pckwrk_view
+             where wrktyp in ('P', 'K')
+               and list_id = @list_id
+               and ordnum is not NULL
+                and ship_id != 'dummy') dist_ordlin]
+    |
+    /* get work order count */
+    [select count(*) wko_count
+       from (select distinct wkonum, client_id, wkorev, wh_id
+               from pckwrk_view
+              where wrktyp in ('P', 'K')
+                and list_id = @list_id
+                and wkonum is not NULL) dist_ord]
+    |
+    /* get work order line count */
+    [select count(*) wkolin_count
+       from (select distinct wkonum, client_id, wkorev, wh_id, wkolin
+              from pckwrk_view
+             where wrktyp in ('P', 'K')
+               and list_id = @list_id
+               and wkonum is not NULL) dist_ordlin]
+    |
+    /* get carton count */
+    [select count(distinct subnum) ctn_count
+       from pckwrk_view
+      where wrktyp = 'K'
+        and list_id = @list_id]
+    |
+    /* get item count */
+    [select count(*) item_count
+       from (select distinct prtnum, prt_client_id, wh_id
+               from pckwrk_view
+              where wrktyp not in ('B', 'S')
+                and list_id = @list_id
+                and ship_id != 'dummy') dist_part]
+    |
+    /* get customer and client counts */
+    [select count(distinct stcust) cust_count,
+            count(distinct client_id) client_count
+       from pckwrk_view
+      where wrktyp in ('P', 'K')
+        and list_id = @list_id
+        and ship_id != 'dummy']
+    |
+    [select distinct 1
+       from poldat_view
+      where polcod = 'USR-PICKING'
+        and polvar = 'CUBING'
+        and polval = 'ENABLED'
+        and wh_id = @wh_id
+        and rtnum1 = 1] catch(-1403)
+    |
+    if (@? = 0)
+    {
+        [select asset_typ
+           from pcklst where list_id = @list_id] catch(-1403)
+        |
+        if (@asset_typ != '')
+        {
+            [select slot_asset_typ
+               from pcklst_asset_slot
+              where asset_typ = @asset_typ
+                and rownum = 1] catch(-1403)
+            |
+            if (@? = 0)
+            {
+                [select asset_hgt,
+                         max_vol asset_max_vol
+                   from asset_typ
+                  where asset_typ = @slot_asset_typ]
+            }
+            else
+            {
+                [select asset_hgt,
+                         max_vol asset_max_vol
+                   from asset_typ
+                  where asset_typ = @asset_typ]
+            }
+            |
+            [select list_id group_by_combined,
+                    wrkref,
+                    pckqty,
+                    0.0 totvol,
+                    0.0 intvol,
+                    pd2.len pd2_len,
+                    pd2.wid pd2_wid,
+                    pd2.hgt pd2_hgt,
+                    pd2.untqty pd2_qty
+            from pckwrk_view
+            join prtftp_dtl pd2
+              on (pckwrk_view.ftpcod = pd2.ftpcod)
+             and (pckwrk_view.wh_id = pd2.wh_id)
+             and (pckwrk_view.prt_client_id = pd2.prt_client_id)
+             and (pckwrk_view.prtnum = pd2.prtnum)
+             and (pd2.cas_flg = 1)
+            join asset_typ
+              on asset_typ.asset_typ = pckwrk_view.asset_typ
+           where pckwrk_view.wrkref in (select wrkref
+                                          from pckwrk_hdr
+                                         where list_id = @list_id)
+             and exists (select 'x'
+                           from usr_packing_map
+                          where uc_code = pckwrk_view.inv_attr_str2
+                            and uc_stack = 1)] catch (-1403) >> resStackableItems
+            |
+            if (@? = 0)
+            {
+                get usr volume for stackable items
+                where res = @resStackableItems >> resStackableItems
+            }
+            |
+            [select list_id group_by_combined,
+                    wrkref,
+                    pckqty,
+                    0.0 totvol,
+                    0.0 intvol,
+                    pd2.len pd2_len,
+                    pd2.wid pd2_wid,
+                    pd2.hgt pd2_hgt,
+                    pd2.untqty pd2_qty
+            from pckwrk_view
+            join prtftp_dtl pd2
+              on (pckwrk_view.ftpcod = pd2.ftpcod)
+             and (pckwrk_view.wh_id = pd2.wh_id)
+             and (pckwrk_view.prt_client_id = pd2.prt_client_id)
+             and (pckwrk_view.prtnum = pd2.prtnum)
+             and (pd2.cas_flg = 1)
+            join asset_typ
+              on asset_typ.asset_typ = pckwrk_view.asset_typ
+           where pckwrk_view.wrkref in (select wrkref
+                                          from pckwrk_hdr
+                                         where list_id = @list_id)
+             and not exists (select 'x'
+                               from usr_packing_map
+                              where uc_code = pckwrk_view.inv_attr_str2
+                                and uc_stack = 1)] catch (-1403) >> resNonStackableItems
+            |
+            if (@? = 0)
+            {
+                get usr volume for trolley shelve
+                where res = @resNonStackableItems >> resNonStackableItems
+            }
+            |
+            publish data combination
+              where res1 = @resStackableItems
+                and res2 = @resNonStackableItems >> resFinal
+            |
+            if (rowcount(@resFinal))
+            {
+                [[
+                    double totvol_cubing = 0.0;
+                    while (resFinal.next())
+                    {
+                        totvol_cubing += resFinal.getDouble("totvol");
+                    }
+                    
+                    SimpleResults res = new SimpleResults();
+                    res.addColumn("totvol_cubing", MocaType.DOUBLE);
+                    res.addRow();
+                    res.setValue("totvol_cubing", totvol_cubing);
+                    return res;
+                ]]
+            }
+        }
+    }
+    |
+    /* calculate total weight and volume */
+    [select sum (floor(pckwrk_view.dtl_pckqty / decode(pckwrk_view.untcas,0,pd2.untqty,pckwrk_view.untcas)) *
+                    (pd2.len * pd2.wid * pd2.hgt) * 1.0 +
+                    mod(pckwrk_view.dtl_pckqty, decode(pckwrk_view.untcas,0,pd2.untqty,pckwrk_view.untcas)) *
+                    (pd1.len * pd1.wid * pd1.hgt)) totvol,
+                    sum (pckwrk_view.dtl_pckqty *
+                    (pd2.grswgt * 1.0 /
+                    decode(pd2.untqty,0,1,pd2.untqty))) totwgt
+       from pckwrk_view
+           join prtftp_dtl pd1
+             on (pckwrk_view.ftpcod = pd1.ftpcod)
+        and (pckwrk_view.wh_id = pd1.wh_id)
+        and (pckwrk_view.prt_client_id = pd1.prt_client_id)
+        and (pckwrk_view.prtnum = pd1.prtnum)
+        and (pd1.stk_flg = 1)
+            join prtftp_dtl pd2
+              on (pckwrk_view.ftpcod = pd2.ftpcod)
+        and (pckwrk_view.wh_id = pd2.wh_id)
+        and (pckwrk_view.prt_client_id = pd2.prt_client_id)
+        and (pckwrk_view.prtnum = pd2.prtnum)
+        and (pd2.cas_flg = 1)
+      where pckwrk_view.wrkref in (select wrkref
+                                     from pckwrk_hdr
+                                    where list_id = @list_id)
+      group by list_id] catch(-1403)
+      |
+      publish data
+        where ord_count = @ord_count
+          and ordlin_count = @ordlin_count
+          and wko_count = @wko_count
+          and wkolin_count = @wkolin_count
+          and ctn_count = @ctn_count
+          and item_count = @item_count
+          and cust_count = @cust_count
+          and client_count = @client_count
+          and totvol = nvl(@totvol_cubing, @totvol)
+          and totwgt = @totwgt
+
+]]>
+</local-syntax>
+
+<documentation>
+
+<exception value="eOK">Normal successful completion</exception>
+
+<seealso cref="process cancel pick"></seealso>
+
+</documentation>
+
+</command>

@@ -1,0 +1,100 @@
+<command>
+<name>change non serialized asset</name>
+<description>Change non serialized asset. </description>
+<type>Local Syntax</type>
+<local-syntax>
+<![CDATA[
+/*
+     * Check whether the asset_typ, asset_stat, client_id
+     * src_adr_id and adr_id combination exists. If yes then
+     * update the on_hand_qty else throw no data found.
+     */
+    validate key exists 
+       where key = 'asset_typ, asset_stat, src_adr_id, adr_id, client_id' 
+         and table = 'non_ser_asset'
+    |
+    [select asset_cat
+       from asset_typ
+      where asset_typ = @asset_typ] catch(-1403)
+    |
+    publish data where wh_id = nvl(@wh_id, @@wh_id)
+    |
+    if (@wh_id = null or @wh_id = '')
+    {
+        [select wh_id
+            from wh
+            where adr_id = @src_adr_id]
+    }
+    |
+    check asset category enabled configuration
+          where asset_cat = @asset_cat
+            and wh_id     = @wh_id
+    |
+    if (@ena_flg = 0)
+    {
+        /* The asset_cat is disabled. */
+        set return status 
+          where status = 11278 /*eINT_ASSET_CAT_DISABLED*/
+    }
+    |
+    validate stack variable not null
+       where name = 'on_hand_qty'
+    |
+    [select on_hand_qty orig_on_hand_qty
+       from non_ser_asset
+      where asset_typ = @asset_typ
+        and asset_stat = @asset_stat
+        and src_adr_id = @src_adr_id
+        and adr_id = @adr_id
+        and client_id = @client_id
+    ]
+    |
+    /* If the on_hand_qty is less than or equals 0
+     * then call remove moca to remove the record.
+     * Else update the record.
+     */
+    if (@on_hand_qty <= 0)
+    {
+        remove non serialized asset
+         where asset_typ  = @asset_typ
+           and client_id  = @client_id
+           and asset_stat = @asset_stat
+           and adr_id     = @adr_id
+           and src_adr_id = @src_adr_id
+    }
+    else
+    {
+        if(@on_hand_qty != @orig_on_hand_qty)
+		{
+          change record
+           where table = 'non_ser_asset'
+		 }
+    }
+    |
+    publish data where orig_on_hand_qty = @orig_on_hand_qty
+]]>
+</local-syntax>
+<argument name="asset_typ" datatype="string">Asset Type</argument>
+<argument name="client_id" datatype="string">Client Id</argument>
+<argument name="src_adr_id" datatype="string">Source Address Id</argument>
+<argument name="adr_id" datatype="string">Address Id</argument>
+<argument name="asset_stat" datatype="string">Asset Status</argument>
+<argument name="on_hand_qty" datatype="int">On Hand Quantity</argument>
+<documentation>
+<remarks>
+<![CDATA[
+    <p>
+    Change the on_hand_qty of an asset_typ.
+    If user enters on_hand_qty as 0 then this moca
+    will remove the record.
+    </p>
+]]>
+</remarks>  
+<seealso cref="list non serialized assets"></seealso>
+<seealso cref="create non serialized asset"></seealso>
+<seealso cref="remove non serialized asset"></seealso>
+<exception value="eOK">Normal successful completion</exception>
+<exception value="eMISSING_ARG">Required arguments are missing</exception>
+<exception value="eINT_ASSET_CAT_DISABLED"> Asset Category is disabled </exception>
+</documentation>
+</command>

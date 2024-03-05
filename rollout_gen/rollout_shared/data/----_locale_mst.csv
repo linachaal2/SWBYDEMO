@@ -1,0 +1,15 @@
+locale_id,ctry_name,ora_lang,ora_terr,ora_nls_sort,win_cli_lcid,win_srv_lcid,unix_srv_locale_nam,rf_locale_nam,mu_sys,voc_lang_cod,grp_nam,ena_flg
+"ARABIC_SAUDI","SAU","ARABIC","SAUDI ARABIA","BINARY",1025,1025,"POSIX","POSIX","M","","mcs_data",0
+"BRAZILIAN_PORTUGUESE","BRA","BRAZILIAN PORTUGUESE","BRAZIL","BINARY",2070,2070,"POSIX","POSIX","M","","mcs_data",0
+"CASTILIAN_SPANISH","ESP","SPANISH","SPAIN","BINARY",1034,1034,"POSIX","POSIX","M","","mcs_data",0
+"DUTCH_HOLLAND","NL","DUTCH","THE NETHERLANDS","BINARY",1043,1043,"POSIX","POSIX","M","","mcs_data",1
+"ES-ES","MEX","SPANISH","MEXICO","BINARY",22538,22538,"POSIX","POSIX","M","","mcs_data",0
+"FRENCH","FRA","FRENCH","FRANCE","BINARY",1036,1036,"POSIX","POSIX","M","","mcs_data",0
+"GERMAN","DEU","GERMAN","GERMANY","BINARY",1031,1031,"POSIX","POSIX","M","","mcs_data",0
+"HUNGARIAN","HUN","HUNGARIAN","Hungary","BINARY",1038,1038,"POSIX","POSIX","M","","mcs_data",0
+"ITALIAN","ITA","ITALIAN","ITALY","BINARY",1040,1040,"POSIX","POSIX","M","","mcs_data",0
+"JAPANESE","JPN","JAPANESE","JAPAN","BINARY",1041,1041,"POSIX","POSIX","M","","mcs_data",0
+"KOREAN","KOR","KOREAN","KOREA","BINARY",1042,1042,"POSIX","POSIX","M","","mcs_data",0
+"RUSSIAN","RUS","RUSSIAN","RUSSIA","BINARY",1049,1049,"POSIX","POSIX","M","","mcs_data",0
+"SIMPLIFIED_CHINESE","CHN","SIMPLIFIED CHINESE","CHINA","BINARY",2052,2052,"POSIX","POSIX","M","","mcs_data",0
+"US_ENGLISH","US","AMERICAN","AMERICA","BINARY",1033,1033,"POSIX","POSIX","M","en_US","mcs_data",1

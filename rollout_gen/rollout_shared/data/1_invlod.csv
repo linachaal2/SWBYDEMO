@@ -1,0 +1,5 @@
+lodnum,wh_id,stoloc,lodwgt,prmflg,unkflg,mvlflg,adddte,lstmov,lstdte,lstcod,lst_usr_id,loducc,uccdte,palpos,asset_typ,avg_unt_catch_qty,u_version,ins_dt,last_upd_dt,ins_user_id,last_upd_user_id,lodtag,lod_tagsts,lodhgt,bundled_flg,distro_palopn_flg,load_attr1_flg,load_attr2_flg,load_attr3_flg,load_attr4_flg,load_attr5_flg,no_loc_putaway,completed_receiving_date,est_time,lodlen,lodwdt,no_of_boxes,est_lodwgt,voc_chkdgt,uc_train_cls_flg,uc_train_id,uc_train_loc_seq,uc_train_seq
+"PERM-ADJ-LOD-1","1","PERM-ADJ-LOC",0,1,0,0,"20190917122834","","","","SUPER","","","","",0,0,"","","","","","",0,0,0,0,0,0,0,0,0,"",0,0,0,0,0,"",0,"",0,0
+"PERM-CNT-LOD-1","1","PERM-CNT-LOC",0,1,0,0,"20190917122834","","","","SUPER","","","","",0,0,"","","","","","",0,0,0,0,0,0,0,0,0,"",0,0,0,0,0,"",0,"",0,0
+"PERM-CRE-LOD-1","1","PERM-CRE-LOC",0,1,0,0,"20190917122834","","","","SUPER","","","","",0,0,"","","","","","",0,0,0,0,0,0,0,0,0,"",0,0,0,0,0,"",0,"",0,0
+"PERM-EXP-LOD-1","1","PERM-EXP-LOC",0,1,0,0,"20190917122834","","","","SUPER","","","","",0,0,"","","","","","",0,0,0,0,0,0,0,0,0,"",0,0,0,0,0,"",0,"",0,0

@@ -1,0 +1,50 @@
+<trigger>
+  <name>create usr work flow</name>
+  <on-command>create work order note</on-command>
+  <description>Create usr work flow on work order note</description>
+  <fire-sequence>1000</fire-sequence>
+  <local-syntax>
+<![CDATA[
+/* trigger on work order note
+ * create work flow default services to activate workflows based on the set policies adn fill the additional fields
+ *
+ * Version history:
+ *  2023-03-01  Marco Schouwenaar   Initial version.
+ */ 
+change record where table='WKOHDR_NOTE' catch (-1403)
+|
+[select poldat_view.rtstr1 flow,
+        poldat_view.rtstr2 rate
+   from poldat_view
+  where poldat_view.polcod = 'USR-WORKORDER-VAS-NOTE'
+    and poldat_view.polvar = 'WORKFLOW'
+    and poldat_view.polval = @uc_nottyp
+    and poldat_view.wh_id = @wh_id] catch(-1403)
+|
+if (@? = 0)
+{
+   list default services
+     where wh_id = @wh_id
+       and def_serv_cod = 'WKO'
+       and wkonum = @wkonum
+       and wkorev = @wkorev
+       and client_id=@client_id
+       and serv_id = @flow
+       and serv_rate_id = @rate catch(-1403, 510)
+    |
+    if (@? != 0)
+    {
+        create default service
+          where wh_id = @wh_id
+            and def_serv_cod = 'WKO'
+            and wkonum = @wkonum
+            and wkorev = @wkorev
+            and client_id = @client_id
+            and serv_id = @flow
+            and serv_rate_id = @rate
+    }
+}
+]]>
+</local-syntax>
+  <enable>yes</enable>
+</trigger>

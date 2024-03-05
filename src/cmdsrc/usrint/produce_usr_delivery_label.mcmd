@@ -1,0 +1,80 @@
+<command>
+  <name>produce usr delivery label</name>
+  <description>produce usr delivery label</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* produce usr delivery label
+ * Data command for the delivery labels to be printed on a move to a staging location.
+ * Version history:
+ *  2021-07-26  Radina Ivanova     Initial version.
+ *  2023-04-17  Marco Schouwenaar  save correct doc type in daily transaction
+ */
+/* Only print the document if it is a ship staging location. */
+[select 'x'
+   from locmst
+  inner
+   join loc_typ
+     on loc_typ.loc_typ_id = locmst.loc_typ_id
+  where locmst.stoloc = @dstloc
+    and locmst.wh_id = @wh_id
+    and loc_typ.stgflg = 1] catch(-1403)
+|
+if (@? = 0 or @exitpnt = 'PRE-DEPOSIT' or @exitpnt = 'USR-RELABEL')
+{
+    /* Policy for printing labels on ship staging should be enabled
+     * and policy for the specific label format should be enabled */
+    [select 'x'
+       from poldat_view
+      where polcod = 'USR-LABELS'
+        and polvar = 'DELIVERY-LABELS'
+        and polval = 'ENABLED'
+        and rtnum1 = 1
+        and wh_id = @wh_id] catch(-1403)
+    |
+    if (@? = 0)
+    {
+        publish data
+         where print_label = 1
+        |
+        if (@print_label = 1)
+        {
+            get lbl document format
+             where doc_typ = @doc_typ
+               and exitpnt = @exitpnt
+            |
+            get lbl compliant printer
+             where @*
+            |
+            {
+                [select *
+                   from inventory_view
+                  where lodnum = @lodnum] catch(-1403)
+                |
+                if (@? != 0)
+                {
+                    [select *
+                       from historical_inventory_view
+                      where lodnum = @lodnum]
+                }
+                |
+                write daily transaction
+                 where actcod = 'USR-LABEL-PRINT'
+                   and tostol = @printer
+                   and devcod = @@devcod
+                   and trndte = sysdate
+                   and var_nam = 'doc_typ'
+                   and fr_value = @doc_typ
+                   and cmnt = decode(@lstcod, 'IDNTFY', 'Putaway', 'LSTPCK', 'Picking', 'PALPCK', 'Picking', 'Other');
+                publish data
+                 where lodnum = @lodnum
+                   and wh_id = @wh_id
+            }
+        }
+    }
+}
+]]>
+</local-syntax>
+  <argument name="lodnum" required="yes" datatype="string">lodnum</argument>
+  <argument name="dstloc" required="yes" datatype="string">dstloc</argument>
+</command>

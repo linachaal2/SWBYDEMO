@@ -1,0 +1,17 @@
+<action>
+  <id>usrListReadyForListDetails</id>
+  <name>usrListReadyForListDetails</name>
+  <description>List all tasks from locations where there is a Ready for list task</description>
+  <type>LIST</type>
+  <ws>
+     <method>GET</method>
+	 <href>/usrListReadyForListDetails</href>
+  </ws>
+  <impl>
+     <command>list usr details for ready for list locations</command>
+  </impl>
+  <auth>
+     <opt>optOpen</opt>
+  </auth>
+  <primary>true</primary>
+</action>

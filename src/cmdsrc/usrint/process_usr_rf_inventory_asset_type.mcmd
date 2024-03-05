@@ -1,0 +1,120 @@
+<command>
+  <name>process usr rf inventory asset type</name>
+  <description>process usr rf inventory asset type</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* process usr rf inventory asset type
+ * Process the inventory asset adjustments in the USR_IDENTIFY_LOAD RF screen.
+ * Version history:
+ *  2018-01-04  Salem Hamze/Jasper Ringoir  Initial version.
+ *  2020-04-13 Radina Ivanova               Asset groups are moved to policies
+ *  2020-03-08 Radina Ivanova               Use poldat_view instead of poldat
+ */
+validate stack variable not null
+ where name = 'invtid'
+|
+validate stack variable not null
+ where name = 'untqty'
+|
+/* Check if the inventory has a LEGBORD asset type. */
+[select inv_asset.asset_typ as legbord_asset_typ,
+        inv_asset.untqty as legbord_untqty
+   from inv_asset
+  inner
+   join invlod
+     on inv_asset.invtid = invlod.lodnum
+  inner
+   join poldat_view
+     on poldat_view.polcod = 'USR-RF-FORM'
+    and poldat_view.polvar = 'ASSET_IDENTIFY'
+    and poldat_view.polval = 'ASSET_GROUPS'
+    and poldat_view.rtstr1 = inv_asset.asset_typ
+    and poldat_view.rtstr2 = 'LEGBORD'
+    and poldat_view.wh_id = invlod.wh_id
+  where inv_asset.invtid = @invtid
+] catch(-1403) >> res_asset_typ
+|
+if (rowcount(@res_asset_typ) > 1)
+{
+    set return status
+     where status = 999
+       and message = 'Multiple asset types found.'
+}
+|
+if (rowcount(@res_asset_typ) = 1)
+{
+    publish data combination
+     where res = @res_asset_typ
+    |
+    /* Update or remove the existing record. */
+    if (@untqty > 0)
+    {
+        change inventory asset type
+         where invtid = @invtid
+           and asset_typ = @legbord_asset_typ
+           and untqty = @untqty
+    }
+    else
+    {
+        remove inventory asset type
+         where invtid = @invtid
+           and asset_typ = @legbord_asset_typ
+    }
+    |
+    /* Publish variables for the trigger. */
+    publish data
+     where invtid = @invtid
+       and asset_typ = @legbord_asset_typ
+       and from_untqty = @legbord_untqty
+       and to_untqty = @untqty
+       and adj_untqty = (@untqty - @legbord_untqty)
+}
+else
+{
+    /* Create a new record. */
+    if (@untqty > 0)
+    {
+        [select poldat_view.rtstr2 as new_legbord_asset_typ,
+                inv_asset.client_id
+           from inv_asset
+          inner
+           join invlod
+             on inv_asset.invtid = invlod.lodnum
+          inner
+           join poldat_view asset_groups
+             on asset_groups.polcod = 'USR-RF-FORM'
+            and asset_groups.polvar = 'ASSET_IDENTIFY'
+            and asset_groups.polval = 'ASSET_GROUPS'
+            and asset_groups.rtstr1 = inv_asset.asset_typ
+            and asset_groups.rtstr2 = 'LADINGDRAGER'
+            and asset_groups.wh_id = invlod.wh_id
+          inner
+           join poldat_view
+             on poldat_view.polcod = 'USR-RF-FORM'
+            and poldat_view.polvar = 'ASSET_IDENTIFY'
+            and poldat_view.polval = 'ASSET_LINK'
+            and poldat_view.rtstr1 = inv_asset.asset_typ
+            and poldat_view.rtnum1 = 1
+            and poldat_view.wh_id = invlod.wh_id
+          where inv_asset.invtid = @invtid] catch(-1403)
+        |
+        create inventory asset type
+         where invtid = @invtid
+           and asset_typ = @new_legbord_asset_typ
+           and untqty = @untqty
+        |
+        /* Publish variables for the trigger. */
+        publish data
+         where invtid = @invtid
+           and asset_typ = @new_legbord_asset_typ
+           and from_untqty = 0
+           and to_untqty = @untqty
+           and adj_untqty = (@untqty - 0)
+    }
+}
+]]>
+</local-syntax>
+  <argument name="invtid" required="yes" datatype="string">Inventory identifier (lodnum)</argument>
+  <argument name="untqty" required="yes" datatype="integer">The total quantity for the asset.</argument>
+</command>

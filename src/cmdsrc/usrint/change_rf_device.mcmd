@@ -1,0 +1,71 @@
+<command>
+  <name>change rf device</name>
+  <description>change rf device</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* Wrapper on original change rf device command.
+ * make sure that the correct work area is active on the device
+ * including connected work area's, if no connected work area's found
+ * the home work area will be the only one connected
+ *
+ * Version history:
+ *  2023-01-27 Marco Schouwenaar    Initial version
+ *  2023-03-15 Raoul Scholten		Changed command due to new validations in revoke and grand device acces commands in BY2022
+ */
+if (@hmewrkare != '')
+{
+    [select lst_usr_id
+       from devmst
+      where devcod = @devcod
+        and wh_id = @wh_id] catch(-1403)
+    |
+    if (@? = 0 and @lst_usr_id is not null)
+    {
+        publish data
+         where lst_usr_id_org = @lst_usr_id
+        |
+        [update devmst
+            set lst_usr_id = null
+          where devcod = @devcod
+            and wh_id = @wh_id]
+        |
+        revoke device access for work area
+         where devcod = @devcod
+           and wh_id = @wh_id catch(-1403)
+        |
+        [select poldat_view.rtstr1 workarea_id
+           from poldat_view
+          where poldat_view.polcod = 'USR-RF-FORM'
+            and poldat_view.polvar = 'CONNECTED-WA'
+            and poldat_view.polval = @hmewrkare
+            and poldat_view.wh_id = @wh_id
+            and poldat_view.rtnum1 = 1] catch(-1403)
+        |
+        if (@workarea_id != '')
+        {
+            Grant Device Access for Work Area
+             where devcod = @devcod
+               and wrkare = @workarea_id
+               and wh_id = @wh_id
+        }
+        else
+        {
+            Grant Device Access for Work Area
+             where devcod = @devcod
+               and wrkare = @hmewrkare
+               and wh_id = @wh_id
+        }
+        ;
+        [update devmst
+            set lst_usr_id = @lst_usr_id
+          where devcod = @devcod
+            and wh_id = @wh_id]
+    }
+}
+|
+^change rf device
+ where @*
+]]>
+</local-syntax>
+</command>

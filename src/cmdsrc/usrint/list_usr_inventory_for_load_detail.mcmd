@@ -1,0 +1,547 @@
+<command>
+  <name>list usr inventory for load detail</name>
+  <description>list usr inventory for load detail</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* list usr inventory for load detail
+ * Lists information for the load details retrieved needed for status updates RFH.
+ * Version history:
+ *  2018-10-11  Marco Schouwenaar   Initial version.
+ *  2019-11-22  Jasper Ringoir      added uc_stogrp via sto_zone_id and policy and additional input parameters from (list usr inventory for load detail)
+ *  2020-04-07  Radina Ivanova      hide ship_line_id if on stack but null
+ *  2020-11-08  Marco Schouwenaar   Added reference barcode and pickorder
+ *  2020-11-12  Marco Schouwenaar   Corrected double use of current and old stock
+ *  2022-06-21  Radina Ivanova      add uc_sort_out_id field
+ *  2023-05-09  Marco Schouwenaar   Added additional data query for allocable transaction (status ALLOC)
+ */
+if (@ship_line_id = '')
+{
+    hide stack variable where name = 'ship_line_id'
+}
+|
+if (@status='A001')
+{[select locmst.arecod,
+        locmst.stoloc,
+        (select max(rtstr1) as uc_stogrp
+           from poldat_view
+          where poldat_view.polcod = 'USR-LOCATIONS'
+            and poldat_view.polvar = 'REGIME'
+            and poldat_view.polval = locmst.sto_zone_id
+            and poldat_view.wh_id = invlod.wh_id
+            and poldat_view.rtnum1 = 1) as uc_stogrp,
+        invlod.wh_id,
+        invlod.lodnum,
+        invlod.loducc,
+        invlod.load_attr1_flg,
+        invlod.load_attr2_flg,
+        invlod.load_attr3_flg,
+        invlod.load_attr4_flg,
+        invlod.load_attr5_flg,
+        invsub.subnum,
+        invsub.subucc,
+        invsub.phyflg,
+        invdtl.dtlnum,
+        invdtl.phdflg,
+        invdtl.prtnum,
+        invdtl.prt_client_id,
+        invdtl.orgcod,
+        invdtl.lotnum,
+        invdtl.sup_lotnum,
+        invdtl.revlvl,
+        invdtl.supnum,
+        invdtl.invsts,
+        invdtl.untpak,
+        invdtl.untcas,
+        invdtl.untqty,
+        invdtl.catch_qty,
+        prtmst_view.catch_unttyp,
+        invdtl.ftpcod,
+        invdtl.fifdte,
+        invdtl.mandte,
+        invdtl.expire_dte,
+        invdtl.inv_attr_str1,
+        invdtl.inv_attr_str2,
+        invdtl.inv_attr_str3,
+        invdtl.inv_attr_str4,
+        invdtl.inv_attr_str5,
+        invdtl.inv_attr_str6,
+        invdtl.inv_attr_str7,
+        invdtl.inv_attr_str8,
+        invdtl.inv_attr_str9,
+        invdtl.inv_attr_str10,
+        invdtl.inv_attr_str11,
+        invdtl.inv_attr_str12,
+        invdtl.inv_attr_str13,
+        invdtl.inv_attr_str14,
+        invdtl.inv_attr_str15,
+        invdtl.inv_attr_str16,
+        invdtl.inv_attr_str17,
+        invdtl.inv_attr_str18,
+        invdtl.inv_attr_int1,
+        invdtl.inv_attr_int2,
+        invdtl.inv_attr_int3,
+        invdtl.inv_attr_int4,
+        invdtl.inv_attr_int5,
+        invdtl.inv_attr_flt1,
+        invdtl.inv_attr_flt2,
+        invdtl.inv_attr_flt3,
+        invdtl.inv_attr_dte1,
+        invdtl.inv_attr_dte2,
+        invdtl.rttn_id,
+        invdtl.cstms_bond_flg,
+        invdtl.dty_stmp_flg,
+        '' ship_id,
+        '' host_ext_id,
+        '' host_client_id,
+        invdtl.ship_line_id,
+        '' ordnum,
+        '' ordlin,
+        '' ordsln,
+        '' stop_id,
+        invdtl.rcvkey,
+        prtmst_view.stkuom,
+        invlod.lodnum || '   ' || nvl(invlod.loducc, rtrim(' ')) lodnum_loducc,
+        nvl(invlod.loducc, invlod.lodnum) lod_id,
+        nvl(invsub.subucc, invsub.subnum) sub_id,
+        invsub.subtag,
+        invlod.lodtag,
+        invdtl.cmpkey,
+        invlod.asset_typ asset_typ,
+        invsub.asset_typ sub_asset_typ,
+        invdtl.distro_id,
+        '' cponum,
+        '' cpotyp,
+        '' cpodte,
+        invdtl.hld_flg,
+        '' trolley_asset_id,
+        '' trolley_lodnum,
+        '' trolley_asset_typ,
+        '' ref_barcode,
+        0  list_order,
+        -1 inv_hist_id,
+        '' uc_sort_out_id
+   from invlod
+   join invsub
+     on (invlod.lodnum = invsub.lodnum)
+   join invdtl
+     on (invsub.subnum = invdtl.subnum)
+   join prtmst_view
+     on (invlod.wh_id = prtmst_view.wh_id)
+    and (invdtl.prt_client_id = prtmst_view.prt_client_id)
+    and (invdtl.prtnum = prtmst_view.prtnum)
+   left
+   join locmst
+     on (locmst.stoloc = invlod.stoloc)
+    and (locmst.wh_id = invlod.wh_id)
+  where prtmst_view.prdflg = '1'
+    and @+invlod.lodnum
+    and @+invlod.wh_id
+    and invdtl.u_version=1
+  order by invlod.lodnum,
+        invsub.subnum,
+        invdtl.dtlnum] catch (-1403)>> res_data
+}
+else
+{
+[select locmst.arecod,
+        locmst.stoloc,
+        (select rtstr1 as uc_stogrp
+           from poldat_view
+          where poldat_view.polcod = 'USR-LOCATIONS'
+            and poldat_view.polvar = 'REGIME'
+            and poldat_view.polval = locmst.sto_zone_id
+            and poldat_view.wh_id = invlod.wh_id
+            and poldat_view.rtnum1 = 1) as uc_stogrp,
+        invlod.wh_id,
+        invlod.lodnum,
+        invlod.loducc,
+        invlod.load_attr1_flg,
+        invlod.load_attr2_flg,
+        invlod.load_attr3_flg,
+        invlod.load_attr4_flg,
+        invlod.load_attr5_flg,
+        invsub.subnum,
+        invsub.subucc,
+        invsub.phyflg,
+        invdtl.dtlnum,
+        invdtl.phdflg,
+        invdtl.prtnum,
+        invdtl.prt_client_id,
+        invdtl.orgcod,
+        invdtl.lotnum,
+        invdtl.sup_lotnum,
+        invdtl.revlvl,
+        invdtl.supnum,
+        invdtl.invsts,
+        invdtl.untpak,
+        invdtl.untcas,
+        invdtl.untqty,
+        invdtl.catch_qty,
+        prtmst_view.catch_unttyp,
+        invdtl.ftpcod,
+        invdtl.fifdte,
+        invdtl.mandte,
+        invdtl.expire_dte,
+        invdtl.inv_attr_str1,
+        invdtl.inv_attr_str2,
+        invdtl.inv_attr_str3,
+        invdtl.inv_attr_str4,
+        invdtl.inv_attr_str5,
+        invdtl.inv_attr_str6,
+        invdtl.inv_attr_str7,
+        invdtl.inv_attr_str8,
+        invdtl.inv_attr_str9,
+        invdtl.inv_attr_str10,
+        invdtl.inv_attr_str11,
+        invdtl.inv_attr_str12,
+        invdtl.inv_attr_str13,
+        invdtl.inv_attr_str14,
+        invdtl.inv_attr_str15,
+        invdtl.inv_attr_str16,
+        invdtl.inv_attr_str17,
+        invdtl.inv_attr_str18,
+        invdtl.inv_attr_int1,
+        invdtl.inv_attr_int2,
+        invdtl.inv_attr_int3,
+        invdtl.inv_attr_int4,
+        invdtl.inv_attr_int5,
+        invdtl.inv_attr_flt1,
+        invdtl.inv_attr_flt2,
+        invdtl.inv_attr_flt3,
+        invdtl.inv_attr_dte1,
+        invdtl.inv_attr_dte2,
+        invdtl.rttn_id,
+        invdtl.cstms_bond_flg,
+        invdtl.dty_stmp_flg,
+        shipment.ship_id,
+        shipment.host_ext_id,
+        shipment.host_client_id,
+        shipment_line.ship_line_id,
+        shipment_line.ordnum,
+        shipment_line.ordlin,
+        shipment_line.ordsln,
+        shipment.stop_id,
+        invdtl.rcvkey,
+        prtmst_view.stkuom,
+        invlod.lodnum || '   ' || nvl(invlod.loducc, rtrim(' ')) lodnum_loducc,
+        nvl(invlod.loducc, invlod.lodnum) lod_id,
+        nvl(invsub.subucc, invsub.subnum) sub_id,
+        invsub.subtag,
+        invlod.lodtag,
+        invdtl.cmpkey,
+        invlod.asset_typ asset_typ,
+        invsub.asset_typ sub_asset_typ,
+        invdtl.distro_id,
+        ord.cponum,
+        ord.cpotyp,
+        ord.cpodte,
+        invdtl.hld_flg,
+        trolley_info.asset_id trolley_asset_id,
+        trolley_info.lodnum trolley_lodnum,
+        decode(trolley_info.lodnum, null, null, trolley_info.asset_typ) trolley_asset_typ,
+        case 
+        when (nvl(refbc.nottxt,'-')='-' ) then nvl(ord_line.sales_ordnum,' ') 
+        when (nvl(LENGTH(TRIM(TRANSLATE(refbc.nottxt, '0123456789','          '))),0)=0) then refbc.nottxt||substr(to_char (ASCII(substr(invdtl.wrkref_dtl,length(invdtl.wrkref_dtl)-1,1))+ASCII(substr(invdtl.wrkref_dtl,length(invdtl.wrkref_dtl),1)),'0000'),4,2)||'0'||trim(to_char(invdtl.untqty,'0000'))
+        when (nvl(refbc.nottxt,'-')<>'-' ) then ' '
+        end as ref_barcode,
+        nvl(pckwrk_view.list_seqnum,-1)+1 as list_order,
+        -1 inv_hist_id,
+        sort_out_ids.rtstr1 uc_sort_out_id
+   from invlod
+   join invsub
+     on (invlod.lodnum = invsub.lodnum)
+   join invdtl
+     on (invsub.subnum = invdtl.subnum)
+   join prtmst_view
+     on (invlod.wh_id = prtmst_view.wh_id)
+    and (invdtl.prt_client_id = prtmst_view.prt_client_id)
+    and (invdtl.prtnum = prtmst_view.prtnum)
+   left
+   join locmst
+     on (locmst.stoloc = invlod.stoloc)
+    and (locmst.wh_id = invlod.wh_id)
+   left
+   join shipment_line
+     on (shipment_line.ship_line_id = invdtl.ship_line_id and shipment_line.wh_id=invlod.wh_id)
+   left
+   join shipment
+     on (shipment_line.ship_id = shipment.ship_id and shipment_line.wh_id=shipment.wh_id)
+   left
+   join ord
+     on (shipment_line.ordnum = ord.ordnum)
+    and (shipment_line.client_id = ord.client_id)
+    and (shipment_line.wh_id = ord.wh_id)
+   left join ord_line on (ord.ordnum = ord_line.ordnum and ord.wh_id = ord_line.wh_id and ord.client_id = ord_line.client_id and ord_line.ordlin=shipment_line.ordlin and ord_line.ordsln=shipment_line.ordsln)
+   left join ord_line_note refbc on (refbc.ordnum = ord_line.ordnum and refbc.ordlin = ord_line.ordlin and refbc.ordsln = ord_line.ordsln and refbc.wh_id = ord_line.wh_id and refbc.client_id = ord_line.client_id and refbc.nottyp='EKT_BARCODE')
+   left outer
+   join pckwrk_view
+     on (invdtl.wrkref = pckwrk_view.wrkref)
+    and (invdtl.wrkref_dtl = pckwrk_view.wrkref_dtl)
+   left
+   join pckmov pckmov_cur_loc
+     on pckwrk_view.cmbcod = pckmov_cur_loc.cmbcod
+    and pckmov_cur_loc.stoloc = locmst.stoloc
+    and pckmov_cur_loc.wh_id = locmst.wh_id
+   left
+   join pckmov pckmov_nxt_loc
+     on pckwrk_view.cmbcod = pckmov_nxt_loc.cmbcod
+    and pckmov_nxt_loc.seqnum = pckmov_cur_loc.seqnum + 1
+    and pckmov_nxt_loc.wh_id = locmst.wh_id   
+   left
+   join poldat_view sort_out_ids
+     on (sort_out_ids.polcod = 'USR-INTEGRATOR'
+    and  sort_out_ids.polvar = 'TRANSACTIONS'
+    and  sort_out_ids.polval = 'SEND_STATUS_SORT_OUT_IDS'
+    and  sort_out_ids.rtnum1 = 1
+    and  sort_out_ids.rtnum2 = pckmov_nxt_loc.mov_zone_id
+    and  sort_out_ids.wh_id = locmst.wh_id)
+   left outer
+   join (select asset_typ.asset_typ,
+                invdtl.wrkref_dtl,
+                invdtl.wrkref,
+                pcklst_slot_load.lodnum,
+                trolley_asset_link.asset_id
+           from pcklst p1
+           join pckwrk_view
+             on (p1.list_id = pckwrk_view.list_id)
+           join invdtl
+             on (pckwrk_view.wrkref = invdtl.wrkref)
+            and invdtl.wrkref_dtl = pckwrk_view.wrkref_dtl
+           join invsub
+             on invsub.subnum = invdtl.subnum
+           join invlod
+             on (invlod.lodnum = invsub.lodnum)
+           join pcklst_slot_load
+             on (invlod.lodnum = pcklst_slot_load.slot_lodnum)
+           left outer
+           join asset_link trolley_asset_link
+             on (pcklst_slot_load.lodnum = trolley_asset_link.asset_num)
+           left
+           join asset_typ
+             on p1.asset_typ = asset_typ.asset_typ) trolley_info
+     on (trolley_info.wrkref_dtl = pckwrk_view.wrkref_dtl)
+    and (trolley_info.wrkref = pckwrk_view.wrkref)
+  where prtmst_view.prdflg = '1'
+    and @+invlod.lodnum
+    and @+invlod.wh_id
+    and @+shipment.ship_id
+    and @+shipment_line.ordnum
+    and @+shipment_line.client_id
+    and @+shipment_line.ordlin
+    and @+shipment_line.ordsln
+    and @+invdtl.ship_line_id
+  order by invlod.lodnum,
+        invsub.subnum,
+        invdtl.dtlnum]catch(-1403) >> res_data
+}
+|
+if (@?=-1403 and @status != 'A001')
+{
+ [select locmst.arecod,
+        locmst.stoloc,
+        (select rtstr1 as uc_stogrp
+           from poldat_view
+          where poldat_view.polcod = 'USR-LOCATIONS'
+            and poldat_view.polvar = 'REGIME'
+            and poldat_view.polval = locmst.sto_zone_id
+            and poldat_view.wh_id = invlod.wh_id
+            and poldat_view.rtnum1 = 1) as uc_stogrp,
+        invlod.wh_id,
+        invlod.lodnum,
+        invlod.loducc,
+        invlod.load_attr1_flg,
+        invlod.load_attr2_flg,
+        invlod.load_attr3_flg,
+        invlod.load_attr4_flg,
+        invlod.load_attr5_flg,
+        invsub.subnum,
+        invsub.subucc,
+        invsub.phyflg,
+        invdtl.dtlnum,
+        invdtl.phdflg,
+        invdtl.prtnum,
+        invdtl.prt_client_id,
+        invdtl.orgcod,
+        invdtl.lotnum,
+        invdtl.sup_lotnum,
+        invdtl.revlvl,
+        invdtl.supnum,
+        invdtl.invsts,
+        invdtl.untpak,
+        invdtl.untcas,
+        invdtl.untqty,
+        invdtl.catch_qty,
+        prtmst_view.catch_unttyp,
+        invdtl.ftpcod,
+        invdtl.fifdte,
+        invdtl.mandte,
+        invdtl.expire_dte,
+        invdtl.inv_attr_str1,
+        invdtl.inv_attr_str2,
+        invdtl.inv_attr_str3,
+        invdtl.inv_attr_str4,
+        invdtl.inv_attr_str5,
+        invdtl.inv_attr_str6,
+        invdtl.inv_attr_str7,
+        invdtl.inv_attr_str8,
+        invdtl.inv_attr_str9,
+        invdtl.inv_attr_str10,
+        invdtl.inv_attr_str11,
+        invdtl.inv_attr_str12,
+        invdtl.inv_attr_str13,
+        invdtl.inv_attr_str14,
+        invdtl.inv_attr_str15,
+        invdtl.inv_attr_str16,
+        invdtl.inv_attr_str17,
+        invdtl.inv_attr_str18,
+        invdtl.inv_attr_int1,
+        invdtl.inv_attr_int2,
+        invdtl.inv_attr_int3,
+        invdtl.inv_attr_int4,
+        invdtl.inv_attr_int5,
+        invdtl.inv_attr_flt1,
+        invdtl.inv_attr_flt2,
+        invdtl.inv_attr_flt3,
+        invdtl.inv_attr_dte1,
+        invdtl.inv_attr_dte2,
+        invdtl.rttn_id,
+        invdtl.cstms_bond_flg,
+        invdtl.dty_stmp_flg,
+        shipment.ship_id,
+        shipment.host_ext_id,
+        shipment.host_client_id,
+        shipment_line.ship_line_id,
+        shipment_line.ordnum,
+        shipment_line.ordlin,
+        shipment_line.ordsln,
+        shipment.stop_id,
+        invdtl.rcvkey,
+        prtmst_view.stkuom,
+        invlod.lodnum || '   ' || nvl(invlod.loducc, rtrim(' ')) lodnum_loducc,
+        nvl(invlod.loducc, invlod.lodnum) lod_id,
+        nvl(invsub.subucc, invsub.subnum) sub_id,
+        invsub.subtag,
+        invlod.lodtag,
+        invdtl.cmpkey,
+        invlod.asset_typ asset_typ,
+        invsub.asset_typ sub_asset_typ,
+        invdtl.distro_id,
+        ord.cponum,
+        ord.cpotyp,
+        ord.cpodte,
+        invdtl.hld_flg,
+        trolley_info.asset_id trolley_asset_id,
+        trolley_info.lodnum trolley_lodnum,
+        decode(trolley_info.lodnum, NULL, NULL, trolley_info.asset_typ) trolley_asset_typ,
+        case 
+        when (nvl(refbc.nottxt,'-')='-' ) then nvl(ord_line.sales_ordnum,' ') 
+        when (nvl(LENGTH(TRIM(TRANSLATE(refbc.nottxt, '0123456789','          '))),0)=0) then refbc.nottxt||substr(to_char (ASCII(substr(invdtl.wrkref_dtl,length(invdtl.wrkref_dtl)-1,1))+ASCII(substr(invdtl.wrkref_dtl,length(invdtl.wrkref_dtl),1)),'0000'),4,2)||'0'||trim(to_char(invdtl.untqty,'0000'))
+        when (nvl(refbc.nottxt,'-')<>'-' ) then ' '
+        end as ref_barcode,
+        nvl(pckwrk_view.list_seqnum,-1)+1 as list_order,        
+        invlod.inv_hist_id,
+        sort_out_ids.rtstr1 uc_sort_out_id
+   from invlod_hist invlod
+   join invsub_hist invsub
+     on invlod.lodnum = invsub.lodnum
+    and invlod.inv_hist_id = invsub.inv_hist_id
+   join invdtl_hist invdtl
+     on invsub.subnum = invdtl.subnum
+    and invsub.inv_hist_id = invdtl.inv_hist_id
+   join prtmst_view
+     on (invlod.wh_id = prtmst_view.wh_id)
+    and (invdtl.prt_client_id = prtmst_view.prt_client_id)
+    and (invdtl.prtnum = prtmst_view.prtnum)
+   join locmst
+     on (locmst.stoloc = invlod.stoloc)
+    and (locmst.wh_id = invlod.wh_id)
+   join shipment_line
+     on (shipment_line.ship_line_id = invdtl.ship_line_id and shipment_line.wh_id=invlod.wh_id)
+   join shipment
+     on (shipment_line.ship_id = shipment.ship_id and shipment_line.wh_id=shipment.wh_id)
+   join ord
+     on (shipment_line.ordnum = ord.ordnum)
+    and (shipment_line.client_id = ord.client_id)
+    and (shipment_line.wh_id = ord.wh_id)
+   left join ord_line on (ord.ordnum = ord_line.ordnum and ord.wh_id = ord_line.wh_id and ord.client_id = ord_line.client_id and ord_line.ordlin=shipment_line.ordlin and ord_line.ordsln=shipment_line.ordsln)
+   left join ord_line_note refbc on (refbc.ordnum = ord_line.ordnum and refbc.ordlin = ord_line.ordlin and refbc.ordsln = ord_line.ordsln and refbc.wh_id = ord_line.wh_id and refbc.client_id = ord_line.client_id and refbc.nottyp='EKT_BARCODE')
+   left outer
+   join pckwrk_view
+     on (invdtl.wrkref = pckwrk_view.wrkref)
+    and (invdtl.wrkref_dtl = pckwrk_view.wrkref_dtl)
+   left
+   join pckmov pckmov_cur_loc
+     on pckwrk_view.cmbcod = pckmov_cur_loc.cmbcod
+    and pckmov_cur_loc.stoloc = locmst.stoloc
+    and pckmov_cur_loc.wh_id = locmst.wh_id
+   left
+   join pckmov pckmov_nxt_loc
+     on pckwrk_view.cmbcod = pckmov_nxt_loc.cmbcod
+    and pckmov_nxt_loc.seqnum = pckmov_cur_loc.seqnum + 1
+    and pckmov_nxt_loc.wh_id = locmst.wh_id   
+   left
+   join poldat_view sort_out_ids
+     on (sort_out_ids.polcod = 'USR-INTEGRATOR'
+    and  sort_out_ids.polvar = 'TRANSACTIONS'
+    and  sort_out_ids.polval = 'SEND_STATUS_SORT_OUT_IDS'
+    and  sort_out_ids.rtnum1 = 1
+    and  sort_out_ids.rtnum2 = pckmov_nxt_loc.mov_zone_id
+    and  sort_out_ids.wh_id = locmst.wh_id)
+   left outer
+   join (select asset_typ.asset_typ,
+                invdtl.wrkref_dtl,
+                invdtl.wrkref,
+                pcklst_slot_load.lodnum,
+                trolley_asset_link.asset_id
+           from pcklst p1
+           join pckwrk_view
+             on (p1.list_id = pckwrk_view.list_id)
+           join invdtl_hist invdtl
+             on (pckwrk_view.wrkref = invdtl.wrkref)
+            and invdtl.wrkref_dtl = pckwrk_view.wrkref_dtl
+           join invsub_hist invsub
+             on invsub.subnum = invdtl.subnum
+            and invsub.inv_hist_id = invdtl.inv_hist_id
+           join invlod_hist invlod
+             on invlod.lodnum = invsub.lodnum
+            and invlod.inv_hist_id = invsub.inv_hist_id
+           join pcklst_slot_load_hist pcklst_slot_load
+             on invlod.lodnum = pcklst_slot_load.slot_lodnum
+            and invlod.inv_hist_id = pcklst_slot_load.inv_hist_id
+           left outer
+           join asset_link_hist trolley_asset_link
+             on pcklst_slot_load.lodnum = trolley_asset_link.asset_num
+            and pcklst_slot_load.inv_hist_id = trolley_asset_link.inv_hist_id
+           left
+           join asset_typ
+             on p1.asset_typ = asset_typ.asset_typ) trolley_info
+     on (trolley_info.wrkref_dtl = pckwrk_view.wrkref_dtl)
+    and (trolley_info.wrkref = pckwrk_view.wrkref)
+  where prtmst_view.prdflg = '1'
+    and @+invlod.lodnum
+    and @+invlod.wh_id
+    and @+shipment.ship_id
+    and @+shipment_line.ordnum
+    and @+shipment_line.client_id
+    and @+shipment_line.ordlin
+    and @+shipment_line.ordsln
+    and @+invdtl.ship_line_id
+    and invlod.inv_hist_id = (select max(id_h.inv_hist_id) from invlod_hist id_h where id_h.lodnum=invlod.lodnum)
+  order by invlod.lodnum,
+        invsub.subnum,
+        invdtl.dtlnum]>> res_data
+}
+|
+publish data combination where res=@res_data
+]]>
+</local-syntax>
+  <argument name="lodnum" datatype="string">load number</argument>
+  <argument name="wh_id" datatype="string">Warehouse ID</argument>
+  <argument name="ship_id" datatype="">Shipment ID</argument>
+  <argument name="ship_line_id" datatype="">Shipment Line ID</argument>
+  <argument name="ordnum" datatype="">Order Number</argument>
+  <argument name="client_id" datatype="">Client ID</argument>
+  <argument name="ordlin" datatype="">Order Line</argument>
+  <argument name="ordsln" datatype="">Order Sub Line</argument>
+</command>

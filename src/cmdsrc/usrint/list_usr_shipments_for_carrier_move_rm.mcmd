@@ -1,0 +1,34 @@
+<command>
+  <name>list usr shipments for carrier move rm</name>
+  <description>shipment for load (RFH specific)</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+get server information
+    |
+    [select distinct stop.car_move_id,
+                     shipment.*,
+                     adrmst.ship_cont_tel,
+                     adrmst.ship_cont_name,
+                     decode(nvl(cstmst.trk_shp_flg, 0), 0, NULL, @url) src_host
+       from shipment_line
+       join shipment
+         on shipment_line.ship_id = shipment.ship_id
+       join adrmst
+         on shipment.rt_adr_id = adrmst.adr_id
+       join ord
+         on ord.ordnum = shipment_line.ordnum
+        and ord.client_id = shipment_line.client_id
+        and ord.wh_id = shipment_line.wh_id
+       left join cstmst 
+         on cstmst.cstnum = ord.rtcust
+        and cstmst.client_id = ord.client_id
+       left
+       join stop
+         on shipment.stop_id = stop.stop_id
+      where @+shipment.ship_id
+      order by stop.car_move_id, shipment.ship_id]
+]]>
+</local-syntax>
+  <argument name="ship_id" datatype="string">Shipment Id</argument>
+</command>

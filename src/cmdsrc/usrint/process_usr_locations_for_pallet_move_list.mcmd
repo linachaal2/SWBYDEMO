@@ -1,0 +1,606 @@
+<command>
+  <name>process usr locations for pallet move list</name>
+  <description>process usr locations for pallet move list</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* process usr locations for pallet move list
+ * Version history:
+ *  2022-05-16 Radina Ivanova    Initial version
+ *  2022-05-24 Marco Schouwenaar Use asset type volume instead of break volume if break volume does not exists
+ *  2022-07-12 Radina Ivanova    Allow pallet moves to be created when inventory quantity is under the threshold but no other picks exists for the same customer etc
+ *  2022-08-05 Marco Schouwenaar Only use assignments from the work queue which are pending to convert, ignore the rest
+ *  2022-08-15 Radina Ivanova    Unlock work queue even if there are locations for the current list that are not processed yet,
+ *                               work queue will be locked again when the code gets to processing that location
+ *  2022-10-25 Marco Schouwenaar
+ *             Jasper Ringoir
+ *             Jeroen Sleddens   Locking on workque records as bugfix in Blue Yonder core causes issues with pick release manager with deffered execution of command
+ * 2022-10-26  Radina Ivanova    when no records in work queue exist for locking (because already locked for example), skip the pallet move creation
+ * 2023-03-17  Marco Schouwenaar only unlock the reqnum which are set to locked (pick release manager uses lock status and runs in parallel after BY changes)
+ * 2023-03-21  Radina Ivanova    Recreate movement path for the picks if there is criteria for the asset on the hops
+ * 2023-05-31  Marco Schouwenaar additional check on preventing handling new lists
+ * 2023-06-26  Marco Schouwenaar additional check on releasing work assignments to pending as it causes blocking due to in statement
+ */
+
+publish data where oprcod = 'PALMOV'
+|
+[select rtnum1 thres_perc,
+        rtnum2 thres_qty
+   from poldat_view
+  where polcod = 'USR-PICKING'
+    and polvar = 'PALLETMOVE'
+    and polval  = 'THRESHOLD-VALUES'
+    and wh_id = @wh_id]
+|
+[select rtnum1 ignore_threshold_check
+   from poldat_view
+  where polcod = 'USR-PICKING'
+    and polvar = 'PALLETMOVE'
+    and polval  = 'IGNORE-THRESHOLD-FOR-LAST-PICKS'
+    and wh_id = @wh_id]
+|
+/* Get all candidate list picks */
+{
+    [select distinct srcloc, wh_id
+       from pckwrk_view
+      where appqty = 0
+        and (pcksts = 'L'
+         or list_id is not null
+        and exists (select list_id
+                      from pcklst
+                     where list_id = pckwrk_view.list_id
+                       and list_sts in ('P', 'R')))
+        and not exists (select reqnum
+                          from wrkque
+                         where list_id = pckwrk_view.list_id
+                           and oprcod = @oprcod)
+        and not exists (select pckwrk_hdr.wrkref
+                          from pckwrk_hdr
+                         where pckwrk_hdr.srcloc = pckwrk_view.srcloc
+                           and pckwrk_hdr.pcksts = 'P')] catch(-1403)
+    |
+    if (@? = 0)
+    {
+        /* double-check that the list has not been started in the meantime */
+        set savepoint where savepoint=@srcloc
+        |
+        {
+            [select wrkque.reqnum 
+               from wrkque
+              where wrkque.wrksts='PEND'
+                and exists (select pckwrk_view.wrkref
+                              from pckwrk_view
+                             where pckwrk_view.srcloc = @srcloc
+                               and pckwrk_view.appqty = 0
+                               and pckwrk_view.list_id = wrkque.list_id)
+                and not exists (select pcklst.list_id
+                                  from pcklst
+                                 where pcklst.list_id = wrkque.list_id
+                                   and pcklst.list_sts  = 'I')                             
+                and not exists (select wrkque2.reqnum
+                                  from wrkque wrkque2
+                                  join pckwrk_hdr
+                                    on wrkque2.list_id = pckwrk_hdr.list_id
+                                 where pckwrk_hdr.srcloc = @srcloc
+                                   and wrkque2.reqnum != wrkque.reqnum 
+                                   and wrkque2.wrksts not in ('PEND'))] catch(-1403)
+            |
+            if (@? = 0)
+            {
+                [select wrkque.reqnum 
+                   from wrkque 
+                  where wrkque.reqnum=@reqnum for update nowait]
+                |
+                [update wrkque
+                    set wrkque.wrksts = 'LOCK'
+                  where wrkque.wrksts='PEND'
+                    and wrkque.reqnum=@reqnum]
+                |
+                add to session variable list where name='reqnum_lst' and value=@reqnum
+            }
+            else
+            {
+                [select distinct 'x' 
+                   from wrkque
+                   join pckwrk_view
+                     on pckwrk_view.list_id = wrkque.list_id
+                  where pckwrk_view.srcloc = @srcloc
+                    and pckwrk_view.appqty = 0] catch(-1403)
+                |
+                if (@? = 0)
+                {
+                    set return status where status = -54
+                }
+            }
+            ; 
+            noop
+        } catch (-54,-1403)
+        |
+        if (@? = -54 or @?=-1403)
+        {
+            rollback to savepoint where savepoint=@srcloc
+        }
+        else
+        {   
+            get session variable list where name='reqnum_lst'
+            |
+            commit
+            |
+            set savepoint where savepoint=@srcloc || '_2'
+            |
+            save session variable where name='reqnum_lst' and value=@value
+            |
+            /* Check if there are picks matching the whole inventory on the location */
+            [select distinct 'x'
+               from (select prtnum,
+                            prt_client_id,
+                            lotnum,
+                            wh_id,
+                            sum(untqty) untqty
+                       from inventory_view
+                      where stoloc = @srcloc
+                        and wh_id = @wh_id
+                   group by prtnum,
+                            prt_client_id,
+                            lotnum,
+                            wh_id) inventory_view
+              where not exists (select 'x'
+                                  from pckwrk_view
+                                  left join pcklst
+                                    on pckwrk_view.list_id = pcklst.list_id
+                                 where prtnum = inventory_view.prtnum
+                                   and prt_client_id = inventory_view.prt_client_id
+                                   and wh_id = inventory_view.wh_id
+                                   and lotnum = inventory_view.lotnum
+                                   and srcloc = @srcloc
+                                   and dtl_appqty = 0
+                                   and (pcksts = 'L' or list_sts in ('P', 'R'))
+                                having sum(dtl_pckqty) = inventory_view.untqty)] catch(-1403)
+            |
+            if (@? != 0)
+            {
+                /* There is no piece of inventory without a matching pick, check if the picks match the criteria */
+                /* Check if inventory is above the threshold */
+                [/*#limit=1 */
+                 select prtftp_dtl.untqty palqty,
+                        inventory_view.asset_typ
+                   from inventory_view
+                   join prtftp_dtl
+                     on inventory_view.prtnum = prtftp_dtl.prtnum
+                    and inventory_view.prt_client_id = prtftp_dtl.prt_client_id
+                    and inventory_view.wh_id = prtftp_dtl.wh_id
+                    and inventory_view.ftpcod = prtftp_dtl.ftpcod
+                    and prtftp_dtl.pal_flg = 1
+                  where inventory_view.stoloc = @srcloc
+                    and inventory_view.wh_id = @wh_id
+                  order by prtftp_dtl.untqty] catch(-1403)
+                |
+                if (@? = 0)
+                {
+                    if (@thres_perc*@palqty/100 < @thres_qty)
+                    {
+                        /* quantity based on threhold percentage is larger than threhold in pieces so take that as criteria for the pallet move */
+                        publish data where min_palmov_qty = @thres_perc*@palqty/100
+                    }
+                    else
+                    {
+                        /* take threhold in pieces as criteria for the pallet move */
+                        publish data where min_palmov_qty = @thres_qty
+                    }
+                    |
+                    [select sum(untqty) qty_on_location
+                       from inventory_view
+                      where stoloc = @srcloc
+                        and wh_id = @wh_id] catch(-1403)
+                    |
+                    if (@? = 0 and @qty_on_location >= @min_palmov_qty)
+                    {
+                        publish data
+                          where above_threshold = 1
+                    }
+                    else
+                    {
+                        publish data
+                          where above_threshold = 0
+                    }
+                    |
+                    {
+                        /* get the pick list rule id to use as criteria which picks can belong together in the same pallet move */
+                        /* the current pick list rules are based on the source pick zone */
+                        /* exlude the rules used for shelves and trolleys, we won't base the pallet moves on those */
+                        {
+                            [select pcklst_rule_id
+                               from pcklst_rule
+                              where not exists (select distinct 'x'
+                                                 from pcklst_select_cri
+                                                where (field_name = 'pcklst_rule_id'
+                                                   or  field_name = 'asset_typ')
+                                                  and pcklst_rule_id = pcklst_rule.pcklst_rule_id)] 
+                            |
+                            get pick list select criteria summary
+                            where pcklst_rule_id = @pcklst_rule_id
+                            |
+                            [select 'x'
+                               from locmst
+                               join pck_zone
+                                 on locmst.pck_zone_id = pck_zone.pck_zone_id
+                              where stoloc = @srcloc
+                                and @select_cri_where_clause:raw] catch(@?)
+                            |
+                            if (@? = 0)
+                            {
+                                publish data
+                                  where pcklst_rule_id = @pcklst_rule_id
+                                    and select_cri_where_clause = @select_cri_where_clause
+                            }
+                        } >> resListRule
+                        |
+                        publish top rows
+                          where res = @resListRule
+                            and count = 1
+                        |
+                        get pick list group criteria summary
+                        where pcklst_rule_id = @pcklst_rule_id
+                        |
+                        [select 'nvl(to_char(' || replace(@group_cri_clause, ',', '),rtrim('' ''))  || ''|'' || nvl(to_char(') || '),rtrim('' ''))'  group_select
+                           from dual]
+                        |
+                        [select count(distinct pckwrk_view.ordnum) count_ordnum,
+                                count(distinct pckwrk_view.ordnum || pckwrk_view.ordlin) count_ordlin,
+                                count(distinct pckwrk_view.prtnum) count_prtnum,
+                                count(distinct pckwrk_view.stcust) count_cust,
+                                count(distinct pckwrk_view.client_id) count_client,
+                                @group_select:raw group_by_combined
+                           from pckwrk_view
+                           join ord
+                             on pckwrk_view.ordnum = ord.ordnum
+                            and pckwrk_view.client_id = ord.client_id
+                            and pckwrk_view.wh_id = ord.wh_id
+                           join ord_line
+                             on pckwrk_view.ordnum = ord_line.ordnum
+                            and pckwrk_view.client_id = ord_line.client_id
+                            and pckwrk_view.wh_id = ord_line.wh_id
+                            and pckwrk_view.ordlin = ord_line.ordlin
+                            and pckwrk_view.ordsln = ord_line.ordsln
+                          where srcloc = @srcloc
+                            and pckwrk_view.wh_id = @wh_id
+                            and appqty = 0
+                            and not exists (select wrkref
+                                              from pckwrk_hdr
+                                             where pckwrk_hdr.srcloc = pckwrk_view.srcloc
+                                               and pckwrk_hdr.pcksts = 'P')
+                          group by @group_cri_clause:raw] catch(-1403) >> resListGroups
+                        |
+                        if (@? = 0 and rowcount(@resListGroups) = 1)
+                        {
+                            if (@above_threshold = 1)
+                            {
+                                publish data
+                                  where create_pallet_move = 1
+                            }
+                            else
+                            {
+                                if (@ignore_threshold_check = 1)
+                                {
+                                    /* check if there are no picks from other locations for the same criteria (rtcust etc) */
+                                    publish data combination where res = @resListGroups
+                                    |
+                                    [select distinct 'x'
+                                       from pckwrk_view
+                                       join ord
+                                         on pckwrk_view.ordnum = ord.ordnum
+                                        and pckwrk_view.client_id = ord.client_id
+                                        and pckwrk_view.wh_id = ord.wh_id
+                                       join ord_line
+                                         on pckwrk_view.ordnum = ord_line.ordnum
+                                        and pckwrk_view.client_id = ord_line.client_id
+                                        and pckwrk_view.wh_id = ord_line.wh_id
+                                        and pckwrk_view.ordlin = ord_line.ordlin
+                                        and pckwrk_view.ordsln = ord_line.ordsln
+                                       join locmst
+                                         on locmst.stoloc = pckwrk_view.srcloc
+                                        and locmst.wh_id = pckwrk_view.wh_id
+                                       join pck_zone
+                                         on locmst.pck_zone_id = pck_zone.pck_zone_id
+                                      where srcloc != @srcloc
+                                        and pckwrk_view.wh_id = @wh_id
+                                        and appqty = 0
+                                        and @select_cri_where_clause:raw
+                                        and @group_select:raw = @group_by_combined] catch(-1403)
+                                    |
+                                    if (@? != 0)
+                                    {
+                                        publish data
+                                          where create_pallet_move = 1
+                                    }
+                                    else
+                                    {
+                                        publish data
+                                          where create_pallet_move = 0
+                                    }
+                                }
+                                else
+                                {
+                                    publish data
+                                      where create_pallet_move = 0
+                                }
+
+                            }
+                        }
+                        |
+                        if (@create_pallet_move = 1) 
+                        { /* double check if there are no lists added to this source location which are not locked yet */
+                            get session variable where name='reqnum_lst'
+            /* try to unlock any processed lists not involved */
+                            |
+                            if (@value!='')
+                            {
+                                [select 'x' 
+                                   from wrkque
+                                  where wrkque.reqnum not in (@value:raw)
+                                    and exists (select pckwrk_view.wrkref
+                                                  from pckwrk_view
+                                                 where pckwrk_view.srcloc = @srcloc
+                                                   and pckwrk_view.appqty = 0
+                                                   and pckwrk_view.list_id = wrkque.list_id)]catch(-1403)
+                            }
+                        }
+                        |
+                        if (@?=-1403 and @create_pallet_move = 1 ) 
+                        {
+                            /* All picks match the criteria to be on the same list, we can create a pallet move */
+                            /* create a new list to hold all the picks for the pallet move */
+                            [select max_volume
+                               from pcklst_break_on_cri
+                              where pcklst_rule_id = @pcklst_rule_id] catch (-1403)
+                            |
+                            if (@?=-1403)
+                            {
+                                [select asset_typ.max_vol max_volume 
+                                   from asset_typ, pcklst_rule 
+                                  where pcklst_rule.pcklst_rule_id = @pcklst_rule_id
+                                    and asset_typ.asset_typ = pcklst_rule.asset_typ] catch (-1403)
+                            }
+                            |
+                            publish data where max_volume = nvl(@max_volume,0)
+                            |
+                            publish data combination where res = @resListGroups
+                            |
+                            generate next number
+                               where numcod = 'list_id'
+                            |
+                            publish data where new_list_id = @nxtnum
+                            |
+                            create record
+                             where table = 'pcklst'
+                               and list_id = @new_list_id
+                               and list_typ = 'ORD'
+                               and list_sts = 'R'
+                               and one_pass_only = 1
+                               and max_list_cube = @max_volume
+                               and pcklst_rule_id = @pcklst_rule_id
+                               and totvol = @max_volume
+                               and intvol = @max_volume
+                               and tot_ord = @count_ordnum
+                               and tot_ordlin = @count_ordlin
+                               and tot_item = @count_prtnum
+                               and tot_cust = @count_cust
+                               and tot_client = @count_client
+                               and adddte = sysdate
+                            |
+                            /* create wrkque record */
+                            create work
+                             where oprcod = @oprcod
+                               and list_id = @new_list_id
+                               and srcloc = @srcloc
+                            |
+                            {
+                                /* save the affected list ids to a variable to be re-processed later */
+                                [select distinct list_id
+                                   from pckwrk_hdr
+                                  where srcloc = @srcloc
+                                    and wh_id = @wh_id
+                                    and appqty = 0
+                                    and list_id is not null] catch(-1403)
+                                |
+                                if (@? = 0)
+                                {
+                                    [select max(srtseq) + 1 srtseq
+                                      from device_context
+                                     where devcod = 'PALMOV'
+                                       and wh_id = @wh_id
+                                       and dev_varnam = 'pallet_move_list_ids'] catch(-1403)
+                                    |
+                                    create record
+                                     where table = 'device_context'
+                                       and devcod = 'PALMOV'
+                                       and wh_id = @wh_id
+                                       and dev_varnam = 'pallet_move_list_ids'
+                                       and value = @list_id
+                                       and srtseq = nvl(@srtseq, 0)
+                                }
+                                ;
+                                {
+                                    /* Picks in 'Ready for list' status leave a record in wrkque without a list_id that we need to remove */
+                                    [select reqnum
+                                       from wrkque
+                                      where wrkref is not null
+                                        and oprcod = 'LPCK'
+                                        and exists (select 'x'
+                                                      from pckwrk_hdr
+                                                     where wrkref = wrkque.wrkref
+                                                       and srcloc = @srcloc
+                                                       and wh_id = @wh_id
+                                                       and appqty = 0)] catch(-1403)
+                                    |
+                                    if (@? = 0)
+                                    {
+                                        remove work request
+                                         where reqnum = @reqnum
+                                    }
+                                }
+                                ;
+                                {
+                                    /* update the picks to 'Ready for List' to fool the "list picks for pick list" to return them so that we can get the volume */
+      {
+                                        [select wrkref 
+                                           from pckwrk_hdr
+                                          where srcloc = @srcloc
+                                            and wh_id = @wh_id
+                                            and appqty = 0  for update nowait]
+                                        |
+                                        [update pckwrk_hdr
+                                            set list_id = '',
+                                                list_seqnum = null,
+                                                list_grp_id = null,
+                                                pcksts = 'L'
+                                          where wrkref=@wrkref]
+                                        ;
+                                        noop
+                                    }catch (-54,-1403)
+                                    |
+                                    if (@?=-54)
+                                    {
+                                        rollback to savepoint where savepoint=@srcloc || '_2'                                
+                                    }
+                                    else
+                                    {
+                                    update usr movement path for pallet move
+                                     where srcloc = @srcloc
+                                       and wh_id = @wh_id
+                                       and asset_typ = @asset_typ
+                                    |
+                                    list picks for pick list
+                                    where list_typ = 'ORD'
+                                      and wh_id = @wh_id
+                                      and order_by_string = ""
+                                      and order_by_combined = "'' order_by_combined"
+                                      and client_id = ''
+                                      and wrkref_list = ""
+                                      and consider_list_picks =  0
+                                      and prtfam_set_id =  ''
+                                      and pck_to_lvl = 'L'
+                                      and select_where_string = "(pckwrk_view.srcloc = '" || @srcloc || "' )"
+                                      and group_by_combined = "" catch(@?) >> resPickVolume
+                                    |
+                                    if (@? = 0)
+                                    {
+                                        [[
+                                            MocaResults res = new SimpleResults();
+                                            res.addColumn("intvol", MocaType.INTEGER);
+                                            res.addColumn("totvol", MocaType.INTEGER);
+                                            res.addColumn("extvol", MocaType.INTEGER);
+                                            res.addColumn("totwgt", MocaType.INTEGER);
+                                            int totvol = 0, intvol = 0, extvol = 0, totwgt = 0;
+                                            while (resPickVolume.next())
+                                            {
+                                                intvol += resPickVolume.getInt("intvol");
+                                                totvol += resPickVolume.getInt("totvol");
+                                                extvol += resPickVolume.getInt("extvol");
+                                                totwgt += resPickVolume.getInt("totwgt");
+                                            }
+                                            res.addRow();
+                                            res.setValue("intvol", intvol);
+                                            res.setValue("totvol", totvol);
+                                            res.setValue("extvol", extvol);
+                                            res.setValue("totwgt", totwgt);
+                                            return res;
+                                        ]]
+                                        |
+                                        [update pcklst
+                                            set intvol = @intvol,
+                                                totvol = @totvol,
+                                                extvol = @extvol,
+                                                totwgt = @totwgt
+                                          where list_id = @new_list_id]
+                                    }
+                                    |
+                                    {
+                                        [select wrkref 
+                                           from pckwrk_hdr
+                                          where srcloc = @srcloc
+                                            and wh_id = @wh_id
+                                            and appqty = 0  for update nowait]
+                                        |
+                                        [update pckwrk_hdr
+                                            set list_id = @new_list_id,
+                                                list_seqnum = null,
+                                                list_grp_id = null,
+                                                pcksts = 'R'
+                                          where wrkref=@wrkref]
+                                        ;
+                                        noop
+                                    }catch (-54,-1403)
+                                    |
+                                    if (@?=-54)
+                                    {
+                                        rollback to savepoint where savepoint=@srcloc || '_2'                                
+                                    }
+                                }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            ;
+            get session variable where name='reqnum_lst'
+            /* try to unlock any processed lists not involved   */ 
+            |
+            if (length(@value)>2)
+            {       
+                 [[  String[] str = value.split( ',' );
+                     int[] numbers = new int[str.length];
+                     for(int i = 0; i < str.length; i++)
+                     {  
+                         numbers[i] = Integer.parseInt(str[i].replace("'", "" ));
+                     }
+                     return(numbers); 
+                 ]] catch (@?)
+                 |
+                 publish data where reqnum=@result
+                 |
+                 {   [select wrkque.reqnum 
+                   from wrkque 
+                  where wrkque.reqnum=@reqnum for update nowait]
+                |
+                [update wrkque
+                    set wrkque.wrksts = 'PEND'
+                  where wrkque.wrksts='LOCK'
+                    and wrkque.reqnum=@reqnum]
+                 }catch (-54,-1403)
+                 |
+                 if (@?=-54)
+                 {
+                   create deferred execution
+                     where deferred_cmd =  "retry usr lock to pending where reqnum="||@reqnum
+                       and exec_typ = 'USR2' 
+                }
+            }
+            ;
+            save session variable where name='reqnum_lst' and value=null
+            |
+            [select max(srtseq) + 1 srtseq
+              from device_context
+             where devcod = 'PALMOV'
+               and wh_id = @wh_id
+               and dev_varnam = 'processed_locations'] catch(-1403)
+            |
+            create record
+             where table = 'device_context'
+               and devcod = 'PALMOV'
+               and wh_id = @wh_id
+               and dev_varnam = 'processed_locations'
+               and value = @srcloc
+               and srtseq = nvl(@srtseq, 0) catch (-1)
+        }
+        ;
+        commit
+    }
+}
+;
+process usr cleanup for pallet move list
+
+]]>
+</local-syntax>
+</command>

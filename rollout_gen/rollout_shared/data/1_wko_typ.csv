@@ -1,0 +1,5 @@
+wh_id,wko_typ,disass_flg,prcare,prdlin,bulk_pck_flg,ins_dt,last_upd_dt,ins_user_id,last_upd_user_id
+"----","ASMBLE",0,"","",1,"","","",""
+"----","DISASMBLE",1,"","",1,"","","",""
+"1","ASMBLE",0,"","",1,"20181023123941","20181023123941","SUPER","SUPER"
+"1","DISASMBLE",1,"","",1,"20181023123941","20181023123941","SUPER","SUPER"

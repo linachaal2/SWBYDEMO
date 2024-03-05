@@ -1,0 +1,443 @@
+<command>
+  <name>list work requests</name>
+  <description>lists work requests</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+    <![CDATA[
+/* ------------------------------------------------------------------------------------------------------------
+ * list work requests - UsrInt 
+ * ------------------------------------------------------------------------------------------------------------
+ * V01, 2018-11-21, Stephan.Doens@starware.nl, first UsrInt version
+ *      - abusing the output fields: load_identifier, ship_id & source_id 
+ *        Altered the 'Get outbound work' query part:
+ *        >> nvl(car_move.car_move_id, invhld.hldnum) AS load_identifier, 
+ *        >> nvl(decode(wrkque.oprcod, 'LOD', trlr.trlr_id, ord_line.ordnum), invhld.uc_nottxt) as source_id,
+ *        >> nvl(shipment.ship_id, invhld.uc_invtyp) as ship_id
+ * ------------------------------------------------------------------------------------------------------------
+ */
+publish data
+ where filterByClause = nvl(@filterByClause, ' 1 = 1 ')
+|
+/* Need to null out the other PK value if one is passed in
+ * otherwise when passing in wrkref all directed work will
+ * be returned and the opposite will be true if wrkref is
+ * passed in.
+ */
+if (@wrkref)
+{
+    publish data
+     where reqnum = ''
+}
+else if (@reqnum)
+{
+    publish data
+     where wrkref = ''
+}
+|
+[select wrk_req.*
+   from (/* 1: Get inbound load work */
+         select /* 1 as src_query, */
+                cast(wrkque.reqnum as VARCHAR(10)) as reqnum,
+                rcvtrk.trknum as load_identifier,
+                wrkque.wh_id,
+                trlr.trlr_id,
+                wrkque.wrksts,
+                wrkque.baspri,
+                wrkque.effpri,
+                wrkque.oprcod,
+                wrkque.lodnum,
+                wrkque.lodlvl,
+                wrkque.client_id,
+                wrkque.srcloc,
+                wrkque.dstloc,
+                wrkque.ack_usr_id,
+                wrkque.ackdevcod,
+                wrkque.adddte,
+                wrkque.ackdte,
+                wrkque.issdte,
+                wrkque.pckdte,
+                wrkque.depdte,
+                wrkque.wrkref,
+                wrkque.lblbat,
+                wrkque.cntgrp,
+                wrkque.refloc,
+                wrkque.batnum,
+                wrkque.srcwrkare,
+                wrkque.loctrvseq,
+                wrkque.zontrvseq,
+                wrkque.asg_usr_id,
+                wrkque.lstescdte,
+                wrkque.locacc,
+                wrkque.schbat,
+                wrkque.list_id,
+                wrkque.asg_role_id,
+                wrkque.src_bldg_id,
+                wrkque.src_aisle_id,
+                asg_usr.asg_usr_desc,
+                1 as directed,
+                'RCV' as work_type,
+                inventory_view.prtnum,
+                decode(wrkque.oprcod, 'STO', rcvlin.invnum, trlr.trlr_id) as source_id,
+                '' as ship_id
+           from wrkque
+           left outer
+           join rcvtrk
+             on (wrkque.srcloc = rcvtrk.trknum or wrkque.refloc = rcvtrk.trknum)
+            and wrkque.wh_id = rcvtrk.wh_id
+           left outer
+           join trlr
+             on (rcvtrk.trlr_id = trlr.trlr_id or (wrkque.refloc = trlr.trlr_num and wrkque.wrkref = trlr.carcod))
+            and trlr.trlr_cod = 'RCV'
+           left
+           join inventory_view
+             on wrkque.lodnum = inventory_view.lodnum
+           left
+           join rcvlin
+             on inventory_view.rcvkey = rcvlin.rcvkey
+           left
+           join (select distinct (adr.first_name || ' ' || adr.last_name) asg_usr_desc,
+                        wrkque.asg_usr_id
+                   from les_usr_ath lua
+                   join adrmst adr
+                     on lua.adr_id = adr.adr_id
+                   join usropr uo
+                     on uo.usr_id = lua.usr_id
+                   join wrkque
+                     on wrkque.oprcod = uo.oprcod
+                    and wrkque.asg_usr_id = uo.usr_id
+                    and wrkque.wh_id = uo.wh_id
+                  where adr.locale_id = nvl(@locale_id, @@locale_id)
+                    and lua.usr_sts = 'A'
+                    and (not exists(select 'x'
+                                      from user_wh
+                                     where usr_id = uo.usr_id)
+                         /* super user*/
+                         or exists(select 'x'
+                                     from user_wh
+                                    where usr_id = uo.usr_id
+                                      and wh_id = uo.wh_id))
+                 /* user assigned with whs*/) asg_usr
+             on asg_usr.asg_usr_id = wrkque.asg_usr_id
+          where (wrkque.oprcod = 'STO' or wrkque.oprcod = 'RCV')
+            and wrkque.reqnum is not null
+            and @+wrkque.wh_id
+            and @+rcvtrk.trknum^load_identifier
+            and @+trlr.trlr_id
+            and @+inventory_view.prtnum
+            and @+inventory_view.prt_client_id
+            and (@+wrkque.dstloc^stoloc or @+wrkque.srcloc^stoloc)
+            and @+wrkque.reqnum
+            and wrkque.wrksts != 'CMPL'
+         UNION
+         /* 2: Get outbound order work */
+         select /* 2 as src_query, */
+                cast(wrkque.reqnum as VARCHAR(10)) as reqnum,
+                /* car_move.car_move_id AS load_identifier, */
+                nvl(car_move.car_move_id, invhld.hldnum) AS load_identifier,
+                wrkque.wh_id,
+                trlr.trlr_id,
+                wrkque.wrksts,
+                wrkque.baspri,
+                wrkque.effpri,
+                wrkque.oprcod,
+                wrkque.lodnum,
+                wrkque.lodlvl,
+                wrkque.client_id,
+                wrkque.srcloc,
+                wrkque.dstloc,
+                wrkque.ack_usr_id,
+                wrkque.ackdevcod,
+                wrkque.adddte,
+                wrkque.ackdte,
+                wrkque.issdte,
+                wrkque.pckdte,
+                wrkque.depdte,
+                wrkque.wrkref,
+                wrkque.lblbat,
+                wrkque.cntgrp,
+                wrkque.refloc,
+                wrkque.batnum,
+                wrkque.srcwrkare,
+                wrkque.loctrvseq,
+                wrkque.zontrvseq,
+                wrkque.asg_usr_id,
+                wrkque.lstescdte,
+                wrkque.locacc,
+                wrkque.schbat,
+                wrkque.list_id,
+                wrkque.asg_role_id,
+                wrkque.src_bldg_id,
+                wrkque.src_aisle_id,
+                asg_usr.asg_usr_desc,
+                1 as directed,
+                'SHIP' as work_type,
+                ord_line.prtnum,
+                /* decode(wrkque.oprcod, 'LOD', trlr.trlr_id, ord_line.ordnum) as source_id, */
+                nvl(decode(wrkque.oprcod, 'LOD', trlr.trlr_id, ord_line.ordnum), invhld.uc_nottxt) as source_id,
+                /* shipment.ship_id */
+                nvl(shipment.ship_id, invhld.uc_invtyp) as ship_id
+           from wrkque
+           left outer
+           join pckwrk_view
+             on pckwrk_view.wh_id = wrkque.wh_id
+            and (wrkque.wrkref = pckwrk_view.wrkref or (wrkque.list_id = pckwrk_view.list_id and wrkque.srcloc = pckwrk_view.srcloc))
+           left outer
+           join ord_line
+             on pckwrk_view.ordnum = ord_line.ordnum
+            and pckwrk_view.ordlin = ord_line.ordlin
+            and pckwrk_view.ordsln = ord_line.ordsln
+            and pckwrk_view.wh_id = ord_line.wh_id
+            and pckwrk_view.client_id = ord_line.client_id
+           left outer
+           join shipment_line
+             on ord_line.ordnum = shipment_line.ordnum
+            and ord_line.ordlin = shipment_line.ordlin
+            and ord_line.ordsln = shipment_line.ordsln
+            and ord_line.client_id = shipment_line.client_id
+            and ord_line.wh_id = shipment_line.wh_id
+            and shipment_line.linsts != 'B'
+           left outer
+           join shipment
+             on shipment.ship_id = shipment_line.ship_id
+           left outer
+           join stop
+             on (shipment.stop_id = stop.stop_id or wrkque.refloc = stop.stop_id)
+           left outer
+           join car_move
+             on car_move.car_move_id = stop.car_move_id
+           left outer
+           join trlr
+             on (car_move.trlr_id = trlr.trlr_id or (wrkque.refloc = trlr.trlr_num and wrkque.wrkref = trlr.carcod))
+            and trlr.trlr_cod = 'SHIP'
+           left
+           join (select distinct (adr.first_name || ' ' || adr.last_name) asg_usr_desc,
+                        wrkque.asg_usr_id
+                   from les_usr_ath lua
+                   join adrmst adr
+                     on lua.adr_id = adr.adr_id
+                   join usropr uo
+                     on uo.usr_id = lua.usr_id
+                   join wrkque
+                     on wrkque.oprcod = uo.oprcod
+                    and wrkque.asg_usr_id = uo.usr_id
+                    and wrkque.wh_id = uo.wh_id
+                  where adr.locale_id = nvl(@locale_id, @@locale_id)
+                    and lua.usr_sts = 'A'
+                    and (not exists(select 'x'
+                                      from user_wh
+                                     where usr_id = uo.usr_id)
+                         /* super user*/
+                         or exists(select 'x'
+                                     from user_wh
+                                    where usr_id = uo.usr_id
+                                      and wh_id = uo.wh_id))
+                 /* user assigned with whs*/) asg_usr
+             on asg_usr.asg_usr_id = wrkque.asg_usr_id
+                /* UsrInt V01 Start */
+           left
+           join inventory_view
+             on decode(wrkque.lodlvl, 'L', inventory_view.lodnum, 'S', inventory_view.subnum, inventory_view.dtlnum) = wrkque.lodnum
+            and wrkque.lodnum is not null
+           left
+           join invhld
+             on invhld.dtlnum = inventory_view.dtlnum
+                /* UsrInt V01 End */
+          where @+wrkque.oprcod
+            and wrkque.oprcod not in ('TRL', 'STO', 'RCV')
+            and wrkque.reqnum is not null
+            and @+wrkque.wh_id
+            and @+car_move.car_move_id^load_identifier
+            and @+trlr.trlr_id
+            and @+ord_line.prtnum
+            and @+ord_line.prt_client_id
+            and (@+wrkque.dstloc^stoloc or @+wrkque.srcloc^stoloc)
+            and @+wrkque.reqnum
+            and wrkque.wrksts != 'CMPL'
+         UNION
+         /* 3: Get the trailer moves */
+         select /* 3 as src_query, */
+                cast(wrkque.reqnum as VARCHAR(10)) as reqnum,
+                nvl(rcvtrk.trknum, car_move.car_move_id) as load_identifier,
+                wrkque.wh_id,
+                trlr.trlr_id,
+                wrkque.wrksts,
+                wrkque.baspri,
+                wrkque.effpri,
+                wrkque.oprcod,
+                wrkque.lodnum,
+                wrkque.lodlvl,
+                wrkque.client_id,
+                wrkque.srcloc,
+                wrkque.dstloc,
+                wrkque.ack_usr_id,
+                wrkque.ackdevcod,
+                wrkque.adddte,
+                wrkque.ackdte,
+                wrkque.issdte,
+                wrkque.pckdte,
+                wrkque.depdte,
+                wrkque.wrkref,
+                wrkque.lblbat,
+                wrkque.cntgrp,
+                wrkque.refloc,
+                wrkque.batnum,
+                wrkque.srcwrkare,
+                wrkque.loctrvseq,
+                wrkque.zontrvseq,
+                wrkque.asg_usr_id,
+                wrkque.lstescdte,
+                wrkque.locacc,
+                wrkque.schbat,
+                wrkque.list_id,
+                wrkque.asg_role_id,
+                wrkque.src_bldg_id,
+                wrkque.src_aisle_id,
+                asg_usr.asg_usr_desc,
+                1 as directed,
+                trlr.trlr_cod AS work_type,
+                '' as prtnum,
+                trlr.trlr_id as source_id,
+                '' as ship_id
+           from wrkque
+           left outer
+           join trlr
+             on wrkque.refloc = trlr.trlr_num
+            and wrkque.wrkref = trlr.carcod
+           left outer
+           join rcvtrk
+             on trlr.trlr_id = rcvtrk.trlr_id
+           left outer
+           join car_move
+             on trlr.trlr_id = car_move.trlr_id
+           left
+           join (select distinct (adr.first_name || ' ' || adr.last_name) asg_usr_desc,
+                        wrkque.asg_usr_id
+                   from les_usr_ath lua
+                   join adrmst adr
+                     on lua.adr_id = adr.adr_id
+                   join usropr uo
+                     on uo.usr_id = lua.usr_id
+                   join wrkque
+                     on wrkque.oprcod = uo.oprcod
+                    and wrkque.asg_usr_id = uo.usr_id
+                    and wrkque.wh_id = uo.wh_id
+                  where adr.locale_id = nvl(@locale_id, @@locale_id)
+                    and lua.usr_sts = 'A'
+                    and (not exists(select 'x'
+                                      from user_wh
+                                     where usr_id = uo.usr_id)
+                         /* super user*/
+                         or exists(select 'x'
+                                     from user_wh
+                                    where usr_id = uo.usr_id
+                                      and wh_id = uo.wh_id))
+                 /* user assigned with whs*/) asg_usr
+             on asg_usr.asg_usr_id = wrkque.asg_usr_id
+          where wrkque.oprcod = 'TRL'
+            and wrkque.reqnum is not null
+            and @+wrkque.wh_id
+            and (@+rcvtrk.trknum^load_identifier or @+car_move.car_move_id^load_identifier)
+            and @+trlr.trlr_id
+            and (@+wrkque.dstloc^stoloc or @+wrkque.srcloc^stoloc)
+            and @+wrkque.reqnum
+            and wrkque.wrksts != 'CMPL'
+         UNION
+         /* 4: Get undirected work */
+         select /* 4 as src_query, */
+                pckwrk_view.wrkref as reqnum,
+                car_move.car_move_id as load_identifier,
+                pckwrk_view.wh_id,
+                trlr.trlr_id,
+                pckwrk_view.pcksts as wrksts,
+                NULL as baspri,
+                NULL as effpri,
+                NULL as oprcod,
+                pckwrk_view.lodnum,
+                pckwrk_view.lodlvl,
+                pckwrk_view.client_id,
+                pckwrk_view.srcloc,
+                pckwrk_view.dstloc,
+                pckwrk_view.last_pck_usr_id as ack_usr_id,
+                pckwrk_view.ackdevcod,
+                pckwrk_view.adddte,
+                NULL as ackdte,
+                NULL as issdte,
+                NULL as pckdte,
+                NULL as depdte,
+                pckwrk_view.wrkref,
+                pckwrk_view.lblbat,
+                NULL as cntgrp,
+                NULL as refloc,
+                NULL as batnum,
+                NULL as srcwrkare,
+                NULL as loctrvseq,
+                NULL as zontrvseq,
+                NULL as asg_usr_id,
+                NULL as lstescdte,
+                NULL as locacc,
+                pckwrk_view.schbat,
+                pckwrk_view.list_id,
+                NULL as asg_role_id,
+                NULL as src_bldg_id,
+                NULL as src_aisle_id,
+                NULL as asg_usr_desc,
+                0 as directed,
+                'SHIP' as work_type,
+                pckwrk_view.prtnum,
+                ord_line.ordnum as source_id,
+                shipment.ship_id
+           from pckwrk_view
+           left outer
+           join ord_line
+             on pckwrk_view.ordnum = ord_line.ordnum
+            and pckwrk_view.ordlin = ord_line.ordlin
+            and pckwrk_view.ordsln = ord_line.ordsln
+            and pckwrk_view.client_id = ord_line.client_id
+            and pckwrk_view.wh_id = ord_line.wh_id
+           left outer
+           join shipment_line
+             on ord_line.ordnum = shipment_line.ordnum
+            and ord_line.client_id = shipment_line.client_id
+            and ord_line.wh_id = shipment_line.wh_id
+            and ord_line.ordlin = shipment_line.ordlin
+            and shipment_line.linsts != 'B'
+           left outer
+           join shipment
+             on shipment.ship_id = shipment_line.ship_id
+           left outer
+           join stop
+             on stop.stop_id = shipment.stop_id
+           left outer
+           join car_move
+             on car_move.car_move_id = stop.car_move_id
+           left outer
+           join trlr
+             on car_move.trlr_id = trlr.trlr_id
+                /* Need to join wrkque to validate the pick isn't for
+                 * a piece of directed work
+                 */
+           left outer
+           join wrkque
+             on pckwrk_view.wrkref = wrkque.wrkref
+          where pckwrk_view.pcksts = 'R'
+            and wrkque.wrkref is null
+            and wrkque.wrksts != 'CMPL'
+            and @+pckwrk_view.wh_id
+            and @+car_move.car_move_id^load_identifier
+            and @+trlr.trlr_id
+            and @+pckwrk_view.prtnum
+            and @+pckwrk_view.prt_client_id
+            and (@+pckwrk_view.dstloc^stoloc or @+pckwrk_view.srcloc^stoloc)
+            and @+wrkque.reqnum
+            and @+pckwrk_view.wrkref) wrk_req
+  where @filterbyclause:raw]
+]]>
+  </local-syntax>
+  <argument name="wrkref" datatype="string">Directed Work Reference</argument>
+  <argument name="reqnum" datatype="">Request Number</argument>
+  <documentation>
+    <remarks/>
+    <exception value="eOK">Normal successful completion</exception>
+    <exception value="eDB_NO_ROWS_AFFECTED">No Work Found</exception>
+  </documentation>
+</command>

@@ -1,0 +1,6 @@
+client_id,supnum,adr_id,trk_cnsg_cod,trust_flg,rcvsts,lot_fmt_id,ser_num_typ_id,asset_typ,bar_code_tmpl_id,load_attr1_cfg,load_attr2_cfg,load_attr3_cfg,load_attr4_cfg,load_attr5_cfg,ins_dt,last_upd_dt,cnsg_cod,cnsg_period,ins_user_id,last_upd_user_id,autorcv_flg,uc_ckn_no
+"RFH","8713783816999","A000000006","TRKALL",0,"","","","","","0","","","","","20221111141313","20230509150712","PUTAWAY",0,"SLDOWNLOAD_0","938673",0,"96999"
+"RFH","PROD-1","PRD1_RFH","TRKALL",0,"A1","","","1","","0","","","","","20230322000000","20230322000000","NEVER",0,"938673","938673",0,""
+"RFH","PROD-2","PRD2_RFH","TRKALL",0,"A1","","","1","","0","","","","","20230322000000","20230322000000","NEVER",0,"938673","938673",0,""
+"RFH","PROD-3","PRD3_RFH","TRKALL",0,"A1","","","1","","0","","","","","20230322000000","20230322000000","NEVER",0,"938673","938673",0,""
+"RFH","PROD-7","PRD7_RFH","TRKALL",0,"A1","","","1","","0","","","","","20230322000000","20230322000000","NEVER",0,"938673","938673",0,""

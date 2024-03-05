@@ -1,0 +1,8 @@
+======================================================
+Rollout: USR-RFH-WM.00203.DEV.TDE-GEN-056_PERFORMANCE_PICKING_SCREENS_V01
+Generation timestamp: 2023-11-06 12:02:32
+======================================================
+
+Release Notes:
+
+-V01: Adjusted mobile code to avoid delay when RF form is not displayed due to disabled fields by dynamic config

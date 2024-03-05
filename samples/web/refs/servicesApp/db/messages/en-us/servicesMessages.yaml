@@ -1,0 +1,29 @@
+entity: Message
+version: '1.0'
+data:
+
+- locale: en-us
+  namespace: rp.services
+  messages:
+
+  - name: moduleName
+    text: Services
+  - name: taskflowName
+    text: Sample Services Taskflow
+
+- locale: en-us
+  namespace: rp.services.versionTask
+  messages:
+
+  - name: welcome
+    text: Version Information
+  - name: library
+    text: Library Name
+  - name: product
+    text: Product
+  - name: package
+    text: Package
+  - name: category
+    text: Category
+  - name: version
+    text: Version

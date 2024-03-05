@@ -1,0 +1,38 @@
+serv_id,serv_action_typ,serv_action_cod,seqnum,ems_evt_nam,rpt_id,cmd,ins_dt,last_upd_dt,ins_user_id,last_upd_user_id
+"INIT-SAFETY-CHECK","PASS","RUNCMD",0,"","","process trailer safety status update where trlr_id = @trlr_id and serv_id = @serv_id and serv_action_typ = @serv_action_typ and cnfrm_serv_id=@cnfrm_serv_id","","","",""
+"PERFORM-TRLR-SAF-CHK","FAIL","RUNCMD",0,"","","process trailer safety status update where trlr_id = @trlr_id and serv_id = @serv_id and serv_action_typ = @serv_action_typ and cnfrm_serv_id=@cnfrm_serv_id","","","",""
+"PERFORM-TRLR-SAF-CHK","PASS","RUNCMD",0,"","","process trailer safety status update where trlr_id = @trlr_id and serv_id = @serv_id and serv_action_typ = @serv_action_typ and cnfrm_serv_id=@cnfrm_serv_id","","","",""
+"SAFETY-CHK-DEFERRED","FAIL","RUNCMD",0,"","","process trailer safety status update where trlr_id = @trlr_id and serv_id = @serv_id and serv_action_typ = @serv_action_typ and cnfrm_serv_id=@cnfrm_serv_id","","","",""
+"SAFETY-CHK-DEFERRED","PASS","RUNCMD",0,"","","process trailer safety status update where trlr_id = @trlr_id and serv_id = @serv_id and serv_action_typ = @serv_action_typ and cnfrm_serv_id=@cnfrm_serv_id","","","",""
+"SAFETY-CHK-IMMEDIATE","FAIL","RUNCMD",0,"","","process trailer safety status update where trlr_id = @trlr_id and serv_id = @serv_id and serv_action_typ = @serv_action_typ and cnfrm_serv_id=@cnfrm_serv_id","","","",""
+"SAFETY-CHK-IMMEDIATE","PASS","RUNCMD",0,"","","process trailer safety status update where trlr_id = @trlr_id and serv_id = @serv_id and serv_action_typ = @serv_action_typ and cnfrm_serv_id=@cnfrm_serv_id","","","",""
+"USR-PRINT-PACKSLIP","PASS","RUNCMD",2,"","","produce lbl compliant documents where @* ","20200423093744","20200423162156","938673","938673"
+"USR-PRINT-WO","PASS","RUNCMD",1,"","","[select wkohdr.wkonum, (wkohdr.wkoqty-wkohdr.prdqty)/nvl(prtftp_dtl.untqty,1) no_labels 
+   from wkohdr
+   left 
+   join prtftp_dtl
+     on (prtftp_dtl.prtnum = wkohdr.prtnum 
+     and prtftp_dtl.prt_client_id = wkohdr.prt_client_id 
+     and prtftp_dtl.wh_id = wkohdr.wh_id 
+     and prtftp_dtl.ftpcod = wkohdr.ftpcod 
+     and prtftp_dtl.uomcod='CS')
+  where wkohdr.prdlin is not  and wkohdr.wh_id||'|'||wkohdr.client_id||'|'||wkohdr.wkonum||'|'||wkohdr.wkorev =@trlr_id] catch (-1403)
+|
+if (@?=0)
+{
+hide stack variable where name='trlr_id'
+|
+produce lbl compliant documents where @* 
+}","20230406154005","20230414151248","938673","938673"
+"USR-VAS_INV_ONLY","FAIL","RUNCMD",2,"","","create usr vas record where @* and uc_auto_genflg=1 and uc_cnfrm_flg=0","20230221081724","20230221081724","938673","938673"
+"USR-VAS_INV_ONLY","PASS","RUNCMD",1,"","","create usr vas record where @* and uc_auto_genflg=1 and uc_cnfrm_flg=1","20230210154838","20230221081656","938673","938673"
+"USR-VAS_PACK","FAIL","RUNCMD",2,"","","create usr vas record where @* and uc_auto_genflg=1 and uc_cnfrm_flg=0","20230221082007","20230221082121","938673","938673"
+"USR-VAS_PACK","PASS","RUNCMD",1,"","","create usr vas record where @* and uc_auto_genflg=1 and uc_cnfrm_flg=1","20230210115835","20230221081952","938673","938673"
+"USR-VAS_PICK","FAIL","RUNCMD",2,"","","create usr vas record where @* and uc_auto_genflg=1 and uc_cnfrm_flg=0","20230221082202","20230221082202","938673","938673"
+"USR-VAS_PICK","PASS","RUNCMD",1,"","","create usr vas record where @* and uc_auto_genflg=1 and uc_cnfrm_flg=1","20230210115753","20230221082145","938673","938673"
+"USR-WO_PROD_VAS_CFRM","FAIL","RUNCMD",2,"","","create usr vas record where @* and uc_auto_genflg=0 and uc_cnfrm_flg=0 and vas_type='WKO'","20230315100041","20230713101802","938673","938673"
+"USR-WO_PROD_VAS_CFRM","PASS","RUNCMD",1,"","","create usr vas record where @* and uc_auto_genflg=0 and uc_cnfrm_flg=1 and vas_type='WKO'","20230315100028","20230713101757","938673","938673"
+"USR-WO_PROD_VAS_PACK","FAIL","RUNCMD",2,"","","create usr vas record where @* and uc_auto_genflg=1 and uc_cnfrm_flg=0 and vas_type='WKO'","20230315085435","20230713101724","938673","938673"
+"USR-WO_PROD_VAS_PACK","PASS","RUNCMD",1,"","","create usr vas record where @* and uc_auto_genflg=1 and uc_cnfrm_flg=1 and vas_type='WKO'","20230315085435","20230713101719","938673","938673"
+"USR-WO_VAS_INV_ONLY","FAIL","RUNCMD",2,"","","create usr vas record where @* and uc_auto_genflg=1 and uc_cnfrm_flg=0 and vas_type='WKOLIN'","20230308082024","20230713101704","938673","938673"
+"USR-WO_VAS_INV_ONLY","PASS","RUNCMD",1,"","","create usr vas record where @* and uc_auto_genflg=1 and uc_cnfrm_flg=1 and vas_type='WKOLIN'","20230308082024","20230713101653","938673","938673"

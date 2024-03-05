@@ -1,0 +1,57 @@
+<command>
+  <name>configure usr rf asset identify default asset typ</name>
+  <description>configure usr rf asset identify default asset typ</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* configure usr rf asset identify default asset typ
+ * Return a default asset typ or confirms the displayed asset typ in the ASSET_IDENTIFY screen.
+ * Version history:
+ *  2018-10-08  Salem Hamze  Initial version.
+ */
+if (@asset_typ != '')
+{
+    [select 'x' as cnfrm_asset_typ
+       from poldat_view
+      where wh_id = @wh_id
+        and polcod = 'USR-RF-FORM'
+        and polvar = 'ASSET_IDENTIFY'
+        and polval = 'AUTO_CONFIRM_ASSET_TYP'
+        and rtstr1 = @prvfrm
+        and rtnum1 = 1] catch(-1403)
+    |
+    if (@? = 0)
+    {
+        publish data
+         where cnfrm_asset_typ = @asset_typ
+           and dvc_var_nam = 'cnfrm_asset_typ'
+           and dvc_vis_flg = '1'
+           and dvc_ena_flg = '0'
+    }
+}
+else
+{
+    [select rtstr2 as asset_typ
+       from poldat_view
+      where wh_id = @wh_id
+        and polcod = 'USR-RF-FORM'
+        and polvar = 'ASSET_IDENTIFY'
+        and polval = 'DEF_ASSET_TYP'
+        and rtstr1 = @prvfrm
+        and rtnum1 = 1] catch(-1403)
+    |
+    if (@? = 0)
+    {
+        publish data
+         where asset_typ = @asset_typ
+           and dvc_var_nam = 'asset_typ'
+           and dvc_vis_flg = '1'
+           and dvc_ena_flg = '0'
+    }
+}
+]]>
+</local-syntax>
+  <argument name="wh_id" datatype="string">wh_id</argument>
+  <argument name="prvfrm" datatype="string">prvfrm</argument>
+  <argument name="asset_typ" datatype="string">asset_typ</argument>
+</command>

@@ -1,0 +1,591 @@
+<command>
+  <name>list inventory view loadnumbers info</name>
+  <description>list inventory view loadnumbers info</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* Overrule on command list inventory view loadnumbers info
+ * RFH uses specific suppliers as the stock is produced like that. removed supplier on retrieve command for produced items (produced_clause )
+ *
+ * 2023-07-19 Marco Schouwenaar/Raoul Scholten Initial version
+ * 2023-10-23 Radina Ivanova                   Excluded RET supplier to exclude returns
+*/
+/* Ensure the passed in clauses exist */
+    publish data
+        where filterByClause = nvl(@filterByClause,  [1=1])
+          and inv_identifier_clause = nvl(@inv_identifier_clause, [1=1])
+          and locale = nvl(@locale_id, @@locale_id)
+    |
+    if(!@notToValidateThreePL#onstack)
+    {
+        get client in clause for user
+            where usr_id = nvl(@usr_id,@@usr_id)
+              and @+wh_id
+              and table_prefix = 'all_inventory_view'
+              and prt_client_id_flg = 1
+    }
+    else
+    {
+        publish data
+            where client_in_clause = '1=1'
+    }
+    |
+    /* This will check the hist_flg to determine if we should filter
+    ** down to either the live or historical inventory or both
+    */
+    if (!@hist_flg#onstack or @hist_flg = 1)
+    {
+        publish data
+            where inv_hist_clause = ' all_inventory_view.inv_hist_id != -1'
+
+    }
+    else if (!@hist_flg#onstack or @hist_flg = -1)
+    {
+        publish data
+            where inv_hist_clause = ' all_inventory_view.inv_hist_id = -1'
+    }
+    else
+    {
+        publish data
+            where inv_hist_clause = '1=1'
+    }
+    |
+    /** If only showing inventory within the four walls, add that restriction */
+    if(@showFourWallOnly = 1)
+    {
+        publish data
+            where fourWallRestriction = 'and loc_typ.fwiflg = 1'
+    }
+    else
+    {
+        publish data
+            where fourWallRestriction = ''
+    }
+    |
+    if(@gridTitle and @gridTitle = 'inventorymassupdate')
+    {
+        publish data
+            where invMassRestriction = ' and (loc_typ.fwiflg = 1
+                                              or loc_typ.expflg = 1
+                                              or loc_typ.shpflg = 1
+                                              or loc_typ.wip_expflg = 1
+                                              or loc_typ.wipflg = 1) '
+    }
+    else
+    {
+        publish data
+            where invMassRestriction = ''
+    }
+    |
+    /* help Oracle optimiser make better choice */
+    sl_replace string
+        where str = @filterByClause
+          and look_for = 'locmst.stoloc in'
+          and repl_with = 'all_inventory_view.stoloc in'
+    |
+    publish data
+        where filterByClause = @o_value
+    |
+    sl_replace string
+        where str = @filterByJoins
+          and look_for = '@client_in_clause:raw'
+          and repl_with = @client_in_clause
+    |
+    publish data
+        where filterByJoins = @o_value
+    |
+    sl_replace string
+        where str = @filterByJoins
+          and look_for = '@locale_id_value'
+          and repl_with = @locale
+    |
+    publish data
+        where filterByJoins = @o_value
+    |
+    /* Required for Pick List to narrow down search */
+    if(@pcklst.asset_typ)
+    {
+        publish data
+            where pcklstAssetTypCond = ' and pcklst.asset_typ = ' || @pcklst.asset_typ
+    }
+    else
+    {
+        publish data
+            where pcklstAssetTypCond = ''''''
+    }
+    |
+    sl_replace string
+        where str = @filterByJoins
+          and look_for = '@pcklstAssetTypCond'
+          and repl_with = @pcklstAssetTypCond
+    |
+    publish data
+        where filterByJoins = @o_value
+    |
+    /**
+     * If looking for holds, restrict where we look. Note that the four-walls
+     * restiction is more restrictive and so we do not set it if that is
+     * already present.
+     * Also if the hld_flg is true, restrict the results only to live tables,
+     * as history tables locations will not fall into four wall inventory location type
+     * or expected receipts location type.
+     */
+    if (@hld_flg = 1 and @fourWallRestriction = '')
+    {
+        publish data
+            where holdFlagRestriction = ' and (loc_typ.fwiflg = 1
+                                               or (loc_typ.fwiflg = 0 and loc_typ.expflg = 1)) '
+              and inv_hist_clause = 'all_inventory_view.inv_hist_id = -1'
+    }
+    else
+    {
+        publish data
+            where holdFlagRestriction = ''
+    }
+    |
+
+    /*
+    ** If looking for staged inventory, add that restriction
+    */
+    if (@stgflg = 1)
+    {
+        publish data
+            where stagingRestriction = ' loc_typ.stgflg = 1'
+    }
+    else
+    {
+        publish data
+            where stagingRestriction = '1=1'
+    }
+    |
+    /*
+     * If hldnum is provided as a stack argument, provide the necessary joins and where clause to allow filtering
+     */
+    if (@hldnum#onstack)
+    {
+        publish data
+            where holdJoin = 'join (select ih.dtlnum,
+                                           ih.hldnum,
+                                           ih.wh_id
+                                      from hldmst xh
+                                           left join invhld ih
+                                             on xh.hldnum = ih.hldnum
+                                            and xh.hldpfx = ih.hldpfx
+                                            and xh.wh_id  = ih.wh_id
+                                     where ih.hldnum = ''' || @hldnum || ''') hold
+                                on hold.dtlnum = all_inventory_view.dtlnum
+                               and hold.wh_id = all_inventory_view.wh_id '
+              and holdWhere = ' hold.hldnum = ''' || @hldnum || ''''
+    }
+    else
+    {
+        publish data
+            where holdJoin = ''
+              and holdWhere = ' 1 = 1 '
+    }
+    |
+    /*
+     * If ship_id, client_id, or ordnum is provided as a stack argument, provide the necessary joins and where clause to allow stack filtering
+     */
+    if (@ship_id#onstack or @client_id#onstack or @ordnum#onstack)
+    {
+        /*
+         * A client ID could be linked to the inventory in other ways, so
+         * his may be an outer join.
+         */
+        if (@client_id#onstack)
+        {
+            publish data
+                where clientJoinWhere = ' (shipment_line.client_id = ''' || @client_id || ''' or shipment_line.client_id is null)'
+                  and shipJoinType = ' left'
+        }
+        else
+        {
+            publish data
+                where clientJoinWhere = ' 1 = 1 '
+                  and shipJoinType = ''
+        }
+        |
+        if (@ship_id#onstack)
+        {
+            publish data
+                where shipJoinWhere = ' (shipment_line.ship_id = ''' || @ship_id || ''')'
+                  and shipJoinType = ''
+        }
+        else
+        {
+            publish data
+                where shipJoinWhere = ' 1 = 1 '
+        }
+        |
+        if (@ordnum#onstack)
+        {
+            publish data
+                where ordNumJoinWhere = ' (shipment_line.ordnum = ''' || @ordnum || ''')'
+                  and shipJoinType = ''
+        }
+        else
+        {
+            publish data
+                where ordNumJoinWhere = ' 1 = 1 '
+        }
+        |
+        /*
+         * Create a join to restrict the output as required. This is an
+         * outer join because a client ID could be linked to the inventory
+         * in other ways.
+         */
+        publish data
+            where shipJoin = @shipJoinType || ' join (select ship_line_id
+                                                        from shipment_line
+                                                       where ' || @shipJoinWhere || '
+                                                         and ' || @clientJoinWhere || '
+                                                         and ' || @ordNumJoinWhere || ') ship
+                                                  on ship.ship_line_id = all_inventory_view.ship_line_id '
+    }
+    else
+    {
+        /** No restriction by ship_id, client_id nor ordnum, so no join required */
+        publish data
+            where shipJoin = ''
+    }
+    |
+    /*
+     * If car_move_id is provided as a stack argument, provide the necessary joins and where clause to allow filtering
+     */
+    if (@car_move_id#onstack)
+    {
+        publish data
+            where carMoveJoin = ' join (select ship_line_id
+                                          from shipment_line
+                                               join shipment
+                                                 on shipment_line.ship_id = shipment.ship_id
+                                               join stop
+                                                 on shipment.stop_id = stop.stop_id
+                                         where stop.car_move_id = ''' || @car_move_id || ''') cmove
+                                    on cmove.ship_line_id = all_inventory_view.ship_line_id '
+    }
+    else
+    {
+        publish data
+            where carMoveJoin = ''
+    }
+    |
+    /* wko_picked and wko_produced  will be sent as 1 for WO picked and
+     * Produced child lpn records
+     */
+    if (@wko_picked = 1 and @wko_produced = 1 and @wkonum)
+    {
+        publish data
+            where pickinv_clause = '(wkopickedinfo.wkonum =''' || @wkonum ||'''
+                                                 or rcvlin.trknum =''' || @wkonum ||''')'
+              and workOrderJoin = ' left join (select wrkref,
+                                                      wkonum,
+                                                      wkorev,
+                                                      client_id
+                                                 from pckwrk_dtl
+                                                group by wrkref,
+                                                         wkonum,
+                                                         wkorev,
+                                                         client_id) wkopickedinfo
+                                      on wkopickedinfo.wrkref = all_inventory_view.wrkref'
+    }
+    else
+    {
+        /* wko_picked = 1  for WO - Picked inventory details */
+        if (@wko_picked = 1 and !@wko_produced)
+        {
+            publish data
+                where pickclause = ' wkopickedinfo.wrkref is not null
+                                     and wkopickedinfo.wkonum =''' || @wkonum ||'''
+                                     and wkopickedinfo.wkorev =''' || @wkorev ||'''
+                                     and (wkopickedinfo.client_id is null or wkopickedinfo.client_id =''' || nvl(@wko_clientid, @client_id) ||''')'
+        }
+        /* wko_produced = 1  for WO - Produced inventory details */
+        else if(@wko_produced = 1 and !@wko_picked)
+        {
+            get cached policy
+                where polcod = 'WORK-ORDER-PROCESSING'
+                  and polvar = 'MISCELLANEOUS'
+                  and polval = 'CREATE-INV-DEFAULTS'
+                  and wh_id = nvl(@wh_id,@@wh_id)
+            |
+            publish data
+                where produced_clause = 'rcvlin.supnum != ''RET''
+                                          and rcvlin.trknum is not null
+                                          and rcvlin.trknum =''' || @wkonum ||'''
+                                          and rcvlin.invnum =''' || @wkorev ||'''
+                                          and rcvlin.client_id =''' || nvl(@wko_clientid, @client_id) ||''''
+        }
+    }
+    |
+    if (@wko_picked = 1 and !@wko_produced)
+    {
+        publish data
+            where workOrderJoin = ' left join (select wrkref,
+                                                      wkonum,
+                                                      wkorev,
+                                                      client_id,
+                                                      wrkref_dtl
+                                                 from pckwrk_dtl
+                                                group by wrkref,
+                                                         wkonum,
+                                                         wkorev,
+                                                         client_id,
+                                                         wrkref_dtl) wkopickedinfo
+                                      on wkopickedinfo.wrkref = all_inventory_view.wrkref
+                                     and wkopickedinfo.wrkref_dtl = all_inventory_view.wrkref_dtl
+                                     and ' || @pickclause
+    }
+    |
+    publish data
+        where pickinv_clause = nvl(nvl(@pickclause, @pickinv_clause), '1 = 1')
+          and producedinv_clause = nvl(@produced_clause, '1 = 1')
+          and workOrderJoin = nvl(@workOrderJoin, '')
+
+    |
+    if(@hist_flg#onstack and @hist_flg != 0)
+    {
+        publish data
+            where history_flag = @hist_flg
+    }
+    else if(@hist_flg#onstack and @hist_flg = 0)
+    {
+        publish data
+            where history_flag = @inv_hist_id
+    }
+    else
+    {
+        publish data
+            where history_flag = @inv_hist_id
+    }
+    |
+    if (@filterByClause like ('%inv_ser_num%') or @filterByClause like ('%ser_num_typ.%'))
+    {
+        if (@history_flag and @history_flag > 0)
+        {
+            publish data
+                where serialInfoJoin = '   left join inv_ser_num_hist inv_ser_num
+                                             on (inv_ser_num.invtid = all_inventory_view.dtlnum and inv_ser_num.ser_lvl=''D'' and all_inventory_view.inv_hist_id = inv_ser_num.inv_hist_id)
+                                                 or (inv_ser_num.invtid = all_inventory_view.subnum and inv_ser_num.ser_lvl=''S'' and all_inventory_view.inv_hist_id = inv_ser_num.inv_hist_id)
+                                                 or (inv_ser_num.invtid = all_inventory_view.lodnum and inv_ser_num.ser_lvl=''L'' and all_inventory_view.inv_hist_id = inv_ser_num.inv_hist_id)
+                                           left join ser_num_typ
+                                             on ser_num_typ.ser_num_typ_id = inv_ser_num.ser_num_typ_id  '
+
+        }
+        else
+        {
+            publish data
+                where serialInfoJoin = '   left join inv_ser_num
+                                             on (inv_ser_num.invtid = all_inventory_view.dtlnum AND inv_ser_num.ser_lvl=''D'')
+                                                 OR (inv_ser_num.invtid = all_inventory_view.subnum AND inv_ser_num.ser_lvl=''S'')
+                                                 OR (inv_ser_num.invtid = all_inventory_view.lodnum AND inv_ser_num.ser_lvl=''L'')
+                                           left join ser_num_typ
+                                             on ser_num_typ.ser_num_typ_id = inv_ser_num.ser_num_typ_id  '
+        }
+    }
+    |
+    if (!(@ser_typ#onstack or @filterByClause like ('%prtmst_view.%') or (@filterByJoins like ('%prtmst_view.%'))))
+    {
+        publish data
+            where prtmstHide = '--'
+    }
+    |
+    if (!(@filterByClause like ('%prtdsc.%')))
+    {
+        publish data
+            where prtdscHide = '--'
+    }
+    |
+    if (!(@filterByClause like ('%rcvinv.%')))
+    {
+        publish data
+            where rcvinvHide = '--'
+    }
+    |
+    if (!(@bldg_id#onstack or @filterByClause like ('%aremst.%') or @filterByClause like ('%are_dsc.%')))
+    {
+        publish data
+            where aremstHide = '--'
+    }
+    |
+    if (!(@fwiflg#onstack or @stagingRestriction != '1=1' or @fourWallRestriction or @holdFlagRestriction or @invMassRestriction))
+    {
+        publish data
+            where loctypHide = '--'
+    }
+    |
+    if (!(@rcvkey#onstack or @trknum#onstack or @invlin#onstack or @invlin#onstack or @invnum#onstack
+            or @invsln#onstack or !@rcvinvHide or @producedinv_clause like '%rcvlin%' or @pickinv_clause like '%rcvlin%'
+            or @filterByClause like '%rcvlin.%'))
+    {
+        publish data
+            where rcvlinHide = '--'
+    }
+    |
+    if (!(@abccod#onstack or @cntdte#onstack or @lstdte#onstack or @stoloc#onstack or @velzon#onstack or @arecod#onstack or @trlr_id#onstack
+            or !@aremstHide or !@loctypHide or @filterByClause like '%locmst.%' or @filterByJoins like '%locmst.%'))
+    {
+        publish data
+            where locmstHide = '--'
+    }
+    |
+    if(@stoloc)
+    {
+        [select stoloc
+           from trlr
+          where trlr.yard_loc = @stoloc
+            and trlr.yard_loc_wh_id = @wh_id
+            and rownum < 2] catch(-1403)
+    }
+    |
+    [/*#limit=@offset,@limit,true*/ /*#limitalg=over*/
+     select res.*
+       from (select distinct all_inventory_view.lodnum,
+                             all_inventory_view.inv_hist_id
+               from all_inventory_view
+ @locmstHide:raw    join locmst
+ @locmstHide:raw      on locmst.stoloc = all_inventory_view.stoloc
+ @locmstHide:raw     and locmst.wh_id = all_inventory_view.wh_id
+            -- Area Master and Area Description join
+ @aremstHide:raw    join aremst
+ @aremstHide:raw      on aremst.wh_id  = locmst.wh_id
+ @aremstHide:raw     and aremst.arecod = locmst.arecod
+ @aremstHide:raw    join dscmst are_dsc
+ @aremstHide:raw      on are_dsc.colval = aremst.arecod || '|' || aremst.wh_id
+ @aremstHide:raw     and are_dsc.colnam = 'arecod|wh_id'
+ @aremstHide:raw     and are_dsc.locale_id = @locale
+            -- Location Type join
+ @loctypHide:raw    join (select loc_typ_id, wipflg, fwiflg, loc_typ, stgflg
+ @loctypHide:raw            from loc_typ
+ @loctypHide:raw           where @stagingRestriction:raw
+ @loctypHide:raw             @fourWallRestriction:raw
+ @loctypHide:raw             @holdFlagRestriction:raw
+ @loctypHide:raw             @invMassRestriction:raw
+ @loctypHide:raw             and @+loc_typ.wh_id
+ @loctypHide:raw         ) loc_type
+ @loctypHide:raw      on loc_type.loc_typ_id = locmst.loc_typ_id
+            -- Item Master join
+ @prtmstHide:raw    join prtmst_view
+ @prtmstHide:raw      on prtmst_view.prtnum = all_inventory_view.prtnum
+ @prtmstHide:raw     and prtmst_view.prt_client_id = all_inventory_view.prt_client_id
+ @prtmstHide:raw     and prtmst_view.wh_id = all_inventory_view.wh_id
+            -- Item Description join
+ @prtdscHide:raw    join prtdsc
+ @prtdscHide:raw    /*#nobind*/
+ @prtdscHide:raw      on prtdsc.colnam = 'prtnum|prt_client_id|wh_id_tmpl'
+ @prtdscHide:raw     and prtdsc.colval = /*=varchar(*/all_inventory_view.prtnum || '|' || all_inventory_view.prt_client_id || '|' || all_inventory_view.wh_id/*=)*/
+ @prtdscHide:raw    /*#bind*/
+ @prtdscHide:raw     and prtdsc.locale_id = @locale
+            -- Receive Line join
+ @rcvlinHide:raw    left join rcvlin
+ @rcvlinHide:raw      on rcvlin.rcvkey = all_inventory_view.rcvkey
+            -- Receive Invoice join
+ @rcvinvHide:raw    left join rcvinv
+ @rcvinvHide:raw      on rcvinv.wh_id = rcvlin.wh_id
+ @rcvinvHide:raw     and rcvinv.trknum = rcvlin.trknum
+ @rcvinvHide:raw     and rcvinv.invnum = rcvlin.invnum
+ @rcvinvHide:raw     and rcvinv.supnum = rcvlin.supnum
+ @rcvinvHide:raw     and rcvinv.client_id = rcvlin.client_id
+            -- hold join for hold LPNs
+                    @holdJoin:raw
+            -- shipment join for shipment-related LPNs
+                    @shipJoin:raw
+            -- carrier move join for carrier move-related LPNs
+                    @carMoveJoin:raw
+            -- Dynamic Joins for Filter
+                    @filterByJoins:raw
+            -- start of dynamic joins for filters
+                    @serialInfoJoin:raw
+                    @workOrderJoin:raw
+              where all_inventory_view.prtnum != 'RETURNPART'
+                and @+all_inventory_view.prtnum
+                and @+all_inventory_view.prt_client_id
+                and @+all_inventory_view.adddte:date
+                and @+all_inventory_view.age_pflnam
+                and @+all_inventory_view.dtlnum
+                and @+all_inventory_view.expire_dte:date
+                and @+all_inventory_view.fifdte:date
+                and @+all_inventory_view.ftpcod
+                and @+all_inventory_view.inv_attr_dte1
+                and @+all_inventory_view.inv_attr_dte2
+                and @+all_inventory_view.inv_attr_flt1
+                and @+all_inventory_view.inv_attr_flt2
+                and @+all_inventory_view.inv_attr_flt3
+                and @+all_inventory_view.inv_attr_int1
+                and @+all_inventory_view.inv_attr_int2
+                and @+all_inventory_view.inv_attr_int3
+                and @+all_inventory_view.inv_attr_int4
+                and @+all_inventory_view.inv_attr_int5
+                and @+all_inventory_view.inv_attr_str1
+                and @+all_inventory_view.inv_attr_str10
+                and @+all_inventory_view.inv_attr_str11
+                and @+all_inventory_view.inv_attr_str12
+                and @+all_inventory_view.inv_attr_str13
+                and @+all_inventory_view.inv_attr_str14
+                and @+all_inventory_view.inv_attr_str15
+                and @+all_inventory_view.inv_attr_str16
+                and @+all_inventory_view.inv_attr_str17
+                and @+all_inventory_view.inv_attr_str18
+                and @+all_inventory_view.inv_attr_str2
+                and @+all_inventory_view.inv_attr_str3
+                and @+all_inventory_view.inv_attr_str4
+                and @+all_inventory_view.inv_attr_str5
+                and @+all_inventory_view.inv_attr_str6
+                and @+all_inventory_view.inv_attr_str7
+                and @+all_inventory_view.inv_attr_str8
+                and @+all_inventory_view.inv_attr_str9
+                and @+all_inventory_view.invsts
+                and @+all_inventory_view.lotnum
+                and @+all_inventory_view.lstdte:date
+                and @+all_inventory_view.mandte:date
+                and @+all_inventory_view.orgcod
+                and @+all_inventory_view.prt_client_id
+                and @+all_inventory_view.prtnum
+                and @+all_inventory_view.revlvl
+                and @+all_inventory_view.sup_lotnum
+                and @+pcklst.asset_typ
+                and @+pcklst_slot_load.lodnum^trolley_lodnum
+                and @+trolley_asset_link.asset_id
+                and @+all_inventory_view.supnum
+                and @+all_inventory_view.untqty
+                and @+all_inventory_view.adddte:date
+                and @+all_inventory_view.asset_typ
+                and @+all_inventory_view.lodnum
+                and @+all_inventory_view.lstdte:date
+                and @+all_inventory_view.uccdte:date
+                and @+all_inventory_view.wh_id
+                and @+inv_ser_num.ser_num
+                and @+all_inventory_view.adddte:date
+                and @+all_inventory_view.asset_typ^sub_asset_typ
+                and @+all_inventory_view.lstdte:date
+                and @+all_inventory_view.subnum
+                and @+all_inventory_view.uccdte:date
+                and @+loc_type.fwiflg
+                and @+locmst.abccod
+                and @+locmst.cntdte:date
+                and @+locmst.lstdte:date
+                and @+locmst.stoloc
+                and @+locmst.stoloc^trlr_id
+                and @+locmst.velzon
+                and @+locmst.arecod
+                and @+aremst.bldg_id
+                and @+prtmst_view.ser_typ
+                and @+rcvlin.rcvkey
+                and @+rcvlin.trknum
+                and @+rcvlin.invlin
+                and @+rcvlin.invnum
+                and @+rcvlin.invsln
+                and @inv_identifier_clause:raw
+                and @client_in_clause:raw
+                and @producedinv_clause:raw
+                and @pickinv_clause:raw
+                and @holdWhere:raw
+                and @+cat_qty_cap.oot_flg
+                and @inv_hist_clause:raw
+                and @filterByClause:raw
+            ) res
+      order by res.lodnum]
+]]>
+</local-syntax>
+</command>

@@ -1,0 +1,208 @@
+<command>
+  <name>process usr user</name>
+  <description>process usr user</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* process usr user
+ * Version history:
+ *  2020-12-29  Radina Ivanova    Initial version. Reproduce the lm logic used in 2018
+ *  2021-03-02  Radina Ivanova    Hide some stack variables related to LM which will no longer be used
+ *  2022-06-01  Marco Schouwenaar Changed delete user to inactive (will be removed/purged when archived and inactive x days)
+ *  2022-10-24  Radina Ivanova    New users should not be forced to change their password at first login by default
+ */
+hide stack variable
+where name = 'MC_SUPERVISOR_ID'
+|
+hide stack variable
+where name = 'MC_EMP_IS_SUPERVISOR'
+|
+hide stack variable
+where name = 'SUB_NAME'
+|
+hide stack variable
+where name = 'WTM_NAME'
+|
+hide stack variable
+where name = 'RPT_NAME'
+|
+hide stack variable
+where name = 'MC_EMP_HIRE_DATE'
+|
+hide stack variable
+where name = 'MC_EMP_COST'
+|
+list warehouses
+where wh_id = @wh_id catch(-1403) >> res
+|
+if (@? = -1403) 
+{
+    set return status
+    where status = 1956
+}
+|
+if (@func_id = 'D')
+{
+    list users
+    where usr_id = @usr_id catch(-1403)
+    |
+    if (@? = 0)
+    {
+/*        remove user
+         where usr_id = @usr_id*/
+         change user where usr_id=@usr_id and usr_sts='I'
+    }
+    else
+    {
+        set return status
+        where status = 11021
+    }
+}
+else if (@func_id = 'N' or @func_id = 'C')
+{
+    if (@usr_sts is not null and @usr_sts != 'A' and @usr_sts != 'I')
+    {
+        set return status
+        where status = 810
+          and name = 'usr_sts'
+    }
+    |
+    list users
+    where usr_id = @usr_id catch(-1403) >> resUser
+    |
+    if (@? = 0)
+    {
+        [[
+            /* get just the columns we need */
+            resUser.next();
+            MocaResults newRes = new SimpleResults();
+            newRes.addColumn("org_first_name",MocaType.STRING);
+            newRes.addColumn("org_last_name", MocaType.STRING);
+            newRes.addColumn("adr_id", MocaType.STRING);
+            newRes.addRow();
+            newRes.setValue("org_first_name", resUser.getValue("first_name"));
+            newRes.setValue("org_last_name", resUser.getValue("last_name"));
+            newRes.setValue("adr_id", resUser.getValue("adr_id"));
+            
+            return newRes;
+        ]]
+        |
+        publish data
+          where record_exists = 1
+            and org_first_name = @org_first_name
+            and org_last_name = @org_last_name
+            and adr_id = @adr_id
+    }
+    |
+    if (@record_exists = 1)
+    {
+        if (@func_id = 'N' and (@org_first_name != @first_name or @org_last_name != @last_name))
+        {
+            remove user
+             where usr_id = @usr_id
+            |
+            publish data where record_exists = 0
+        }
+        |
+        publish data
+          where record_exists = @record_exists
+    }
+    |
+    if (@record_exists = 1)
+    {
+        if (@adr_id is not null)
+        {
+            list addresses
+            where adr_id = @adr_id
+              and all_addr_flg = 1 catch(-1403) >> res
+            |
+            if (@? = 0)
+            {
+                change address
+                 where adr_id = @adr_id
+                   and first_name = @first_name
+                   and last_name = @last_name
+            }
+            else
+            {
+                set return status
+                where status = 810
+                  and name = 'adr_id'
+            }
+        }
+        |
+        list user warehouses
+        where usr_id = @usr_id catch(-1403)
+        |
+        if (@? = 0)
+        {
+            remove user warehouse
+             where usr_id = @usr_id
+               and wh_id = @wh_id   
+        }
+        |
+        create user warehouse
+         where usr_id = @usr_id
+           and wh_id = @wh_id
+           and def_flg = 0
+        |
+        change user where usr_id=@usr_id and usr_sts=@usr_sts
+    }
+    else
+    {
+        create address
+         where grp_nam = 'lm_data'
+           and client_id = '----'
+           and adrnam = @usr_id
+           and adrtyp = 'USR'
+           and temp_flg = '0'
+           and rsaflg = '1'
+           and locale_id = 'US_ENGLISH'
+           and first_name = @first_name
+           and last_name = @last_name
+        |
+       /* list policies
+        where polcod = 'lm'
+          and polvar = 'default_settings'
+          and polval = 'default_usr_pswd'
+        |
+        check password policies
+        where usr_id = @usr_id
+          and usr_pswd = @rtstr1
+        |*/
+        publish data
+          where pswd_chg_flg_orig = @pswd_chg_flg
+        |
+        create user
+         where usr_id = @usr_id
+           and create_default_role = '1'
+           and adr_id = @adr_id
+           and client_id = ''
+           and usr_pswd = @usr_id /*@rtstr1*/
+           and locale_id = 'US_ENGLISH'
+           and grp_nam = 'lm_data'
+           and pswd_expir_flg = '0'
+           and add_default_schedule = '1'
+        |
+        /* update the password change flag manually,
+         * because create user defaults it to '1' regardless of passed value
+         * due to the default password not matching the password requirements */
+        [update les_usr_ath
+            set pswd_chg_flg = nvl(@pswd_chg_flg_orig, '0')
+          where usr_id = @usr_id]
+        |
+        [select *
+           from les_usr_ath
+          where usr_id = @usr_id]
+    }
+}
+else
+{
+    set return status
+    where status = 810
+      and name = 'func_id'
+}
+]]>
+</local-syntax>
+  
+</command>

@@ -1,0 +1,5 @@
+<command>
+<name>test var command</name>
+<type>C Function</type>
+<function>varTestVarCommand</function>
+</command>

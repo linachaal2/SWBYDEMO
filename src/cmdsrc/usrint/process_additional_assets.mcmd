@@ -1,0 +1,203 @@
+<command>
+  <name>process additional assets</name>
+  <description>process additional assets</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+  <![CDATA[
+/* process additional assets
+ * User version with bugfix for command "process additional assets".
+ * Version history:
+ *  2018-01-03  Salem Hamze  Initial version.
+ *  2019-01-11  Salem Hamze  Bugfix for remove asset.
+ *  2020-05-12  Raoul Scholten Fix for calling multiple times while listpicking
+ *  2020-10-30  Radina Ivanova Remove legborden only if the usr_remove_linked_assets parameter is passed
+ */
+if (@create_inv_asset and @asset_typ)
+{
+    /*
+     ** Create INV_ASSET for Destination Load.
+     */
+    [select 1
+       from inv_asset
+      where invtid = @dstlod
+        and asset_typ = @asset_typ] catch(-1403)
+    |
+    if (@? = -1403)
+    {
+        create inventory asset type
+         where untqty = @untqty
+           and invtid = @dstlod
+           and asset_typ = @asset_typ
+           and client_id = @client_id
+    }
+}
+else if (@pick_to_lvl = 'S' and @create_inv_asset and @sub_asset_typ)
+{
+    /*
+     ** Create INV_ASSET for Destination Load.
+     */
+    [select 1
+       from inv_asset
+      where invtid = @dstsub
+        and asset_typ = @sub_asset_typ] catch(-1403)
+    |
+    if (@? = -1403)
+    {
+        create inventory asset type
+         where untqty = @untqty
+           and invtid = @dstsub
+           and asset_typ = @sub_asset_typ
+           and client_id = @client_id
+    }
+}
+|
+if (@remove_inv_asset)
+{
+    /*
+     ** Load has been deleted, let us delete the assets associated to the load
+     */
+    /* USR - This is called when a load or a sub load is removed, initially this always looked at load but it should look at the passed invtid and asset_typ. 
+     * Otherwise the assets for the load are removed when a sub is removed and the load still exists.
+     */
+    if (@asset_typ != '')
+    {
+        /* USR - If we already got a src_lod_asset we will use that as this command is getting called for each inv_asset. */
+        /* USR - However we should check on existance whenever the command has been fired multiple times */
+        /* USR - We should also delete legborden (additional assets) if the ladingdrager (main asset) is deleted, link between asset types is stored in the policies */
+        [select *
+           from inv_asset
+          where asset_typ = @asset_typ
+            and invtid = nvl(@invtid, @lodnum)] catch(-1403)
+        |
+        if (@? = 0)
+        {
+            remove record
+             where table = 'inv_asset'
+               and asset_typ = @asset_typ
+               and invtid = nvl(@invtid, @lodnum)
+            |
+            [select rtstr2 legbord
+               from poldat
+              where polcod = 'USR-RF-FORM'
+                and polvar = 'ASSET_IDENTIFY'
+                and polval = 'ASSET_LINK'
+                and rtstr1 = @asset_typ] catch(-1403)
+            |
+            if (@legbord != '' and @usr_remove_linked_assets = 1)
+            {
+                [select *
+                   from inv_asset
+                  where invtid = nvl(@invtid, @lodnum)
+                    and asset_typ = @legbord] catch(-1403)
+                |
+                if (@? = 0)
+                {
+                    remove record
+                     where table = 'inv_asset'
+                       and asset_typ = @legbord
+                       and invtid = nvl(@invtid, @lodnum)
+                }
+            }
+        }
+    }
+    else
+    {
+        [select asset_typ
+           from inv_asset
+          where invtid = nvl(@invtid, @lodnum)] catch(-1403)
+        |
+        if (@? = 0)
+        {
+            /*
+             ** Load is consolidated to DSTLOD, remove the old load from INV_ASSET.
+             */
+            remove record
+             where table = 'inv_asset'
+               and asset_typ = @asset_typ
+               and invtid = nvl(@invtid, @lodnum)
+        }
+    }
+}
+|
+/*
+ ** Load is already moved to destination, create the INV_ASSET for DSTLOD.
+ */
+if (@create_platform_asset)
+{
+    /*
+     ** Check if the asset is being moved to Destination Load and if we do not have INV_ASSET 
+     ** for platform asset let us create it here.
+     */
+    [select invlod.asset_typ
+       from invlod,
+            asset_typ
+      where lodnum = @dstlod
+        and invlod.asset_typ = asset_typ.asset_typ
+        and asset_typ.ser_flg = 0] catch(-1403)
+    |
+    if (@asset_typ)
+    {
+        [select 1
+           from inv_asset
+          where invtid = @dstlod
+            and asset_typ = @asset_typ] catch(-1403)
+        |
+        if (@? = -1403)
+        {
+            create inventory asset type
+             where invtid = @dstlod
+               and asset_typ = @asset_typ
+               and untqty = 1 catch(-1403)
+        }
+    }
+}
+|
+if (@load_cons_or_sub_move)
+{
+    [select untqty dst_qty,
+            client_id
+       from inv_asset
+      where invtid = @invtid
+        and asset_typ = @asset_typ] catch(-1403)
+    |
+    if (@? = 0)
+    {
+        change record
+         where table = 'inv_asset'
+           and untqty = @dst_qty + @src_qty
+           and invtid = @invtid
+           and asset_typ = @asset_typ
+    }
+    else
+    {
+        create record
+         where table = 'inv_asset'
+           and untqty = @src_qty
+           and invtid = @invtid
+           and client_id = @client_id
+           and asset_typ = @asset_typ
+    }
+}
+]]>
+  </local-syntax>
+
+  <argument name="lodnum" datatype="string">Load Number</argument>
+  <argument name="subnum" datatype="string">SubLoad Number</argument>
+  <argument name="dstlod" datatype="string">Destination Load</argument>
+  <argument name="dstsub" datatype="string">Destination Sub-Load Number</argument>
+  <argument name="create_inv_asset" datatype="string">Create Inventory Asset</argument>
+  <argument name="remove_inv_asset" datatype="string">Destination Sub-Load Number</argument>
+  <argument name="create_platform_asset" datatype="string">Destination Sub-Load Number</argument>
+  <argument name="load_cons_or_sub_move" datatype="string">Destination Sub-Load Number</argument>
+  <argument name="asset_typ" datatype="string">Asset Type</argument>
+  <argument name="sub_asset_typ" datatype="string">Sub Asset Type</argument>
+  <argument name="pick_to_lvl" datatype="string">Picking container level (L or S)</argument>
+  <argument name="usr_remove_linked_assets" datatype="integer">Remove linked assets(0/1)</argument>
+
+  <documentation>
+    <remarks></remarks>
+
+    <exception value="eOK">Normal successful completion</exception>
+    <exception value="eDB_NO_ROWS_AFFECTED (510)">No data found</exception>
+  </documentation>
+</command>

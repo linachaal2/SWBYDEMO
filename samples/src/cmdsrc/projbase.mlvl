@@ -1,0 +1,6 @@
+Component-Level: PROJbase
+    Description: Project Base Component Library
+    Sort-Sequence: 1000
+    Library-Name: PROJbase
+    Directory: projbase
+End-Component-Level

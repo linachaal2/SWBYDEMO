@@ -1,0 +1,183 @@
+<command>
+<name>get maximum uom for part</name>
+<description>Get Maximum UOM For Part</description>
+<type>Local Syntax</type>
+
+<local-syntax>
+<![CDATA[
+
+    if (!@ftpcod and @wrkref and @wrkref <>'')
+    {
+        /*
+         * For CASE consolidated pick works, in which the ftpcod and untcas are cleared
+         * we return quantity in EA 
+         */
+        [select 'x' 
+           from pckwrk_hdr
+          where ftpcod is null
+            and untcas = 0
+            and lodlvl = 'S'
+            and wrkref = @wrkref
+            and wh_id = @wh_id ] catch(-1403)
+        |
+        if (@? = 0)
+        {
+            get cached policy
+               where polcod = 'PICK-RELEASE' 
+                 and polvar = 'MISCELLANEOUS'
+                 and polval = 'CONSOLIDATE-DIFFERENT-CASE-PICKS'
+                 and wh_id = @wh_id 
+                 and colnam = 'rtnum1'
+                 and colval = 1 catch(-1403)
+            |
+            if (@? = 0)
+            {
+                publish data
+                       where uomqty = @untqty
+                         and uomcod = 'EA'
+            } 
+        }
+        else 
+        {
+            set return status
+                where status = -1403
+        }
+    }
+    /*
+    ** if wrkref is passed in, get part&ftpcod from pckwrk_hdr and calcuate the max
+    ** uom that is pickable for source area, valid for part&ftpcod and
+    ** if the picked quantity is not as the whole times of higher uomcod, we should 
+    ** use the original uomcod, rather than the higher one.
+    ** if there is no pickable uom for area, we assume that all uomcod are pickable.
+    */
+    else if (@wrkref and @wrkref != '')
+    {
+        [select prtftp_dtl.uomcod,
+                prtftp_dtl.untqty qty_per_uom,
+                decode(pckwrk_hdr.untcas, 0, prtftp_dtl.untqty, pckwrk_hdr.untcas) untcas,
+                prtftp_dtl.cas_flg
+           from prtftp_dtl,pckwrk_hdr
+          where prtftp_dtl.prtnum = pckwrk_hdr.prtnum
+            and prtftp_dtl.prt_client_id = pckwrk_hdr.prt_client_id
+            and prtftp_dtl.wh_id = pckwrk_hdr.wh_id
+            and (prtftp_dtl.ftpcod = pckwrk_hdr.ftpcod
+                 or @+prtftp_dtl.ftpcod)
+            and (not exists (select 'x'
+                               from locmst, 
+                                    alloc_search_path_rule
+                              where locmst.stoloc = pckwrk_hdr.srcloc
+                                and locmst.pck_zone_id = alloc_search_path_rule.pck_zone_id)
+                or
+                exists (select 'x'
+                          from locmst, 
+                               alloc_search_path_rule
+                         where locmst.stoloc = pckwrk_hdr.srcloc
+                           and locmst.pck_zone_id = alloc_search_path_rule.pck_zone_id
+                           and alloc_search_path_rule.uomcod = prtftp_dtl.uomcod)
+                or
+                exists (select 'x'
+                          from locmst, 
+                               alloc_search_path_rule
+                         where locmst.stoloc = pckwrk_hdr.srcloc
+                           and locmst.pck_zone_id = alloc_search_path_rule.pck_zone_id
+                           and alloc_search_path_rule.uomcod is null))
+            and pckwrk_hdr.wrkref = @wrkref
+            and mod(@untqty, prtftp_dtl.untqty) = 0
+            and prtftp_dtl.uomcod not in (select rtstr1 from poldat_view where  poldat_view.wh_id=@wh_id and poldat_view.polcod='USR-RF-FORM' and poldat_view.polvar='DSP_UOM' and poldat_view.polval='SKIP' and poldat_view.rtnum1=1 )            
+          order by prtftp_dtl.uomlvl DESC] >> res
+        |
+        publish top rows
+            where res = @res and rows = 1
+        |
+        if(@cas_flg = 0)
+        {
+            publish data
+                where uomqty = int(@untqty/@qty_per_uom)
+                  and uomcod = @uomcod
+        }
+        else
+        {
+            publish data
+                where uomqty = int(@untqty/@untcas)
+                  and uomcod = @uomcod
+        }
+    }
+    else
+    {
+        /* ftpcod is optional. max()/min() is used to get the ONLY one.*/
+        [select count(distinct ivd.ftpcod) ftpcod_count, max(ivd.ftpcod) max_ftpcod
+           from invdtl ivd, invsub ivs, invlod ivl
+          where ivd.subnum = ivs.subnum
+            and ivs.lodnum = ivl.lodnum
+            and ivl.wh_id = @wh_id
+            and ivl.stoloc = @stoloc
+            and ivd.prtnum = @prtnum
+            and ivd.prt_client_id = @prt_client_id
+            and @+ivd.ftpcod]
+        |
+        /* stoloc is mixed on ftpcod, just using the stocking uom of part.*/
+        if (@ftpcod_count > 1)
+        {
+            [select stkuom
+               from prtmst_view
+              where prtnum = @prtnum
+                and prt_client_id = @prt_client_id
+                and wh_id = @wh_id]
+            |
+            publish data
+                where uomqty = @untqty
+                  and uomcod = @stkuom
+        }
+        /*
+        ** Single ftpcod, get max uom which is valid for part&ftpcod and pickable
+        ** for area, and if the picked quantity is not as the whole times of higher uomcod, 
+        ** we should  use the original uomcod, rather than the higher one.
+        */
+        else if (@ftpcod_count = 1)
+        {
+          get maximum uom quantity for part 
+            where prtnum = @prtnum
+              and prt_client_id = @prt_client_id
+              and wh_id = @wh_id
+              and max_ftpcod = @max_ftpcod
+              and stoloc = @stoloc
+              and untqty = @untqty
+        }
+        else
+        {
+            /* There is no valid inventory at the location */
+            set return status
+                where status = -1403
+        }
+    }
+
+]]>
+</local-syntax>
+
+<argument name="prtnum">Part Number</argument>
+<argument name="prt_client_id">Part Client ID</argument>
+<argument name="stoloc">Picking from area code</argument>
+<argument name="untqty">Unit Quantity</argument>
+<argument name="wh_id">Warehouse ID</argument>
+<argument name="wrkref">Work Reference</argument>
+<argument name="ftpcod">Footprint Code</argument>
+
+<documentation>
+<remarks>
+<![CDATA[
+  <p>
+    This command will calculate the unit quantity
+    by the part number/ part client id,
+    uomqty and uomcod. if the uom is not for the part
+    the return untqty will equal to 0.
+    if the uomqty equal to 0, the return untqty will
+    equal to 0
+    2020-06-23 Marco Schouwenaar custom override to skip the UOM on the policies USR-RF-FORM, DSP_UOM, SKIP    
+  </p>
+]]>
+</remarks>
+
+<exception value="eOK">Normal successful completion</exception>
+
+</documentation>
+</command>

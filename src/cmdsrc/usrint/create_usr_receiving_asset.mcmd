@@ -1,0 +1,190 @@
+<command>
+  <name>create usr receiving asset</name>
+  <description>create usr receiving asset</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* create usr receiving asset
+ * change receive asset moet aangepast worden om de bestaande 
+ * quantity te verhogen met de asset_qty die mee gestuurd word.
+ *
+ * Version history:
+ *  2018-11-01  Marco, Jasper, Tim - Added logic voor assets RFH
+ *  2018-12-05  Jasper - asset logic update voor rcv_asset qty updates
+ *  2020-04-13 Radina Ivanova - Asset groups are moved to policies
+ */
+/* Check arguments */
+validate key exists
+ where key = 'wh_id'
+   and table = 'wh'
+|
+validate key exists
+ where key = 'asset_typ'
+   and table = 'asset_typ'
+|
+/* We get the ser_flg to be used later */
+[select asset_cat,
+        ser_flg
+   from asset_typ
+  where asset_typ = @asset_typ]
+|
+check asset category enabled configuration
+ where asset_cat = @asset_cat
+   and wh_id = @wh_id
+|
+if (@ena_flg = 0)
+{
+    /* The asset_cat is disabled. */
+    set return status
+     where status = 11278
+    /*eINT_ASSET_CAT_DISABLED*/
+}
+|
+validate stack variable not null
+ where name = 'asset_stat'
+|
+list code descriptions
+ where colnam = 'asset_stat'
+   and codval = @asset_stat catch(-1403)
+|
+if (@? = -1403)
+{
+    /*Invalid asset status*/
+    set return status
+     where status = 11280
+    /*eINT_INVALID_ASSET_STAT*/
+}
+|
+validate key exists
+ where key = 'trknum'
+   and table = 'rcvtrk'
+|
+validate key exists
+ where key = 'invnum, supnum'
+   and table = 'rcvinv'
+|
+/* Check to see if we have 3pl installed */
+get installed configuration
+ where config = 'THIRD-PARTY-LOGISTICS'
+|
+if (@installed = 0)
+{
+    /* 3pl is not installed, so return the default client id */
+    publish data
+     where client_id = '----'
+}
+else
+{
+    /*
+     * 3pl is installed, so check that the client id that was
+     * passed in is valid.
+     */
+    /* Make sure that we have a client_id on the stack */
+    validate key exists
+     where key = 'client_id'
+       and table = 'client'
+}
+|
+if (@ser_flg = 1)
+{
+    validate stack variable not null
+     where name = 'asset_id'
+    |
+    [select 1
+       from rcv_asset
+      where supnum = @supnum
+        and invnum = @invnum
+        and trknum = @trknum
+        and wh_id = @wh_id
+        and asset_typ = @asset_typ
+        and asset_id = @asset_id] catch(-1403)
+    |
+    /* we will not throw error as we may be receiving multiple subs
+     * in a single asset, we already have the details for
+     * no action required.
+     */
+    if (@? = -1403)
+    {
+        if (@asset_tag)
+        {
+            validate asset tag
+             where asset_tag = @asset_tag
+        }
+        |
+        create receive asset
+    }
+    else
+    {
+        [select 1
+           from invlod,
+                asset_link
+          where invlod.lodnum = asset_link.asset_num
+            and asset_link.asset_id = @asset_id] catch(-1403)
+        |
+        if (@? = 0)
+        {
+            set return status
+             where status = 11019
+            /*eINT_CANNOT_ASSC_LOD_FOR_ASSET*/
+        }
+    }
+}
+else if (@ser_flg = 0)
+{
+    [select rcv_asset_key,
+            idnqty updidnqty,
+            expqty updexpqty
+       from rcv_asset
+      where supnum = @supnum
+        and invnum = @invnum
+        and trknum = @trknum
+        and client_id = @client_id
+        and wh_id = @wh_id
+        and asset_typ = @asset_typ
+        and asset_stat = @asset_stat] catch(-1403)
+    |
+    if (@? = -1403)
+    {
+        create receive asset
+    }
+    else
+    {
+        /*volgende regel is aangepast van de base code*/
+        [select asset_typ.alc_asset_grp,
+                rcv_asset.*
+           from rcv_asset
+          inner
+           join asset_typ
+             on asset_typ.asset_typ = rcv_asset.asset_typ
+          inner
+           join poldat_view asset_groups
+             on asset_groups.polcod = 'USR-RF-FORM'
+            and asset_groups.polvar = 'ASSET_IDENTIFY'
+            and asset_groups.polval = 'ASSET_GROUPS'
+            and asset_groups.rtstr1 = asset_typ.asset_typ
+            and asset_groups.wh_id = rcv_asset.wh_id
+          inner
+           join poldat_view
+             on poldat_view.polcod = 'USR-INTEGRATOR'
+            and poldat_view.polvar = 'TRANSACTIONS'
+            and poldat_view.polval = 'UPDATE-ASSET'
+            and poldat_view.rtstr1 = asset_groups.rtstr2
+            and poldat_view.rtnum1 = 1
+            and poldat_view.wh_id = rcv_asset.wh_id
+          where rcv_asset.rcv_asset_key = @rcv_asset_key] catch(-1403)
+        |
+        if (@? = 0)
+        {
+            publish data
+             where update_value = @updidnqty + @idnqty
+            |
+            change receive asset
+             where idnqty = @update_value
+               and expqty = @update_value
+               and rcv_asset_key = @rcv_asset_key
+        }
+    }
+}
+]]>
+</local-syntax>
+</command>

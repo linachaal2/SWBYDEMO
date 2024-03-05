@@ -1,0 +1,167 @@
+<command>
+  <name>get usr translated inventory identifier</name>
+  <description>get usr translated inventory identifier</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* get usr translated inventory identifier
+ * Get the translated inventory identifier including RFH specific identifiers.
+ * Version history:
+ *  2018-10-02  Salem Hamze     Initial version
+ *  2018-10-25  Salem Hamze     Changed logic to return lodnum before inv_attr_str8
+ *  2018-12-18  Salem Hamze     Changed logic to return both the lodnum and inv_attr_str8, only check inv_attr_str8 for inventory on expected receipt locations. 
+ *  2018-01-02  Salem Hamze     Retrieve lotnum for a load, added field mask. 
+ */
+validate stack variable not null
+ where name = 'identifier'
+|
+get warehouse id
+|
+if (@colnam = '')
+{
+    /* We check both the standard things and inv_attr_str8 at the same time becasue in some cases we want to use one or the other. */
+    get translated inventory identifier
+     where identifier = @identifier catch(@?) &
+    [select distinct 'inv_attr_str8' colnam,
+            aremst.bldg_id,
+            aremst.arecod,
+            locmst.stoloc,
+            invlod.lodnum,
+            invlod.loducc,
+            invlod.lodtag,
+            invlod.wh_id,
+            invlod.asset_typ
+       from invdtl
+      inner
+       join invsub
+         on invsub.subnum = invdtl.subnum
+      inner
+       join invlod
+         on invlod.lodnum = invsub.lodnum
+      inner
+       join locmst
+         on locmst.stoloc = invlod.stoloc
+        and locmst.wh_id = invlod.wh_id
+      inner
+       join loc_typ
+         on loc_typ.loc_typ_id = locmst.loc_typ_id
+      inner
+       join aremst
+         on aremst.arecod = locmst.arecod
+        and aremst.wh_id = locmst.wh_id
+      where invdtl.inv_attr_str8 = @identifier
+        and invdtl.inv_attr_str8 != invlod.lodnum
+        and loc_typ.adjflg = 0
+        and @+invlod.wh_id] catch(-1403)
+}
+|
+{
+    /* Check the masks which indicate that the user is finished with scanning the load. */
+    [select poldat_view.rtstr1 as pol_scan_id_mask,
+            poldat_view.rtstr2 as pol_scan_id_mask_type,
+            poldat_view.rtnum2 as pol_scan_id_mask_dsp_len
+       from poldat_view
+      where poldat_view.wh_id = @wh_id
+        and poldat_view.polcod = 'USR-RF-FORM'
+        and poldat_view.polvar = 'USR_IDENTIFY_LOAD'
+        and poldat_view.polval = 'SCAN_ID_MASK'
+        and poldat_view.rtnum1 = 1
+      order by poldat_view.srtseq]
+    |
+    /* Check if we already matched a mask. */
+    get session variable
+     where name = 'mask_match_found' catch(-1403)
+    |
+    /* No match yet so try to match the next mask. */
+    if (@? = -1403)
+    {
+        /* The masks support moca variables so translate these first. */
+        execute server command
+         where cmd = 'publish data where pol_scan_mask_id_trans=' || @pol_scan_id_mask
+        |
+        /* Check if the scanned value matches the mask using Groovy, this just returns a boolean true or false. */
+        [[identifier != null && pol_scan_mask_id_trans != null && identifier.matches(pol_scan_mask_id_trans); ]]
+        |
+        if (@result = 1)
+        {
+            /* If we found a match we want to stop and not try to match all the other masks. */
+            save session variable
+             where name = 'mask_match_found'
+               and value = 1
+            |
+            /* Publish the "match" values. */
+            publish data
+             where mask = @pol_scan_id_mask_type
+               and mask_dsp_len = @pol_scan_id_mask_dsp_len
+        }
+    }
+} catch(@?)
+|
+/* If we did not find a match then just return colnam='unknown' */
+publish data
+ where colnam = nvl(nvl(@colnam, @mask), 'unknown')
+   and mask = nvl(@mask, 'unknown')
+|
+/* Retrieve some additional columns if needed. */
+if (@stoloc != '')
+{
+    [select (case when loc_typ.expflg = 1 then 1
+                  else 0
+             end) as stoloc_exploc_flg,
+            (case when loc_typ.rcv_stgflg = 1 then 1
+                  else 0
+             end) as stoloc_rcvloc_new_flg,
+            (case when loc_typ.rcv_stgflg = 1 then 1
+                  else 0
+             end) as stoloc_rcvloc_add_flg,
+            (case when loc_typ.loc_typ = 'REXCP' then 1
+                  else 0
+             end) as stoloc_rexcploc_flg
+       from locmst
+      inner
+       join loc_typ
+         on loc_typ.loc_typ_id = locmst.loc_typ_id
+      where locmst.wh_id = @wh_id
+        and locmst.stoloc = @stoloc] catch(-1403)
+}
+|
+/* "get translated inventory identifier" does not return an asset_typ, so retrieve it if we can. */
+if (@lodnum != '')
+{
+    [select decode(max(iv.asset_typ), min(iv.asset_typ), max(iv.asset_typ), null, null, '*MULT*') as asset_typ,
+            decode(max(iv.lotnum), min(iv.lotnum), max(iv.lotnum), null, null, '*MULT*') as lotnum
+       from inventory_view iv
+      where iv.lodnum = @lodnum] catch(-1403)
+}
+|
+publish data
+ where identifier = @identifier
+   and identifier_dsp = substr(@identifier, iif(nvl(@mask_dsp_len, 0) > 0 and len(@identifier) > @mask_dsp_len, (len(@identifier) - nvl(@mask_dsp_len, 0)) + 1, 0))
+   and colnam = @colnam
+   and mask = @mask
+   and bldg_id = @bldg_id
+   and arecod = @arecod
+   and stoloc = @stoloc
+   and stoloc_exploc_flg = @stoloc_exploc_flg
+   and stoloc_rcvloc_new_flg = @stoloc_rcvloc_new_flg
+   and stoloc_rcvloc_add_flg = @stoloc_rcvloc_add_flg
+   and stoloc_rexcploc_flg = @stoloc_rexcploc_flg
+   and lodnum = @lodnum
+   and loducc = @loducc
+   and lodtag = @lodtag
+   and subnum = @subnum
+   and subucc = @subucc
+   and subtag = @subtag
+   and traknm = @traknm
+   and dtlnum = @dtlnum
+   and prtnum = @prtnum
+   and prt_client_id = @prt_client_id
+   and lotnum = @lotnum
+   and wh_id = @wh_id
+   and trolley_load = @trolley_load
+   and asset_typ = @asset_typ
+]]>
+</local-syntax>
+  <argument name="identifier" required="yes" datatype="string">identifier</argument>
+  <argument name="wh_id" datatype="string">wh_id</argument>
+</command>

@@ -1,0 +1,445 @@
+<command>
+  <name>process usr pick work escalation</name>
+  <description>escalate picklist based on volume </description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* User command to increase the priority based on 9 steps
+ * Request was done by RFH to get as much as possible full trolleys
+ * shipdate escallation is taken in account.
+ * priority steps are done in percentage 10% no prio, 
+ * 20% -1, 30% -2 etc. above 100% is captured as an exception
+ *
+ * Version history:
+ * 2020-03-31 Marco Schouwenaar Initial version 
+ * 2020-04-22 Marco Schouwenaar Added Palletpick for shipment escallation and no increment on wrong value of pick list max cube 
+ * 2020-05-12 Marco Schouwenaar Added additional check on ordertype for ship escalation (was a general rule only first)
+ * 2021-01-28 Marco Schouwenaar corrected update work command for Blue Yonder 2020.1.2
+ * 2021-03-02 Marco Schouwenaar Changed logic to use 2 policies to be able to add additional operation codes (using list volume or normal pallet pick)
+ *                              Including looping all order types in the list/pick to make sure to have the highest priority
+ * 2021-03-12 Radina Ivanova    Included the pallet moves in the logic for the pallet picks
+ * 2022-02-22 Radina Ivanova    Policy for maximum priority below which volume is not taken into account for the final priority
+ * 2023-01-06 Marco Schouwenaar Improved locking on workqueue to only call the change work command when there is no lock on the record (no validation in the core on this)
+ * 2023-04-25 Marco Schouwenaar due to change in pick release manager (core), added additional check on update command for status Pending
+ */
+publish data
+ where ship_esc_enabled = 0
+|
+list warehouses
+|
+[select rtstr1 oprcod
+   from poldat_view
+  where wh_id = nvl(@wh_id, @@wh_id)
+    and rtnum1 = 1
+    and polcod = 'USR-DIRECTED-WORK'
+    and polvar = 'ESCALLATION'
+    and polval = 'OPR-LISTPICK'] catch(-1403)
+|
+[select esc_shpdte_field shpdte_fld
+   from wrkopr_view
+  where wh_id = nvl(@wh_id, @@wh_id)
+    and esc_shpdte_flg = 1
+    and oprcod = @oprcod] catch(-1403)
+|
+if (@? = 0)
+{
+    if (@shpdte_fld)
+    {
+        publish data
+         where dte_field = 'shipment.' || nvl(@shpdte_fld, 'late_shpdte')
+    }
+    else
+    {
+        /* If Escalation field is not specified, let us take late_shpdte. */
+        publish data
+         where dte_field = 'shipment' || '.' || 'late_shpdte'
+    }
+    |
+    publish data
+     where ship_esc_enabled = 1
+    |
+    [select reqnum,
+            lstescdte,
+            adddte,
+            shipescdte,
+            ceil((moca_util.date_diff_days(lstescdte, shipescdte)) *24*60) esc_dte_diff,
+            ceil((nvl(moca_util.date_diff_days(sysdate, shipescdte), 0)) *24*60) shp_dte_diff,
+            ship_esc_enabled,
+            increment,
+            reprio,
+            effpri,
+            baspri,
+			ordtyp,
+            max_priority_for_volume_decrease
+       from (select wrkque.reqnum,
+                    wrkque.lstescdte,
+                    wrkque.adddte,
+                    min(@dte_field:raw) shipescdte,
+                    @ship_esc_enabled as ship_esc_enabled,
+                    case when (pcklst.max_list_cube=0) then 0
+                    else (ceil((pcklst.totvol / pcklst.max_list_cube) *10) -1) 
+                    end as increment,
+                    case when (wrkque.adddte = wrkque.lstescdte or pcklst.last_upd_dt > wrkque.lstescdte) then 1
+                         else 0
+                    end as reprio,
+                    wrkque.effpri,
+                    wrkque.baspri,
+					ord.ordtyp as ordtyp,
+                    nvl(poldat_view.rtnum2, 0) max_priority_for_volume_decrease
+               from wrkque
+               left
+               join pcklst
+                 on (wrkque.list_id = pcklst.list_id)
+               left
+               join pckwrk_view
+                 on (wrkque.list_id = pckwrk_view.list_id and wrkque.wh_id = pckwrk_view.wh_id)
+               left
+               join shipment
+                 on (pckwrk_view.ship_id = shipment.ship_id)
+               left
+               join ord
+                 on (pckwrk_view.ordnum = ord.ordnum
+                    and pckwrk_view.client_id = ord.client_id
+                    and pckwrk_view.wh_id = ord.wh_id)
+               left
+               join poldat_view
+                 on poldat_view.polcod = 'USR-DIRECTED-WORK'
+                and poldat_view.polvar = 'ESCALLATION-SKIP-VOL'
+                and poldat_view.polval = ord.ordtyp
+                and rtnum1 = 1
+                and poldat_view.wh_id = wrkque.wh_id
+              where wrkque.wrksts = 'PEND'
+                and wrkque.oprcod = @oprcod
+              group by wrkque.lstescdte,
+                    wrkque.adddte,
+                    pcklst.last_upd_dt,
+                    pcklst.max_list_cube,
+                    pcklst.totvol,
+                    wrkque.reqnum,
+                    wrkque.effpri,
+                    wrkque.baspri,
+                    ord.ordtyp,
+                    poldat_view.rtnum2) assignments_lp] catch(-1403)
+}
+|
+if (@? = 0)
+{
+    if (@ship_esc_enabled = 1)
+    {
+        list escalate late ship date
+         where oprcod = @oprcod
+           and ordtyp = @ordtyp catch(-1403)
+        |
+        if(@?=-1403)
+        {
+           list escalate late ship date
+            where oprcod = @oprcod
+              and ordtyp = '----' 
+        }
+        |
+        publish data
+         where window = @ship_date_win
+           and shpdte_esc_pri = @wrk_esc_pri
+        |
+        /* If the date the work was added is equal to the last escalation date,
+         * the work has never been escalated. This is because we set the last
+         * escalation date to the current date when creating work.
+         */
+        if (@reprio = 1 or @esc_dte_diff >= @window)
+        {
+            /*
+             ** Update the priority, as the job falls within the window.  Do NOT
+             ** update if at the maximum (hence the catch -1403).  For negative
+             ** window values, set the effpri to the highest priority.
+             */
+            if ((@shp_dte_diff <= @window) or (@shp_dte_diff <= 0))
+            {
+                if (0 < @shp_dte_diff and @shp_dte_diff <= @window)
+                {
+                    publish data
+                     where priority = @shpdte_esc_pri
+                }
+                else
+                {
+                    [select min(wrk_esc_pri) priority
+                       from ship_date_esc_pri
+                      where oprcod = @oprcod
+                       and ordtyp = @ordtyp] catch(-1403)
+                         |
+                      if(@?=-1403)
+                     {
+                        [select min(wrk_esc_pri) priority
+                           from ship_date_esc_pri
+                           where oprcod = @oprcod
+                             and ordtyp = '----'] catch(-1403)
+                     }
+                     |
+                     publish data
+                     where priority = @priority
+                 }
+                |
+                 publish data where reprio=1 and priority=@priority and effpri=@effpri /* reput values on stack */
+           }
+        }
+    }
+    |
+    if (@reprio = 1)
+    {
+        if (@increment > 9)
+            publish data
+             where increment = 9
+        |
+        if (@priority <= 0)
+        {
+            publish data
+             where escalation = @increment
+        }
+        else
+        {
+            if (@max_priority_for_volume_decrease > 0 and @priority <= @max_priority_for_volume_decrease)
+            {
+                publish data
+                 where escalation = (@baspri - @priority)
+            }
+            else
+            {
+                publish data
+                 where escalation = @increment + (@baspri - @priority)
+
+            }
+        }
+        |
+        [select effpri current_pri from wrkque
+          where reqnum = @reqnum]
+        |
+        if (@current_pri > (@baspri - @escalation))
+        {
+           [select * from wrkque
+             where wrkque.reqnum = @reqnum
+               and wrkque.wrksts = 'PEND' for update nowait] catch (-54)
+             |
+          if (@? = 0) 
+           {
+			update work
+             where reqnum = @reqnum
+               and lstescdte = sysdate
+               and effpri = @baspri - @escalation catch(-1403)
+               |
+               commit;
+           }
+        }
+    }
+}
+;
+publish data
+     where ship_esc_enabled = 0
+|
+list warehouses
+|
+[select rtstr1 oprcod
+   from poldat_view
+  where wh_id = nvl(@wh_id, @@wh_id)
+    and rtnum1 = 1
+    and polcod = 'USR-DIRECTED-WORK'
+    and polvar = 'ESCALLATION'
+    and polval = 'OPR-PICK'] catch(-1403)
+|
+[select esc_shpdte_field shpdte_fld
+   from wrkopr_view
+  where wh_id = nvl(@wh_id, @@wh_id)
+    and esc_shpdte_flg = 1
+    and oprcod = @oprcod] catch(-1403)
+|
+if (@? = 0)
+{
+    if (@shpdte_fld)
+    {
+        publish data
+         where dte_field = 'shipment.' || nvl(@shpdte_fld, 'late_shpdte')
+    }
+    else
+    {
+        /* If Escalation field is not specified, let us take late_shpdte. */
+        publish data
+         where dte_field = 'shipment' || '.' || 'late_shpdte'
+    }
+    |
+    publish data
+     where ship_esc_enabled = 1
+    |
+	if (@oprcod = 'PALMOV')
+    {
+        publish data
+          where pckwrk_join_clause = 'left join pckwrk_view on (wrkque.list_id = pckwrk_view.list_id and wrkque.wh_id = pckwrk_view.wh_id)'
+    }
+    else
+    {
+        publish data
+          where pckwrk_join_clause = 'left join pckwrk_view on (wrkque.wrkref = pckwrk_view.wrkref and wrkque.wh_id = pckwrk_view.wh_id)'
+    }
+    |
+    [select reqnum,
+            lstescdte,
+            adddte,
+            shipescdte,
+            ceil((moca_util.date_diff_days(lstescdte, shipescdte)) *24*60) esc_dte_diff,
+            ceil((nvl(moca_util.date_diff_days(sysdate, shipescdte), 0)) *24*60) shp_dte_diff,
+            ship_esc_enabled,
+            increment,
+            reprio,
+            effpri,
+            baspri,
+			ordtyp,
+            max_priority_for_volume_decrease
+       from (select wrkque.reqnum,
+                    wrkque.lstescdte,
+                    wrkque.adddte,
+                    min(@dte_field:raw) shipescdte,
+                    @ship_esc_enabled as ship_esc_enabled,
+                    0 as increment,
+                    case when (wrkque.adddte = wrkque.lstescdte) then 1
+                         else 0
+                    end as reprio,
+                    wrkque.effpri,
+                    wrkque.baspri,
+					ord.ordtyp as ordtyp,
+                    nvl(poldat_view.rtnum2, 0) max_priority_for_volume_decrease
+               from wrkque
+               @pckwrk_join_clause:raw
+               left
+               join shipment
+                 on (pckwrk_view.ship_id = shipment.ship_id)
+			   left
+               join ord
+                 on (pckwrk_view.ordnum = ord.ordnum
+                    and pckwrk_view.client_id = ord.client_id
+                    and pckwrk_view.wh_id = ord.wh_id)
+               left
+               join poldat_view
+                 on poldat_view.polcod = 'USR-DIRECTED-WORK'
+                and poldat_view.polvar = 'ESCALLATION-SKIP-VOL'
+                and poldat_view.polval = ord.ordtyp
+                and rtnum1 = 1
+                and poldat_view.wh_id = wrkque.wh_id
+              where wrkque.wrksts = 'PEND'
+                and wrkque.oprcod = @oprcod
+              group by wrkque.lstescdte,
+                    wrkque.adddte,
+                    wrkque.reqnum,
+                    wrkque.effpri,
+                    wrkque.baspri,
+                    ord.ordtyp,
+                    poldat_view.rtnum2) assignments_pp] catch(-1403)
+}
+|
+if (@? = 0)
+{
+    if (@ship_esc_enabled = 1)
+    {
+        list escalate late ship date
+         where oprcod = @oprcod
+           and ordtyp = @ordtyp catch(-1403)
+        |
+        if(@?=-1403)
+        {
+           list escalate late ship date
+            where oprcod = @oprcod
+              and ordtyp = '----' 
+        }
+        |
+        publish data
+         where window = @ship_date_win
+           and shpdte_esc_pri = @wrk_esc_pri
+        |
+        /* If the date the work was added is equal to the last escalation date,
+         * the work has never been escalated. This is because we set the last
+         * escalation date to the current date when creating work.
+         */
+        if (@reprio = 1 or @esc_dte_diff >= @window)
+        {
+            /*
+             ** Update the priority, as the job falls within the window.  Do NOT
+             ** update if at the maximum (hence the catch -1403).  For negative
+             ** window values, set the effpri to the highest priority.
+             */
+            if ((@shp_dte_diff <= @window) or (@shp_dte_diff <= 0))
+            {
+                if (0 < @shp_dte_diff and @shp_dte_diff <= @window)
+                {
+                    publish data
+                     where priority = @shpdte_esc_pri
+                }
+                else
+                {
+                    [select min(wrk_esc_pri) priority
+                       from ship_date_esc_pri
+                      where oprcod = @oprcod
+                        and ordtyp = @ordtyp] catch(-1403)
+                         |
+                      if(@?=-1403)
+                     {
+                        [select min(wrk_esc_pri) priority
+                           from ship_date_esc_pri
+                           where oprcod = @oprcod
+                             and ordtyp = '----'] catch(-1403)
+                     }
+                     |
+                     publish data
+                     where priority = @priority
+                }
+                |
+                 publish data where reprio=1 and priority=@priority and effpri=@effpri /* reput values on stack */
+            }
+        }
+    }
+    |
+    if (@reprio = 1)
+    {
+        if (@increment > 9)
+            publish data
+             where increment = 9
+        |
+        if (@priority <= 0)
+        {
+            publish data
+             where escalation = @increment
+        }
+        else
+        {
+            if (@max_priority_for_volume_decrease > 0 and @priority <= @max_priority_for_volume_decrease)
+            {
+                publish data
+                 where escalation = (@baspri - @priority)
+            }
+            else
+            {
+                publish data
+                 where escalation = @increment + (@baspri - @priority)
+
+            }
+        }
+        |
+          [select effpri current_pri from wrkque
+              where reqnum = @reqnum]
+        |
+        if (@current_pri > (@baspri - @escalation))
+        {
+           [select * from wrkque
+             where wrkque.reqnum = @reqnum 
+               and wrkque.wrksts = 'PEND' for update nowait] catch (-54)
+             |
+          if (@? = 0) 
+           {
+			update work
+             where reqnum = @reqnum
+               and lstescdte = sysdate
+               and effpri = @baspri - @escalation catch(-1403)
+               |
+               commit;
+           }
+        }
+    }
+}
+]]>
+</local-syntax>
+</command>

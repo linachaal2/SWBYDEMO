@@ -1,0 +1,8 @@
+job_id,role_id,name,enabled,type,command,log_file,trace_level,overlap,schedule,start_delay,timer,grp_nam
+ARC-SYSAUD,,Archives System Audits,1,cron,"archive production data where arc_nam = 'ARCHIVE_SYS_AUDITS'",$LESDIR/log/arc_sysaud.log,,0,"0 0 23 * * ?",,,sal_data
+CALC-PALS,,Calculate Pallets On Hand,0,cron,"calculate pallets on hand",$LESDIR/log/calc_pal_on_hand.log,,0,"0 0 * * * ?",,,sal_data
+DEFERRED_EXECUTION,,Deferred Execution,1,timer,execute deferred commands,$LESDIR/log/DeferredExcecution.log,,0,,,120,sal_data
+PUR-DIRS,,Purge Directories,0,cron,"purge directories",$LESDIR/log/purge_dirs.log,,0,"0 0 23 * * ?",,,sal_data
+PUR-PRONUM,,Purge Used PRO Number Blocks,0,cron,"purge used pro number blocks where daysold = 30.0",$LESDIR/log/purge_pronum.log,,0,"0 45 23 * * ?",,,sal_data
+PUR-SYSAUD,,Purge System Audit,1,cron,"purge system audit records",$LESDIR/log/purge_sysaud.log,,0,"0 0 23 * * ?",,,sal_data
+SYNC-GEODATA,,Synchronizes the Geo-Data between the production and archive instances,0,cron,"archive production data where arc_nam = 'STDPRD-GEODATA'",$LESDIR/log/sync_geodata.log,,0,"0 0 0 ? * 1",,,sal_data

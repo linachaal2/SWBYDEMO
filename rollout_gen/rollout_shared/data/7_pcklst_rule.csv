@@ -1,0 +1,39 @@
+pcklst_rule_id,pcklst_rule_name,wh_id,client_id,re_list_flg,allow_split_flg,list_typ,one_pass_only,assign_slot_flg,asset_typ,valid_flg,cnf_mtused_prt,cmdtxt,opr_cod,pick_ord_by,max_start_picks,drop_at_wrkzone_change,frc_pickup_prev,rsm_lst_pck_prev_opr,cmb_list_flg,prevent_pck_cons,pick_to_lvl,wa_fit_cri,ins_dt,last_upd_dt,ins_user_id,last_upd_user_id,max_assets
+1,"EEL_PICK_LIST_RULE_D001_ZONE","7","RFH",0,0,"ORD","B",0,"1",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20200318152851","20230217163550","939370","939370",1
+3,"	
+EEL_PICK_LIST_RULE_F002_ZONE","7","RFH",0,0,"ORD","B",0,"",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20200320133431","20200325165012","939370","939370",1
+4,"SHELVE_80CM_D001_ZONE","7","RFH",1,0,"ORD","B",0,"19-H800",1,0,"","","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20220121144338","20230608141425","939370","938673",1
+5,"TROLLEY_2S_D001_ZONE","7","RFH",1,0,"ORD","B",1,"1-2S",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20220121144442","20230608142323","939370","938673",1
+6,"SHELVE_120CM_D001_ZONE","7","RFH",1,0,"ORD","B",0,"19-H1200",1,0,"","","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230116140611","20230608141038","939370","938673",1
+7,"SHELVE_60CM_D001_ZONE","7","RFH",1,0,"ORD","B",0,"19-H600",1,0,"","","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230116140701","20230608141253","939370","938673",1
+8,"TROLLEY_1S_D001_ZONE","7","RFH",1,0,"ORD","B",1,"1-1S",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230116140752","20230608141936","939370","938673",1
+9,"TROLLEY_3S_D001_ZONE","7","RFH",1,0,"ORD","B",1,"1-3S",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230116140821","20230608143010","939370","938673",1
+10,"TROLLEY_0S_D001_ZONE","7","RFH",1,0,"ORD","B",0,"1-0S",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230116141014","20230608141711","939370","938673",1
+11,"EEL_PICK_LIST_RULE_E001_ZONE","7","RFH",0,0,"ORD","B",0,"1",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230217163743","20230217163743","939370","939370",1
+12,"EEL_PICK_LIST_RULE_F001_ZONE","7","RFH",0,0,"ORD","B",0,"1",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230217164142","20230217164142","939370","939370",1
+13,"SHELVE_120CM_E001_ZONE","7","RFH",1,0,"ORD","B",0,"19-H1200",1,0,"","","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230217165002","20230608141104","939370","938673",1
+14,"SHELVE_80CM_E001_ZONE","7","RFH",1,0,"ORD","B",0,"19-H800",1,0,"","","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230217165200","20230608141452","939370","938673",1
+15,"SHELVE_60CM_E001_ZONE","7","RFH",1,0,"ORD","B",0,"19-H600",1,0,"","","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230217165430","20230608141328","939370","938673",1
+16,"TROLLEY_0S_E001_ZONE","7","RFH",1,0,"ORD","B",0,"1-0S",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230217165542","20230608141801","939370","938673",1
+17,"TROLLEY_1S_E001_ZONE","7","RFH",1,0,"ORD","B",1,"1-1S",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230217165627","20230608141959","939370","938673",1
+18,"TROLLEY_2S_E001_ZONE","7","RFH",1,0,"ORD","B",1,"1-2S",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230217165700","20230608142830","939370","938673",1
+19,"TROLLEY_3S_E001_ZONE","7","RFH",1,0,"ORD","B",1,"1-3S",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230217165733","20230608143049","939370","938673",1
+20,"SHELVE_120CM_F001_ZONE","7","RFH",1,0,"ORD","B",0,"19-H1200",1,0,"","","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230217165837","20230608141213","939370","938673",1
+21,"SHELVE_80CM_F001_ZONE","7","RFH",1,0,"ORD","B",0,"19-H800",1,0,"","","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230217165917","20230608141537","939370","938673",1
+22,"SHELVE_60CM_F001_ZONE","7","RFH",1,0,"ORD","B",0,"19-H600",1,0,"","","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230217165956","20230608141356","939370","938673",1
+23,"TROLLEY_0S_F001_ZONE","7","RFH",1,0,"ORD","B",0,"1-0S",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230217170040","20230608141837","939370","938673",1
+24,"TROLLEY_1S_F001_ZONE","7","RFH",1,0,"ORD","B",1,"1-1S",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230217170118","20230608142120","939370","938673",1
+25,"TROLLEY_2S_F001_ZONE","7","RFH",1,0,"ORD","B",1,"1-2S",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230217170144","20230608142856","939370","938673",1
+26,"TROLLEY_3S_F001_ZONE","7","RFH",1,0,"ORD","B",1,"1-3S",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230217170221","20230608143109","939370","938673",1
+27,"EEL_D001_ZONE_Z1-0S","7","RFH",0,0,"ORD","B",0,"Z1-0S",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230720143546","20230720143546","938673","938673",1
+28,"EEL_E001_ZONE_Z1-0S","7","RFH",0,0,"ORD","B",0,"Z1-0S",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230720143546","20230720143546","938673","938673",1
+29,"EEL_F001_ZONE_Z1-0S","7","RFH",0,0,"ORD","B",0,"Z1-0S",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230720143546","20230720143546","938673","938673",1
+30,"EEL_D001_ZONE_Z1-1S","7","RFH",0,0,"ORD","B",0,"Z1-1S",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230720143552","20230720143552","938673","938673",1
+31,"EEL_E001_ZONE_Z1-1S","7","RFH",0,0,"ORD","B",0,"Z1-1S",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230720143552","20230720143552","938673","938673",1
+32,"EEL_F001_ZONE_Z1-1S","7","RFH",0,0,"ORD","B",0,"Z1-1S",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230720143552","20230720143552","938673","938673",1
+33,"EEL_D001_ZONE_Z1-2S","7","RFH",0,0,"ORD","B",0,"Z1-2S",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230720143556","20230720143556","938673","938673",1
+34,"EEL_E001_ZONE_Z1-2S","7","RFH",0,0,"ORD","B",0,"Z1-2S",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230720143556","20230720143556","938673","938673",1
+35,"EEL_F001_ZONE_Z1-2S","7","RFH",0,0,"ORD","B",0,"Z1-2S",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230720143556","20230720143556","938673","938673",1
+36,"EEL_D001_ZONE_Z1-3S","7","RFH",0,0,"ORD","B",0,"Z1-3S",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230720143559","20230720143559","938673","938673",1
+37,"EEL_E001_ZONE_Z1-3S","7","RFH",0,0,"ORD","B",0,"Z1-3S",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230720143559","20230720143559","938673","938673",1
+38,"EEL_F001_ZONE_Z1-3S","7","RFH",0,0,"ORD","B",0,"Z1-3S",1,0,"create work","LPCK","locmst.trvseq ASC,locmst.stoloc ASC",0,0,0,0,1,0,"L","","20230720143559","20230720143559","938673","938673",1

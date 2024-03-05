@@ -1,0 +1,5 @@
+<trigger>
+  <name>log_seamles_ship_load_event</name>
+  <on-command>dispatch trailer</on-command>
+  <disable>yes</disable>
+</trigger>

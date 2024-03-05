@@ -1,0 +1,156 @@
+<command>
+  <name>process usr host asset asn</name>
+  <description>process usr host asset asn</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* process usr host asset asn
+ * Logic added to react upon trntyp
+ * we gebruiken non_serialized assets, dus alleen 
+ * dat stuk logica is aangepast. serialized assets 
+ * niet meegenomen
+ * Version history:
+ *  2018-11-08  Marco, Jasper, Tim - Added logic 
+ */
+validate stack variable not null
+ where name = 'trntyp'
+|
+validate stack variable not null
+ where name = 'trknum'
+|
+get client for user
+ where client_id = @client_id catch(@?)
+|
+if (@? != 0)
+{
+    set return status
+     where status = 2003
+    /* eAPP_INVALID_ARG */
+       and errnum = 2003
+       and argdsc = 'client_id'
+       and argval = @client_id
+       and lookup_argdsc = 'client_id'
+}
+|
+get warehouse id
+/* * hieronder de logica voor de andere trntyp's
+ */
+|
+if (@trntyp = 'A' or @trntyp = 'C' or @trntyp = 'R')
+{
+    if (@invt_id != '')
+    {
+        /* Check to see if the invt_id is passed, if this is passed
+         * then we are creating an non empty asset.*/
+        create usr receiving asset
+         where trknum = @trknum
+           and invnum = @invnum
+           and supnum = @supnum
+           and client_id = @client_id
+           and asset_typ = @asset_typ
+           and asset_id = @asset_id
+           and asset_stat = @asset_stat
+           and expqty = @asset_qty
+           and idnqty = @asset_qty
+           and wh_id = @wh_id
+        |
+        if (@invt_id != '')
+        {
+            if (@asset_id != '')
+            {
+                create asset link
+                 where asset_id = @asset_id
+                   and asset_num = @invt_id
+            }
+            |
+            if (@asset_typ != '')
+            {
+                create usr inventory asset type
+                 where invtid = @invt_id
+                   and asset_typ = @asset_typ
+                   and untqty = @asset_qty
+                   and client_id = @client_id
+            }
+        }
+    }
+    else
+    {
+        /* If invt_id is not passed, then we are receiving
+         * EMPTY assets.*/
+        [select ser_flg
+           from asset_typ
+          where asset_typ = @asset_typ] catch(-1403)
+        |
+        /*If asset type is serialized */
+        if (@ser_flg = 1)
+        {
+            [select *
+               from asset_link
+              where asset_id = @asset_id] catch(-1403)
+            |
+            if (@? = -1403)
+            {
+                [select adr_id
+                   from wh
+                  where wh_id = @wh_id]
+                |
+                create empty serialized asset
+                 where asset_typ = @asset_typ
+                   and par_asset_id = @par_asset_id
+                   and mode = 'RCV'
+                   and adr_id = @adr_id
+                   and src_adr_id = @adr_id
+                   and client_id = @client_id
+                   and asset_stat = @asset_stat
+                   and stoloc = @trknum
+                   and asset_id = @asset_id
+                   and wh_id = @wh_id
+                |
+                create receiving asset
+                 where trknum = @trknum
+                   and invnum = @invnum
+                   and supnum = @supnum
+                   and client_id = @client_id
+                   and asset_typ = @asset_typ
+                   and asset_id = @asset_id
+                   and asset_stat = @asset_stat
+                   and idnqty = 1
+                   and expqty = 1
+                   and wh_id = @wh_id
+            }
+            else
+            {
+                set return status
+                 where status = 11015
+                /*eINT_ASSET_ID_ALREADY_EXISTS*/
+            }
+        }
+        /*If asset type is non serialized */
+        else
+        {
+            create usr receiving asset
+             where trknum = @trknum
+               and invnum = @invnum
+               and supnum = @supnum
+               and client_id = @client_id
+               and asset_typ = @asset_typ
+               and asset_stat = @asset_stat
+               and idnqty = @asset_qty
+               and expqty = @asset_qty
+               and wh_id = @wh_id
+        }
+    }
+}
+else if (@trntyp != 'C' and @trntyp != 'R' and @trntyp != 'D' and @trntyp != 'A')
+{
+    set return status
+     where status = 2003
+    /* eAPP_INVALID_ARG */
+       and errnum = 2003
+       and argdsc = 'trntyp'
+       and argval = @trntyp
+       and lookup_argdsc = 'trntyp'
+}
+]]>
+</local-syntax>
+</command>

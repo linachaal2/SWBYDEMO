@@ -1,0 +1,7 @@
+evt_nam,locale_id,lngdsc,short_dsc,grp_nam
+"EMS-EVENT-LIMIT","US_ENGLISH","The number of allowed alerts in a time interval has been reached.","EMS-EVENT-LIMIT","ems_data"
+"EMS-HELD-ALERT-LIMIT","US_ENGLISH","The held alert count has reached the threshold for raising an event.","EMS-HELD-ALERT-LIMIT","ems_data"
+"SYSTEM-CONNECTION-FAILURE","US_ENGLISH","Event raised when a SYSTEM server is not responding.","SYSTEM-CONNECT-FAIL","ems_data"
+"USR-ALLOC-WAVE","US_ENGLISH","Completion of the wave with the following summary.","",""
+"USR-FAILED-CREATE-STOP","US_ENGLISH","Failed to create stop during deferred execution.","FAILED-CREATE-STOP",""
+"USR-FAILED-LOAD-STOP","US_ENGLISH","Failed to load stop during deferred execution.","FAILED-LOAD-STOP",""

@@ -1,0 +1,7 @@
+<component-level>
+<name>VARint</name>
+<description>VAR Intrinsic Server Functions</description>
+<library>VARint</library>
+<sort-sequence>8000</sort-sequence>
+<editable>true</editable>
+</component-level>

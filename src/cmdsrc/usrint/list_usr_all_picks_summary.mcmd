@@ -1,0 +1,59 @@
+<command>
+  <name>list usr all picks summary</name>
+  <description>list usr all picks summary</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* list usr all picks summary
+ * Lists the picks per zone for dashboard
+ * Version history:
+ * 2022-10-31  Vincent van Vliet/Jasper Ringoir new setup based on old summary cmd
+ * 2023-09-14 Radina Ivanova count only outbound picks and exclude work order picks
+ */
+get warehouse id
+|
+validate stack variable not null
+ where name = 'wh_id'
+|
+publish data
+  where filterByClause = nvl(@filterByClause, [1=1])
+    and sortOrderClause = nvl(@sortOrderClause, 'pck_zone_cod')
+|
+[/*#limit=@offset,@limit,true*/
+ select min(pck_zone_cod) as pck_zone_cod,
+        zone_description,
+        sum(open_picks) as open_picks,
+        min(pck_zone_id) as pck_zone_id
+   from(select pck_zone.pck_zone_cod,
+               min(lngdsc) as zone_description,
+               count(distinct wrkref) open_picks,
+               pck_zone.pck_zone_id
+          from pck_zone
+          join dscmst
+            on colnam = 'pck_zone_cod|wh_id' 
+           and colval = pck_zone.pck_zone_cod || '|' || pck_zone.wh_id
+           and dscmst.locale_id = nvl(@locale_id, @@locale_id) 
+          left
+          join pckwrk_view
+            on pckwrk_view.src_pck_zone_id = pck_zone.pck_zone_id
+           and pckwrk_view.appqty < pckwrk_view.pckqty
+           and pckwrk_view.pcksts = 'R' 
+           and pckwrk_view.ship_id is not null
+         where pck_zone_cod not in('STOTRLR', 'XDDR', 'XDCK') 
+           and not exists(select 'x' 
+                            from poldat_view
+                           where poldat_view.rtnum2 = pck_zone.pck_zone_id
+                             and poldat_view.polcod = 'USR-PICKING' 
+                             and poldat_view.polvar = 'PICK-TASK-DASHBOARD' 
+                             and poldat_view.polval = 'EXCL-PCKZONE' 
+                             and poldat_view.rtnum1 = 1
+                             and poldat_view.wh_id = pck_zone.wh_id) 
+         group by pck_zone.pck_zone_cod,
+               pck_zone.pck_zone_id,
+               pck_zone.wh_id) as temp
+  where @filterByClause:raw
+  group by temp.zone_description
+  order by @sortOrderClause:raw]
+]]>
+</local-syntax>
+</command>

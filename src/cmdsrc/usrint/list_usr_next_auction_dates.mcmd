@@ -1,0 +1,37 @@
+<command>
+  <name>list usr next auction dates</name>
+  <description>list usr next auction dates</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* list usr next auction dates
+ * Returns the next X available auction dates.
+ * 2019-01-21   Salem Hamze  Initial version.
+ */
+publish data
+ where no_days = nvl(@no_days, 1)
+   and no_days_to_look_ahead = nvl(@no_days, 1) * 10
+|
+[with dates as (select 0 as reldte,
+                       cast(CAST(GETDATE() as DATE) as datetime) as dcsdte
+                  from dual
+                union all
+                select (dates.reldte + 1) as reldte,
+                       DATEADD(dd, 1, dates.dcsdte) as dcsdte
+                  from dates
+                 where dates.reldte + 1 <= @no_days_to_look_ahead)
+ select dates.reldte as next_auction_date_rel,
+        dates.dcsdte as next_auction_date
+   from dates
+   left
+   join calmst calmst_not_auction_date
+     on calmst_not_auction_date.dcsdte = dates.dcsdte
+    and calmst_not_auction_date.cal_typ = 'P'
+  where calmst_not_auction_date.dcsdte is null
+    and not(dates.dcsdte = CAST(sysdate as DATE) and to_char(sysdate, 'HH24MI') > '0400')
+    and rownum <= @no_days
+  order by calmst_not_auction_date.dcsdte]
+]]>
+</local-syntax>
+  <argument name="no_days" datatype="string">The number of next auctions you want to list.</argument>
+</command>

@@ -1,0 +1,19 @@
+<action>
+  <id>usrListDummyItem</id>
+  <name>usrListDummyItem</name>
+  <description>List Dummy Items</description>
+  <type>LIST</type>
+  <ws>
+     <method>GET</method>
+	 <href>/usrListDummyItem</href>
+  </ws>
+  <impl>
+     <command>list usr dummy inventory</command>
+  	 <!--arguments>
+		<argument name ="wh_id" type="string" location="body" required="false" description="Vestiging Code"/>
+	 </arguments-->
+  </impl>
+  <auth>
+     <opt>optOpen</opt>
+  </auth>
+</action>

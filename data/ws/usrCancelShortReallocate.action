@@ -1,0 +1,20 @@
+<action>
+  <id>usrCancelShortReallocate</id>
+  <name>Cancel Short and Reallocate</name>
+  <description>Cancel Short and Reallocate</description>
+  <type>ACTION</type>
+  <ws>
+     <method>GET</method>
+	 <href>/usrCancelShortReallocate</href>
+  </ws>
+  <impl>
+     <command>cancel replenishment</command>
+	 <arguments>
+         <argument name="rplref" type="string" required="true"  description="Replenishment Reference" />
+         <argument name="reallocateflag" type="int" required="true"  description="Reallocate"/>
+     </arguments>
+  </impl>
+  <auth>
+     <opt>optOpen</opt>
+  </auth>
+</action>

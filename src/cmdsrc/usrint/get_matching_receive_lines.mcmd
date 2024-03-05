@@ -1,0 +1,45 @@
+<command>
+
+<name>get matching receive lines</name>
+
+<description>get matching receive lines</description>
+
+<type>Local Syntax</type>
+
+<local-syntax>
+<![CDATA[
+/* get matching receive lines
+ * make sure the correct trknum is passed forward
+ * Version history:
+ *  2023-04-20  Radina Ivanova  Initial version.
+ */
+    if (@invnum != '' or @dtlnum != '')
+    {
+        hide stack variable where name = 'trknum'
+        |
+        if (@invnum != '')
+        {
+            [select trknum
+               from rcvinv
+              where invnum = @invnum
+                and client_id = @client_id
+                and supnum = @supnum
+                and wh_id = @wh_id] catch(-1403)
+        }
+        else
+        {
+            [select distinct trknum
+               from rcvlin
+               join invdtl
+                 on rcvlin.rcvkey = invdtl.rcvkey
+              where dtlnum = @dtlnum] catch(-1403)
+        }
+    }
+    |
+    ^get matching receive lines
+     where trknum = @trknum
+]]>
+
+</local-syntax>
+
+</command>

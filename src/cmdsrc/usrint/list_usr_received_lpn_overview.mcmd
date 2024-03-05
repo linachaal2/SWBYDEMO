@@ -1,0 +1,42 @@
+<command>
+  <name>list usr received lpn overview</name>
+  <description>list usr received lpn overview</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* list usr received lpn overview
+ * Overview of lpn's received in detail on location level 
+ * (excluding inventory already allocated for orders)
+ *
+ * Version history:
+ *  2022-08-23 Marco Schouwenaar Initial version
+ */
+[select locmst.wh_id,
+        count(invlod.lodnum) as lpns_received,
+        locmst.stoloc,
+        rcvinv.invtyp
+   from locmst
+   join loc_typ
+     on loc_typ.loc_typ_id = locmst.loc_typ_id
+   join invlod
+     on invlod.wh_id = locmst.wh_id
+    and invlod.stoloc = locmst.stoloc
+   join invsub
+     on invsub.lodnum = invlod.lodnum
+   join invdtl
+     on invdtl.subnum = invsub.subnum
+    and invdtl.ship_line_id is null
+    left join rcvlin
+    on rcvlin.rcvkey = invdtl.rcvkey
+    left join rcvinv
+    on rcvlin.trknum = rcvinv.trknum and rcvlin.supnum = rcvinv.supnum and rcvlin.invnum = rcvinv.invnum and rcvlin.wh_id = rcvinv.wh_id and rcvlin.client_id = rcvinv.client_id
+  where locmst.stoflg = 1
+    and locmst.useflg = 1
+    and loc_typ.rcv_stgflg = 1
+    and (locmst.pck_zone_id is null or locmst.locsts in ('I'))
+  group by locmst.wh_id,
+        locmst.stoloc,
+        rcvinv.invtyp
+  order by lpns_received desc]]]>
+</local-syntax>
+</command>

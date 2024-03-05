@@ -1,0 +1,11 @@
+#include <../../../include/usrddl.h>
+#include <../../../include/varddl.h>
+#include <sqlDataTypes.h>
+
+#define SEQ  sequence1
+#define SEED 1
+#define INC  1
+#define MAX  999999999999
+
+CREATE_SEQ(SEQ, SEED, INC, MAX)
+RUN_SQL

@@ -1,0 +1,41 @@
+<command>
+  <name>process usr rf relabel load new_id</name>
+  <description>process usr rf relabel load new_id</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* process usr rf relabel load new_id
+ * Process the new_id entered in the USR_RELABEL_LOAD screen.
+ * Version history:
+ *  2018-10-18  Salem Hamze  Initial version.
+ */
+validate stack variable not null
+ where name = 'wh_id'
+|
+validate stack variable not null
+ where name = 'new_id'
+|
+[select rtnum1 as lodnum_min_length,
+        rtnum2 as lodnum_max_length
+   from poldat_view
+  where wh_id = @wh_id
+    and polcod = 'IDENTIFY'
+    and polvar = 'MISCELLANEOUS'
+    and polval = 'LODNUM-MIN-AND-MAX'
+    and rownum <= 1] catch(-1403)
+|
+if (@? = 0 and (length(@new_id) < @lodnum_min_length or length(@new_id) > @lodnum_max_length))
+{
+    /* Error: Min max identifier length. */
+    set return status
+     where status = 90011
+}
+|
+validate new load number
+ where wh_id = @wh_id
+   and lodnum = @new_id
+]]>
+</local-syntax>
+  <argument name="wh_id" required="yes" datatype="string">wh_id</argument>
+  <argument name="new_id" required="yes" datatype="string">new_id</argument>
+</command>

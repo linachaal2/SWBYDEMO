@@ -1,0 +1,16 @@
+<action>
+  <id>usrListProcessOverview</id>
+  <name>usrListProcessOverview</name>
+  <description>List In Process LPN Overview</description>
+  <type>LIST</type>
+  <ws>
+     <method>GET</method>
+	 <href>/usrListProcessOverview</href>
+  </ws>
+  <impl>
+     <command>list usr in process lpn overview</command>
+  </impl>
+  <auth>
+     <opt>optOpen</opt>
+  </auth>
+</action>

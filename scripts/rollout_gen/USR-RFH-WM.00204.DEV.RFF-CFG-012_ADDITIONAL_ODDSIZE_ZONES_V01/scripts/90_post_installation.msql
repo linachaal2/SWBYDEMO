@@ -1,0 +1,23 @@
+[select wh_id
+   from wh]
+|
+if (@wh_id = '3')
+{
+    [select wh_id,
+            stoloc
+       from locmst
+      where mov_zone_id in (10092, 10093, 10094, 10095, 10096, 10097)]
+    |
+    validate location
+     where wh_id = @wh_id
+       and stoloc = @stoloc
+    |
+    if (@action)
+    {
+        execute server command
+         where cmd = @action catch(@?)
+    }
+};
+commit;
+/ 
+exit

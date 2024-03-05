@@ -1,0 +1,117 @@
+<command>
+  <name>list usr rf identify load adjust load information</name>
+  <description>list usr rf identify load adjust load information</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* list usr rf identify load adjust load information
+ * Lists information for the adjust load USR_IDENTIFY_LOAD_ADJ_LOD screen.
+ * Version history:
+ * V01, 2018-10-26  Salem Hamze     Initial version.
+ * V02, 2018-11-26  Jasper Ringoir  Added Asset quantity
+ * V03, 2018-11-30  Stephan Doens	to_number() for asset_qty
+ * V04, 2018-11-30  Salem Hamze		Added load_attr1_flg, modifed asset inner join to left join.
+ * V05, 2020-04-13  Radina Ivanova  Asset groups are moved to policies
+ * V06, 2021-03-12  Radina Ivanova  Use poldat_view instead of poldat
+ */
+get warehouse id
+|
+publish data
+ where devcod = nvl(@devcod, @@devcod)
+|
+/* Get the loads which were scanned by the user. */
+[select value
+   from device_context
+  where wh_id = @wh_id
+    and devcod = @devcod
+    and dev_varnam in ('USR_IDENTIFY_LOAD|LODNUM', 'USR_IDENTIFY_LOAD|FINISH_IDENTIFIER')] catch(-1403) >> res_loads
+|
+if (@? != -1403)
+{
+    convert column results to string
+     where resultset = @res_loads
+       and colnam = 'value'
+    |
+    convert list to in clause
+     where string = @result_string
+       and table_prefix = 'invlod'
+       and column_name = 'lodnum'
+       and separator = ','
+    |
+    /* Get the load information. We use the flags with decode because if we use an nvl we would not be able to see the difference between originally empty or set to empty. */
+    [select max(invdtl.inv_attr_str7) as org_inv_attr_str7,
+            decode(max(dc_adj_lod.inv_attr_str7_flg), 1, max(dc_adj_lod.inv_attr_str7), max(invdtl.inv_attr_str7)) as inv_attr_str7,
+            max(invdtl.inv_attr_str10) as org_inv_attr_str10,
+            decode(max(dc_adj_lod.inv_attr_str10_flg), 1, max(dc_adj_lod.inv_attr_str10), max(invdtl.inv_attr_str10)) as inv_attr_str10,
+            max(invdtl.inv_attr_str11) as org_inv_attr_str11,
+            decode(max(dc_adj_lod.inv_attr_str11_flg), 1, max(dc_adj_lod.inv_attr_str11), max(invdtl.inv_attr_str11)) as inv_attr_str11,
+            to_char(max(invdtl.inv_attr_dte1), 'YYYYMMDDHH24MISS') as org_inv_attr_dte1,
+            decode(max(dc_adj_lod.inv_attr_dte1_flg), 1, max(dc_adj_lod.inv_attr_dte1), to_char(max(invdtl.inv_attr_dte1), 'YYYYMMDDHH24MISS')) as inv_attr_dte1,
+            max(invlod.load_attr1_flg) as org_load_attr1_flg,
+            decode(max(dc_adj_lod.load_attr1_flg_flg), 1, max(dc_adj_lod.load_attr1_flg), max(invlod.load_attr1_flg)) as load_attr1_flg,
+            nvl(max(assets.untqty), 0) as org_asset_qty,
+            nvl(decode(max(dc_adj_lod.asset_qty_flg), 1, max(dc_adj_lod.asset_qty), max(assets.untqty)), 0) as asset_qty,
+            null as org_asset_qty_reacod,
+            decode(max(dc_adj_lod.asset_qty_reacod_flg), 1, max(dc_adj_lod.asset_qty_reacod), null) as asset_qty_reacod
+       from invlod
+      inner
+       join invsub
+         on invsub.lodnum = invlod.lodnum
+      inner
+       join invdtl
+         on invdtl.subnum = invsub.subnum
+      inner
+       join rcvlin
+         on rcvlin.rcvkey = invdtl.rcvkey
+      inner
+       join rcvinv
+         on rcvinv.trknum = rcvlin.trknum
+        and rcvinv.supnum = rcvlin.supnum
+        and rcvinv.invnum = rcvlin.invnum
+        and rcvinv.wh_id = rcvlin.wh_id
+        and rcvinv.client_id = rcvlin.client_id
+       left
+       join (select inv_asset.invtid,
+                    inv_asset.untqty,
+					asset_groups.wh_id
+               from inv_asset
+              inner
+               join poldat_view asset_groups
+                 on asset_groups.polcod = 'USR-RF-FORM'
+                and asset_groups.polvar = 'ASSET_IDENTIFY'
+                and asset_groups.polval = 'ASSET_GROUPS'
+                and asset_groups.rtstr1 = inv_asset.asset_typ
+                and asset_groups.rtstr2 = 'LEGBORD') as assets
+         on assets.invtid = invlod.lodnum
+		and assets.wh_id = rcvlin.wh_id
+       left
+       join (select device_context.wh_id,
+                    device_context.devcod,
+                    device_context.dev_varnam,
+                    max(decode(substr(device_context.value, 0, instr(device_context.value, ':')), 'INV_ATTR_STR7', 1, 0)) as inv_attr_str7_flg,
+                    max(decode(substr(device_context.value, 0, instr(device_context.value, ':')), 'INV_ATTR_STR7', substr(device_context.value, instr(device_context.value, ':') + 1))) as inv_attr_str7,
+                    max(decode(substr(device_context.value, 0, instr(device_context.value, ':')), 'INV_ATTR_STR10', 1, 0)) as inv_attr_str10_flg,
+                    max(decode(substr(device_context.value, 0, instr(device_context.value, ':')), 'INV_ATTR_STR10', substr(device_context.value, instr(device_context.value, ':') + 1))) as inv_attr_str10,
+                    max(decode(substr(device_context.value, 0, instr(device_context.value, ':')), 'INV_ATTR_STR11', 1, 0)) as inv_attr_str11_flg,
+                    max(decode(substr(device_context.value, 0, instr(device_context.value, ':')), 'INV_ATTR_STR11', substr(device_context.value, instr(device_context.value, ':') + 1))) as inv_attr_str11,
+                    max(decode(substr(device_context.value, 0, instr(device_context.value, ':')), 'INV_ATTR_DTE1', 1, 0)) as inv_attr_dte1_flg,
+                    max(decode(substr(device_context.value, 0, instr(device_context.value, ':')), 'INV_ATTR_DTE1', substr(device_context.value, instr(device_context.value, ':') + 1))) as inv_attr_dte1,
+                    max(decode(substr(device_context.value, 0, instr(device_context.value, ':')), 'LOAD_ATTR1_FLG', 1, 0)) as load_attr1_flg_flg,
+                    max(decode(substr(device_context.value, 0, instr(device_context.value, ':')), 'LOAD_ATTR1_FLG', substr(device_context.value, instr(device_context.value, ':') + 1))) as load_attr1_flg,
+                    max(decode(substr(device_context.value, 0, instr(device_context.value, ':')), 'ASSET_QTY', 1, 0)) as asset_qty_flg,
+                    max(decode(substr(device_context.value, 0, instr(device_context.value, ':')), 'ASSET_QTY', substr(device_context.value, instr(device_context.value, ':') + 1))) as asset_qty,
+                    max(decode(substr(device_context.value, 0, instr(device_context.value, ':')), 'ASSET_QTY_REACOD', 1, 0)) as asset_qty_reacod_flg,
+                    max(decode(substr(device_context.value, 0, instr(device_context.value, ':')), 'ASSET_QTY_REACOD', substr(device_context.value, instr(device_context.value, ':') + 1))) as asset_qty_reacod
+               from device_context
+              where device_context.dev_varnam = 'USR_IDENTIFY_LOAD_ADJ_LOD'
+              group by device_context.devcod,
+                    device_context.wh_id,
+                    device_context.dev_varnam) dc_adj_lod
+         on dc_adj_lod.devcod = @devcod
+        and dc_adj_lod.wh_id = @wh_id
+      where @in_clause:raw] catch(-1403)
+}
+]]>
+</local-syntax>
+  <argument name="devcod" datatype="string">devcod</argument>
+</command>

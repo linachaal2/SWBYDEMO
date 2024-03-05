@@ -1,0 +1,27 @@
+<command>
+  <name>process usr auto load of shipments deferred</name>
+  <description>process usr auto load of shipments deferred</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* process usr auto load of shipments deferred
+ *
+ * creates a deferred execution of the process usr auto load of shipments when replenishment reference is available (needed when handling shorts)
+ * no checks are performed as the original command will take care of that just passing values where available
+ * 
+ * Version history:
+ * 2021-02-25 Marco Schouwenaar   Initial version
+ * 2021-09-22 Marco SChouwenaar   On request of Blue Yonder always deffered as there are perfomance issues in the upgraded version
+ * 2022-03-09 Raoul Scholten	  Added exec_typ USR1 to deferred_cmd to make unique
+ */
+   publish data 
+      where cmd = 'process usr auto load of shipments where ship_id = '  || "'" || @ship_id || "'" || ' and wh_id = '|| "'" || @wh_id || "' "
+    |
+	hide stack variable where name = 'varexecid'
+	|
+	hide stack variable where name = 'exec_id'
+	|
+    create deferred execution where deferred_cmd = @cmd and exec_typ = 'USR3'
+]]>
+</local-syntax>
+</command>

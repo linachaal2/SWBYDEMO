@@ -1,0 +1,153 @@
+<command>
+
+<name>create printable compliance label</name>
+
+<description>Creates and prints the label</description>
+
+<type>Local Syntax</type>
+<argument name="inventoryKey" datatype="string">
+Inventory Key related to the Inventory Identifier
+</argument>
+<argument name="inventoryId" required="yes" datatype="string">
+Inventory Identifier
+</argument>
+<argument name="wh_id" required="yes" datatype="string">
+Warehouse ID
+</argument>
+<argument name="exitPoint" datatype="string">
+Exit Point related to the print action
+</argument> 
+<argument name="documentType" required="yes" datatype="string">
+Document Type
+</argument>
+<argument name="labelFormat" required="yes" datatype="string">
+Label Format
+</argument>
+<argument name="numberOfCopies" required="yes" default = "1" datatype="integer">
+Number of copies to be printed
+</argument>
+<argument name="printerAddress" datatype="string">
+Printer Address
+</argument>
+
+<local-syntax>
+<![CDATA[
+/* create printable compliance label
+ * Customized command so that labels can be printed for dispatched inventory moved to hist tables
+ * Version history:
+ *  2021-07-30  Radina Ivanova  Initial version.
+ */
+    if(@numberOfCopies is null)
+    {
+        publish data where numberOfCopies = 1
+    }
+    |
+    if(@exitPoint is null)
+    {
+        [select prttyp printer_type 
+           from prsmst 
+          where prtadr = @printerAddress] catch(-1403)
+    }
+    else
+    {
+        if(@inventoryKey is null)
+        {
+            get lbl translated inventory identifier
+                where identifier = @inventoryId
+                  and wh_id = @wh_id
+            |
+            publish data where inventoryKey = @colnam
+        } catch(10323)
+        |
+        if (@? != 0)
+        {
+            [select distinct 'x'
+               from invlod_hist
+              where lodnum = @inventoryId] catch(-1403)
+            |
+            if (@? = 0)
+            {
+                publish data where inventoryKey = 'lodnum'
+            }
+        }
+        |
+        validate stack variable not null
+            where name = 'wh_id'
+        |    
+        validate stack variable not null
+            where name = 'inventoryKey'
+        |
+        validate stack variable not null
+            where name = 'inventoryId'
+        |    
+        validate stack variable not null
+            where name = 'documentType'
+        |
+        validate stack variable not null
+            where name = 'labelFormat'    
+        |
+        [select data_cmd from doc_typ 
+            where doc_typ = @documentType]
+        |
+        execute server command 
+            where command =  @data_cmd ||
+          " where exitpnt = '" || @exitPoint || "' " || 
+          "   and doc_typ = '" || @documentType || "' " ||
+          "   and " || @inventoryKey || " = '" || @inventoryId || "' " ||
+          "   and wh_id = '" || @wh_id || "' "
+    }
+    |
+    if (@prttyp != null)
+    {
+        publish data where printer_type = @prttyp
+    }
+    else if(@printerAddress  != null)
+    {
+        list printers where prtadr = @printerAddress
+        |
+        publish data where printer_type = @prttyp
+    }
+    |
+    if (@inventoryKey is null)
+    {
+        execute server command
+            where command = "generate label" ||
+          " where label_name = '" || @labelFormat || "' " ||
+          "   and locale_id = '" || nvl(@locale_id, @@locale_id) || "' " ||
+          "   and @* "
+    }
+    else
+    {
+        execute server command
+            where command = "generate label" ||
+          " where label_name = '" || @labelFormat || "' " ||
+          "   and locale_id = '" || nvl(@locale_id, @@locale_id) || "' " ||
+          "   and " || @inventoryKey || " = '" || @inventoryId || "' " ||
+          "   and @* "
+    }
+    |
+    do loop where count = @numberOfCopies
+    |
+    {
+        print lbl label operations label
+            where filename = @outfile_name
+              and prtadr = nvl(@printerAddress, @printer)
+    }   
+]]>
+</local-syntax>
+
+<documentation>
+
+<remarks>
+<![CDATA[
+  <p>
+  Creates a label and prints
+  </p>
+]]>
+</remarks>
+
+<seealso cref="list compliance label formats"></seealso>
+
+</documentation>
+
+</command>

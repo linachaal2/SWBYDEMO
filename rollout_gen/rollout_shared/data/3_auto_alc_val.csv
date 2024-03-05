@@ -1,0 +1,2 @@
+wh_id,seqnum,auto_alc_num,table_nam,field_name,operator,value,ins_dt,last_upd_dt,ins_user_id,last_upd_usr_id
+"3",0,"GENERAL","ord","client_id","=","RFH","20200714144819","20200714144819","943378",""

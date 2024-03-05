@@ -1,0 +1,30 @@
+<command>
+  <name>adjust non serialized asset quantity</name>
+  <description>overrule to make sure that shipping can be done</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* adjust non serialized asset quantity
+ * Overrule flag needs to be set to avoid issues at shipping, RFH can ship out more assets then they have registrated (caused by picking and the fact that they own the assets)
+ *
+ * Version history:
+ *  2021-03-08 Marco Schouwenaar Initial version
+ */
+ [select on_hand_qty check_qty from non_ser_asset 
+   where @+asset_typ
+     and @+asset_stat
+     and @+src_adr_id
+     and @+adr_id
+     and @+client_id] catch(-1403)
+ |
+ get warehouse id where wh_id= nvl(@wh_id,@@wh_id)
+ |
+ [select rtnum1 active from poldat_view where polcod='USR-SHIPPING' and polvar='NON-SERIAL-ASSET' and polval = 'SKIP-QTY-CHECK' and wh_id=@wh_id] catch(-1403)
+ |
+ if(@?=0 and @active=1 and (@check_qty - @shpqty) < 0)
+    ^adjust non serialized asset quantity where @* and overrideFlag=1
+else
+    ^adjust non serialized asset quantity where @*
+]]>
+</local-syntax>
+</command>

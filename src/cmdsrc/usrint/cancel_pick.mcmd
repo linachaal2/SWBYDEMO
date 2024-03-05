@@ -1,0 +1,38 @@
+<command>
+  <name>cancel pick</name>
+  <description>cancel pick wrapper</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* Wrapper on original cancel pick command.
+ * this will enable logging the cancelled task from a picklist
+ * task will be logged to dlytrn
+ *
+ * Version history:
+ *  2023-02-27 Jasper Ringoir    Initial version
+ */
+list rf devices where devcod = nvl(@devcod, @@devcod) catch(-1403)
+|
+if (@? != -1403)
+{
+	write usr picklist history
+	 where usr_actcod = 'USR-LPCK-CANCEL'
+};
+^cancel pick
+ where @*
+]]>
+</local-syntax>
+<documentation>
+	<remarks>
+	<![CDATA[
+ 		<p>
+ 		Wrapper on original cancel pick command.
+		this will enable logging the cancelled task from a interrupted picklist
+		left over task will be logged to dlytrn
+	    </p>
+	]]>
+	</remarks>
+	<seealso cref="write usr picklist history"/>
+	<seealso cref="process remaining picks for list"/>
+</documentation>
+</command>

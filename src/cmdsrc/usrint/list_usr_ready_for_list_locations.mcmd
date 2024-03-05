@@ -1,0 +1,82 @@
+<command>
+  <name>list usr ready for list locations</name>
+  <description>list usr ready for list locations</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* list usr ready for list locations
+ *
+ * Version history:
+ *  2023-05-26  Radina Ivanova - Initial version
+ *  2023-10-19  Radina Ivanova   Performance improvement for the check from dlytrn
+ *  2023-11-02  Radina Ivanova   Check for locale when getting the pick status description 
+ */
+    publish data where wh_id = nvl(@wh_id, @@wh_id)
+    |
+    if (@wh_id = '')
+    {
+        [select wh_id
+           from wh]
+    }
+    |
+    publish data
+      where filterByClause = nvl(@filterByClause, [1=1])
+        and sortOrderClause = nvl(@sortOrderClause, 'late_shpdte')
+    |
+    [/*#limit=@offset,@limit,true*/
+     select pckwrk_view.srcloc,
+            dscmst.lngdsc pcksts,
+            sum(pckwrk_view.dtl_pckqty) pckqty,
+            (select count(distinct list_id)
+               from pckwrk_view p2
+              where p2.srcloc = pckwrk_view.srcloc
+                and appqty = 0) open_lists,
+                (select sum(trnqty)
+                   from (select trnqty
+                           from dlytrn
+                          where lodnum = invlod.lodnum
+                            and frstol = pckwrk_view.srcloc
+                            and (oprcod = 'LPCK' and actcod = 'LSTPCK'
+                             or  oprcod = 'PALMOV' and actcod = 'PALPCK'
+                             or oprcod = 'PCK' and actcod = 'PALPCK')
+                          group by lodnum,
+                                   to_lodnum,
+                                   to_subnum,
+                                   frstol,
+                                   tostol,
+                                   trnqty) d) picked_qty,
+            decode(max(pckwrk_view.dstloc), min(pckwrk_view.dstloc), max(pckwrk_view.dstloc), '*MANY*') dstloc,
+            decode(max(ord.ordtyp), min(ord.ordtyp), max(ord.ordtyp), '*MANY*') ordtyp,
+            min(ord_line.early_shpdte) early_shpdte,
+            min(ord_line.late_shpdte) late_shpdte
+       from pckwrk_view
+       join dscmst
+         on dscmst.colnam = 'pcksts'
+        and dscmst.colval = pckwrk_view.pcksts
+        and locale_id = nvl(@@locale_id, 'US_ENGLISH')
+       join ord_line
+         on pckwrk_view.ordnum = ord_line.ordnum
+        and pckwrk_view.client_id = ord_line.client_id
+        and pckwrk_view.ordlin = ord_line.ordlin
+        and pckwrk_view.ordsln = ord_line.ordsln
+        and pckwrk_view.wh_id = ord_line.wh_id
+       join ord
+         on pckwrk_view.ordnum = ord.ordnum
+        and pckwrk_view.client_id = ord.client_id
+        and pckwrk_view.wh_id = ord.wh_id
+       join invlod
+         on invlod.stoloc = pckwrk_view.srcloc
+        and invlod.wh_id = pckwrk_view.wh_id
+      where pckwrk_view.pcksts = 'L'
+        and pckwrk_view.wh_id = @wh_id
+        and @filterByClause:raw
+      group by pckwrk_view.srcloc,
+               pckwrk_view.pcksts,
+               dscmst.lngdsc,
+               invlod.lodnum
+  order by @sortOrderClause:raw]
+     
+]]>
+</local-syntax>
+<argument name="wh_id" required="no" datatype="string">Warehouse ID</argument>
+</command>

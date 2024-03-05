@@ -1,0 +1,641 @@
+var_nam,appl_id,frm_id,addon_id,cust_lvl,valdt_cmd,ena_flg,valdt_mod,ret_fld_flg,ret_fld,grp_nam,is_purged
+"age_pflnam","LES","agepfldtl","LES",0,"list aging profiles where age_pflnam = '&age_pflnam'",0,"I",0,"","dcs_data",0
+"age_pflnam","LES","IDENTIFY_LOAD","LES",0,"If('&age_pflnam') {list aging profiles where age_pflnam = '&age_pflnam'}",0,"I",0,"","dcs_data",0
+"age_pflnam","LES","INV_ADJUST_IDENTIFY","LES",0,"If('&age_pflnam') {list aging profiles where age_pflnam = '&age_pflnam'}",0,"I",0,"","dcs_data",0
+"age_pflnam","LES","LES","LES",0,"If('&age_pflnam') {list aging profiles where age_pflnam = '&age_pflnam'}",1,"I",0,"","sal_data",0
+"aisle_id","LES","DIR_WORK_ASSIGNMENT_FILTERS","LES",0,"NONE",0,"A",0,"","dcs_data",0
+"aisle_id","LES","LES","LES",0,"list aisles where aisle_id = '&aisle_id'",1,"I",0,"","dcs_data",0
+"alc_search_path","CustomerMnt","CustomerMnt","LES",0,"list allocation search path for lookup where colval = '&alc_search_path'",1,"I",0,"","sal_data",0
+"alg_id","LES","commmthdmnt","SEAMLES",0,"sl_list alg_def where alg_id = '&alg_id' and alg_typ_cd != 'MACRO'",1,"I",0,"","int_data",0
+"alg_id","LES","iifdmnt","SEAMLES",0,"sl_list alg_def where alg_id = '&alg_id' and alg_typ_cd != 'MACRO'",1,"I",0,"","int_data",0
+"alg_id","LES","keywordmnt","SEAMLES",0,"sl_list alg_def where alg_id = '&alg_id' and alg_typ_cd != 'MACRO'",1,"I",0,"","int_data",0
+"alg_id","LES","retrievemthdmnt","SEAMLES",0,"sl_list alg_def where alg_id = '&alg_id' and alg_typ_cd != 'MACRO'",1,"I",0,"","int_data",0
+"alg_id","LES","syscommmnt","SEAMLES",0,"sl_list alg_def where alg_id = '&alg_id' and alg_typ_cd != 'MACRO'",1,"I",0,"","int_data",0
+"app_end_dte","LES","LES","LES",0,"publish data where app_end_dte = to_date('&app_end_dte') and app_start_dte = to_date('&app_start_dte') | if(@app_end_dte < SYSDATE){set return status where status = 10373} | if(@app_end_dte < @app_start_dte and @app_start_dte != ''){set return status where status = 4084}",1,"A",0,"","dcs_data",0
+"app_start_dte","LES","LES","LES",0,"publish data where app_end_dte = to_date('&app_end_dte') and app_start_dte = to_date('&app_start_dte') | if(@app_start_dte < SYSDATE){set return status where status = 10373} | if(@app_end_dte < @app_start_dte and @app_end_dte != ''){set return status where status = 4084}",1,"A",0,"","dcs_data",0
+"app_timeout","LES","LES","LES",0,"validate number where colnam="app_timeout" and intflg=1 and compare = 'GT' and value = &app_timeout and limit = 0",1,"I",0,"","dcs_data",0
+"appl_id","LES","frmFormInfo","LES",0,"NONE",0,"A",0,"","mcs_data",0
+"appl_id","LES","l_appl_id_sysaud","LES",0,"NONE",0,"A",0,"","mcs_data",0
+"appl_id","LES","LES","LES",0,"if('&appl_id'!='' and '&appl_id'!='LES' and '&appl_id' != 'dcsrdt'){list work flow apps where appl_id = '&appl_id' catch(-1403) |  if(@?= -1403) {[select dda_id from dda_mst where dda_id = '&appl_id']} }",1,"A",0,"","dcs_data",0
+"appl_id","LES","SYSAUDRECMNT","LES",0,"NONE",0,"I",0,"","mcs_data",0
+"appl_id","MCSVarCfgMnt","MCSVarCfgMnt","LES",0,"NONE",0,"A",0,"","mcs_data",0
+"appl_id","wrkflwmnt","wrkflwmnt","LES",0,"NONE",0,"I",0,"","mcs_data",0
+"arc_table","LES","LES","LES",0,"list user tables where table_name = '&arc_table'",1,"I",0,"","dcs_data",0
+"asset_id","LES","ASSET_SHIPMENT","LES",0,"validate empty serialized asset for shipment load where asset_id = '@ASSET_SHIPMENT.asset_id' and mode = '&mode'",1,"I",0,"","dcs_data",0
+"asset_id","LES","CREATE_ASSET","LES",0,"if ('@asset_id' != '') {[select 'x' from ser_asset where asset_id = '@asset_id'] catch (-1403) | if (@? = 0 ) {set return status where status = 11015}}",1,"I",0,"","mtf_dcs_data",0
+"asset_id","LES","palbldopr","LES",0,"if('&asset_id'){validate empty serialized asset for pick where asset_id = '&asset_id'}",1,"A",0,"","dcs_data",0
+"asset_id","LES","UNDIR_REVERSE_ASSET","LES",0,"if ('@asset_id' != '') {validate asset for reverse receipt where trknum = '@trknum' and asset_typ = '@asset_typ' and asset_id = '@asset_id' and invnum ='@invnum' and wh_id = '@global.wh_id'}",1,"I",0,"","mtf_dcs_data",0
+"asset_qty","dcsrdt","USR_IDENTIFY_LOAD_ADJ_LOD","LES",10,"validate usr number where compare='GTE' and intflg=1 and limit='0' and value='&asset_qty' | validate usr number where compare='LTE' and intflg=1 and limit='15' and value='&asset_qty'",1,"I",0,"","usr_data",0
+"asset_stat","LES","ASSET_IDENTIFY","LES",0,"if('@ASSET_IDENTIFY.asset_stat' != ''){validate rf asset status where asset_stat = '@ASSET_IDENTIFY.asset_stat'}",1,"I",0,"","dcs_data",0
+"asset_stat","LES","ASSET_SHIPMENT","LES",0,"if('@ASSET_SHIPMENT.asset_stat' != ''){validate rf asset status where asset_stat = '@ASSET_SHIPMENT.asset_stat'}",1,"I",0,"","dcs_data",0
+"asset_stat","LES","UNDIR_REVERSE_ASSET","LES",0,"if ('@asset_stat' != '') {validate asset for reverse receipt where trknum = '@trknum' and asset_typ = '@asset_typ' and asset_id = '@asset_id' and asset_stat = '@asset_stat' and invnum ='@invnum' and wh_id = '@global.wh_id'}",1,"I",0,"","mtf_dcs_data",0
+"asset_tag","LES","assetidentify","LES",0,"if ('&asset_tag' != ''){validate asset tag where asset_tag = '&asset_tag'}",1,"A",0,"","dcs_data",0
+"asset_tag","LES","CAPTURE_SER_ASSET_INFORMATION","LES",0,"if('@CAPTURE_SER_ASSET_INFORMATION.asset_tag' != '' and '@ASSET_IDENTIFY.mode' != 'AA'){validate asset tag where asset_tag = '@CAPTURE_SER_ASSET_INFORMATION.asset_tag'}",1,"I",0,"","dcs_data",0
+"asset_typ","dcsrdt","USR_IDENTIFY_LOAD_EX","LES",10,"if('&asset_typ' != '') {list usr rf asset types for lookup where asset_cat='INV' and alc_asset_grp='LADINGDRAGER' and asset_typ='&asset_typ'}",1,"I",0,"","usr_data",0
+"asset_typ","LES","chginvnonserasset","LES",0,"if('&asset_typ' != ''){list asset types where asset_cat = 'INV' and asset_typ = '&asset_typ' catch(-1403)|if (@?=-1403){set return status where status = 11106}}",1,"A",0,"","dcs_data",0
+"asset_typ","LES","locmstmnt","LES",0,"if('&asset_typ' != ''){list asset types where ser_flg = 1 and asset_typ = '&asset_typ' catch(-1403)|if (@?=-1403){set return status where status = 11008}}",1,"A",0,"","dcs_data",0
+"asset_typ","LES","locmstovr","LES",0,"if('&asset_typ' != ''){list asset types where ser_flg = 1 and asset_typ = '&asset_typ' catch(-1403)|if (@?=-1403){set return status where status = 11008}}",1,"A",0,"","dcs_data",0
+"asset_typ","LES","nonserassetadjopr","LES",0,"if('&asset_typ' != ''){list asset types where ser_flg = 0 and asset_typ = '&asset_typ' catch(-1403)|if (@?=-1403){set return status where status = 11106}}",1,"A",0,"","dcs_data",0
+"asset_typ","LES","supftpopr","LES",0,"if('&asset_typ' != ''){list asset types where asset_typ = '&asset_typ' catch(-1403)|if (@?=-1403){set return status where status = 11008}}",1,"A",0,"","dcs_data",0
+"asset_typ","LES","supprtopr","LES",0,"if('&asset_typ' != ''){list asset types where asset_typ = '&asset_typ' catch(-1403)|if (@?=-1403){set return status where status = 11008}}",1,"A",0,"","dcs_data",0
+"asset_typ","LES","UNDIR_REVERSE_ASSET","LES",0,"if ('@asset_typ' != '') {validate asset for reverse receipt where trknum = '@trknum' and asset_typ = '@asset_typ' and invnum ='@invnum' and wh_id = '@global.wh_id'}",1,"I",0,"","mtf_dcs_data",0
+"asset_typ_to","pcklstopr","LES","LES",0,"if('&asset_typ_to' != ''){list asset types where asset_cat = 'INV' and asset_typ = '&asset_typ_to' catch(-1403)|if (@?=-1403){set return status where status = 11106}}",1,"A",0,"","dcs_data",0
+"attr_alg_id","LES","commmthdmnt","SEAMLES",0,"sl_list alg_def where alg_id = '&attr_alg_id' and alg_typ_cd != 'MACRO'",1,"I",0,"","int_data",0
+"begdaycod","LES","LES","LES",0,"if ('&begdaycod' != '' and '&enddaycod' != '') {if ('&enddaycod' < '&begdaycod') set return status where status = 10342 else if ('&enddaycod' <= '&begdaycod' and '&begtim' != '' and '&endtim' != '') {if (to_date('&endtim', 'YYYYMMDDHH24MISS') < to_date('&begtim', 'YYYYMMDDHH24MISS')) set return status where status = 10342 }}",1,"I",0,"","dcs_data",0
+"begloc","LES","ccnttmplmnt","LES",0,"validate storage location where stoloc = '&begloc' and wh_id = '&wh_id'",1,"A",0,"","dcs_data",0
+"begloc","LES","LES","LES",0,"validate storage location where stoloc = '&begloc' and wh_id = '&wh_id'",1,"I",0,"","sal_data",0
+"begloc","LES","locaudopr","LES",0,"list locations where stoloc = '&begloc' and wh_id = '&wh_id'",1,"A",0,"","dcs_data",0
+"begtim","LES","LES","LES",0,"if ('&begtim' != '' and '&endtim' != '' and '&begdaycod' != '' and '&enddaycod' != '') {if (('&enddaycod' = '&begdaycod') and (to_date('&endtim', 'YYYYMMDDHH24MISS') < to_date('&begtim', 'YYYYMMDDHH24MISS'))) set return status where status = 10342}",1,"I",0,"","dcs_data",0
+"bldg_id","LES","DIR_WORK_ASSIGNMENT_FILTERS","LES",0,"NONE",0,"A",0,"","dcs_data",0
+"blk_alg_id","LES","eosegmnt","SEAMLES",0,"sl_list alg_def where alg_id = '&blk_alg_id' and alg_typ_cd != 'MACRO'",1,"I",0,"","int_data",0
+"blk_alg_id","LES","iifdsegmnt","SEAMLES",0,"sl_list alg_def where alg_id = '&blk_alg_id' and alg_typ_cd != 'MACRO'",1,"I",0,"","int_data",0
+"blk_alg_id","LES","rifdmnt","SEAMLES",0,"sl_list alg_def where alg_id = '&blk_alg_id' and alg_typ_cd != 'MACRO'",1,"I",0,"","int_data",0
+"blk_alg_id","LES","rifdsegmnt","SEAMLES",0,"sl_list alg_def where alg_id = '&blk_alg_id' and alg_typ_cd != 'MACRO'",1,"I",0,"","int_data",0
+"blng_prd_id","LES","LES","LES",0,"validate billing period where client_id = '&client_id' and blng_prd_id='&blng_prd_id'",1,"I",0,"","sal_data",0
+"brcust","LES","LES","LES",0,"if('&client_id' != ''){list customers where cstnum = '&brcust' and client_id = '&client_id'} else{list customers where cstnum = '&brcust'}",1,"I",0,"","dcs_data",0
+"bt_csttyp","LES","LES","LES",0,"list customer type profiles where csttyp = '&bt_csttyp'",1,"I",0,"","dcs_data",0
+"btcust","distromnt","distromnt","3pm,WM,SEAMLES",0,"if('&client_id' != ''){list customers where cstnum = '&btcust' and client_id = '&client_id'} else{list customers where cstnum = '&btcust'}",1,"A",1,"btcust=cstnum,bt_adr_id=adr_id","",0
+"btcust","LES","LES","LES",0,"if('&client_id' != ''){list customers where cstnum = "&btcust" and client_id = '&client_id'} else{list customers where cstnum = "&btcust"}",1,"I",0,"","dcs_data",0
+"bundleloc","bundleinvopr","bundleinvopr","LES",0,"validate lodnum for bundle where lodnum = '&lodnum' and bundleloc = '&bundleloc' and wh_id = '&wh_id'",1,"A",1,"bundleloc, lodnum","dcs_data",0
+"car_ib_issue","LES","UNDIR_INBOUND_QUALITY","LES",0,"if ('&car_ib_issue' != '') {validate carrier inbound issue where car_ib_issue = '&car_ib_issue'}",1,"I",0,"","mtf_dcs_data",0
+"car_move_id","carmovemnt","trlrmgtopr","LES",0,"NONE",0,"I",0,"","dcs_data",0
+"car_move_id","LES","apptmnt","LES",0,"[select carcod from car_move where car_move_id = '&car_move_id']  catch (@?) | if((@? = 0) and ('&carcod' != '') and (@carcod != '&carcod')) {set return status where status = 10508}",1,"I",0,"","dcs_data",0
+"car_move_id","LES","trlrmgtopr","LES",0,"if ('&carcod' != '') {[select * from car_move where car_move_id = '&car_move_id' and carcod = '&carcod']  catch (-1403)} else {[select * from car_move where car_move_id = '&car_move_id'] catch (-1403)} | if (@? = -1403) { set return status where status = 10508}",1,"I",0,"","dcs_data",0
+"car_move_id","LES","UNDIR_CLOSE_TRLR","LES",0,"if('&carmov' != ''){validate carrier move for close shipping trailer where car_move_id = '@carmov'}",1,"I",0,"","mtf_dcs_data",0
+"carcod","LES","apptmnt","LES",0,"if ('&carcod' != '') {validate carrier where carcod = '&carcod'}",1,"I",1,"","mtf_dcs_data",0
+"carcod","LES","chgtrlr","LES",0,"if ('&carcod' != '') {validate carrier where carcod = '&carcod'}",1,"A",1,"","dcs_data",0
+"carcod","LES","mstrcptmnt","LES",0,"if ('&carcod' != '') {validate carrier where carcod = '&carcod'}",1,"A",1,"","dcs_data",0
+"carcod","LES","ordmnt","LES",0,"if ('&carcod' != '') {validate carrier where carcod = '&carcod'}",1,"A",1,"","dcs_data",0
+"carcod","LES","REOPEN_TRUCK","LES",0,"if ('&carcod' != '') {validate carrier where carcod = '&carcod'}",1,"I",1,"","mtf_dcs_data",0
+"carcod","LES","trlrmgtopr","LES",0,"if ('&carcod' != '') {validate carrier where carcod = '&carcod'}",1,"A",1,"","dcs_data",0
+"carcod","LES","UNDIR_INBOUND_QUALITY","LES",0,"if ('&carcod' != '') {validate carrier where carcod = '&carcod'}",1,"I",1,"","mtf_dcs_data",0
+"carcod","LES","UNDIR_PALLET_POSITION","LES",0,"validate pallet position where wh_id = '@global.wh_id' and carcod = '&carcod' and trlr_num = '&trlr_num'",1,"I",1,"trlr_id=data","dcs_data",0
+"cargrp","LES","LES","LES",0,"list carrier groups where cargrp = '&cargrp'",1,"I",0,"","sal_data",0
+"cashgt","LES","LES","LES",0,"validate number where colnam="cashgt" and compare = 'GT' and value = &cashgt and limit = 0",1,"I",0,"","sal_data",0
+"caslbldev","LES","LES","LES",0,"list devices where devcod = '&caslbldev' and wh_id = '&wh_id'",1,"I",0,"","dcs_data",0
+"caslen","LES","LES","LES",0,"validate number where colnam="caslen" and compare = 'GT' and value = &caslen and limit = 0",1,"I",0,"","sal_data",0
+"caslvl","LES","LES","LES",0,"validate number where colnam="caslvl" and intflg=1 and compare = 'GT' and value = &caslvl and limit = 0",1,"I",0,"","sal_data",0
+"caswid","LES","LES","LES",0,"validate number where colnam="caswid" and compare = 'GT' and value = &caswid and limit = 0",1,"I",0,"","sal_data",0
+"catch_qty","LES","CATCH_QTY_CAP","LES",0,"NONE",0,"I",0,"","dcs_data",0
+"catch_qty","LES","CATCH_QTY_CAP_SUB","LES",0,"NONE",0,"I",0,"","dcs_data",0
+"catch_qty","LES","cntentopr","LES",0,"validate number where colnam='catch_qty' and compare = 'GT' and value = &catch_qty and limit = -1",1,"I",0,"","dcs_data",0
+"catch_qty","LES","CYCLE_COUNT","LES",0,"validate number where colnam='catch_qty' and compare = 'GT' and value = &catch_qty and limit = -1",1,"I",0,"","mtf_dcs_data",0
+"catch_qty","LES","identify","LES",0,"validate number where colnam='catch_qty' and compare = 'GTE' and value = &catch_qty and limit = 0",1,"I",0,"","dcs_data",0
+"catch_qty","LES","LES","LES",0,"validate number where colnam='catch_qty' and compare = 'GT' and value = &catch_qty and limit = 0",1,"I",0,"","dcs_data",0
+"catch_qty","LES","PICKUP_B","LES",0,"NONE",0,"I",0,"","dcs_data",0
+"check_digit_len","LES","LES","LES",0,"validate number where colnam="check_digit_len" and intflg = 1 and compare = "GTE" and value = &check_digit_len and limit = 0",1,"I",0,"","dcs_data",0
+"client_id","dcsrdt","LES","LES",0,"validate client for user where usr_id='@global.usr_id' and wh_id = @@wh_id and client_id='&client_id' and all_client_flg = 1",1,"I",0,"","dcs_data",0
+"client_id","dcsrdt","UNDIR_IDENTIFY","LES",0,"get client id where client_id='&client_id' and wh_id = '@global.wh_id'",1,"I",0,"","dcs_data",0
+"client_id","LES","ctlUsrMnt","LES",0,"if ('&client_id' != '----') {list clients where client_id='&client_id'}",1,"I",0,"","mcs_data",0
+"client_id","LES","INV_ADJUST_IDENTIFY","LES",0,"if ('&prtnum' != '') {validate part client for inventory adjustment where prtnum='&prtnum' and prt_client_id='&client_id' and wh_id='@global.wh_id'} else {validate client for user where client_id='&client_id' and wh_id='@global.wh_id' and usr_id = '@global.usr_id'}",1,"I",0,"","mtf_dcs_data",0
+"client_id","LES","pcfmstmnt","3pl",0,"if ('&pcfkey' != '' ) { list parts where prtnum = '&pcfkey' and prt_client_id = '&client_id' } else { list clients where client_id = '&client_id' }",1,"I",0,"","dcs_data",0
+"client_id","LES","RETURN_TRUCK","LES",0,"if ('&cstnum' != '') {list customers where cstnum = '&cstnum' and client_id = '@client_id'}",1,"I",0,"","mtf_dcs_data",0
+"cmd_config","LES","AVARULCFGMNT","LES",0,"list active commands where command = '&cmd_config'",1,"A",0,"","sal_data",0
+"cnt_tmpl_id","LES","LES","LES",0,"[select 'x' from job_definition where not exists (select job_id from job_definition where job_id='&cnt_tmpl_id')]",1,"I",0,"","dcs_data",0
+"cnt_zone_id","LES","LES","LES",0,"list count zones where cnt_zone_id = '&cnt_zone_id'",1,"I",0,"","dcs_data",0
+"cnt_zone_id","LES","UNDIR_CYCLE_COUNT","LES",0,"list count zones where cnt_zone_id = '&cnt_zone_id'",0,"I",0,"","dcs_data",0
+"comcod","LES","prtmstmnt","LES",0,"list commodities where comcod = '&comcod' catch (-1403) | if (@? = -1403) { set return status where status = 11101}",1,"I",0,"","sal_data",0
+"comcod","LES","prtmstovrdmnt","LES",0,"list commodities where comcod = '&comcod' catch (-1403) | if (@? = -1403) { set return status where status = 11101}",1,"I",0,"","sal_data",0
+"cri_id","LES","movpathcricopy","LES",0,"validate movement path criteria identifier where cri_id = '&cri_id' and wh_id = nvl('&wh_id', @@wh_id)",1,"I",0,"","dcs_data",0
+"crncy_code","LES","LES","LES",0,"list currencies where crncy_code = '&crncy_code'",1,"I",0,"","mcs_data",0
+"crncy_code","SALCurrencyMnt","SALCurrencyMnt","LES",0,"list currencies where crncy_code = '&crncy_code'",0,"I",0,"","mcs_data",0
+"crncy_name","LES","LES","LES",0,"list currencies where crncy_code = '&crncy_name'",1,"I",0,"","mcs_data",0
+"cstms_cnsgnmnt_id","LES","identify","LES",0,"if ('&invnum' != '') {validate customs consignment id where cstms_cnsgnmnt_id = '&cstms_cnsgnmnt_id' and invnum ='&invnum' and prt_client_id = '&prt_client_id' and supnum = '&supnum' and wh_id = nvl('&wh_id', @@wh_id)}",1,"I",0,"","dcs_data",0
+"cstms_cnsgnmnt_id","LES","rcvdtlmnt","LES",0,"if('&auto_crt_flg' = '0'){validate customs consignment id where cstms_cnsgnmnt_id = '&cstms_cnsgnmnt_id' and invnum ='&invnum' and client_id = '&client_id' and supnum = '&supnum' and wh_id = nvl('&wh_id', @@wh_id)}",1,"A",0,"","dcs_data",0
+"cstms_cnsgnmnt_id","LES","wkomnt","LES",0,"if('&auto_crt_flg' = '0'){validate customs consignment id for work order where wkonum = '&wkonum' and cstms_cnsgnmnt_id = '&cstms_cnsgnmnt_id' and client_id = '&client_id' and supnum = '----' and wh_id = nvl('&wh_id', @@wh_id)}",1,"A",0,"","dcs_data",0
+"cstms_itm_typ","LES","prtmstmnt","LES",0,"validate customs item types where cstms_itm_typ = '&cstms_itm_typ' and wh_id = @@wh_id",1,"A",0,"","sal_data",0
+"cstms_itm_typ","LES","prtmstovrdmnt","LES",0,"validate customs item types where cstms_itm_typ = '&cstms_itm_typ' and wh_id = @@wh_id",1,"A",0,"","sal_data",0
+"cstnum","LES","LES","LES",0,"list customers where cstnum = '&cstnum'",0,"I",0,"","sal_data",0
+"cstnum","LES","RETURN_TRUCK","3pl",0,"NONE",0,"I",0,"","mtf_dcs_data",0
+"cstnum","LES","RETURN_TRUCK","LES",0,"if ('&cstnum' != '') {list customers where cstnum = '&cstnum' and client_id = '@client_id'}",1,"I",0,"","mtf_dcs_data",0
+"cust_lvl","LES","rfformmnt","LES",0,"if (!(&cust_lvl > 0)) { set return status where status = -1403 }",1,"I",0,"","mtf_data",0
+"dash_dda_id","LES","WEBDASHMNT","LES",0,"if ('&dash_dda_id' != '' AND '&module_typ' != 'C') {validate data where tblnam = 'dda_mst' and fldnam = 'dda_id' and dda_id = '&dash_dda_id'}",1,"I",0,"","sal_data",0
+"dck_dr","LES","REOPEN_TRLR","LES",0,"validate rf translated location where inpval = '&dck_dr' and wh_id = '@global.wh_id'",1,"I",0,"","mtf_dcs_data",0
+"dck_dr","LES","REOPEN_TRUCK","LES",0,"validate rf translated location where inpval = '&dck_dr' and wh_id = '@global.wh_id'",1,"I",0,"","mtf_dcs_data",0
+"def_asset_typ","LES","prtftpmstdfltmnt","LES",0,"list asset types where ser_flg = 0 and asset_cat = 'INV' and asset_typ = '&def_asset_typ'",1,"A",0,"","dcs_data",0
+"def_asset_typ","LES","prtftpmstmntsupr","LES",0,"list asset types where ser_flg = 0 and asset_cat = 'INV' and asset_typ = '&def_asset_typ'",1,"A",0,"","dcs_data",0
+"def_asset_typ","LES","prtftpmstovrdmnt","LES",0,"list asset types where ser_flg = 0 and asset_cat = 'INV' and asset_typ = '&def_asset_typ'",1,"A",0,"","dcs_data",0
+"def_stgloc","LES","procwko","LES",0,"list staging locations for production line where stgloc = '&def_stgloc' and wh_id = '&wh_id'",1,"A",0,"","dcs_data",0
+"def_stgloc","LES","wkomov","LES",0,"list staging locations for production line where stgloc = '&def_stgloc' and wh_id = '&wh_id'",1,"A",0,"","dcs_data",0
+"devcod","LES","devcopy","LES",0,"list devices where devcod = '&devcod' and wh_id = nvl('&wh_id', @@wh_id)",0,"I",0,"","dcs_data",0
+"devcod","LES","devmstmnt","LES",0,"list devices where devcod = '&devcod' and wh_id = nvl('&wh_id', @@wh_id)",0,"I",0,"","dcs_data",0
+"devcod","LES","LES","LES",0,"list devices where devcod = '&devcod' and wh_id = nvl('&wh_id', @@wh_id)",1,"I",0,"","dcs_data",0
+"devcod","LES","READERDTLMNT","LES",0,"if ('&devcod' !='') { if ('&wh_id' != ''){list devices where [(devcls ='W' or devcls ='R')] and devcod = '&devcod' and wh_id = '&wh_id'} else {list devices where [(devcls ='W' or devcls ='R')] and devcod = '&devcod'}}",1,"I",0,"","dcs_data",0
+"devcod","LES","TOOLS_SEND_MSG","LES",0,"validate rf users devices and roles for im where wh_id = '@global.wh_id' and devcod = '&devcod'",1,"I",0,"","mtf_dcs_data",0
+"dirlocdef","LES","LES","LES",0,"list locations where stoloc = '&dirlocdef'",1,"I",0,"","dcs_data",0
+"distro_thresh_pct","LES","LES","LES",0,"validate number where colnam="distro_thresh_pct" and intflg=1 and compare = "GT" and value = &distro_thresh_pct and limit = 0|validate number where colnam="distro_thresh_pct" and compare = "LTE" and value = &distro_thresh_pct and limit = 100",1,"I",0,"","dcs_data",0
+"doc_typ","LES","doctypmnt","LES",0,"NONE",0,"I",0,"","sal_data",0
+"doc_typ","LES","LES","LES",0,"list lbl document types where doc_typ = '&doc_typ'",1,"I",1,"doc_typ=doc_typ,lodlvl=def_lodlvl","sal_data",0
+"dock2","LES","LOAD_LTL_TRLR","LES",0,"validate rf translated location where inpval = '&dock2' and wh_id = '@global.wh_id'",1,"I",0,"","mtf_dcs_data",0
+"dock2","LES","LOAD_TRLR","LES",0,"if ('&dock' != '') { validate rf translated location where inpval = '&dock2' and dsploc = '&dock' and wh_id = '@global.wh_id' } else { validate rf translated location where inpval = '&dock2' and wh_id = '@global.wh_id' }",1,"I",0,"","mtf_dcs_data",0
+"docqty","LES","LES","LES",0,"validate number where colnam='docqty' and intflg=1 and compare = 'GT' and value = &docqty and limit = 0",1,"I",0,"","sal_data",0
+"dsploc","LES","UNDIR_CYCLE_COUNT","LES",0,"validate rf translated backfill location where stoloc = '&dsploc' and pck_flg = 0 and wh_id = '@global.wh_id'",1,"I",0,"","mtf_dcs_data",0
+"dst_id","LES","INLINE_TRANSFER","LES",0,"if ('&dst_id' != '') {validate rf identifier for transfer where inpval = '&dst_id'and srch_bckfill = true and wh_id = '@global.wh_id'}",1,"I",0,"","dcs_data",0
+"dst_id","LES","UNDIR_CASE_TRANSFER","LES",0,"if ('&dst_id' != '') { validate rf identifier for transfer where inpval = '&dst_id' and srch_bckfill = true and wh_id = '@global.wh_id' }",1,"I",0,"","mtf_dcs_data",0
+"dst_id","LES","UNDIR_SERIAL_DEPOSIT","LES",0,"if ('&dst_id' != '') { validate rf translated location where inpval = '&dst_id' and invtid_flg = 1 and wh_id = '@global.wh_id' }",1,"I",0,"","mtf_dcs_data",0
+"dst_id","LES","UNDIR_TRANSFER","LES",0,"if ('&dst_id' != '') {validate rf identifier for transfer where inpval = '&dst_id'and srch_bckfill = true and wh_id = '@global.wh_id'}",1,"I",0,"","mtf_dcs_data",0
+"dstloc","LES","ALLOCATE_LOCATION","LES",0,"if ('&dstloc' != '') { validate rf translated location where inpval = '&dstloc' and wh_id = '@global.wh_id' }",1,"I",0,"","mtf_dcs_data",0
+"dstloc","LES","completetrlr","LES",0,"list locations where useflg = 1 and pdflg = 1 and wh_id = '&wh_id' and stoloc = '&dstloc'",1,"A",0,"dstloc=stoloc","dcs_data",0
+"dstloc","LES","DEPOSIT_A","LES",0,"if ('&dsploc1' != '' ) { validate rf translated location where inpval = '&dstloc' and dsploc = '&dsploc1' and invtid_flg=1 and wh_id = '@global.wh_id'} else { validate rf translated location where inpval = '&dstloc' and invtid_flg=1 and wh_id = '@global.wh_id' } ; if( '&dsploc1' = '' and '@LOCATION_DISPLAY.setdown_flg' = '1' ) { validate location for pick exception deposit area where srcloc = '@LOCATION_DISPLAY.stoloc' and wh_id = '@global.wh_id' and dstloc = '&dstloc'}",1,"I",0,"","mtf_dcs_data",0
+"dstloc","LES","DEPOSIT_A","LES",10,"[select 1 from pckwrk_view where dstloc = '&dstloc' and wrktyp = 'E' and appqty = 0] catch(-1403) | if (@? = 0) set return status where status = 11136",1,"I",0,"","usr_data",0
+"dstloc","LES","DEPOSIT_TRLR","LES",0,"validate rf translated location where inpval = '&dstloc' and wh_id = '@global.wh_id'",1,"I",0,"","mtf_dcs_data",0
+"dstloc","LES","FLUID_LOAD","LES",0,"validate rf translated location where inpval = '&dstloc' and wh_id = '@global.wh_id'",1,"I",0,"","mtf_dcs_data",0
+"dstloc","LES","movtrlropr","LES",0,"if ('&trlr_cod' = 'RCV') {list yard locations for receive trailers where stoloc = '&dstloc' and locsts <> 'F' catch (-1403) | if (@? = -1403) { set return status where status = 10241}} else {list yard locations for shipping trailers where stoloc = '&dstloc' and locsts <> 'F' catch (-1403) | if (@? = -1403) { set return status where status = 10241}}",1,"I",0,"","dcs_data",0
+"dstloc","LES","pkostnerrhand","LES",0,"list locations where stoloc = '&dstloc'",1,"A",0,"","dcs_data",0
+"dstloc","LES","stktrnopr","LES",0,"[select l.* from locmst l left join sto_zone sz on sz.sto_zone_id = l.sto_zone_id join loc_typ lt on lt.loc_typ_id = l.loc_typ_id where ((sz.pckcod != 'N' and lt.sigflg = '1') or (lt.wip_supflg = '1')) and l.stoloc = '&dstloc' and l.locsts not in ('I','L') and l.wh_id = nvl('&wh_id',@@wh_id)] catch (-1403) | if (@? = -1403) { set return status where status = 10241}",1,"A",0,"","dcs_data",0
+"dstloc","LES","TOOLS_OVERRIDE_LOC","LES",0,"if ('&dstloc' != '') { validate rf translated location where inpval = '&dstloc' and wh_id = '@global.wh_id' }",1,"I",0,"","mtf_dcs_data",0
+"dstloc","LES","UNDIR_CASE_STAGE","LES",0,"validate rf translated location where inpval = '&dstloc' and wh_id = '@global.wh_id'",1,"I",0,"","mtf_dcs_data",0
+"dstloc","LES","UNDIR_UNLOAD_TRAILER","LES",0,"validate rf translated location where inpval = '&dstloc' and wh_id = '@global.wh_id'",1,"I",0,"","mtf_dcs_data",0
+"dstlod","LES","PICKUP_A","LES",0,"validate rf dstlod for picking where dstlod = '&dstlod' and wrkref = '&wrkref' and wh_id = '@global.wh_id' and list_id = '&list_id'",1,"A",0,"","dcs_data",0
+"dstr_excp_loc","LES","LES","LES",0,"if ('&dstr_excp_loc' != '' and '&wh_id' != '') {validate storage location where stoloc = '&dstr_excp_loc' and wh_id = '&wh_id'} else if ('&dstr_excp_loc' != '' and @@wh_id != '') {validate storage location where stoloc = '@dstr_excp_loc' and wh_id =@@wh_id}",1,"I",0,"","dcs_data",0
+"early_dlvdte","LES","LES","LES",0,"if ('&early_dlvdte' != '' and '&late_dlvdte' != '') {if ('&to_date(late_dlvdte)' < '&to_date(early_dlvdte)') set return status where status = 10342}",1,"I",0,"","dcs_data",0
+"early_shpdte","LES","LES","LES",0,"if ('&early_shpdte' != '' and '&late_shpdte' != '') {if ('&to_date(late_shpdte)' < '&to_date(early_shpdte)') set return status where status = 10342}",1,"I",0,"","dcs_data",0
+"end_loc_cnt","LES","LES","LES",0,"if ('&cnttyp' != 'MAN' and '&end_loc_cnt' = 'LGD') {set return status where status='11788'}",1,"I",0,"","dcs_data",0
+"enddaycod","LES","LES","LES",0,"if ('&begdaycod' != '' and '&enddaycod' != '') {if ('&enddaycod' < '&begdaycod') set return status where status = 10342 else if ('&enddaycod' <= '&begdaycod' and '&begtim' != '' and '&endtim' != '') {if (to_date('&endtim', 'YYYYMMDDHH24MISS') < to_date('&begtim', 'YYYYMMDDHH24MISS')) set return status where status = 10342 }}",1,"I",0,"","dcs_data",0
+"endloc","LES","ccnttmplmnt","LES",0,"validate storage location where stoloc = '&endloc' and wh_id = '&wh_id'",1,"A",0,"","dcs_data",0
+"endloc","LES","LES","LES",0,"validate storage location where stoloc = '&endloc' and wh_id = '&wh_id'",1,"I",0,"","sal_data",0
+"endloc","LES","locaudopr","LES",0,"list locations where stoloc = '&endloc' and wh_id = '&wh_id'",1,"I",0,"","dcs_data",0
+"endtim","LES","LES","LES",0,"if ('&begtim' != '' and '&endtim' != '' and '&begdaycod' != '' and '&enddaycod' != '') {if (('&enddaycod' = '&begdaycod') and (to_date('&endtim', 'YYYYMMDDHH24MISS') < to_date('&begtim', 'YYYYMMDDHH24MISS'))) set return status where status = 10342}",1,"I",0,"","dcs_data",0
+"exp_ret_loc","LES","LES","LES",0,"if ('&exp_ret_loc' != '' and '&wh_id' != '') {validate storage location where stoloc = '&exp_ret_loc' and wh_id = '&wh_id'} else if ('&exp_ret_loc' != '' and @@wh_id != '') {validate storage location where stoloc = '@exp_ret_loc' and wh_id =@@wh_id}",1,"I",0,"","dcs_data",0
+"exp_scp","LES","LES","LES",0,"if ('&exp_scp' != ''){validate number where colnam="exp_scp" and intflg=1 and compare = 'GTE' and value = &exp_scp and limit = 0 | validate number where colnam="exp_scp" and intflg=1 and compare = 'LTE' and value = &exp_scp and limit = 100 }",1,"I",0,"","dcs_data",0
+"explicexcpt","LES","LES","LES",0,"list code descriptions where colnam = "explicexcpt" and [codmst.codval = '&explicexcpt']",1,"I",0,"","dcs_data",0
+"expqty","LES","rcvdtlmnt","LES",0,"if (&idnqty > 0 AND &idnqty > &expqty ) { set return status where status = 10750 }",1,"I",0,"","dcs_data",0
+"fail_evt_id","LES","rifdmnt","SEAMLES",0,"[select distinct evt_id from sl_evt_def where evt_id = '&fail_evt_id']",1,"I",0,"","int_data",0
+"fld_alg_id","LES","iifdsegmnt","SEAMLES",0,"sl_list alg_def where alg_id = '&fld_alg_id' and alg_typ_cd != 'MACRO'",1,"I",0,"","int_data",0
+"fld_alg_id","LES","rifdsegmnt","SEAMLES",0,"sl_list alg_def where alg_id = '&fld_alg_id' and alg_typ_cd != 'MACRO'",1,"I",0,"","int_data",0
+"frac_digits","LES","LES","LES",0,"validate number where colnam="frac_digits" and intflg=1 and compare = "GTE" and value = &frac_digits and limit = 0|validate number where colnam="frac_digits" and compare = "LTE" and value = &frac_digits and limit = 9",1,"I",0,"","dcs_data",0
+"frm_id","ddamgtopr","CTXTMNUMNT","LES",0,"if('&appl_id'='MCSDashboard'){list dashboard modules where module_id = '&frm_id'}",1,"I",0,"","mcs_data",0
+"frm_id","ddctxtmnumnt","ddctxtmnumnt","LES",0,"NONE",1,"I",0,"","mcs_data",0
+"frm_id","LES","frmFormInfo","LES",0,"NONE",0,"A",0,"","mcs_data",0
+"frm_id","LES","LES","LES",0,"if('&frm_id'!='' and '&frm_id'!='LES'){if ('&appl_id' = 'dcsrdt'){[select 1 from rf_frm_mst where rf_frm = '&frm_id']} else{list work flow forms where frm_id = '&frm_id' catch(-1403) |  if(@?= -1403) {[select dda_id from dda_mst where dda_id = '&frm_id']catch(-1403) | if (@? = -1403 and ('&appl_id' = '' or '&appl_id' = 'LES')){[select 1 from rf_frm_mst where rf_frm = '&frm_id']} else if(@? = -1403) {set return status where status = -1403}}}}",1,"A",0,"","dcs_data",0
+"frm_id","MCSVarCfgMnt","MCSVarCfgMnt","LES",0,"NONE",0,"A",0,"","mcs_data",0
+"frm_id","RPWEB","CTXTMNUMNT","LES",0,"noop",1,"I",0,"","sal_data",0
+"frm_id","wrkflwmnt","LES","LES",0,"NONE",0,"A",0,"","mcs_data",0
+"from_app_dte","LES","LES","LES",0,"publish data where to_app_dte = to_date('&to_app_dte') and from_app_dte = to_date('&from_app_dte') | if(@from_app_dte < SYSDATE){set return status where status = 10373} | if(@to_app_dte < @from_app_dte and @to_app_dte != ''){set return status where status = 4084}",1,"A",0,"","dcs_data",0
+"ftpcod","dcsrdt","FTP_CAPTURE","LES",0,"list part footprints where prtnum = '&prtnum' and prt_client_id = '&prt_client_id' and wh_id = @@wh_id and ftpcod = '&ftpcod' catch(-1403) | if (@? = 0){set return status where status = 11368}",1,"A",0,"","dcs_data",0
+"ftpcod","dcsrdt","LES","LES",0,"list part footprints where prtnum = '&prtnum' and prt_client_id = '&prt_client_id' and wh_id = @@wh_id and ftpcod = '&ftpcod'",1,"I",0,"","dcs_data",0
+"ftpcod","LES","identify","LES",0,"if('&prtnum' !='' and '&prt_client_id' !=''){list part footprints where prtnum = '&prtnum' and prt_client_id = '&prt_client_id' and wh_id = '&wh_id' and ftpcod = '&ftpcod'}",1,"I",0,"","dcs_data",0
+"ftpcod","LES","LES","LES",0,"list part footprints where prtnum = '&prtnum' and prt_client_id = '&prt_client_id' and wh_id = '&wh_id' and ftpcod = '&ftpcod'",1,"I",0,"","dcs_data",0
+"ftpcod","LES","ordlinmnt","LES",0,"list part footprints where prtnum = '&prtnum' and prt_client_id = '&prt_client_id' and wh_id = '&wh_id' and ftpcod = '&ftpcod'",0,"I",0,"","dcs_data",0
+"ftpcod","LES","pcfdtlmnt","LES",0,"list footprint codes for part where prtnum = '&prtnum' and prt_client_id = '&prt_client_id' and wh_id = '&wh_id' and ftpcod = '&ftpcod'",1,"I",0,"","dcs_data",0
+"ftpcod","LES","prtftpdsp","LES",0,"NONE",0,"I",0,"","dcs_data",0
+"ftpcod","LES","prtftpmstdfltmnt","LES",0,"NONE",0,"I",0,"","sal_data",0
+"ftpcod","LES","prtftpmstovrdmnt","LES",0,"NONE",0,"I",0,"","sal_data",0
+"ftpcod","LES","RCV-PLTBLD-MNT","LES",5,"list part footprints where ftpcod = '&ftpcod'",1,"I",0,"","dcs_data",0
+"ftpcod","LES","RCV-PLTBLD-RULE-MNT","LES",5,"list part footprints where ftpcod = '&ftpcod'",1,"I",0,"","dcs_data",0
+"gmt_offset","LES","LES","LES",0,"if (to_number('&gmt_offset') < -11 or to_number('&gmt_offset') > 12) { set return status where status = 2976 }",1,"I",0,"","sal_data",0
+"gui_frm_id","LES","servinsactmnt","LES",0,"if('&gui_frm_id'='uploadmediaservopr') { list exit points for service where wh_id = @@wh_id and serv_id = '&serv_id' | list exit points where exitpnt = @exitpnt and exitpnt_typ = @exitpnt_typ | if(!@tblnme) { set return status where status=10402 }}",1,"A",0,"","dcs_data",0
+"hgt","LES","LES","LES",0,"if (to_number('&hgt') = 0) { set return status where status = 11436 }",1,"I",0,"","sal_data",0
+"hldnum","invhldchgopr","invchginv","LES",0,"if ('&optAddHold' = 'True') {list hold definitions where hldnum = '&hldnum' and enaflg = '1' catch(-1403) | if (@? != 0) { set return status where status = 10446 }} else {list hold definitions where hldnum = '&hldnum'}",1,"A",0,"","dcs_data",0
+"hldnum","LES","hldhstdsp","LES",0,"NONE",0,"I",0,"","dcs_data",0
+"hldnum","LES","hldmstmnt","LES",0,"NONE",0,"I",0,"","dcs_data",0
+"hldnum","LES","LES","LES",0,"list hold definitions where hldnum = '&hldnum'",1,"I",0,"","dcs_data",0
+"hldnum","LES","USR_IDENTIFY_LOAD_EX","LES",10,"if('&hldnum'!= '') {list usr rf hold definitions for lookup where wh_id = nvl(@wh_id, @@wh_id) and hldtyp [in ('R' ,'SIM' ,'EXT','RDA','RDO','RDX')] and hldnum = '&hldnum'}",1,"I",0,"","usr_data",0
+"hmeloc","LES","LES","LES",0,"list locations where stoloc = '&hmeloc' and wh_id = '&wh_id'",1,"I",0,"","dcs_data",0
+"hmemaxprithr","LES","LES","LES",0,"validate number where colnam="hmemaxprithr" and intflg=1 and compare = 'GT' and value = &hmemaxprithr and limit = 0",1,"I",0,"","dcs_data",0
+"hmewrkare","dcsrdt","RESET_HOME_WORK_AREA","LES",0,"list work areas where wrkare = '&hmewrkare' and wh_id = '@global.wh_id'",1,"I",0,"","dcs_data",0
+"hmewrkare","LES","LES","LES",0,"list work areas where wrkare = '&hmewrkare' and wh_id = '&wh_id'",1,"I",0,"","dcs_data",0
+"hopseq","LES","LES","LES",0,"validate number where colnam="hopseq" and intflg=1 and compare = 'GT' and value = &hopseq and limit = 0",1,"I",0,"","dcs_data",0
+"id_seg_alg_id","LES","iifdmnt","SEAMLES",0,"sl_list alg_def where alg_id = '&id_seg_alg_id' and alg_typ_cd != 'MACRO'",1,"I",0,"","int_data",0
+"idnqty","LES","ASSET_IDENTIFY","LES",0,"validate number where compare = 'GTE' and value   = '@ASSET_IDENTIFY.idnqty' and limit   = 0",1,"I",0,"","dcs_data",0
+"ifd_action_alg_id","LES","iifdmnt","SEAMLES",0,"sl_list alg_def where alg_id = '&ifd_action_alg_id' and alg_typ_cd != 'MACRO'",1,"I",0,"","int_data",0
+"inv_attr_dte1","dcsrdt","USR_IDENTIFY_LOAD_ADJ_LOD","LES",10,"if('&inv_attr_dte1' != ''){validate usr rf identify load auction date where devcod=@@devcod and  auction_date = '&inv_attr_dte1'}",1,"I",0,"","usr_data",0
+"inval1","LES","CNFRM_SERV_VAL","LES",10,"if('&CONFIRM_SERV_INS.serv_ins_id' = 'INS000000020'){[select 1 from prsmst where prtadr = '&inval1'] catch(-1403) | if (@? != 0) {set return status where status = 35803}}",1,"A",0,"","usr_data",0
+"invid","LES","UNDIR_MAN_COUNT","3pl",0,"if ('@invid' != '') {check mcs field for barcode validation where invtid= '&invtid'  and fieldname= 'invtid' and fieldlength = 30 | validate client for user for inventory where id = '@invid' and wh_id = '@global.wh_id' and usr_id = '@global.usr_id' and srch_bckfill=true;validate rf translated backfill location where stoloc = '@invid' and pck_flg = 0 and wh_id = '@global.wh_id'}",1,"I",0,"","mtf_dcs_data",0
+"invid","LES","UNDIR_RACKQUIZ","3pl",0,"if ('@invid' != '') {validate client for user for inventory where id = '@invid' and wh_id = '@global.wh_id' and usr_id = '@global.usr_id'}",1,"I",0,"","mtf_dcs_data",0
+"invnum","LES","hldmstmnt","LES",0,"[select invnum from rcvinv where invnum = '&invnum']",0,"I",0,"","dcs_data",0
+"invnum","LES","IDENTIFY_LOAD","LES",0,"validate receive invoice where invnum = '@invnum' and trknum = '@trknum' and wh_id = '@global.wh_id' and client_id = '@client_id'",1,"I",0,"","mtf_dcs_data",0
+"invnum","LES","UNDIR_INBOUND_QUALITY","LES",0,"if ('&invnum' != '') {validate receive invoice where invnum = '@invnum' and trknum = '@trknum' and wh_id = '@global.wh_id' and client_id = '@client_id'}",1,"I",0,"","mtf_dcs_data",0
+"invsts","retprcopr","identify","LES",0,"check mcs field for barcode validation where invtid= '&invtid'  and fieldname= 'invtid' and fieldlength = 30|get load for return where invsts = '&invsts' and stoloc = '&devcod'",1,"A",1,"lodnum","dcs_data",0
+"invtid","cntentopr","cntentopr","LES",0,"check mcs field for barcode validation where invtid= '&invtid'  and fieldname= 'invtid' and fieldlength = 30|noop",0,"I",0,"","dcs_data",0
+"invtid","dcsrdt","CASESPLIT","3pl",0,"check mcs field for barcode validation where invtid= '&invtid'  and fieldname= 'invtid' and fieldlength = 30|noop",0,"I",0,"","dcs_data",0
+"invtid","dcsrdt","CASESPLIT","LES",0,"check mcs field for barcode validation where invtid= '&invtid'  and fieldname= 'invtid' and fieldlength = 30|noop",0,"I",0,"","dcs_data",0
+"invtid","dcsrdt","CHANGE_INV_NONSERASSET","LES",0,"check mcs field for barcode validation where invtid= '&invtid'  and fieldname= 'invtid' and fieldlength = 30|validate inventory non serialized assets where invtid = '@invtid' and wh_id  = '@global.wh_id'",1,"I",1,"cur_asset_typ=asset_typ","mtf_dcs_data",0
+"invtid","dcsrdt","FLUID_LOAD","3pl",0,"check mcs field for barcode validation where invtid= '&invtid'  and fieldname= 'invtid' and fieldlength = 30|noop",0,"I",0,"","dcs_data",0
+"invtid","dcsrdt","IDENTIFY_NEXT_LOAD","3pl",0,"check mcs field for barcode validation where invtid= '&invtid'  and fieldname= 'invtid' and fieldlength = 30|validate new load number where lodnum = '@invtid' and wh_id = '&wh_id'",1,"I",0,"","dcs_data",0
+"invtid","dcsrdt","INV_ADJUST","LES",0,"check mcs field for barcode validation where invtid= '&invtid'  and fieldname= 'invtid' and fieldlength = 30|noop",1,"I",0,"","dcs_data",0
+"invtid","dcsrdt","LES","3pl",0,"check mcs field for barcode validation where invtid= '&invtid'  and fieldname= 'invtid' and fieldlength = 30|validate client for user for inventory where id='@invtid' and wh_id='@global.wh_id' and usr_id = '@global.usr_id'",1,"I",0,"","dcs_data",0
+"invtid","dcsrdt","LPN_COUNT","LES",0,"check mcs field for barcode validation where invtid= '&invtid'  and fieldname= 'invtid' and fieldlength = 30|noop",0,"I",0,"","dcs_data",0
+"invtid","dcsrdt","RECEIVE_WITHOUT_ORDER","LES",0,"check mcs field for barcode validation where invtid= '&invtid'  and fieldname= 'invtid' and fieldlength = 30|noop",0,"I",0,"","dcs_data",0
+"invtid","dcsrdt","RETURN_TRUCK","LES",0,"check mcs field for barcode validation where invtid= '&invtid'  and fieldname= 'invtid' and fieldlength = 30|noop",0,"I",0,"","dcs_data",0
+"invtid","dcsrdt","UNDIR_IDENTIFY","3pl",0,"check mcs field for barcode validation where invtid= '&invtid'  and fieldname= 'invtid' and fieldlength = 30|validate client for user for inventory where id='@invtid' and wh_id='@global.wh_id' and usr_id = '@global.usr_id'",0,"I",0,"","dcs_data",0
+"invtid","dcsrdt","UNDIR_RACKQUIZ","3pl",0,"check mcs field for barcode validation where invtid= '&invtid'  and fieldname= 'invtid' and fieldlength = 30|validate client for user for inventory where id='@invtid' and wh_id='@global.wh_id' and usr_id = '@global.usr_id' and srch_bckfill=true",1,"I",0,"","dcs_data",0
+"invtid","LES","LES","3pl",0,"check mcs field for barcode validation where invtid= '&invtid'  and fieldname= 'invtid' and fieldlength = 30|validate client for user for inventory where id='&invtid' and wh_id= @@wh_id and usr_id = @@usr_id",1,"I",0,"","dcs_data",0
+"invtid","LES","sernummnt","LES",0,"check mcs field for barcode validation where invtid= '&invtid'  and fieldname= 'invtid' and fieldlength = 30|get translated inventory identifier where id = '@invtid' and wh_id = @@wh_id | if(@colnam = 'stoloc'){set return status where status = 11493}",1,"I",0,"","dcs_data",0
+"invtid","LES","UNDIR_SERIAL_TRANSFER","3pl",0,"check mcs field for barcode validation where invtid= '&invtid'  and fieldname= 'invtid' and fieldlength = 30|validate rf serial number for transfer where ser_num = '@invtid' and lodnum = '&lodnum'",1,"I",0,"","mtf_dcs_data",0
+"invtid","LES","UNDIR_SERIAL_TRANSFER","LES",0,"check mcs field for barcode validation where invtid= '&invtid'  and fieldname= 'invtid' and fieldlength = 30|validate rf serial number for transfer where ser_num = '@invtid' and lodnum = '&lodnum'",1,"I",0,"","mtf_dcs_data",0
+"invtid","LES","UNDIR_SORTEDDEPOSIT","LES",0,"check mcs field for barcode validation where invtid= '&invtid'  and fieldname= 'invtid' and fieldlength = 30|validate rf translated location where inpval = '@invtid' and invtid_flg = 1 and wh_id = '@global.wh_id'",1,"I",0,"","mtf_dcs_data",0
+"invtid","sernummnt","sernumcap","LES",0,"validate client for user for inventory where id='&invtid' and wh_id= @@wh_id and usr_id = @@usr_id",0,"I",0,"","dcs_data",0
+"invtyp","dcsrdt","USR_IDENTIFY_LOAD_EX","LES",10,"if('&invtyp' != '') {list invoice types where invtyp = '&invtyp'}",1,"I",0,"","usr_data",0
+"item_num","LES","ItemVelDspFrm","LES",0,"list policies where polcod='WM' and polvar='INSTALLED' and polval='INSTALLED' and srtseq=0 and rtnum1=1 catch(@?) | if(@?=0) {hide stack variable where name = 'moddte'|list parts where prtnum = "&item_num" catch(-1403) | if (@? = -1403) {set return status where status = 35162}} else {hide stack variable where name = 'moddte'|list slot items where item_num = "&item_num" catch(-1403) | if (@? = -1403) {set return status where status = 4061}}",1,"I",0,"","slotting_data",0
+"item_num","LES","ItemVelFrm","LES",0,"list policies where polcod='WM' and polvar='INSTALLED' and polval='INSTALLED' and srtseq=0 and rtnum1=1 and wh_id=@@wh_id catch(@?) | if(@?=0) {hide stack variable where name = 'moddte'|list parts where prtnum = "&item_num" catch(-1403) | if (@? = -1403) {set return status where status = 35162}} else {hide stack variable where name = 'moddte'|list slot items where item_num = "&item_num" catch(-1403) | if (@? = -1403) {set return status where status = 4061}}",1,"I",0,"","slotting_data",0
+"last_ctn_fpc","LES","LES","LES",0,"validate number where colnam='last_ctn_fpc' and compare = 'GTE' and value = &last_ctn_fpc and limit = &ctnfpc",1,"I",0,"","dcs_data",0
+"late_dlvdte","LES","LES","LES",0,"if ('&late_dlvdte' != '' and '&early_dlvdte' != '') {if ('&to_date(late_dlvdte)' < '&to_date(early_dlvdte)') set return status where status = 10342}",1,"I",0,"","dcs_data",0
+"late_shpdte","LES","LES","LES",0,"if ('&late_shpdte' != '' and '&early_shpdte' != '') {if ('&to_date(late_shpdte)' < '&to_date(early_shpdte)') set return status where status = 10342}",1,"I",0,"","dcs_data",0
+"latitude","LES","LES","LES",0,"if (to_number('&latitude') < -90 or to_number('&latitude') > 90) { set return status where status = 2972 }",1,"I",0,"","sal_data",0
+"len","LES","LES","LES",0,"if (to_number('&len') = 0) { set return status where status = 11436 }",1,"I",0,"","sal_data",0
+"lkp_id","VarPosMnt","VarPosMnt","LES",0,"list lookup where lkp_id = '&lkp_id'",1,"A",0,"","mcs_data",0
+"lochgt","LES","LES","LES",0,"validate number where colnam = "lochgt" and compare = 'GT' and value = &lochgt and limit = 0",1,"I",0,"","dcs_data",0
+"loclen","LES","LES","LES",0,"validate number where colnam = "loclen" and compare = 'GT' and value = &loclen and limit = 0",1,"I",0,"","dcs_data",0
+"locwid","LES","LES","LES",0,"validate number where colnam = "loclen" and compare = 'GT' and value = &locwid and limit = 0",1,"I",0,"","dcs_data",0
+"lodnum","bundleinvopr","bundleinvopr","LES",0,"validate lodnum for bundle where lodnum = '&lodnum' and bundleloc = '&bundleloc' and wh_id = '&wh_id'",1,"A",1,"bundleloc, lodnum","dcs_data",0
+"lodnum","dckdropr","identify","LES",0,"check mcs field for barcode validation where invtid= '&lodnum'  and fieldname= 'lodnum' and fieldlength = 30|validate new load number where lodnum = '@lodnum' and wh_id = '&wh_id'",0,"I",0,"","dcs_data",0
+"lodnum","invadjopr","identify","LES",0,"check mcs field for barcode validation where invtid= '&lodnum'  and fieldname= 'lodnum' and fieldlength = 30|validate new load number where lodnum = '@lodnum' and wh_id = '&wh_id'",0,"I",0,"","dcs_data",0
+"lodnum","LES","DEPOSIT_A","LES",0,"check mcs field for barcode validation where invtid= '&lodnum'  and fieldname= 'lodnum' and fieldlength = 30|validate new load number where lodnum = '@lodnum' and wh_id = '&wh_id' and skip_validation = 1",1,"I",0,"","mtf_dcs_data",0
+"lodnum","LES","IDENTIFY_LOAD","LES",10,"if ('&IDENTIFY_LOAD.wkoflg' = 'Y') {process usr existing lpn at receiving where lodnum = '&lodnum' and wh_id = '&GLOBAL.wh_id' and wkonum = '&wkonum'  and wkorev = '&invnum' and client_id = '&client_id' ; get usr lpn asset type where lodnum = '&lodnum' and wh_id = '&GLOBAL.wh_id' }",1,"A",1,"dst_asset_typ=asset_typ,asset_typ=asset_typ","usr_data",0
+"lodnum","LES","LES","LES",0,"check mcs field for barcode validation where invtid= '&lodnum'  and fieldname= 'lodnum' and fieldlength = 30|validate new load number where lodnum = '@lodnum' and wh_id = '&wh_id'",1,"I",0,"","dcs_data",0
+"lodnum","LES","LOAD_LTL_TRLR","LES",0,"NONE",0,"I",0,"","dcs_data",0
+"lodnum","LES","palbldopr","LES",0,"check mcs field for barcode validation where invtid= '&lodnum'  and fieldname= 'lodnum' and fieldlength = 30|validate new load number where lodnum = '@lodnum' and wh_id = '&wh_id'",1,"I",0,"","dcs_data",0
+"lodnum","LES","PICKUP_A","LES",0,"check mcs field for barcode validation where invtid= '&lodnum'  and fieldname= 'lodnum' and fieldlength = 30| validate new load number where lodnum = '@lodnum' and wh_id = '&wh_id'",0,"I",0,"","mtf_dcs_data",0
+"lodnum","LES","prmlodmnt","LES",0,"check mcs field for barcode validation where invtid= '&lodnum'  and fieldname= 'lodnum' and fieldlength = 30|validate new load number where lodnum = '@lodnum' and wh_id = '&wh_id' and prmflg = 1",1,"I",0,"","dcs_data",0
+"lodnum","LES","rcvwoordopr","LES",0,"check mcs field for barcode validation where invtid= '&lodnum'  and fieldname= 'lodnum' and fieldlength = 30|validate new load number where lodnum = '@lodnum' and wh_id = '&wh_id'",0,"I",0,"","dcs_data",0
+"lodnum","LES","UNDIR_PALLET_POSITION","LES",0,"check mcs field for barcode validation where invtid= '&lodnum'  and fieldname= 'lodnum' and fieldlength = 30| validate pallet position where wh_id = '@global.wh_id' and lodnum = '@lodnum'",1,"I",1,"trlr_id=data","dcs_data",0
+"lodnum","LES","WMD-PRMLODMNT","LES",0,"check mcs field for barcode validation where invtid= '&lodnum'  and fieldname= 'lodnum' and fieldlength = 30|validate new load number where lodnum = '@lodnum' and wh_id = '&wh_id' and prmflg = 1",1,"I",0,"","dcs_data",0
+"lodnum","rcvtrkopr","identify","LES",0,"check mcs field for barcode validation where invtid= '&lodnum'  and fieldname= 'lodnum' and fieldlength = 30| validate new load number where lodnum = '@lodnum' and wh_id = '&wh_id'",0,"I",0,"","dcs_data",0
+"loducc","LES","LES","LES",0,"check mcs field for barcode validation where invtid= '&loducc'  and fieldname= 'loducc' and fieldlength = 20 | publish data where loducc = @loducc",1,"I",0,"","dcs_data",0
+"longitude","LES","LES","LES",0,"if (to_number('&longitude') < -180 or to_number('&longitude') > 180) { set return status where status = 2973 }",1,"I",0,"","sal_data",0
+"lost_loc","LES","LES","LES",0,"list locations where fwiflg =1 and praflg = 0 and stgflg = 0 and yrdflg = 0 and shp_dck_flg = 0 and rcv_dck_flg = 0 and stoloc = '&lost_loc' and wh_id = '&wh_id'",1,"I",0,"","dcs_data",0
+"lot_fmt_id","LES","supprtopr","LES",0,"if('&lot_fmt_id' != '' and '&prtnum' != ''){validate lot format for supplier item where prtnum = '&prtnum' and prt_client_id = '&prt_client_id' and lot_fmt_id = '&lot_fmt_id' and wh_id = @@wh_id} else if ('&lot_fmt_id' != '') {convert list to in clause where string = '&lot_fmt_id' and column_name = 'lot_fmt_id' and separator = '||' | list lot formats where [@in_clause:raw]}",1,"A",0,"","dcs_data",0
+"lotnum","ordmnt","ordlinmnt","LES",0,"get installed configuration where config = 'THIRD-PARTY-LOGISTICS' and wh_id = nvl('&wh_id', @@wh_id) catch(-1403) | if(@installed = 0) { parse lot number where prtnum = '&prtnum' and prt_client_id = '----' and wh_id = '&wh_id' and lotnum = '&lotnum' and validate = 0 } else { parse lot number where prtnum = '&prtnum' and prt_client_id = '&prt_client_id' and wh_id = '&wh_id' and lotnum = '&lotnum' and validate = 0 }",1,"I",0,"","dcs_data",0
+"mandte","LES","PRTLOTMSTMNT","LES",0,"if('&prtnum' != '' and '&mandte' != ''){[select age_pflnam from prtmst_view where prtnum ='&prtnum' and prt_client_id ='&prt_client_id' and wh_id ='&wh_id'] catch(-1403) | if(@age_pflnam != ''){ get expiration date where prtnum = '&prtnum' and mandte = '&mandte' and age_pflnam = @age_pflnam and client_id ='&prt_client_id' |  publish data where expdte = @expire_dte}}",1,"I",1,"expdte","dcs_data",0
+"max_catch_qty","LES","LES","LES",0,"if (('&catch_cod' != '') and float('&max_catch_qty') < float('&min_catch_qty')) set return status where status = 10461",1,"I",0,"","sal_data",0
+"max_licenses","LES","LES","LES",0,"validate number where colnam="max_licenses" and intflg=1 and compare = 'GT' and value = &max_licenses and limit = 0|validate number where colnam="max_licenses" and compare = 'LTE' and value = &max_licenses and limit = 10",1,"I",0,"","dcs_data",0
+"max_prob_qty","LES","LES","LES",0,"if('&prob_qty' != '' and '&max_prob_qty' < '&prob_qty'){set return status where status = 10147 and limit = 'Probablity' and argdsc = 'Max Probablity' and errnum = 'Bad Data Set'}|validate number where colnam="max_prob_qty" and intflg=1 and compare = 'GTE' and value = '&max_prob_qty' and limit = 0|validate number where colnam="max_prob_qty" and compare = 'LTE' and value = '&max_prob_qty' and limit = 100",1,"I",0,"","dcs_data",0
+"max_usr","LES","carmovemnt","LES",0,"if ('&trlr_num' != '' and '&max_usr' != '') {[select count (*)cnt from trlr_usr inner join trlr on trlr_usr.trlr_id = trlr.trlr_id where trlr.trlr_num = '&trlr_num'] | if(@cnt > '&max_usr'){set return status where status = 10812}}",1,"I",0,"","dcs_data",0
+"max_volume","pcklstrulsetmnt","pcklstrulsetmnt","LES",0,"if (to_number('&max_volume') < 0) { set return status where status = 11715}",1,"I",1,"","dcs_data",0
+"max_weight","pcklstrulsetmnt","pcklstrulsetmnt","LES",0,"if (to_number('&max_weight') < 0) { set return status where status = 11714}",1,"I",1,"","dcs_data",0
+"maxdev","LES","LES","LES",0,"validate number where colnam="maxdev" and intflg=1 and compare = 'GT' and value = &maxdev and limit = 0",1,"I",0,"","dcs_data",0
+"maxdev","LES","WMD-ZON-VEH-MNT","LES",0,"[select maxdev wrkzon_max_dev  from zonmst where wrkzon = '&wrkzon' and wh_id = '&wh_id' ] catch(-1403) | if (@wrkzon_max_dev < '&maxdev') { set return status where status = 11673 }",1,"I",0,"","dcs_data",0
+"maxloc","LES","LES","LES",0,"validate number where colnam='maxloc' and intflg = 1 and compare = 'GT' and value = &maxloc and limit = 0",1,"I",0,"","dcs_data",0
+"maxprithr","LES","LES","LES",0,"validate number where colnam="maxprithr" and intflg=1 and compare = 'GT' and value = &maxprithr and limit = 0",1,"I",0,"","dcs_data",0
+"maxunt","LES","LES","LES",0,"validate number where colnam='maxunt' and intflg = 1 and compare = 'GT' and value = &maxunt and limit = 0",1,"I",0,"","dcs_data",0
+"maxunt","LES","rplcfgmnt","LES",0,"if ('&stoloc' <> '' and &pctflg = 0) {[select l.maxqvl, l.loccod from locmst l where l.stoloc = '&stoloc' and l.wh_id = '&wh_id'] | if ('&prtnum' <> '' and '&prt_client_id' <> '') {get translated maximum units where prtnum = '&prtnum' and prt_client_id = '&prt_client_id' and wh_id = '&wh_id' and loccod = @loccod and avail_qvl = @maxqvl}| if ((@translated_maxqvl <> '') and (@translated_maxqvl < &maxunt)) { set return status where status = '10404' } } else { validate number where colnam='maxunt' and intflg = 1 and compare = 'GT' and value = &maxunt and limit = 0 }",1,"I",0,"","dcs_data",0
+"maxval","LES","locnamscmmnt","LES",0,"if ('&minval' != '' and '&maxval' != '' and '&maxval' < '&minval') { set return status where status = 2404 and argdsc = 'Maxinum' and limit='&minval' and errnum= 2404 }",1,"I",0,"","dcs_data",0
+"min_catch_qty","LES","LES","LES",0,"if (('&catch_cod' != '') and ('&max_catch_qty' != '') and float('&max_catch_qty') < float('&min_catch_qty'))  set return status where status = 10461",1,"I",0,"","sal_data",0
+"minval","LES","locnamscmmnt","LES",0,"if ('&minval' != '' and '&maxval' != '' and '&minval' > '&maxval') { set return status where status = 2402 and argdsc = 'Mininum' and limit='&maxval' and errnum= 2402}",1,"I",0,"","dcs_data",0
+"n_cs_precedes","LES","LES","LES",0,"validate number where colnam="n_cs_precedes" and intflg=1 and compare = "GTE" and value = &n_cs_precedes and limit = 0|validate number where colnam="n_cs_precedes" and compare = "LTE" and value = &n_cs_precedes and limit = 1",1,"I",0,"","dcs_data",0
+"n_sep_by_space","LES","LES","LES",0,"validate number where colnam="n_sep_by_space" and intflg=1 and compare = "GTE" and value = &n_sep_by_space and limit = 0|validate number where colnam="n_sep_by_space" and compare = "LTE" and value = &n_sep_by_space and limit = 2",1,"I",0,"","dcs_data",0
+"n_sign_posn","LES","LES","LES",0,"validate number where colnam="n_sign_posn" and compare = "GTE" and value = &n_sign_posn and limit = 0|validate number where colnam="n_sign_posn" and compare = "LTE" and value = &n_sign_posn and limit = 4",1,"I",0,"","dcs_data",0
+"newlod","LES","RELABEL_LOAD","LES",0,"validate new load number where lodnum = '&newlod' and wh_id = '&wh_id'",1,"A",0,"","mtf_dcs_data",0
+"nstcls","LES","LES","LES",0,"validate nesting class where nstcls = '&nstcls'",1,"I",0,"","sal_data",0
+"num_len","LES","SAL-PRO-NUMBER-MNT","LES",0,"if(to_number('&num_len') > 20 or to_number('&num_len') < 0) { set return status where status = 2978 }",1,"I",0,"","sal_data",0
+"NumberOfLabels","LES","LES","LES",0,"validate number where colnam="NumberOfLabels" and intflg=1 and compare = 'GT' and value = &NumberOfLabels and limit = 0",1,"I",0,"","dcs_data",0
+"oprcod","LES","inewrkdsp","LES",0,"list directed work operations where wh_id = '&wh_id'",1,"I",0,"","dcs_data",0
+"opt_nam","AuthMnt","LES","LES",0,"list les options where opt_nam = '&opt_nam'",0,"I",0,"","mcs_data",0
+"opt_nam","LES","LES","LES",0,"list les options where opt_nam = '&opt_nam'",1,"I",0,"","dcs_data",0
+"opt_nam","mcsmnumnt","mcsmnuitm","LES",0,"list les options where opt_nam = '&opt_nam'",1,"I",0,"","mcs_data",0
+"orgcod","LES","alcrulmnt","LES",0,"NONE",0,"I",0,"","dcs_data",0
+"orgcod","LES","bomdtlmnt","LES",0,"NONE",0,"I",0,"","dcs_data",0
+"orgcod","LES","bommnt","LES",0,"NONE",0,"I",0,"","dcs_data",0
+"orgcod","LES","LES","LES",0,"validate origin code where orgcod = '&orgcod'",1,"I",0,"","dcs_data",0
+"orgcod","LES","UNDIR_CASE_TRANSFER","LES",0,"NONE",0,"I",0,"","mtf_dcs_data",0
+"orgcod","LES","UNDIR_TRANSFER","LES",0,"if (('@src_colnam' != 'lodnum') or ('@orgcod' != '')) {validate origin code where orgcod = '&orgcod'}",1,"I",0,"","dcs_data",0
+"orgcod","LES","wkodtlmnt","LES",0,"NONE",0,"I",0,"","dcs_data",0
+"orgcod","LES","wkomnt","LES",0,"NONE",0,"I",0,"","dcs_data",0
+"orgcod","RPWEB","LES","LES",0,"if ('&orgcod' != '') {validate origin code where orgcod = '&orgcod'}",1,"I",0,"","dcsweb_data",0
+"orientation","LES","OVERRIDE_PAL","LES",0,"if('&orientation' != ''){list code descriptions where colnam = "orientation" and codmst.grp_nam = "dcs_pallet_ort" and codval = '&orientation' catch(-1403)|if (@?=-1403){set return status where status = 11740}}",1,"I",0,"","mtf_dcs_data",0
+"ovr_loc_cod","LES","LES","LES",0,"if ('&ovr_loc_cod' <> '') { if ('@TOOLS_OVERRIDE_LOC.stoloc' != '') {list override location codes where ovr_loc_cod = '&ovr_loc_cod' and wh_id = '@global.wh_id' and dsploc =  '@TOOLS_OVERRIDE_LOC.stoloc' and client_id = '@DEPOSIT_A.prt_client_id'} else {list override location codes where ovr_loc_cod = '&ovr_loc_cod' and client_id = '@DEPOSIT_A.prt_client_id'}}",1,"I",0,"","dcs_data",0
+"p_cs_precedes","LES","LES","LES",0,"validate number where colnam="p_cs_precedes" and intflg = 1 and compare = "GTE" and value = &p_cs_precedes and limit = 0|validate number where colnam="p_cs_precedes" and compare = "LTE" and value = &p_cs_precedes and limit = 1",1,"I",0,"","dcs_data",0
+"p_sep_by_space","LES","LES","LES",0,"validate number where colnam="p_sep_by_space" and intflg=1 and compare = "GTE" and value = &p_sep_by_space and limit = 0|validate number where colnam="p_sep_by_space" and compare = "LTE" and value = &p_sep_by_space and limit = 2",1,"I",0,"","dcs_data",0
+"p_sign_posn","LES","LES","LES",0,"validate number where colnam="p_sign_posn" and intflg=1 and compare = "GTE" and value = &p_sign_posn and limit = 0|validate number where colnam="p_sign_posn" and compare = "LTE" and value = &p_sign_posn and limit = 4",1,"I",0,"","dcs_data",0
+"pakhgt","LES","LES","LES",0,"validate number where colnam="pakhgt" and compare = 'GT' and value = &pakhgt and limit = 0",1,"I",0,"","sal_data",0
+"paklen","LES","LES","LES",0,"validate number where colnam="paklen" and compare = 'GT' and value = &paklen and limit = 0",1,"I",0,"","sal_data",0
+"pakwid","LES","LES","LES",0,"validate number where colnam="pakwid" and compare = 'GT' and value = &pakwid and limit = 0",1,"I",0,"","sal_data",0
+"pal_stck_hgt","LES","LES","LES",0,"validate number where colnam="pal_stck_hgt" and intflg=1 and compare = 'GTE' and value = &pal_stck_hgt and limit = 0",1,"I",0,"","sal_data",0
+"pal_stoloc","LES","LES","LES",0,"list automated lines where stoloc = '&pal_stoloc' and wh_id = '&wh_id'",1,"I",0,"","dcs_data",0
+"pallbldev","LES","LES","LES",0,"list devices where devcod = '&pallbldev' and wh_id = '&wh_id'",1,"I",0,"","dcs_data",0
+"pallen","LES","LES","LES",0,"validate number where colnam="pallen" and compare = 'GTE' and value = &pallen and limit = 0",1,"I",0,"","sal_data",0
+"palwid","LES","LES","LES",0,"validate number where colnam="palwid" and compare = 'GTE' and value = &palwid and limit = 0",1,"I",0,"","sal_data",0
+"par_asset_id","LES","assetidentify","LES",0,"if ('&par_asset_id' != '' and '&trknum' != ''){validate parent asset id for asset identify where par_asset_id = '&par_asset_id' and stoloc = '&trknum' and wh_id = '&wh_id'}",1,"A",0,"","dcs_data",0
+"par_asset_id","LES","CAPTURE_SER_ASSET_INFORMATION","LES",0,"if('@CAPTURE_SER_ASSET_INFORMATION.par_asset_id' != ''){validate parent asset id for asset identify where par_asset_id = '@CAPTURE_SER_ASSET_INFORMATION.par_asset_id' and stoloc = '@UNDIR_IDENTIFY.trknum' and wh_id = '@global.wh_id'}",1,"I",0,"","dcs_data",0
+"pcfkey","LES","pcfmstmnt","LES",0,"if ('&client_id' != '' ) { list parts where prtnum = '&pcfkey' and prt_client_id = '&client_id' } else { list parts where prtnum = '&pcfkey' }",1,"I",0,"","dcs_data",0
+"pckcod","LES","LES","LES",0,"list code descriptions where colnam = "pckcod" and [codmst.codval = '&pckcod']",1,"I",0,"","dcs_data",0
+"pick_to_id","dcsrdt","ASSET_IDENTIFY","LES",10,"validate usr lodnum for picking where wh_id = '&GLOBAL.wh_id' and pick_to_id = '&ASSET_IDENTIFY.pick_to_id' and asset_typ = '&ASSET_IDENTIFY.asset_typ'",1,"I",0,"","mcs_data",0
+"pol_mu","LES","LES","LES",0,"if ('&pol_mu_cat' = 'LINEAR') {list measurement units where mu_cat=['UOM_L','UOM_SL'] and mu='&pol_mu'} else if ('&pol_mu_cat' = 'AREA') {list measurement units where mu_cat= ['UOM_SA','UOM_A','UOM_LA'] and mu='&pol_mu'} else if ('&pol_mu_cat' = 'MASS') {list measurement units where mu_cat=['UOM_LW','UOM_W','UOM_SW'] and mu='&pol_mu'} else if ('&pol_mu_cat' = 'VOLUMN') {list measurement units where mu_cat=['UOM_LV','UOM_V','UOM_SV'] and mu='&pol_mu'} else if ('&pol_mu_cat' = 'TEMPERATURE') {list measurement units where mu_cat ='UOM_TEMP' and mu='&pol_mu'} else if ('&pol_mu_cat' = 'DISTANCE') {list measurement units where mu_cat ='UOM_DIST' and mu='&pol_mu'} else {list measurement units where mu='&pol_mu'}",1,"A",0,"","mcs_data",0
+"post_alg_id","LES","commmthdmnt","SEAMLES",0,"sl_list alg_def where alg_id = '&post_alg_id' and alg_typ_cd != 'MACRO'",1,"I",0,"","int_data",0
+"post_alg_id","LES","iifdmnt","SEAMLES",0,"sl_list alg_def where alg_id = '&post_alg_id' and alg_typ_cd != 'MACRO'",1,"I",0,"","int_data",0
+"post_alg_id","LES","iifdsegmnt","SEAMLES",0,"sl_list alg_def where alg_id = '&post_alg_id' and alg_typ_cd != 'MACRO'",1,"I",0,"","int_data",0
+"post_alg_id","LES","rifdmnt","SEAMLES",0,"sl_list alg_def where alg_id = '&post_alg_id' and alg_typ_cd != 'MACRO'",1,"I",0,"","int_data",0
+"post_alg_id","LES","rifdsegmnt","SEAMLES",0,"sl_list alg_def where alg_id = '&post_alg_id' and alg_typ_cd != 'MACRO'",1,"I",0,"","int_data",0
+"post_async_alg_id","LES","sysmnt","SEAMLES",0,"sl_list alg_def where alg_id = '&post_async_alg_id' and alg_typ_cd != 'MACRO'",1,"I",0,"","int_data",0
+"post_dwnld_alg_id","LES","sysmnt","SEAMLES",0,"sl_list alg_def where alg_id = '&post_dwnld_alg_id' and alg_typ_cd != 'MACRO'",1,"I",0,"","int_data",0
+"prcloc","LES","UNDIR_ASSEMBLY","LES",0,"validate rf translated location where inpval = '&prcloc' and wh_id = '@global.wh_id'",1,"I",0,"","mtf_dcs_data",0
+"pre_alg_id","LES","commmthdmnt","SEAMLES",0,"sl_list alg_def where alg_id = '&pre_alg_id' and alg_typ_cd != 'MACRO'",1,"I",0,"","int_data",0
+"pre_alg_id","LES","iifdmnt","SEAMLES",0,"sl_list alg_def where alg_id = '&pre_alg_id' and alg_typ_cd != 'MACRO'",1,"I",0,"","int_data",0
+"pre_alg_id","LES","iifdsegmnt","SEAMLES",0,"sl_list alg_def where alg_id = '&pre_alg_id' and alg_typ_cd != 'MACRO'",1,"I",0,"","int_data",0
+"pre_alg_id","LES","rifdmnt","SEAMLES",0,"sl_list alg_def where alg_id = '&pre_alg_id' and alg_typ_cd != 'MACRO'",1,"I",0,"","int_data",0
+"pre_alg_id","LES","rifdsegmnt","SEAMLES",0,"sl_list alg_def where alg_id = '&pre_alg_id' and alg_typ_cd != 'MACRO'",1,"I",0,"","int_data",0
+"pre_async_alg_id","LES","sysmnt","SEAMLES",0,"sl_list alg_def where alg_id = '&pre_async_alg_id' and alg_typ_cd != 'MACRO'",1,"I",0,"","int_data",0
+"pre_dwnld_alg_id","LES","sysmnt","SEAMLES",0,"sl_list alg_def where alg_id = '&pre_dwnld_alg_id' and alg_typ_cd != 'MACRO'",1,"I",0,"","int_data",0
+"prf_cmd","LES","LES","LES",0,"list active commands where command = '&prf_cmd'",1,"A",0,"","mcs_data",0
+"prf_cmd","LES","QueryProfileDefMnt","LES",0,"list active commands where command = '&prf_cmd'",0,"A",0,"","mcs_data",0
+"prithr","LES","LES","LES",0,"validate number where colnam="prithr" and intflg = 1 and compare = 'GT' and value = &prithr and limit = 0",1,"I",0,"","dcs_data",0
+"prob_qty","LES","LES","LES",0,"validate number where colnam="prob_qty" and intflg=1 and compare = 'GTE' and value = '&prob_qty' and limit = 0|validate number where colnam="prob_qty" and compare = 'LTE' and value = '&prob_qty' and limit = 100",1,"I",0,"","dcs_data",0
+"proc_alg_id","LES","iifdsegmnt","SEAMLES",0,"sl_list alg_def where alg_id = '&proc_alg_id' and alg_typ_cd != 'MACRO'",1,"I",0,"","int_data",0
+"proc_alg_id","LES","rifdsegmnt","SEAMLES",0,"sl_list alg_def where alg_id = '&proc_alg_id' and alg_typ_cd != 'MACRO'",1,"I",0,"","int_data",0
+"prt_client_id","invadjopr","LES","LES",0,"if ('&prtnum' != '') {validate part client for inventory adjustment where prtnum='&prtnum' and prt_client_id='&prt_client_id' and wh_id='&wh_id'} else {validate client for user where client_id='&prt_client_id' and wh_id='&wh_id' and usr_id = @@usr_id}",0,"I",0,"","dcs_data",0
+"prt_client_id","LES","ALT_PART","LES",0,"NONE",0,"I",0,"","mtf_dcs_data",0
+"prt_client_id","LES","blgschmnt","3pl",0,"if ('&prtnum' != '' and '&prtnum' != '----') { list parts where prtnum = '&prtnum' and prt_client_id = '&prt_client_id' catch (-1403) | if (@?=-1403) set return status where status = 10203 } else { list clients where client_id = '&prt_client_id' }",1,"I",0,"","dcs_data",0
+"prt_client_id","LES","CYCLE_COUNT","3pl",0,"validate part client where prtnum = '&prtnum' and prt_client_id = '&prt_client_id' and wh_id = '@global.wh_id'",1,"I",0,"","mtf_dcs_data",0
+"prt_client_id","LES","identify","LES",0,"NONE",0,"I",0,"","dcs_data",0
+"prt_client_id","LES","IDENTIFY_LOAD","3pl",0,"validate part client where prtnum = '&prtnum' and prt_client_id = '&prt_client_id' and wh_id = '@global.wh_id'",1,"I",0,"","mtf_dcs_data",0
+"prt_client_id","LES","INV_ADJUST","LES",0,"if ('&prtnum'!= '') {validate client for user where client_id='&prt_client_id' and wh_id='@global.wh_id' | validate part client where prtnum = '&prtnum' and wh_id = '@global.wh_id' and prt_client_id = '&prt_client_id'}",1,"I",0,"","mtf_dcs_data",0
+"prt_client_id","LES","LES","3pl",0,"validate part client where prtnum = '&prtnum' and prt_client_id = '&prt_client_id' and wh_id='&wh_id'",1,"I",0,"","sal_data",0
+"prt_client_id","LES","LES","LES",0,"if ('&prtnum' != '' and '&prtnum' != '----') {list cbs part configurations where prtnum = '&prtnum' and prt_client_id = '&prt_client_id' catch (-1403) | if (@?=-1403) set return status where status = 10203 } else { list cbs clients for parts where client_id = '&prt_client_id' }",1,"I",0,"","sal_data",0
+"prt_client_id","LES","MNT_PART","3pl",0,"validate client for user where client_id='&prt_client_id' and wh_id='@global.wh_id' | validate part client where prtnum = '&prtnum' and prt_client_id = '&prt_client_id' and wh_id = '@global.wh_id'",1,"I",0,"","mtf_dcs_data",0
+"prt_client_id","LES","ordlinmnt","LES",0,"validate part client where prtnum = '&prtnum' and prt_client_id = '&prt_client_id' and wh_id = '&wh_id'",1,"I",0,"","dcs_data",0
+"prt_client_id","LES","OUTBOUND_AUD_DTL","3pl",0,"NONE",0,"I",0,"","mtf_dcs_data",0
+"prt_client_id","LES","PICKUP_A","3pl",0,"validate part client where prtnum = '&prtnum' and prt_client_id = '&dspprtcli' and wh_id = '@global.wh_id'",1,"I",0,"","mtf_dcs_data",0
+"prt_client_id","LES","prtcopy","LES",0,"NONE",0,"I",0,"","sal_data",0
+"prt_client_id","LES","prtmstmnt","LES",0,"NONE",0,"I",0,"","sal_data",0
+"prt_client_id","LES","prtmstovrdmnt","LES",0,"NONE",0,"I",0,"","sal_data",0
+"prt_client_id","LES","prtsertypmnt","3pl",0,"NONE",0,"I",0,"","dcs_data",0
+"prt_client_id","LES","rplcfgmnt","LES",0,"if ('&prtnum' != '') {get translated part number where inpval = '&prtnum'  and wh_id = '&wh_id' and prt_client_id = '&prt_client_id' catch (-1403) | if (@? = -1403) { set return status where status = 10203} else { if ('&stoloc' <> '') {[select sz.pckcod from locmst l left join sto_zone sz on sz.sto_zone_id = l.sto_zone_id where l.stoloc = '&stoloc' and l.wh_id = '&wh_id' ] | if (@pckcod = 'S') {[select 'x' from invdtl d, invsub s, invlod l  where d.subnum = s.subnum and s.lodnum = l.lodnum and l.stoloc = '&stoloc' and l.wh_id = '&wh_id' and prtnum || prt_client_id <> '&prtnum'||'&prt_client_id'] catch (@?) | if (@? = 0) {   set return status where status = 10410} | [select count(*) cnt from rplcfg where stoloc = '&stoloc' and wh_id = '&wh_id' and prtnum||prt_client_id <> '&prtnum' || '&prt_client_id'] | if (@cnt > 0) {set return status where status = 10412}}}}}",1,"I",0,"","dcs_data",0
+"prt_client_id","LES","TOPOFF_REPLEN","3pl",0,"if ('&prt_client_id' != '') {validate client for user where wh_id='@global.wh_id' and usr_id='@global.usr_id' and client_id='&prt_client_id'|validate part client where prtnum = '&prtnum' and prt_client_id = '&prt_client_id' and wh_id = '@global.wh_id'}",1,"I",0,"","mtf_dcs_data",0
+"prt_client_id","LES","UNDIR_CASE_TRANSFER","3pl",0,"if ('@prt_client_id' != '') {validate client for user where client_id='@prt_client_id' and wh_id='@global.wh_id' and usr_id='@global.usr_id'}",1,"I",0,"","mtf_dcs_data",0
+"prt_client_id","LES","UNDIR_INV_LOC_FINDER","LES",0,"if ('@prt_client_id' != '') {validate part identifier where prtnum = '&prtnum' and prt_client_id = '&prt_client_id' and wh_id = '@global.wh_id'}",1,"I",0,"","mtf_dcs_data",0
+"prt_client_id","LES","UNDIR_RACKQUIZ","3pl",0,"validate part client where prtnum = '&prtnum' and prt_client_id = '&prt_client_id' and wh_id = '@global.wh_id' catch(802)",1,"I",0,"","mtf_dcs_data",0
+"prt_client_id","LES","UNDIR_TRANSFER","3pl",0,"if ('@src_colnam' != 'lodnum' or '@prt_client_id' != '') {validate part client where prtnum = '&prtnum' and prt_client_id = '&prt_client_id' and wh_id = '@global.wh_id'}",1,"I",0,"","mtf_dcs_data",0
+"prt_client_id","LES","UNDIR_UNPICK","3pl",0,"if ('@prt_client_id' is ) {[select 1 from (select count(distinct prt_client_id) cnt_prtclient_id from inventory_view where wh_id='@global.wh_id' and (subnum = '&invtid' or lodnum = '&invtid' or dtlnum = '&invtid')) tab where tab.cnt_prtclient_id > 1] catch (-1403)|if (@? = 0){set return status where status = 2952} else if ('&prtnum' != '' and '&prt_client_id' != '') {validate part client where prtnum = '&prtnum' and prt_client_id = '&prt_client_id' and wh_id='@global.wh_id'}}",1,"I",0,"","mtf_dcs_data",0
+"prt_client_id","LES","wkodtlmnt","LES",0,"validate part client where prtnum ='&prtnum' and prt_client_id = '&prt_client_id' and wh_id = '&wh_id'",0,"I",0,"","dcs_data",0
+"prtcolor","LES","LES","LES",0,"list item style attributes where attr_colnam = 'prtcolor' and attr_codnam = '&prtcolor'",1,"I",0,"","sal_data",0
+"prtfam","LES","ccnttmplmnt","LES",0,"if ('&prtfam' != '') validate part family where prtfam ='&prtfam'",1,"A",0,"","dcs_data",0
+"prtfam","LES","hldmstmnt","LES",0,"list part families where prtfam = '&prtfam' catch (-1403) | if (@? = -1403) { set return status where status = 10242}",0,"I",0,"","dcs_data",0
+"prtfam","LES","LES","LES",0,"if ('&prtfam' != '') validate part family where prtfam ='&prtfam'",1,"I",0,"","sal_data",0
+"prtfam","LES","prtftpdsp","LES",0,"NONE",0,"I",0,"","dcs_data",0
+"prtfam","LES","WMD-PRTFAM-MNT","LES",0,"NONE",0,"I",0,"","sal_data",0
+"prtfamgrp","ddamgtopr","WMD-PRTFAMGRPMNT","LES",0,"list part family groups where prtfamgrp = '&prtfamgrp'",0,"C",0,"","sal_data",0
+"prtfamgrp","LES","LES","LES",0,"list part family groups where prtfamgrp = '&prtfamgrp'",1,"C",0,"","sal_data",0
+"prtfamgrp","LES","prtftpdsp","LES",0,"NONE",0,"I",0,"","dcs_data",0
+"prtfamgrp","prtfamgrpmnt","prtfamgrpmnt","LES",0,"list part family groups where prtfamgrp = '&prtfamgrp'",0,"C",0,"","sal_data",0
+"prtfit","LES","LES","LES",0,"list item style attributes where attr_colnam = 'prtfit' and attr_codnam = '&prtfit'",1,"I",0,"","sal_data",0
+"prtnum","dcsrdt","UNDIR_INBOUND_QUALITY","LES",0,"if('&prtnum' != ''){if('@UNDIR_INBOUND_QUALITY.client_id' != '' and '@UNDIR_INBOUND_QUALITY.trknum' != '' and '@UNDIR_INBOUND_QUALITY.invnum' != ''){validate rf part number for inbound quality where client_id = '@UNDIR_INBOUND_QUALITY.client_id' and trknum = '@UNDIR_INBOUND_QUALITY.trknum' and invnum = '@UNDIR_INBOUND_QUALITY.invnum' and prtnum = '@UNDIR_INBOUND_QUALITY.prtnum' and wh_id = '@global.wh_id'}else{validate rf part number for inbound quality where prtnum = '@UNDIR_INBOUND_QUALITY.prtnum' and wh_id = '@global.wh_id'}}",1,"I",0,"","dcs_data",0
+"prtnum","invadjopr","LES","LES",0,"if ('&prt_client_id' != '') {validate part client for inventory adjustment where prtnum='&prtnum' and prt_client_id='&prt_client_id' and wh_id='&wh_id'}",0,"I",0,"","dcs_data",0
+"prtnum","LES","ALT_PART","LES",0,"NONE",0,"I",0,"","mtf_dcs_data",0
+"prtnum","LES","blgschmnt","3pl",0,"if ('&prtnum' != '' and '&prtnum' != '----' and '&prt_client_id' != '') { list parts where prtnum = '&prtnum' and prt_client_id = '&prt_client_id' catch (-1403) | if (@?=-1403) set return status where status = 10203 } else if ('&prtnum' != '' and '&prtnum' != '----' and '&client_id' != '') { list parts where prtnum = '&prtnum' and prt_client_id = '&client_id' catch (-1403) | if (@?=-1403) set return status where status = 10203 }",1,"I",0,"","dcs_data",0
+"prtnum","LES","bomdtlmnt","3pl",0,"NONE",0,"I",0,"","dcs_data",0
+"prtnum","LES","ccnttmplmnt","3pl",0,"if ('&prtnum' != '' and '&prtnum' != '----' and '&prt_client_id' != '') { list cbs part configurations where prtnum = '&prtnum' and prt_client_id = '&prt_client_id' catch (-1403) | if (@?=-1403) set return status where status = 10203 } else if ('&prtnum' != '' and '&prtnum' != '----' and '&client_id' != '') {list cbs part configurations where prtnum = '&prtnum' and prt_client_id = '&client_id' catch (-1403) | if (@?=-1403) set return status where status = 10203 }",1,"A",0,"","dcs_data",0
+"prtnum","LES","CNFRM_LIST_SEQ","LES",0,"NONE",0,"I",0,"","mtf_dcs_data",0
+"prtnum","LES","CYCLE_COUNT","3pl",0,"if('&prtnum' != ''){[select 1 from prtmst_view where prtnum = '&prtnum' and wh_id = '@global.wh_id']catch(-1403)|if(@?= -1403){set return status where status = 10203}}",1,"I",0,"","mtf_dcs_data",0
+"prtnum","LES","CYCLE_COUNT","LES",0,"validate part identifier where prtnum = '&prtnum' and wh_id = '@global.wh_id'",1,"I",0,"","mtf_dcs_data",0
+"prtnum","LES","hldmstmnt","LES",0,"get translated part number where inpval = '&prtnum' catch (-1403) | if (@? = -1403) {set return status where status = 10203} else {publish data where actprt = @actprt}",0,"I",0,"","dcs_data",0
+"prtnum","LES","identify","LES",0,"NONE",0,"I",0,"","dcs_data",0
+"prtnum","LES","IDENTIFY_LOAD","LES",0,"validate part client where prtnum = '&prtnum' and prt_client_id = '&client_id' and wh_id = '@global.wh_id'",0,"I",0,"","mtf_dcs_data",0
+"prtnum","LES","inbqltmnt","3pl",0,"if ('&invnum' != '' and '&client_id' != '' and '&trknum' != '') { list parts for receive invoice where invnum = '&invnum' and client_id = '&client_id' and trknum = '&trknum' and wh_id = '&wh_id' } else {list parts for receive invoice where prtnum = '&prtnum' and wh_id = '&wh_id'}",1,"I",0,"","dcs_data",0
+"prtnum","LES","inbqltmnt","LES",0,"if ('&invnum' != '' and '&trknum' != '') { list parts for receive invoice where invnum = '&invnum' and trknum = '&trknum' and wh_id = '&wh_id'} else {list parts for receive invoice where prtnum = '&prtnum' and wh_id = '&wh_id'}",1,"I",0,"","dcs_data",0
+"prtnum","LES","INV_ADJUST","3pl",0,"if ('&prt_client_id' != '') {validate part identifier where prtnum = '&prtnum' and wh_id = '@global.wh_id' and prt_client_id = '&prt_client_id'}",1,"I",0,"","mtf_dcs_data",0
+"prtnum","LES","INV_ADJUST","LES",0,"if ('&prt_client_id' != '') {validate part identifier where prtnum = '&prtnum' and wh_id = '@global.wh_id' and prt_client_id = '&prt_client_id'} else {validate part identifier where prtnum = '&prtnum' and wh_id = '@global.wh_id'}",1,"I",0,"","mtf_dcs_data",0
+"prtnum","LES","INV_ADJUST_IDENTIFY","LES",0,"if ('&client_id' != '') {validate part client for inventory adjustment where prtnum='&prtnum' and prt_client_id='&client_id' and wh_id='@global.wh_id'}",1,"I",0,"","mtf_dcs_data",0
+"prtnum","LES","LES","3pl",0,"if ('&prt_client_id' != '' and '&wh_id' != '') { validate part identifier where prtnum = '&prtnum' and prt_client_id = '&prt_client_id' and wh_id = '&wh_id'} else if ('&prt_client_id' != '') {validate part identifier where prtnum = '&prtnum' and prt_client_id = '&prt_client_id' and wh_id = @@wh_id}",1,"I",0,"","dcs_data",0
+"prtnum","LES","LES","LES",0,"if ('&prtnum' != '' and '&prtnum' != '----' and '&prt_client_id' != '') { list cbs part configurations where prtnum = '&prtnum' and prt_client_id = '&prt_client_id' catch (-1403) | if (@?=-1403) set return status where status = 10203 } else if ('&prtnum' != '' and '&prtnum' != '----' and '&client_id' != '') {list cbs part configurations where prtnum = '&prtnum' and prt_client_id = '&client_id' catch (-1403) | if (@?=-1403) set return status where status = 10203 }",1,"I",0,"","sal_data",0
+"prtnum","LES","MNT_PART","3pl",0,"NONE",0,"I",0,"","mtf_dcs_data",0
+"prtnum","LES","MNT_PART","LES",0,"validate part identifier where prtnum = '&prtnum' and wh_id = '@global.wh_id'",1,"I",0,"","mtf_dcs_data",0
+"prtnum","LES","ordlinmnt","3pl",0,"if ('&prt_client_id' != '' and '&wh_id' != '') { validate part identifier where prtnum = '&prtnum' and prt_client_id = '&prt_client_id' and wh_id = '&wh_id'} else if ('&prt_client_id' != '') {validate part identifier where prtnum = '&prtnum' and prt_client_id = '&prt_client_id' and wh_id = @@wh_id}",1,"A",0,"","dcs_data",0
+"prtnum","LES","ordlinmnt","LES",0,"NONE",0,"I",0,"","dcs_data",0
+"prtnum","LES","ORPHAN_PAL_LOCATOR","3pl",0,"NONE",0,"I",0,"","mtf_dcs_data",0
+"prtnum","LES","ORPHAN_PAL_LOCATOR","LES",0,"NONE",0,"I",0,"","mtf_dcs_data",0
+"prtnum","LES","OUTBOUND_AUD_DTL","LES",0,"if ('&prt_client_id' != '' ) {validate part identifier where prtnum = '&prtnum' and prt_client_id = '&prt_client_id' and wh_id = '@global.wh_id'}",1,"I",0,"","mtf_dcs_data",0
+"prtnum","LES","palbldopr","3pl",0,"if ('&prt_client_id' != '' ) { validate part identifier where prtnum = '&prtnum' and prt_client_id = '&prt_client_id' and wh_id = '&wh_id'}",1,"I",0,"","dcs_data",0
+"prtnum","LES","PICKUP_A","3pl",0,"NONE",0,"I",0,"","mtf_dcs_data",0
+"prtnum","LES","PICKUP_A","LES",0,"validate part identifier where prtnum = '&prtnum' and wh_id = '@global.wh_id'",1,"I",0,"","mtf_dcs_data",0
+"prtnum","LES","prtcopy","LES",0,"NONE",0,"I",0,"","sal_data",0
+"prtnum","LES","prtmstmnt","LES",0,"NONE",0,"I",0,"","sal_data",0
+"prtnum","LES","prtmstovrdmnt","LES",0,"NONE",0,"I",0,"","sal_data",0
+"prtnum","LES","prtsertypmnt","3pl",0,"NONE",0,"I",0,"","mtf_dcs_data",0
+"prtnum","LES","rcvdtlmnt","3pl",0,"NONE",0,"I",0,"","dcs_data",0
+"prtnum","LES","rcvdtlmnt","LES",0,"validate part identifier where prtnum = '&prtnum' and prt_client_id = '&prt_client_id' and wh_id = '&wh_id'",1,"I",0,"","dcs_data",0
+"prtnum","LES","RECEIVE_WITHOUT_ORDER","LES",0,"if ('@prtnum' != '') {validate part identifier where prtnum = '&prtnum' and wh_id = '@global.wh_id' and prt_client_id = '&prt_client_id'}",1,"I",0,"","mtf_dcs_data",0
+"prtnum","LES","rimlinmnt","3pl",0,"NONE",0,"I",0,"","dcs_data",0
+"prtnum","LES","rimlinmnt","LES",0,"validate part identifier where prtnum = '&prtnum' and wh_id = '&wh_id'",1,"I",0,"","dcs_data",0
+"prtnum","LES","rplcfgmnt","3pl",0,"if ('&prt_client_id' != '' ) { get translated part number where inpval = '&prtnum' and prt_client_id = '&prt_client_id'  and wh_id = '&wh_id' catch (-1403) | if (@? = -1403) {set return status where status = 10203} else {if ('&stoloc' <> '') {[select sz.pckcod from locmst l left join sto_zone sz on sz.sto_zone_id = l.sto_zone_id where l.stoloc = '&stoloc' and l.wh_id = '&wh_id' ] | if (@pckcod = 'S') {[select 'x' from invdtl d, invsub s, invlod l  where d.subnum = s.subnum and s.lodnum = l.lodnum and l.stoloc = '&stoloc' and l.wh_id = '&wh_id' and prtnum || prt_client_id <> '&prtnum'||'&prt_client_id'] catch (@?) | if (@? = 0) {   set return status where status = 10410} | [select count(*) cnt from rplcfg where stoloc = '&stoloc' and wh_id = '&wh_id' and prtnum||prt_client_id <> '&prtnum' || '&prt_client_id'] | if (@cnt > 0) {set return status where status = 10412}}} | publish data where actprt = @actprt}}",1,"I",0,"","dcs_data",0
+"prtnum","LES","rplcfgmnt","LES",0,"if ('&prt_client_id' != '' ) { get translated part number where inpval = '&prtnum' and prt_client_id = '&prt_client_id'  and wh_id = '&wh_id' catch (-1403) | if (@? = -1403) {set return status where status = 10203} else {if ('&stoloc' <> '') {[select sz.pckcod from locmst l left join sto_zone sz on sz.sto_zone_id = l.sto_zone_id where l.stoloc = '&stoloc' and l.wh_id = '&wh_id' ] | if (@pckcod = 'S') {[select 'x' from invdtl d, invsub s, invlod l  where d.subnum = s.subnum and s.lodnum = l.lodnum and l.stoloc = '&stoloc' and l.wh_id = '&wh_id' and prtnum || prt_client_id <> '&prtnum'||'&prt_client_id'] catch (@?) | if (@? = 0) {   set return status where status = 10410} | [select count(*) cnt from rplcfg where stoloc = '&stoloc' and wh_id = '&wh_id' and prtnum||prt_client_id <> '&prtnum' || '&prt_client_id'] | if (@cnt > 0) {set return status where status = 10412}}} | publish data where actprt = @actprt}}",1,"I",0,"","dcs_data",0
+"prtnum","LES","START_STOP_WKO","LES",0,"if ('&prt_client_id' != '' ) { validate part identifier where prtnum = '&prtnum' and prt_client_id = '&prt_client_id' and wh_id = '@global.wh_id'}",1,"I",0,"","dcs_data",0
+"prtnum","LES","TOPOFF_REPLEN","3pl",0,"if ('&prtnum' != '') {if ('&prt_client_id' = '') {validate part client for user where prtnum = '&prtnum' and wh_id = '@global.wh_id' and usr_id='@global.usr_id'} else {validate part identifier where prtnum = '&prtnum' and prt_client_id = '&prt_client_id' and wh_id = '@global.wh_id'}}",1,"I",0,"","mtf_dcs_data",0
+"prtnum","LES","TOPOFF_REPLEN","LES",0,"validate part identifier where prtnum = '&prtnum' and wh_id = '@global.wh_id'",1,"I",0,"","mtf_dcs_data",0
+"prtnum","LES","UNDIR_ASSEMBLY","3pl",0,"if ('&prtnum' != '') {if ('&prt_client_id' = '') {validate part client for user where prtnum = '&prtnum' and wh_id = '@global.wh_id' and usr_id='@global.usr_id'} else {validate part identifier where prtnum = '&prtnum' and prt_client_id = '&prt_client_id' and wh_id = '@global.wh_id'}}",1,"I",0,"","mtf_dcs_data",0
+"prtnum","LES","UNDIR_CASE_TRANSFER","LES",0,"NONE",0,"I",0,"","mtf_dcs_data",0
+"prtnum","LES","UNDIR_INV_LOC_FINDER","LES",0,"NONE",0,"I",0,"","mtf_dcs_data",0
+"prtnum","LES","UNDIR_RACKQUIZ","3pl",0,"NONE",0,"I",0,"","mtf_dcs_data",0
+"prtnum","LES","UNDIR_RACKQUIZ","LES",0,"if ('@prtnum' != '') {validate part identifier where prtnum = '&prtnum'and wh_id = '@global.wh_id'}",1,"I",0,"","mtf_dcs_data",0
+"prtnum","LES","UNDIR_REVERSE_PRODUCTI","3pl",0,"if ('&prt_client_id' != '' ) { validate part identifier where prtnum = '&prtnum' and prt_client_id = '&prt_client_id' and wh_id = '@global.wh_id'}",1,"I",0,"","dcs_data",0
+"prtnum","LES","UNDIR_TRANSFER","3pl",0,"NONE",0,"I",0,"","mtf_dcs_data",0
+"prtnum","LES","UNDIR_TRANSFER","LES",0,"if ('@src_colnam' != 'lodnum' or '@prtnum' != '') {validate part identifier where prtnum = '&prtnum' and wh_id = '@global.wh_id'}",1,"I",0,"","mtf_dcs_data",0
+"prtnum","LES","UNDIR_UNPICK","3pl",0,"if ('&prt_client_id' != '') {validate part identifier where prtnum = '&prtnum' and wh_id = '@global.wh_id' and prt_client_id = '&prt_client_id'}",1,"I",0,"","mtf_dcs_data",0
+"prtnum","LES","UNDIR_UNPICK","LES",0,"if ('&prt_client_id' != '') {validate part identifier where prtnum = '&prtnum' and wh_id = '@global.wh_id' and prt_client_id = '&prt_client_id'} else {validate part identifier where prtnum = '&prtnum' and wh_id = '@global.wh_id'}",1,"I",0,"","mtf_dcs_data",0
+"prtnum","LES","wkodtlmnt","3pl",0,"NONE",0,"I",0,"","dcs_data",0
+"prtnum","LES","wkodtlmnt","LES",0,"validate part identifier where prtnum = &prtnum and wh_id = &wh_id",0,"I",0,"","dcs_data",0
+"prtsize","LES","LES","LES",0,"list item style attributes  where attr_colnam = 'prtsize' and attr_codnam = '&prtsize'",1,"I",0,"","sal_data",0
+"prtstyle","LES","LES","LES",0,"list item style attributes  where attr_colnam = 'prtstyle' and attr_codnam = '&prtstyle'",1,"I",0,"","sal_data",0
+"qty","LES","UNDIR_REVERSE_ASSET","LES",0,"if ('@qty' != '') {validate qty for non serialized empty asset reverse where trknum = '@trknum' and supnum ='@supnum' and invnum ='@invnum' and client_id ='@client_id' and asset_typ = '@asset_typ' and asset_stat ='@asset_stat' and rvrsqty = '@qty' and wh_id = '@global.wh_id'}",1,"I",0,"","mtf_dcs_data",0
+"r_to_ftpcod","LES","CLIENT_OWNSHP_CHG","LES",0,"NONE",0,"I",0,"","dcs_data",0
+"rcv_id","LES","UNDIR_IDENTIFY","LES",0,"[select trlr_id from trlr where trlr_num = '&trlr_num' and trlr_stat = 'C'] catch(@?) | if (@? = 0) { [select distinct 'X' from rcvtrk where rcvtrk_stat <> 'C' and rec_loc is not  and @+trlr_id] catch(@?) | if (@? != 0) { set return status where status = 10538}}",1,"I",0,"","mtf_dcs_data",0
+"rcvdck","LES","UNDIR_IDENTIFY","LES",0,"if('&rcvdck' != '') {validate rf translated location where inpval = '&rcvdck' and wh_id = '@global.wh_id'}",1,"I",0,"","mtf_dcs_data",0
+"reacod","dcsrdt","USR_IDENTIFY_LOAD_ADJ_DTL","LES",10,"if('&reacod' != '') {validate rf reason code where reacod = '&reacod' and reagrp = 'ADJ'}",1,"I",0,"","usr_data",0
+"reacod","dcsrdt","USR_IDENTIFY_LOAD_EX","LES",10,"if('&reacod' != '') {list rf reason codes  where reagrp = 'HOLD' and reacod = '&reacod'}",1,"I",0,"","usr_data",0
+"reacod","dcsrdt","USR_RELABEL_LOAD","LES",10,"if('&reacod' != '') {validate rf reason code where reacod = '&reacod' and reagrp = 'USR-RELABEL'}",1,"I",0,"","usr_data",0
+"reacod","LES","INV_ADJUST_REFRNC","LES",0,"if('&reacod' != '') {validate rf reason code where reacod = '&reacod' and reagrp = 'ADJ'}",1,"I",0,"","mtf_dcs_data",0
+"reacod","LES","INV_ADJUSTMENT_REF","LES",0,"if('&reacod' != '') {validate rf reason code where reacod = '&reacod' and reagrp = 'ADJ'}",1,"I",0,"","mtf_dcs_data",0
+"reacod","LES","RECEIVE_WITHOUT_ORDER_REF","LES",0,"if('&reacod' != '') {validate rf reason code where reacod = '&reacod' and reagrp = 'RCV_WO_ORDER'}",1,"I",0,"","mtf_dcs_data",0
+"reacod","LES","TOOLS_STS_CHANGE","LES",0,"if('&reacod' != '') {list reason code groups where reagrp = 'INV_STS_CHG' and reacod = '&reacod' and client_id = '&prt_client_id'} else {[select * from poldat_view where polcod = 'INVSTSCHGOPR' and polvar = 'MISCELLANEOUS' and polval = 'REACOD-REQUIRED' and rtnum1 = '1' and wh_id = '@global.wh_id'] catch(-1403) | if (@? =0) {set return status where status = 11727}}",1,"I",0,"","mtf_dcs_data",0
+"reader_id","LES","RESET_RFID_READER","LES",0,"if ('&reader_id' != '') {list rfid readers where reader_id = '&reader_id'}",1,"I",0,"","mtf_dcs_data",0
+"reader_loc","LES","LES","LES",0,"if ('&reader_loc' != '' ) {validate storage location where stoloc = '&reader_loc' and wh_id = '&wh_id'}",1,"I",0,"","dcs_data",0
+"rec_loc","LES","MOVE_MSTR_RCPT","LES",0,"NONE",0,"I",0,"","mtf_dcs_data",0
+"retsrhorishp_carrier","retprcopr","retcarshpreffrm","LES",0,"if('&retsrhorishp_carrier' != ''){ validate carrier for return where carcod = '&retsrhorishp_carrier'}",1,"A",0,"","dcs_data",0
+"role_id","LES","TOOLS_SEND_MSG","LES",0,"validate rf users devices and roles for im where wh_id = '@global.wh_id' and role_id = '&role_id'",1,"I",0,"","mtf_dcs_data",0
+"route_id","LES","LES","LES",0,"list routes where route_id = '&route_id'",1,"I",0,"","dcs_data",0
+"rt_csttyp","LES","LES","LES",0,"list customer type profiles where csttyp = '&rt_csttyp'",1,"I",0,"","dcs_data",0
+"rtcust","distromnt","distromnt","3pm,WM,SEAMLES",0,"if('&client_id' != ''){list customers where cstnum = '&rtcust' and client_id = '&client_id'} else{list customers where cstnum = '&rtcust'} | publish data where rtcust=@cstnum and btcust=@cstnum and rt_adr_id=@adr_id and bt_adr_id=@adr_id",1,"C",1,"","",0
+"rtcust","LES","LES","LES",0,"if('&client_id' != ''){list customers where cstnum = "&rtcust" and client_id = '&client_id'} else{list customers where cstnum = "&rtcust"}",1,"I",0,"","dcs_data",0
+"rttn_id_max_value","LES","LES","CUSTOMS",0,"if ('&rttn_id_min_value' != '' and '&rttn_id_max_value' != '') {validate min max sequence for rotation id where field_name = 'Maximum Value' and rttn_id_max_value = '&rttn_id_max_value' and rttn_id_min_value = '&rttn_id_min_value'}",1,"I",0,"","mcs_data",0
+"rttn_id_min_value","LES","LES","CUSTOMS",0,"if ('&rttn_id_min_value' != '' and '&rttn_id_max_value' != '') {validate min max sequence for rotation id where field_name = 'Minimum Value' and rttn_id_max_value = '&rttn_id_max_value' and rttn_id_min_value = '&rttn_id_min_value'}",1,"I",0,"","mcs_data",0
+"rule_nam","bommnt","bomdtlmnt","LES",0,"NONE",0,"A",0,"","dcs_data",0
+"rule_nam","LES","ordmnt","LES",0,"list allocation rules where rule_nam = '&rule_nam' and wh_id = '&wh_id'",1,"A",0,"","dcs_data",0
+"sch_begdte","LES","LES","LES",0,"if ('&sch_begdte' != '' and '&sch_enddte' != '' and '&prdlin' != '' and '&wh_id' != '')  {validate production line for planning where wh_id = '&wh_id' and prdlin = '&prdlin' and sch_begdte = '&sch_begdte' and sch_enddte = '&sch_enddte'}",1,"I",0,"","dcs_data",0
+"sch_begdte","LES","prdlinplanmnt","LES",0,"if ('&sch_begdte' != '' and '&sch_enddte' != '' and '&prdlin' != '' and '&wh_id' != '')  {validate production line for planning where wh_id = '&wh_id' and prdlin = '&prdlin' and sch_begdte = '&sch_begdte' and sch_enddte = '&sch_enddte'}",0,"I",0,"","dcs_data",0
+"sch_enddte","LES","LES","LES",0,"if ('&sch_begdte' != '' and '&sch_enddte' != '' and '&prdlin' != '' and '&wh_id' != '')  {validate production line for planning where wh_id = '&wh_id' and prdlin = '&prdlin' and sch_begdte = '&sch_begdte' and sch_enddte = '&sch_enddte'}",1,"I",0,"","dcs_data",0
+"sch_enddte","LES","prdlinplanmnt","LES",0,"if ('&sch_begdte' != '' and '&sch_enddte' != '' and '&prdlin' != '' and '&wh_id' != '')  {validate production line for planning where wh_id = '&wh_id' and prdlin = '&prdlin' and sch_begdte = '&sch_begdte' and sch_enddte = '&sch_enddte'}",0,"I",0,"","dcs_data",0
+"schbat","waveopr","LES","LES",0,"[select 1 from dual where exists (select 1 from pckbat where schbat = '&schbat') or exists (select 1 from pckwrk_hdr where schbat = '&schbat') ] catch (-1403) | if (@? = 0) { if ('&ignore_complete' = '1' or '&ignore_complete' = '') { [select 'X' from pckbat where schbat = '&schbat' and batsts != 'CMPL' and wave_prc_flg = 1 ] catch (-1403) } else { [select 'X' from pckbat where schbat = '&schbat' and wave_prc_flg = 1 ] catch (-1403) } | if (@? = -1403) set return status where status = 11225 } | list pick batches where schbat = '&schbat' and wh_id != '&wh_id' catch (-1403) | if (@? = 0) set return status where status = 11932",1,"A",0,"","dcs_data",0
+"schbat","waveopr","WAVE-PROG-SCHBAT-WZ","LES",0,"NONE",0,"A",0,"","dcs_data",0
+"schdom","LES","schagtopr","LES",0,"if('&schdom' and '&schdom'!='*'){convert list where string = '&schdom' and type = 'L' and separator = ',' | validate number where colnam = "schdom" and compare = "GT" and value = @retstr and limit = 0 | validate number where colnam = "schdom" and compare = "LTE" and limit = 31 and value = @retstr }",1,"A",0,"","sal_data",0
+"schdte","LES","cntreqopr","LES",0,"if ('&schdte' <> '') { publish data where curdate = substr(string(sysdate),1,8) and schdte = substr(string('&schdte'),1,8) | if (@curdate > @schdte) {set return status where status = 10373}}",0,"I",1,"","dcs_data",0
+"schdte","LES","LES","LES",0,"if ('&schdte' <> '') { publish data where curdate = substr(string(sysdate),1,8) and schdte = substr(string('&schdte'),1,8) | if (@curdate > @schdte) {set return status where status = 10373}}",1,"I",1,"","dcs_data",0
+"schhou","LES","schagtopr","LES",0,"if('&schhou' and '&schhou'!='*'){convert list where string = '&schhou' and type = 'L' and separator = ',' | validate number where colnam = "schhou" and compare = "GTE" and value = @retstr and limit = 0 | validate number where colnam = "schhou" and compare = "LTE" and limit = 23 and value = @retstr }",1,"A",0,"","sal_data",0
+"schmin","LES","LES","LES",0,"validate number where colnam="schmin" and compare = "GTE" and value = &schmin and limit = 0|validate number where colnam="schmin" and compare = "LTE" and value = &schmin and limit = 59",1,"I",0,"","sal_data",0
+"schmin","LES","schagtopr","LES",0,"if('&schmin' and '&schmin'!='*'){convert list where string = '&schmin' and type = 'L' and separator = ',' | validate number where colnam = "schmin" and compare = "GTE" and value = @retstr and limit = 0 | validate number where colnam = "schmin" and compare = "LTE" and limit = 59 and value = @retstr }",1,"A",0,"","sal_data",0
+"ser_num_typ_id","LES","LES","LES",0,"validate serial number type where ser_num_typ_id = '&ser_num_typ_id'",1,"I",0,"","sal_data",0
+"ser_num_typ_id","LES","supprtopr","LES",0,"if('&ser_num_typ_id' != '' and '&prtnum' != ''){validate serial number type for supplier item where prtnum = '&prtnum' and prt_client_id = '&prt_client_id' and ser_num_typ_id = '&ser_num_typ_id' and wh_id = @@wh_id} else if ('&ser_num_typ_id' != '') {list serial number types where ser_num_typ_id = '&ser_num_typ_id'}",1,"A",0,"","dcs_data",0
+"serv_id","LES","LES","LES",0,"validate service where serv_id = '&serv_id'",1,"I",0,"","dcs_data",0
+"serv_ins_id","LES","LES","LES",0,"validate service instruction where serv_ins_id = '&serv_ins_id'",1,"I",0,"","dcs_data",0
+"serv_rate_id","LES","LES","LES",0,"validate service rate where serv_rate_id = '&serv_rate_id'",1,"I",0,"","dcs_data",0
+"ship_id","LES","ASSET_SHIPMENT","LES",0,"if('@ASSET_SHIPMENT.ship_id'!= ''){validate shipment for empty asset load or unload where ship_id = '@ASSET_SHIPMENT.ship_id' and mode = '&mode'}",1,"I",0,"","dcs_data",0
+"ship_id","LES","assetshpopr","LES",0,"[select 1 from shipment where shpsts in ('L','D','S') and ship_id = '&ship_id']catch(-1403) | if (@? = -1403){set return status where status= 11031}",1,"A",0,"","dcs_data",0
+"ship_id","LES","shpspltopr","LES",0,"validate shipment for shipment split where ship_id = '&ship_id'",1,"I",0,"","dcs_data",0
+"sig_hgt","LES","LES","LES",0,"validate number where colnam="sig_hgt" and compare = 'GTE' and value = &sig_hgt and limit = 0",1,"A",0,"","sal_data",0
+"sig_left","LES","LES","LES",0,"validate number where colnam="sig_left" and compare = 'GTE' and value = &sig_left and limit = 0",1,"A",0,"","sal_data",0
+"sig_top","LES","LES","LES",0,"validate number where colnam="sig_top" and compare = 'GTE' and value = &sig_top and limit = 0",1,"A",0,"","sal_data",0
+"sig_wid","LES","LES","LES",0,"validate number where colnam="sig_wid" and compare = 'GTE' and value = &sig_wid and limit = 0",1,"A",0,"","sal_data",0
+"slot_id","LES","LES","LES",0,"if ('&slot_id' != ''){[select 1 from dock_slot where slot_id = '&slot_id']catch(-1403) | if (@? = -1403){set return status where status = 11199}}",1,"I",0,"","dcs_data",0
+"sort_order","LES","pcklstrulsetmnt","LES",0,"NONE",1,"A",0,"","dcs_data",0
+"spcins_opt_nam","LES","LES","LES",0,"[select rtstr1 from poldat where polcod='SPECIAL-INSTRUCTIONS' and polvar='VALID-VALUES' and polval='OPT-NAM']",1,"I",0,"","dcs_data",0
+"spl_hand_loc","LES","devmstmnt","LES",0,"list locations where stoloc = '&spl_hand_loc'",1,"I",0,"","dcs_data",0
+"spoken_license_len","LES","LES","LES",0,"validate number where colnam="spoken_license_len" and intflg = 1 and compare = "GTE" and value = &spoken_license_len and limit = 0",1,"I",0,"","dcs_data",0
+"spoken_loc_len","LES","LES","LES",0,"validate number where colnam="spoken_loc_len" and intflg = 1 and compare = "GTE" and value = &spoken_loc_len and limit = 0",1,"I",0,"","dcs_data",0
+"src_id","LES","INLINE_TRANSFER","LES",0,"validate rf translated backfill location where stoloc = '&src_id' and pck_flg = 0 and wh_id = '@global.wh_id';validate rf identifier for transfer where inpval = '&src_id' and invtid_flg = 1 and wh_id = '@global.wh_id'",1,"I",0,"","dcs_data",0
+"src_id","LES","UNDIR_TRANSFER","LES",0,"validate rf translated backfill location where stoloc = '&src_id' and pck_flg = 0 and wh_id = '@global.wh_id';validate rf identifier for transfer where inpval = '&src_id' and invtid_flg = 1 and wh_id = '@global.wh_id'",1,"I",0,"","mtf_dcs_data",0
+"src_wrk_zone_id","LES","LES","LES",0,"list work zones where wrk_zone_id = '&src_wrk_zone_id' and wh_id = '&wh_id'",1,"I",0,"","dcs_data",0
+"srcid","LES","UNDIR_CASE_TRANSFER","LES",0,"validate rf translated backfill location where stoloc = '&src_id' and pck_flg = 0 and wh_id = '@global.wh_id';validate rf identifier for transfer where inpval = '&srcid' and invtid_flg = 1 and wh_id = '@global.wh_id'",1,"I",0,"","mtf_dcs_data",0
+"srcloc","LES","DIR_PICKUP","LES",0,"validate rf translated location where inpval = '&srcloc' and dsploc = '&dsploc' and wh_id = '@global.wh_id' | get translated storage location where inpval = '&srcloc' and matloc = '&dsploc' and wh_id = '@global.wh_id'",1,"I",0,"","mtf_dcs_data",0
+"srcloc","LES","PICKUP_TRLR","LES",0,"if ('&dspsrcloc' != '' ) { validate rf translated location where inpval = '&srcloc' and dsploc = '&dspsrcloc' and wh_id = '@global.wh_id' } else { validate rf translated location where inpval = '&srcloc' and wh_id = '@global.wh_id' }",1,"I",0,"","mtf_dcs_data",0
+"srcloc","LES","stktrnopr","LES",0,"[select l.* from locmst l left join sto_zone sz on sz.sto_zone_id = l.sto_zone_id join loc_typ lt on lt.loc_typ_id = l.loc_typ_id where sz.pckcod != 'N' and lt.sigflg = '1' and l.stoloc = '&srcloc'] catch (-1403) | if (@? = -1403) { set return status where status = 10241}",1,"I",0,"","dcs_data",0
+"srcwrkare","LES","LES","LES",0,"list work areas where wrkare = '&srcwrkare' and wh_id = '&wh_id'",1,"I",0,"","dcs_data",0
+"st_csttyp","LES","LES","LES",0,"list customer type profiles where csttyp = '&st_csttyp'",1,"I",0,"","dcs_data",0
+"stcust","distromnt","distromnt","3pm,WM,SEAMLES",0,"if('&client_id' != ''){list customers where cstnum = '&stcust' and client_id = '&client_id'} else{list customers where cstnum = '&stcust'}| publish data where stcust=@cstnum and rtcust=@cstnum and btcust=@cstnum and st_adr_id=@adr_id and rt_adr_id=@adr_id and bt_adr_id=@adr_id",1,"C",1,"","",0
+"stcust","LES","LES","LES",0,"if('&client_id' != ''){list customers where cstnum = "&stcust" and client_id = '&client_id'} else{list customers where cstnum = "&stcust"}",1,"I",0,"","dcs_data",0
+"stcust","LES","prepforshp","LES",0,"if('&client_id' != ''){list customers where cstnum = '&stcust' and client_id = '&client_id'} else{list customers where cstnum = '&stcust'}",1,"A",0,"","dcs_data",0
+"stglan","LES","movtrlropr","LES",0,"[select l.* from locmst l join loc_typ lt on lt.loc_typ_id = l.loc_typ_id where lt.stgflg = '1' and l.stoloc = '&stglan'] catch (-1403) | if (@? = -1403) { set return status where status = 10241}",1,"I",0,"","dcs_data",0
+"stgloc","LES","prdlinmnt","LES",0,"list staging locations for production line where stgloc = '&stgloc' and wh_id = '&wh_id'",1,"I",0,"","dcs_data",0
+"sto_zone_id","PolicyOvr","PolicyOvr","LES",0,"if('&wh_id' != '' and '&wh_id' != '----'){list storage zones where sto_zone_id = '&sto_zone_id' and wh_id = '&wh_id'}",1,"I",0,"","dcs_data",0
+"stock_code","LES","LES","LES",0,"list pm printer stocks where stock_code = '&stock_code'",1,"I",0,"","dcs_data",0
+"stoloc","invdspmw","locdsp","LES",0,"NONE",0,"A",0,"","dcs_data",0
+"stoloc","LES","ALT_PART","LES",0,"if ('@stoloc' != '') {validate storage location where stoloc = '@stoloc'and wh_id ='@global.wh_id'}",1,"I",0,"","mtf_dcs_data",0
+"stoloc","LES","apptmnt","LES",0,"if ('&trlr_cod' != '') {list dock doors where trlr_cod = '&trlr_cod' and stoloc = '&stoloc' catch (-1403)} else {list dock doors where stoloc = '&stoloc' catch (-1403)} | if (@? = -1403) { set return status where status = 10509}",1,"I",0,"","dcs_data",0
+"stoloc","LES","cntreqopr","LES",0,"validate storage location where stoloc = '&stoloc' and cntflg = 1 and wh_id = '&wh_id'",1,"I",0,"","dcs_data",0
+"stoloc","LES","COUNT_AUDIT","LES",0,"if ('&stoloc' != '' ) {validate rf translated location where inpval = '&stoloc' and wh_id = '@global.wh_id'};validate rf translated backfill location where stoloc = '&stoloc' and dsploc='&dspstoloc' and pck_flg = 0 and wh_id = '@global.wh_id'",1,"I",0,"","mtf_dcs_data",0
+"stoloc","LES","DELAYED_CATCH_QTY_CAPTURE","LES",0,"NONE",0,"A",0,"","mtf_dcs_data",0
+"stoloc","LES","hldmstmnt","LES",0,"list locations where stoloc = '&stoloc'",0,"I",0,"","dcs_data",0
+"stoloc","LES","LES","LES",0,"if ('&stoloc' != '' and '&wh_id' != '') {validate storage location where stoloc = '&stoloc' and wh_id = '&wh_id'} else if ('&stoloc' != '' and @@wh_id != '') {validate storage location where stoloc = '&stoloc' and wh_id =@@wh_id}",1,"I",0,"","dcs_data",0
+"stoloc","LES","LOCATION_DISPLAY","LES",0,"validate rf translated location where inpval = '&stoloc' and wh_id = '@global.wh_id'",1,"I",0,"","mtf_dcs_data",0
+"stoloc","LES","locmstmnt","LES",0,"NONE",0,"I",0,"","dcs_data",0
+"stoloc","LES","locmstovr","LES",0,"NONE",0,"I",0,"","dcs_data",0
+"stoloc","LES","LOGIN_WORK_INFO","LES",0,"validate rf translated location where inpval = '&stoloc' and wh_id = '@global.wh_id'",1,"I",0,"","mtf_dcs_data",0
+"stoloc","LES","MANUAL_REPLEN","LES",0,"if ('&stoloc' != '') { validate rf translated location where inpval = '&stoloc' and wh_id = '@global.wh_id' }",1,"I",0,"","mtf_dcs_data",0
+"stoloc","LES","MNT_INVENTORY","LES",0,"validate rf translated location where inpval = '&stoloc' and wh_id = '@global.wh_id'",1,"I",0,"","mtf_dcs_data",0
+"stoloc","LES","MNT_LOCATION","LES",0,"validate rf translated location where inpval = '&stoloc' and wh_id = '@global.wh_id'",1,"I",0,"","mtf_dcs_data",0
+"stoloc","LES","PALBLD","LES",0,"validate rf translated location where inpval = '&stoloc' and wh_id = '@global.wh_id'",1,"I",0,"","mtf_dcs_data",0
+"stoloc","LES","PALBLD_DEP","LES",0,"validate rf translated location where inpval = '&stoloc' and wh_id = '@global.wh_id'",1,"I",0,"","mtf_dcs_data",0
+"stoloc","LES","PALBLD_ENT","LES",0,"validate rf translated location where inpval = '&stoloc' and wh_id = '@global.wh_id'",1,"I",0,"","mtf_dcs_data",0
+"stoloc","LES","palbldopr","LES",0,"validate storage location where stoloc = '&stoloc' and wh_id = '&wh_id'",1,"I",0,"","dcs_data",0
+"stoloc","LES","PICKUP_A","LES",0,"if (trim('&stoloc') = '') { set return status where status = 11118 } | if ('&dsploc' != '') { validate rf translated location where inpval = '&stoloc' and dsploc = '&dsploc' and wh_id = '@global.wh_id' } else { validate rf translated location where inpval = '&stoloc' and wh_id = '@global.wh_id' };validate rf translated backfill location where stoloc = '&stoloc' and dsploc = '&dsploc' and wh_id = '@global.wh_id'",1,"I",0,"","mtf_dcs_data",0
+"stoloc","LES","rcvManual","LES",0,"if ('&stoloc' != '' ) {validate storage location where stoloc = '&stoloc' and wh_id = '&wh_id'}",1,"A",0,"","dcs_data",0
+"stoloc","LES","RECEIVE_WITHOUT_ORDER","LES",0,"if ('@stoloc' != '') {[select 1 from locmst, loc_typ where locmst.loc_typ_id = loc_typ.loc_typ_id and locmst.wh_id = loc_typ.wh_id and loc_typ.rcvwo_non_fwiflg = 1 and locmst.stoloc = '&stoloc' and locmst.wh_id = '@global.wh_id'] catch(-1403)|if(@?= -1403){set return status where status = 11691}}",1,"I",0,"","mtf_dcs_data",0
+"stoloc","LES","rplcfgmnt","LES",0,"list locations where stoloc = '&stoloc' and wh_id = '&wh_id' | [select sz.pckcod, mz.dyn_slot_flg from locmst l left join sto_zone sz on sz.sto_zone_id = l.sto_zone_id left join mov_zone mz on mz.mov_zone_id = l.sto_zone_id where l.stoloc = '&stoloc' and l.wh_id = '&wh_id' ] | if(@dyn_slot_flg = 1){ list policies where polcod ='REPLENISHMENT' and polvar ='MISCELLANEOUS' and polval ='DISABLE-REPL-DYNAMIC-PICKFACES' and wh_id = @wh_id and rtnum1 = 1 catch(-1403) | if(@? = 0 ) { set return status where status = 11425 } } | if (@pckcod = 'S' and '&prtnum' <> '') {[select 'x' from invdtl d, invsub s, invlod l  where d.subnum = s.subnum and s.lodnum = l.lodnum and l.stoloc = '&stoloc' and l.wh_id = '&wh_id' and prtnum || prt_client_id <> '&prtnum'||'&prt_client_id'] catch (@?) | if (@? = 0) {set return status where status = 10410} | [select count(*) cnt from rplcfg where stoloc = '&stoloc' and wh_id = '&wh_id' and prtnum||prt_client_id <> '&prtnum' || '&prt_client_id'] | if (@cnt > 0) {set return status where status = 10412}} else if (@pckcod = 'N'){set return status where status = 10411} ; list locations  where stoloc = '&stoloc' and wh_id = '&wh_id' | list areas where arecod = @arecod and wh_id =@wh_id",1,"I",1,"arecod=arecod,invsts=def_rplcfg_invsts,maxunt=def_rplcfg_maxunt,minunt=def_rplcfg_minunt,pctflg=def_rplcfg_pctflg","dcs_data",0
+"stoloc","LES","TOPOFF_REPLEN","LES",0,"if ('&stoloc' != '') { validate rf translated location where inpval = '&stoloc' and wh_id = '@global.wh_id' }",1,"I",0,"","mtf_dcs_data",0
+"stoloc","LES","TRLR_QUIZ","LES",0,"if ('&stoloc' != '') { validate rf translated location where inpval = '&stoloc' and wh_id = '@global.wh_id' }",1,"I",0,"","mtf_dcs_data",0
+"stoloc","LES","trlrmgtopr","LES",0,"if ('&stoloc' != '' ) {validate storage location where stoloc = '&stoloc' and wh_id = '&stoloc_wh_id'}",1,"I",0,"","dcs_data",0
+"stoloc","LES","UNDIR_INVADJ","LES",0,"validate rf translated location for trailer where stoloc = '&stoloc' and wh_id = '@global.wh_id'",1,"I",0,"stoloc=outval","mtf_dcs_data",0
+"stoloc","LES","UNLOAD_MASTER_RECEIPT","LES",0,"NONE",0,"I",0,"","mtf_dcs_data",0
+"stoloc","LES","WMD-PLTPOSMNT","LES",0,"validate storage location where stoloc = '&stoloc' and wh_id = '&wh_id'",1,"I",0,"","dcs_data",0
+"stoloc","rcvtrkopr","rcvPutaway_1","LES",0,"if ('&stoloc' !='') {list master receipt locations where stoloc='&stoloc' and wh_id = '&wh_id' catch(-1403)|if(@?= -1403){set return status where status = 10241}}",1,"A",0,"","dcs_data",0
+"stoloc","rcvwoordopr","rcvPutaway","LES",0,"if ('&stoloc' !='') {list master receipt locations where stoloc='&stoloc' and wh_id = '&wh_id' catch(-1403)|if(@?= -1403){set return status where status = 10241}}",1,"A",0,"","dcs_data",0
+"stoloc","trlrmgtopr","trlrmgtopr","LES",0,"if ('&stoloc' != '' ) {validate storage location where stoloc = '&stoloc' and wh_id = '&stoloc_wh_id'}",1,"I",0,"","dcs_data",0
+"stoloc_wh_id","LES","trlrmgtopr","LES",0,"validate warehouse where wh_id = '&stoloc_wh_id'",1,"I",0,"","dcs_data",0
+"subnum","ctncnfopr","ctncnfopr","LES",0,"check mcs field for barcode validation where invtid= '&subnum'  and fieldname= 'subnum' and fieldlength = 30|if('@subnum' != ''){list outstanding cartons where wh_id = '&wh_id' and subnum = '@subnum' catch(-1403)|if(@?=-1403){set return status where status=11479}}",1,"A",0,"","dcs_data",0
+"subnum","LES","DEPOSIT_A","LES",0,"check mcs field for barcode validation where invtid= '&subnum'  and fieldname= 'lodnum' and fieldlength = 30|validate new load number where lodnum = '@subnum' and wh_id = '&wh_id' and skip_validation = 1",1,"I",0,"","mtf_dcs_data",0
+"subnum","LES","UNDIR_CASE_STAGE","3pl",0,"check mcs field for barcode validation where invtid= '&subnum'  and fieldname= 'subnum' and fieldlength = 30|validate client for user for inventory where id='@subnum' and wh_id='@global.wh_id' and usr_id='@global.usr_id'",1,"I",0,"","dcs_data",0
+"subucc","LES","LES","LES",0,"check mcs field for barcode validation where invtid= '&subucc'  and fieldname= 'subucc' and fieldlength = 20 | publish data where subucc = '@subucc'",1,"I",0,"","dcs_data",0
+"succ_evt_id","LES","rifdmnt","SEAMLES",0,"[select distinct evt_id from sl_evt_def where evt_id = '&succ_evt_id']",1,"I",0,"","int_data",0
+"supnum","LES","hldmstmnt","LES",0,"list suppliers where supnum = '&supnum' catch (-1403) | if (@? = -1403) { set return status where status = '10546' }",0,"I",0,"","dcs_data",0
+"supnum","LES","LES","3pl",0,"if('&supnum' != '' and '&supnum' != '----'){if('&client_id' != '') {validate supplier where supnum = '&supnum' and client_id = '&client_id'} else {validate supplier where supnum = '&supnum'}}",1,"I",0,"","dcs_data",0
+"supnum","LES","LES","LES",0,"if('&supnum' != '' and '&supnum' != '----'){validate supplier where supnum = '&supnum'}",1,"I",0,"","dcs_data",0
+"supnum","LES","pcfmstmnt","LES",0,"if ('&pcftyp' != 'T') { list suppliers where supnum = '&supnum' catch (-1403) | if (@? = -1403) { set return status where status = '10546'} }",1,"I",0,"","dcs_data",0
+"supnum","LES","rcvpolmnt","LES",0,"validate supplier where supnum = '&supnum'",1,"A",0,"","dcs_data",0
+"supnum","LES","supmstcopy","LES",0,"NONE",1,"I",0,"","dcs_data",0
+"supnum","LES","UNDIR_CASE_TRANSFER","LES",0,"NONE",0,"I",0,"","mtf_dcs_data",0
+"supnum","LES","UNDIR_INBOUND_QUALITY","LES",0,"if('&client_id' != '') {validate supplier where supnum = '&supnum' and client_id = '&client_id'} else {validate supplier where supnum = '&supnum'}",1,"I",0,"","mtf_dcs_data",0
+"supnum","LES","UNDIR_RACKQUIZ","LES",0,"NONE",0,"I",0,"","mtf_dcs_data",0
+"supnum","LES","UNDIR_TRANSFER","LES",0,"NONE",0,"I",0,"","mtf_dcs_data",0
+"supnum","LES","UNDIR_UNPICK","LES",0,"NONE",0,"I",0,"","mtf_dcs_data",0
+"supnum","LES","wkodtlmnt","LES",0,"if('&prt_client_id' != '') {validate supplier where supnum = '&supnum' and client_id = '&prt_client_id'} else {validate supplier where supnum = '&supnum'}",1,"I",0,"","dcs_data",0
+"supnum","LES","wmd|inbqltmnt","LES",0,"NONE",0,"I",0,"","dcs_data",0
+"supnum","prdlinopr","identify","3pl",0,"if('&supnum' != '' and '&supnum' != '----' and '&supnum' != 'PROD'){if('&client_id' != '') {validate supplier where supnum = '&supnum' and client_id = '&client_id'} else {validate supplier where supnum = '&supnum'}}",1,"I",0,"","dcs_data",0
+"supnum","prdlinopr","identify","LES",0,"if('&supnum' != '' and '&supnum' != '----' and '&supnum' != 'PROD'){validate supplier where supnum = '&supnum'}",1,"I",0,"","dcs_data",0
+"supnum","RPWEB","LES","3pl",0,"NONE",0,"I",0,"","dcsweb_data",0
+"supnum","wkoopr","identify","3pl",0,"if('&supnum' != '' and '&supnum' != '----' and '&supnum' != 'PROD'){if('&client_id' != '') {validate supplier where supnum = '&supnum' and client_id = '&client_id'} else {validate supplier where supnum = '&supnum'}}",1,"I",0,"","dcs_data",0
+"supnum","wkoopr","identify","LES",0,"if('&supnum' != '' and '&supnum' != '----' and '&supnum' != 'PROD'){validate supplier where supnum = '&supnum'}",1,"I",0,"","dcs_data",0
+"thresh_pck_var","LES","LES","LES",0,"if(&thresh_pck_var < 0){set return status where status = 2995} else if(&thresh_pck_var > 100){set return status where status = 2996}",1,"I",0,"","sal_data",0
+"thrqty","LES","LES","LES",0,"validate number where colnam='thrqty' and compare = 'LT' and value = &thrqty and limit = &blkqty",1,"I",0,"","dcs_data",0
+"to_app_dte","LES","LES","LES",0,"publish data where to_app_dte = to_date('&to_app_dte') and from_app_dte = to_date('&from_app_dte') | if(@to_app_dte < SYSDATE){set return status where status = 10373} | if(@to_app_dte < @from_app_dte and @from_app_dte != ''){set return status where status = 4084}",1,"A",0,"","dcs_data",0
+"to_ftpcod","LES","LES","LES",0,"list part footprints where prtnum = '&prtnum' and prt_client_id = '&prt_client_id' and wh_id = '&wh_id' and ftpcod = '&to_ftpcod'",1,"I",0,"","dcs_data",0
+"to_id","dcsrdt","UNDIR_LIST_PICK","LES",10,"validate usr lodnum for picking where wh_id = '&GLOBAL.wh_id' and pick_to_id = '&UNDIR_LIST_PICK.to_id' and asset_typ = '&UNDIR_LIST_PICK.asset_typ' and list_id='&UNDIR_LIST_PICK.list_id' and frm_id='UNDIR_LIST_PICK';validate rf dstlod for picking where dstlod = '&to_id' and wrkref = '&wrkref' and wh_id = '@global.wh_id' and list_id = '&list_id' and wrktyp = '&wrktyp'",1,"I",0,"","mcs_data",0
+"to_id","LES","UNDIR_LIST_PICK","LES",0,"validate rf dstlod for picking where dstlod = '&to_id' and wrkref = '&wrkref' and wh_id = '@global.wh_id' and list_id = '&list_id' and wrktyp = '&wrktyp'",1,"A",0,"","dcs_data",0
+"to_mandte","LES","invchginv","LES",0,"if('&prtnum' != '' and '&to_mandte' != ''){[select age_pflnam from prtmst_view where prtnum ='&prtnum' and prt_client_id ='&prt_client_id' and wh_id ='&wh_id'] catch(-1403) | if(@age_pflnam != ''){ get expiration date where prtnum = '&prtnum' and mandte = '&to_mandte' and age_pflnam = @age_pflnam |  publish data where to_expire_dte = @expire_dte}}",1,"I",1,"to_expire_dte","dcs_data",0
+"to_orgcod","LES","invchginv","LES",0,"validate origin code where orgcod = '&to_orgcod'",1,"A",0,"","dcs_data",0
+"trans_wh_id","LES","LES","LES",0,"list translated warehouses where wh_id = '&wh_id' and client_id = '&client_id' and trans_wh_id ='&trans_wh_id'",1,"I",0,"","sal_data",0
+"trans_wh_id","SALClientMnt","LES","LES",0,"list warehouses where wh_id = '&trans_wh_id'",1,"I",0,"","sal_data",0
+"trans_wh_id","whmnt","LES","LES",0,"list warehouses where wh_id='&trans_wh_id'",1,"I",0,"","mcs_data",0
+"trknum","LES","apptmnt","LES",0,"if('&trknum' != '' and '&wh_id' != ''){list master receipts for lookup where trknum='&trknum'  and wh_id = '&wh_id'  catch(-1403) | if (@? = -1403){ set return status where status = 10238}} | [select trlr.trlr_num trlrnum_asc from rcvtrk left outer join trlr on rcvtrk.trlr_id = trlr.trlr_id where trknum = '&trknum' and wh_id = nvl('&wh_id', wh_id)] catch(-1403)| if(@? =0){if('&trlr_num' != '' and @trlrnum_asc != '' and @trlrnum_asc != '&trlr_num') {set return status where status = 11546}}",1,"A",0,"","dcs_data",0
+"trknum","LES","ASCTMSTRCPT","LES",0,"validate master receipt where trknum = '&trknum' and wh_id = '&wh_id'",1,"I",0,"","dcs_data",0
+"trknum","LES","CLOSE_RCV_TRLR","LES",0,"NONE",0,"I",0,"","mtf_dcs_data",0
+"trknum","LES","hldmstmnt","LES",0,"[select trknum from rcvtrk where trknum = '&trknum' and wh_id = nvl('&wh_id', wh_id)] catch (-1403) | if (@? = -1403) { set return status where status = '10238' }",0,"I",0,"","dcs_data",0
+"trknum","LES","LES","LES",0,"validate truck where trknum = '&trknum' and wh_id = '&wh_id'",1,"I",0,"","dcs_data",0
+"trknum","LES","MOVE_MSTR_RCPT","LES",0,"NONE",0,"I",0,"","mtf_dcs_data",0
+"trknum","LES","mstrcptmnt","LES",0,"NONE",0,"I",0,"","dcs_data",0
+"trknum","LES","rcvtrkopr","LES",0,"NONE",0,"I",0,"","dcs_data",0
+"trknum","LES","RECEIVE_ASSET","LES",0,"validate truck where trknum = '@RECEIVE_ASSET.trknum' and wh_id = '@global.wh_id'",1,"I",0,"","dcs_data",0
+"trknum","LES","REOPEN_TRUCK","LES",0,"NONE",0,"I",0,"","mtf_dcs_data",0
+"trknum","LES","trlrmgtopr","LES",0,"validate truck where trknum = '&trknum' and wh_id = '&wh_id'",0,"I",0,"","dcs_data",0
+"trknum","LES","UNDIR_INBOUND_QUALITY","LES",0,"if ('&trknum' != '') {validate truck where trknum = '@trknum' and usr_id = '@global.usr_id' and wh_id = '@global.wh_id'}",1,"I",0,"","mtf_dcs_data",0
+"trknum","LES","UNDIR_REVERSE_ASSET","LES",0,"validate truck where trknum = '@trknum' and wh_id = '@global.wh_id' and usr_id = '@global.usr_id'",1,"I",0,"","mtf_dcs_data",0
+"trknum","LES","UNLOAD_MASTER_RECEIPT","LES",0,"NONE",0,"I",0,"","mtf_dcs_data",0
+"trknum","mstrcptmnt","mstrcptcopy","LES",0,"NONE",0,"I",0,"","dcs_data",0
+"trknum","rcvtrkopr","mstrcptcopy","LES",0,"NONE",0,"I",0,"","dcs_data",0
+"trknum","yrdmgtopr","mstrcptcopy","LES",0,"NONE",0,"I",0,"","dcs_data",0
+"trlr_cod","LES","apptmnt","LES",0,"if ('&trlr_cod' != ''){if('&stoloc' != ''){list dock doors where trlr_cod = '&trlr_cod' and stoloc = '&stoloc' and wh_id = '&wh_id' catch(-1403)} else if ('&slot_id' != ''){list dock doors where trlr_cod = '&trlr_cod' and slot_id = '&slot_id' and wh_id = '&wh_id' catch(-1403)}} else {if('&stoloc' != ''){list dock doors where stoloc = '&stoloc' and wh_id ='&wh_id' catch(-1403)} else if ('&slot_id' != ''){list dock doors where slot_id = '&slot_id' and wh_id ='&wh_id' catch(-1403)}} | if (@? = -1403){set return status where status = 10509}",1,"I",0,"","dcs_data",0
+"trlr_num","LES","apptmnt","LES",0,"NONE",0,"I",0,"","dcs_data",0
+"trlr_num","LES","carmovemnt","LES",0,"if ('&carcod' != '') { list open trailers where trlr_num = '&trlr_num' and carcod = '&carcod' } else { list open trailers where trlr_num = '&trlr_num'}",0,"A",0,"","dcs_data",0
+"trlr_num","LES","chgtrlr","LES",0,"NONE",0,"I",0,"","dcs_data",0
+"trlr_num","LES","CLOSE_RCV_TRLR","LES",0,"NONE",0,"I",0,"","mtf_dcs_data",0
+"trlr_num","LES","inbqltmnt","LES",0,"if ('&trknum' != '') {list master receipts for master receipt maintenance where trknum = '&trknum' and trlr_num = '&trlr_num' and wh_id = '&wh_id' } else {list master receipts for master receipt maintenance where trlr_num = '&trlr_num' and wh_id = '&wh_id'}",1,"I",0,"","dcs_data",0
+"trlr_num","LES","LES","LES",0,"if ('&carcod' != '') { list trailers where trlr_num = '&trlr_num' and carcod = '&carcod' } else { list trailers where trlr_num = '&trlr_num' }",1,"I",0,"","dcs_data",0
+"trlr_num","LES","mstrcptmnt","LES",0,"NONE",1,"I",0,"","dcs_data",0
+"trlr_num","LES","RECEIVE_ASSET","LES",0,"NONE",0,"I",0,"","mtf_dcs_data",0
+"trlr_num","LES","REOPEN_TRLR","LES",0,"NONE",0,"I",0,"","mtf_dcs_data",0
+"trlr_num","LES","REOPEN_TRUCK","LES",0,"NONE",0,"I",0,"","mtf_dcs_data",0
+"trlr_num","LES","rtetrlrmnt","LES",0,"list open trailers where trlr_num = '&trlr_num'",1,"A",0,"","dcs_data",0
+"trlr_num","LES","shpAssignStop","LES",0,"NONE",1,"I",0,"","dcs_data",0
+"trlr_num","LES","trlrmgtopr","LES",0,"NONE",1,"I",0,"","dcs_data",0
+"trlr_num","LES","UNDIR_DISPATCH_TRAILER","LES",0,"NONE",0,"I",0,"","mtf_dcs_data",0
+"trlr_num","LES","UNDIR_INBOUND_QUALITY","LES",0,"NONE",0,"I",0,"","mtf_dcs_data",0
+"trlr_num","LES","UNDIR_PALLET_POSITION","LES",0,"validate pallet position where wh_id = '@global.wh_id' and trlr_num = '&trlr_num' and carcod = '&carcod'",1,"I",1,"trlr_id=data","dcs_data",0
+"unexp_ret_loc","LES","LES","LES",0,"if ('&unexp_ret_loc' != '' and '&wh_id' != '') {validate storage location where stoloc = '&unexp_ret_loc' and wh_id = '&wh_id'} else if ('&unexp_ret_loc' != '' and @@wh_id != '') {validate storage location where stoloc = '@unexp_ret_loc' and wh_id =@@wh_id}",1,"I",0,"","dcs_data",0
+"unthgt","LES","LES","LES",0,"validate number where colnam="unthgt" and compare = 'GT' and value = &unthgt and limit = 0",1,"I",0,"","sal_data",0
+"untlen","LES","LES","LES",0,"validate number where colnam="untlen" and compare = 'GT' and value = &untlen and limit = 0",1,"I",0,"","sal_data",0
+"untqty","dcsrdt","UNDIR_UNPICK","LES",0,"validate quantity for unpick where wh_id = '@global.wh_id' and invtid = '&invtid' and untqty = &untqty",1,"I",0,"","mtf_dcs_data",0
+"untqty","dcsrdt","USR_IDENTIFY_LOAD_ADJ_DTL","LES",10,"validate usr number where compare='GTE' and intflg=1 and limit='0' and value='&untqty'; validate usr number where compare='LTE' and intflg=1 and limit='1000000' and value='&untqty'",1,"I",0,"","usr_data",0
+"untwid","LES","LES","LES",0,"validate number where colnam="untwid" and compare = 'GT' and value = &untwid and limit = 0",1,"I",0,"","sal_data",0
+"uomcod","LES","pckarepreflst","LES",0,"list area uoms where arecod = '&arecod' and wh_id = '&wh_id' and pckflg = 1",1,"I",0,"","dcs_data",0
+"uomcod","LES","PICKUP_A","LES",0,"if ('@PICKUP_A.dspprt' != 'Mixed Items') {validate uom for pick where prtnum = '@PICKUP_A.dspprt' and prt_client_id = '@PICKUP_A.dspprtcli' and wh_id = '@global.wh_id' and ftpcod = '@PICKUP_A.dspftp' and uomcod = '@PICKUP_A.uomcod' and stoloc = '@PICKUP_A.dsploc' and wrkref = '@PICKUP_A.wrkref'}",1,"A",0,"","dcs_data",0
+"uomcod","LES","PICKUP_B","LES",0,"validate uom for pick where prtnum = '@PICKUP_A.dspprt' and prt_client_id = '@PICKUP_A.dspprtcli' and wh_id = '@global.wh_id' and ftpcod = '@PICKUP_A.dspftp' and uomcod = '@PICKUP_B.uomcod' and stoloc = '@PICKUP_A.dsploc' and wrkref = '@PICKUP_A.wrkref'",1,"A",0,"","dcs_data",0
+"uomqty","LES","identify","LES",0,"NONE",0,"I",0,"","dcs_data",0
+"uomqty","LES","LES","LES",0,"validate number where colnam="uomqty" and intflg=1 and compare = 'GT' and value = &uomqty and limit = 0",1,"I",0,"","sal_data",0
+"uomqty","LES","rcvwoordopr","LES",0,"NONE",0,"I",0,"","dcs_data",0
+"usr_id","LES","carmovemnt","LES",0,"list trailer users for gui where wh_id = '&wh_id' and usr_id = '&usr_id' >> res | if (rowCount(@res) = 0) {set return status where status = 11021}",1,"A",0,"","dcs_data",0
+"usr_id","LES","TOOLS_SEND_MSG","LES",0,"validate rf users devices and roles for im where wh_id = '@global.wh_id' and  lst_usr_id = '&usr_id'",1,"I",0,"","mtf_dcs_data",0
+"validate_cnt_id_len","LES","LES","LES",0,"validate number where colnam="validate_cnt_id_len" and intflg = 1 and compare = "GTE" and value = &validate_cnt_id_len and limit = 0",1,"I",0,"","dcs_data",0
+"vfyloc","LES","DIR_COUNT","LES",0,"validate rf translated location where inpval = '&vfyloc' and dsploc = '&stoloc' and wh_id = '@global.wh_id';validate rf translated backfill location where stoloc = '&vfyloc' and dsploc = '&stoloc' and wh_id = '@global.wh_id'",1,"I",0,"","mtf_dcs_data",0
+"vnd_ib_issue","LES","UNDIR_INBOUND_QUALITY","LES",0,"if ('&vnd_ib_issue' != '') {validate vendor inbound issue where vnd_ib_issue = '&vnd_ib_issue'}",1,"I",0,"","mtf_dcs_data",0
+"voc_term_id","LES","LES","LES",0,"validate voice terminal id where devcod = '&devcod' and voc_term_id = '&voc_term_id' and wh_id = '&wh_id'",1,"I",0,"","dcs_data",0
+"wh_id","LES","LES","LES",0,"validate warehouse where wh_id = '&wh_id'",1,"I",0,"","sal_data",0
+"wh_id","LES","whcopy","LES",0,"NONE",0,"I",0,"","mcs_data",0
+"wh_id","prtmstdfltmnt","LES","LES",0,"NONE",0,"I",0,"","sal_data",0
+"wh_id","RPWEB","ASSETMAPMNT","LES",0,"NONE",0,"I",0,"","dcsweb_data",0
+"wh_id","RPWEB","rp|login_prompt","LES",0,"NONE",0,"I",0,"","sal_data",0
+"wh_id","RPWEB","SERASSETFEATMNT","LES",0,"NONE",0,"I",0,"","dcsweb_data",0
+"wh_id","RPWEB","WHASSETCATMNT","LES",0,"NONE",0,"I",0,"","dcsweb_data",0
+"wh_id","waveopr","LES","LES",0,"validate warehouse where wh_id = '&wh_id'",1,"A",0,"","dcs_data",0
+"wh_id","whmnt","LES","LES",0,"NONE",0,"I",0,"","mcs_data",0
+"wid","LES","LES","LES",0,"if (to_number('&wid') = 0) { set return status where status = 11436 }",1,"I",0,"","sal_data",0
+"win_cli_lcid","LES","LES","LES",0,"validate number where colnam="win_cli_lcid" and intflg = 1 and compare = "GTE" and value = &win_cli_lcid and limit = 0",1,"I",0,"","dcs_data",0
+"win_srv_lcid","LES","LES","LES",0,"validate number where colnam="win_srv_lcid" and intflg=1 and compare = "GTE" and value = &win_srv_lcid and limit = 0",1,"I",0,"","dcs_data",0
+"wkonum","LES","hldmstmnt","LES",0,"[select wkonum from wkohdr where wkonum = '&wkonum']",0,"I",0,"","dcs_data",0
+"wrkare","LES","LES","LES",0,"if ('&wrkare' != '') {list work areas where wrkare = '&wrkare' and wh_id = '&wh_id'}",1,"I",0,"","dcs_data",0
+"wrkzon","LES","DIR_WORK_ASSIGNMENT_FILTERS","LES",0,"NONE",0,"A",0,"","dcs_data",0
+"wrkzon","LES","LES","LES",0,"if ('&wrkzon' != '') {list work zones where wrkzon = '&wrkzon' and wh_id = '&wh_id'}",1,"I",0,"","dcs_data",0
+"wrkzon","LES","prdlinmnt","LES",0,"if ('&wrkzon' != '') {list work zones where wrkzon = '&wrkzon' and wh_id = '&wh_id'}",1,"A",0,"","dcs_data",0
+"wrkzon","LES","WMD-ZONMSTMNT","LES",0,"NONE",0,"I",0,"","dcs_data",0
+"yard_loc","LES","shpCloseTrailer","LES",0,"if ('&yard_loc' != '') { list shipment yard locations where stoloc = '&yard_loc' and wh_id = nvl('&wh_id', @@wh_id) }",1,"A",0,"","dcs_data",0
+"yard_loc","LES","UNDIR_CLOSE_TRLR","LES",0,"validate dock and carrier move for close shipping trailer where yard_loc = '&yard_loc' and wh_id = '@global.wh_id'",1,"I",0,"trlr_num=trlr_num","mtf_dcs_data",0
+"yard_loc","LES","UNDIR_COMPLETE_STOP","LES",0,"validate rf translated location where inpval = '&yard_loc' and wh_id = '@global.wh_id'",1,"I",0,"","mtf_dcs_data",0
+"yard_loc","LES","UNDIR_LOAD_LTL","LES",0,"if ('&yard_loc' != '') { validate rf translated location where inpval = '&yard_loc' and wh_id = '@global.wh_id' }",1,"I",0,"","mtf_dcs_data",0
+"yard_loc","LES","UNDIR_LOAD_TRAILER","LES",0,"if ('&yard_loc' != '') { validate rf translated location where inpval = '&yard_loc' and wh_id = '@global.wh_id'}",1,"I",0,"","mtf_dcs_data",0
+"yard_loc","LES","UNDIR_PALLET_POSITION","LES",0,"validate pallet position where wh_id = '@global.wh_id' and yard_loc = '&yard_loc'",1,"I",1,"trlr_id=data","dcs_data",0

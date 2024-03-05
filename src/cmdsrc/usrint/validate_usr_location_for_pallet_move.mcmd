@@ -1,0 +1,62 @@
+<command>
+  <name>validate usr location for pallet move</name>
+  <description>validate usr location for pallet move</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* validate usr location for pallet move
+ * Version history:
+ *  2021-06-11 Radina Ivanova    Initial version
+ */
+
+[select wrkref
+   from pckwrk_hdr
+  where list_id = @list_id]
+|
+validate rf location for pick work
+   where wrkref = @wrkref
+;
+[select sum(pckqty) total_qty 
+   from pckwrk_hdr 
+  where srcloc = @srcloc
+    and list_id = @list_id] catch(-1403)
+|
+if (@? != 0)
+{
+    /* Not enough quantity to pick. */
+    set return status where status = 11428
+}
+|
+[select uomcod 
+   from inventory_view 
+   join prtftp_dtl 
+     on inventory_view.prtnum = prtftp_dtl.prtnum 
+    and inventory_view.prt_client_id = prtftp_dtl.prt_client_id 
+    and inventory_view.wh_id = prtftp_dtl.wh_id 
+    and inventory_view.ftpcod = prtftp_dtl.ftpcod 
+    and prtftp_dtl.untqty = 1 
+  where stoloc = @srcloc
+    and rownum = 1 
+  order by uomlvl desc]
+|
+[select untqty no_asset
+   from inv_asset 
+   join invlod 
+     on inv_asset.invtid = invlod.lodnum 
+  where invlod.stoloc = @srcloc
+    and exists (select 'x' 
+                  from poldat_view 
+                 where polcod = 'USR-RF-FORM' 
+                   and polvar = 'ASSET_IDENTIFY' 
+                   and polval = 'ASSET_GROUPS' 
+                   and rtstr2 = 'LEGBORD' 
+                   and rtstr1 = inv_asset.asset_typ 
+                   and wh_id = invlod.wh_id)] catch(-1403)
+|
+publish data
+  where total_qty = @total_qty
+    and uomcod = @uomcod
+    and no_asset = @no_asset
+]]>
+</local-syntax>
+</command>

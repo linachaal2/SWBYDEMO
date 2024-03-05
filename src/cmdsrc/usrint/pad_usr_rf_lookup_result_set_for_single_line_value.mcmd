@@ -1,0 +1,139 @@
+<command>
+  <name>pad usr rf lookup result set for single line value</name>
+  <description>pad usr rf lookup result set for single line value</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* pad usr rf lookup result set for single line value
+ * Pads a result set so that if value and description do not fit on a single line the value will be shown on a single line.
+ */
+validate stack variable not null
+ where name = 'res_data'
+|
+if (rowcount(@res_data) > 0)
+{
+    /* Determine the column names of the resultset which was passed. */
+    get command columns
+     where res_i = @res_data >> res_data_columns
+    |
+    /* Get a resultset with the column names as columns in a row. e.g. var_nam_0, var_nam_1, etc. */
+    {
+        convert column to multicolumn
+         where resultset = @res_data_columns
+           and colnam = 'var_nam'
+           and column_count = rowcount(@res_data_columns)
+    }
+    |
+    /* Loop through all the values to determine what the maximum length of all the values in var_nam_0(the first column) and var_nam_1(the second column) are. */
+    {
+        {
+            publish data combination
+             where res = @res_data
+            |
+            get session variable
+             where name = 'col1_max_length' catch(-1403)
+            |
+            publish data
+             where col1_max_length = nvl(@value, 0)
+            |
+            get session variable
+             where name = 'col2_max_length' catch(-1403)
+            |
+            publish data
+             where col2_max_length = nvl(@value, 0)
+            |
+            execute server command
+             where cmd = "publish data where col1=@" || @var_nam_0 || ' and col2=@' || @var_nam_1
+            |
+            publish data
+             where col1_max_length = max(length(@col1), @col1_max_length)
+               and col2_max_length = max(length(@col2), @col2_max_length)
+            |
+            save session variable
+             where name = 'col1_max_length'
+               and value = @col1_max_length
+            |
+            save session variable
+             where name = 'col2_max_length'
+               and value = @col2_max_length
+        }
+        |
+        get session variable
+         where name = 'col1_max_length' catch(-1403)
+        |
+        publish data
+         where col1_max_length = @value
+        |
+        get session variable
+         where name = 'col2_max_length' catch(-1403)
+        |
+        publish data
+         where col2_max_length = @value
+        |
+        publish data
+         where col1_max_length = @col1_max_length
+           and col2_max_length = @col2_max_length
+    }
+    |
+    /* Determine the width of one row in the RDT. */
+    [select dsply_wid
+       from rf_term_mst
+      where term_id = nvl(@devcod, @@devcod)] catch(-1403)
+    |
+    /* Only if col1 and col2 do not fit on 1 row will we pad so col1 gets a single row. */
+    if ((@col1_max_length + @col2_max_length) > @dsply_wid and nvl(@dsply_wid, 0) > 0)
+    {
+        /* Now pad all the texts in var_nam_1(the second column) to make them the correct length. */
+        {
+            /* Create a publish data statement which we can use later to publish the original result set but with updated values. (e.g. publish data where col1=@col1 and col2=@col2 .. etc) */
+            {
+                {
+                    publish data combination
+                     where res = @res_data_columns
+                    |
+                    publish data
+                     where value = @var_nam || "=@" || @var_nam
+                } >> res_data_columns_publish
+                |
+                convert column results to string
+                 where resultset = @res_data_columns_publish
+                   and colnam = 'value'
+                   and separator = " and "
+                |
+                publish data
+                 where res_data_columns_publish_cmd = "publish data where " || @result_string
+            }
+            |
+            /* We want 1 full rows for the first column, so we need to pad it with display width minus the maximum length of the values in the first column and add 2(2 is default padding RDT). */
+            publish data
+             where text_pad_length = @dsply_wid - (@col1_max_length + 2)
+            |
+            /* Publish the original resultset. */
+            publish data combination
+             where res = @res_data
+            |
+            /* Override the value in column 2 by publish column 2 with the same name but now padded. */
+            execute server command
+             where cmd = "publish data where " || @var_nam_1 || "=lpad(@" || @var_nam_1 || ", @text_pad_length + length(@" || @var_nam_1 || "))"
+            |
+            /* Now publish the string we built earlier so we reflect the actual new values (with publish data combination we would just get the original values). */
+            execute server command
+             where cmd = @res_data_columns_publish_cmd
+        }
+    }
+    else
+    {
+        /* No need for padding just publish the original resultset. */
+        publish data combination
+         where res = @res_data
+    }
+}
+else
+{
+    publish data combination
+     where res = @res_data
+}
+]]>
+</local-syntax>
+  <argument name="res_data" required="yes" datatype="results">The result set to pad</argument>
+</command>

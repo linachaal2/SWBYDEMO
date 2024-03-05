@@ -1,0 +1,21 @@
+entity: Message
+version: '1.0'
+data:
+
+- locale: en-us
+  namespace: rp.customer
+  messages:
+
+  - name: moduleName
+    text: Customer
+  - name: taskflowName
+    text: Sample Taskflow
+
+- locale: en-us
+  namespace: rp.customer.sampleTask
+  messages:
+
+  - name: welcome
+    text: Welcome Message!
+  - name: taskName
+    text: Sample Task

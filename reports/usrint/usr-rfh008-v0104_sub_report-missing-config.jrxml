@@ -1,0 +1,351 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.11.0.final using JasperReports Library version 6.10.0  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Missing GLN Config" language="groovy" pageWidth="800" pageHeight="595" orientation="Landscape" whenNoDataType="NoPages" columnWidth="800" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" scriptletClass="com.redprairie.moca.jrds.ReportingIreportScriptlet" resourceBundle="com.redprairie.moca.jrds.Xlate" whenResourceMissingType="Empty" uuid="e151aff3-699c-4d75-bf54-be0b74a1211a">
+	<property name="ireport.zoom" value="1.5"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<property name="ireport.scriptlethandling" value="0"/>
+	<property name="ireport.ireport.encoding" value="UTF-8"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="RFH Eelde prod"/>
+	<property name="com.jaspersoft.studio.report.description" value="Overview missing config GLN matrix"/>
+	<property name="net.sf.jasperreports.export.xls.metadata.title" value="GLN Overview (sub Missing Configuration)"/>
+	<property name="net.sf.jasperreports.export.xls.metadata.subject" value="Overview missing config GLN matrix"/>
+	<property name="net.sf.jasperreports.export.xls.metadata.author" value="Starware"/>
+	<property name="net.sf.jasperreports.export.xls.metadata.application" value="Blue Yonder"/>
+	<property name="net.sf.jasperreports.export.xls.metadata.keywords" value="Royal FloraHolland, Excel, GLN Matrix"/>
+	<property name="net.sf.jasperreports.export.xlsx.exclude.origin.band.myPageHeader" value="pageHeader"/>
+	<property name="net.sf.jasperreports.export.xlsx.exclude.origin.band.myPageFooter" value="pageFooter"/>
+	<property name="net.sf.jasperreports.export.xlsx.exclude.origin.keep.first.band.myHeader" value="columnHeader"/>
+	<property name="net.sf.jasperreports.export.xlsx.exclude.origin.band.myTitle" value="title"/>
+	<property name="net.sf.jasperreports.export.xlsx.exclude.origin.band.myGroup" value="groupHeader"/>
+	<property name="net.sf.jasperreports.export.xlsx.exclude.origin.group.myGroup" value="sortArea"/>
+	<property name="net.sf.jasperreports.export.xls.exclude.origin.band.myPageHeader" value="pageHeader"/>
+	<property name="net.sf.jasperreports.export.xls.exclude.origin.band.myPageFooter" value="pageFooter"/>
+	<property name="net.sf.jasperreports.export.xls.exclude.origin.keep.first.band.myHeader" value="columnHeader"/>
+	<property name="net.sf.jasperreports.export.xls.exclude.origin.band.myTitle" value="title"/>
+	<property name="net.sf.jasperreports.export.xls.remove.empty.space.between.rows" value="true"/>
+	<property name="net.sf.jasperreports.export.xls.remove.empty.space.between.columns" value="true"/>
+	<property name="net.sf.jasperreports.export.xls.sheet.names.sheet4" value="Missing Config"/>
+	<property name="net.sf.jasperreports.export.xls.ignore.graphics" value="true"/>
+	<property name="net.sf.jasperreports.export.xls.detect.cell.type" value="true"/>
+	<property name="net.sf.jasperreports.export.xls.white.page.background" value="false"/>
+	<property name="net.sf.jasperreports.export.xls.auto.fit.column" value="false"/>
+	<property name="net.sf.jasperreports.page.break.no.pagination" value="apply"/>
+	<import value="net.sf.jasperreports.engine.*"/>
+	<import value="java.util.*"/>
+	<import value="net.sf.jasperreports.engine.data.*"/>
+	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
+		<property name="MOCA" value="true"/>
+		<defaultValueExpression><![CDATA["./"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="MOCA_REPORT_LOCALE" class="java.lang.String" isForPrompting="false">
+		<property name="MOCA" value="true"/>
+		<defaultValueExpression><![CDATA["US_ENGLISH"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="MOCA_REPORT_CONNECTION" class="com.redprairie.moca.jrds.JRMocaConnection" isForPrompting="false">
+		<property name="MOCA" value="true"/>
+		<defaultValueExpression><![CDATA[new com.redprairie.moca.jrds.JRMocaConnection("http://localhost:4600/service", "SUPER", "SUPER", true)]]></defaultValueExpression>
+	</parameter>
+	<parameter name="MOCA_REPORT_DATE" class="java.lang.String" isForPrompting="false">
+		<property name="MOCA" value="true"/>
+		<property name="prompt" value="No"/>
+		<defaultValueExpression><![CDATA[DateFormat.getDateInstance(DateFormat.SHORT).format(new Date())]]></defaultValueExpression>
+	</parameter>
+	<parameter name="MOCA_REPORT_TIME" class="java.lang.String" isForPrompting="false">
+		<property name="MOCA" value="true"/>
+		<defaultValueExpression><![CDATA[DateFormat.getTimeInstance(DateFormat.SHORT).format(new Date())]]></defaultValueExpression>
+	</parameter>
+	<parameter name="MOCA_REPORT_TZ" class="java.lang.String" isForPrompting="false">
+		<property name="MOCA" value="true"/>
+		<defaultValueExpression><![CDATA[new java.text.SimpleDateFormat("z").format(new Date())]]></defaultValueExpression>
+	</parameter>
+	<parameter name="MOCA_REPORT_DATE_FMT" class="java.lang.String" isForPrompting="false">
+		<property name="MOCA" value="true"/>
+		<defaultValueExpression><![CDATA[DateFormat.SHORT]]></defaultValueExpression>
+	</parameter>
+	<parameter name="MOCA_REPORT_TIME_FMT" class="java.lang.String" isForPrompting="false">
+		<property name="MOCA" value="true"/>
+		<defaultValueExpression><![CDATA[DateFormat.SHORT]]></defaultValueExpression>
+	</parameter>
+	<parameter name="GLN" class="java.lang.String">
+		<defaultValueExpression><![CDATA["-"]]></defaultValueExpression>
+	</parameter>
+	<queryString language="MOCA">
+		<![CDATA[publish data
+where gln=nvl ($P{GLN},'-') 
+  and lodlvl = 'L'
+|
+[select usr_gln_location.gln,
+        mov_path_dtl.cri_id as criteria,
+        mov_path_dtl.hop_mov_zone_id as hop_sorting,
+        hop_dsc.lngdsc as hop_sorting_dsc,
+        mov_path.dst_mov_zone_id as destination,
+        dst_dsc.lngdsc as destination_dsc,
+        case when max(destination_loc.mov_zone_id) = '-' then '!'
+             else max(destination_loc.stoloc)
+        end as dest_location,
+        adrmst.adr_district as floricode
+   from mov_path
+   join mov_zone src_zone
+     on (src_zone.mov_zone_id = mov_path.src_mov_zone_id)
+   join dscmst src_dsc
+     on (src_dsc.colnam = 'mov_zone_cod|wh_id' and src_dsc.colval = src_zone.mov_zone_cod || '|' || src_zone.wh_id and src_dsc.locale_id = 'US_ENGLISH')
+   join mov_zone dst_zone
+     on (dst_zone.mov_zone_id = mov_path.dst_mov_zone_id)
+   join dscmst dst_dsc
+     on (dst_dsc.colnam = 'mov_zone_cod|wh_id' and dst_dsc.colval = dst_zone.mov_zone_cod || '|' || dst_zone.wh_id and dst_dsc.locale_id = 'US_ENGLISH')
+   join mov_path_dtl
+     on (mov_path.src_mov_zone_id = mov_path_dtl.src_mov_zone_id and mov_path.dst_mov_zone_id = mov_path_dtl.dst_mov_zone_id and mov_path.lodlvl = mov_path_dtl.lodlvl)
+   join mov_zone hop_zone
+     on (hop_zone.mov_zone_id = mov_path_dtl.hop_mov_zone_id and exists(select 'x'
+                                                                          from locmst
+                                                                         where loc_typ_id = 10036
+                                                                           and locmst.mov_zone_id = hop_zone.mov_zone_id))
+   join dscmst hop_dsc
+     on (hop_dsc.colnam = 'mov_zone_cod|wh_id' and hop_dsc.colval = hop_zone.mov_zone_cod || '|' || hop_zone.wh_id and hop_dsc.locale_id = 'US_ENGLISH')
+   join locmst destination_loc
+     on (destination_loc.mov_zone_id = mov_path.dst_mov_zone_id)
+   join usr_gln_location
+     on (destination_loc.stoloc = usr_gln_location.stoloc and destination_loc.wh_id = usr_gln_location.wh_id)
+  left join adrmst
+     on (adrmst.host_ext_id= usr_gln_location.gln)
+  where mov_path.lodlvl = @lodlvl
+    and  (usr_gln_location.gln = @gln or @gln = '-')
+    and not exists(select 'x'
+                     from usr_delivery,
+                          usr_delivery_gln
+                    where usr_delivery.dst_mov_zone_id = hop_mov_zone_id
+                      and usr_delivery.uc_delivery_id = usr_delivery_gln.uc_delivery_id
+                      and usr_delivery.wh_id = usr_delivery_gln.wh_id
+                      and usr_delivery_gln.gln = usr_gln_location.gln
+                      and usr_delivery_gln.wh_id = usr_gln_location.wh_id)
+  group by usr_gln_location.gln,
+        mov_path_dtl.cri_id,
+        mov_path_dtl.hop_mov_zone_id,
+        hop_dsc.lngdsc,
+        mov_path.dst_mov_zone_id,
+        dst_dsc.lngdsc,
+        adrmst.adr_district
+  order by  usr_gln_location.gln,
+        mov_path.dst_mov_zone_id,
+        mov_path_dtl.cri_id]]]>
+	</queryString>
+	<field name="gln" class="java.lang.String"/>
+	<field name="warehouse_id" class="java.lang.String"/>
+	<field name="sequence" class="java.lang.Integer"/>
+	<field name="criteria" class="java.lang.String"/>
+	<field name="hop_sorting" class="java.lang.Integer"/>
+	<field name="hop_sorting_dsc" class="java.lang.String"/>
+	<field name="destination" class="java.lang.Integer"/>
+	<field name="destination_dsc" class="java.lang.String"/>
+	<field name="dest_location" class="java.lang.String"/>
+	<field name="floricode" class="java.lang.String"/>
+	<sortField name="gln"/>
+	<sortField name="hop_sorting"/>
+	<pageHeader>
+		<band height="31" splitType="Stretch">
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+			<textField>
+				<reportElement positionType="Float" x="0" y="0" width="400" height="30" uuid="1a3a4967-b07f-4b2e-9927-93b2d34cbf1b">
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					<property name="net.sf.jasperreports.export.xls.column.width" value="100"/>
+				</reportElement>
+				<textElement textAlignment="Left">
+					<font fontName="Liberation Sans" size="20" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$R{^Usr-RFH-Missing_Config^}]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="20" splitType="Stretch">
+			<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+			<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.spreadsheet.SpreadsheetLayout"/>
+			<textField>
+				<reportElement x="0" y="0" width="90" height="20" uuid="0dbd2a6a-f73f-4fbd-8f1c-5e829d2a8d35">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="net.sf.jasperreports.export.xls.column.width" value="100"/>
+				</reportElement>
+				<textElement>
+					<font fontName="Liberation Sans" size="10" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$R{^rptGLN^}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="90" y="0" width="90" height="20" uuid="1da7e097-34d9-4d27-b423-8d41ebfd8c81">
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="net.sf.jasperreports.export.xls.column.width" value="100"/>
+				</reportElement>
+				<textElement>
+					<font fontName="Liberation Sans" size="10" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$R{^lblCriteria^}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="180" y="0" width="40" height="20" uuid="c40179ed-fcc8-4023-a3b6-f21269fb7be8">
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="net.sf.jasperreports.export.xls.column.width" value="100"/>
+				</reportElement>
+				<textElement>
+					<font fontName="Liberation Sans" size="10" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$R{^rptlblSort^}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="220" y="0" width="90" height="20" uuid="ba295f33-9442-40de-95bc-637ab7e0c7dc">
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="net.sf.jasperreports.export.xls.column.width" value="100"/>
+				</reportElement>
+				<textElement>
+					<font fontName="Liberation Sans" size="10" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$R{^descr^}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="310" y="0" width="90" height="20" uuid="f22bf9d0-fbc7-4062-8d1a-c2e844f1460f">
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="net.sf.jasperreports.export.xls.column.width" value="100"/>
+				</reportElement>
+				<textElement>
+					<font fontName="Liberation Sans" size="10" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$R{^rptdestination^}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="400" y="0" width="90" height="20" uuid="13fa0f9a-cbd2-4f46-b4cb-a7d965fcd131">
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="net.sf.jasperreports.export.xls.column.width" value="100"/>
+				</reportElement>
+				<textElement>
+					<font fontName="Liberation Sans" size="10" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$R{^descr^}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="490" y="0" width="90" height="20" uuid="47ad0ccb-741a-44e9-b4dd-568740c7a3ce">
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="net.sf.jasperreports.export.xls.column.width" value="100"/>
+				</reportElement>
+				<textElement>
+					<font fontName="Liberation Sans" size="10" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$R{^stoloc^}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="580" y="0" width="90" height="20" uuid="04942d68-414b-44ae-b951-db3a0f32abe2">
+					<property name="net.sf.jasperreports.export.xls.column.width" value="100"/>
+				</reportElement>
+				<textElement>
+					<font fontName="Liberation Sans" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Floricode"]]></textFieldExpression>
+			</textField>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="13" splitType="Stretch">
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+			<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.spreadsheet.SpreadsheetLayout"/>
+			<textField>
+				<reportElement x="0" y="0" width="90" height="13" isRemoveLineWhenBlank="true" uuid="12b261ee-818f-4667-99d6-4ed997a7daf8">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="net.sf.jasperreports.export.xls.column.width" value="100"/>
+				</reportElement>
+				<textElement>
+					<font fontName="Liberation Sans" size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{gln}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="90" y="0" width="90" height="13" uuid="7bf5734d-8d20-4e0b-8a76-1ec68ec02393">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="net.sf.jasperreports.export.xls.column.width" value="100"/>
+				</reportElement>
+				<textElement>
+					<font fontName="Liberation Sans" size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[TRIM( $F{criteria})]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="180" y="0" width="40" height="13" uuid="168ebfe2-65cd-46b5-a9ce-592e4d45e864">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="net.sf.jasperreports.export.xls.column.width" value="100"/>
+				</reportElement>
+				<textElement>
+					<font fontName="Liberation Sans" size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{hop_sorting}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="220" y="0" width="90" height="13" uuid="168ebfe2-65cd-46b5-a9ce-592e4d45e864">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="net.sf.jasperreports.export.xls.column.width" value="100"/>
+				</reportElement>
+				<textElement>
+					<font fontName="Liberation Sans" size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{hop_sorting_dsc}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="310" y="0" width="90" height="13" uuid="41b71d18-f0fa-414d-a47e-f1ece455621a">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="net.sf.jasperreports.export.xls.column.width" value="100"/>
+				</reportElement>
+				<textElement>
+					<font fontName="Liberation Sans" size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{destination}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="400" y="0" width="90" height="13" uuid="41b71d18-f0fa-414d-a47e-f1ece455621a">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="net.sf.jasperreports.export.xls.column.width" value="100"/>
+				</reportElement>
+				<textElement>
+					<font fontName="Liberation Sans" size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{destination_dsc}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="490" y="0" width="90" height="13" uuid="41b71d18-f0fa-414d-a47e-f1ece455621a">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="net.sf.jasperreports.export.xls.column.width" value="100"/>
+				</reportElement>
+				<textElement>
+					<font fontName="Liberation Sans" size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{dest_location}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="580" y="0" width="90" height="13" uuid="2d49efcb-cd30-498d-bfc0-2a0a693ba418">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="net.sf.jasperreports.export.xls.column.width" value="100"/>
+				</reportElement>
+				<textElement>
+					<font fontName="Liberation Sans"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{floricode}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

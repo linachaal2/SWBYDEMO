@@ -1,0 +1,39 @@
+<command>
+  <name>process usr wf confirmations</name>
+  <description>process usr wf confirmations</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* process usr wf confirmations
+ *
+ * Confirmations for inventory workflow can not contain an active inventory identification.
+ * The re-use of the lpn within RFH is to fast for archiving to cleanup
+ * This command alters the lpn by adding a '_S' to the existing LPN
+ *
+ * Version history:
+ * 2020-10-12 Marco Schouwenaar      Initial version
+ * 2021-01-20 Marco Schouwenaar      added configuration by policy (timespan in minutes)
+ * 2022-02-11 Vincent v Vliet        added check on current inventory
+ * 2023-06-14 Radina Ivanova         update also background workflow records
+ */
+[select max(rtnum1) as timespan from poldat_view where wh_id=nvl(@wh_id,'----') and polcod='USR-INTEGRATOR' and polvar='CLEANUP' and polval='CNFRM'] catch(-1403)
+|
+[update cnfrm_inv_serv set invtid=invtid||'_S'
+  where invtid not like '%_S%'
+    and cmpflg = 1
+    and cmpdte < DATEADD(MINUTE, 0 - nvl(@timespan, 5), sysdate)
+    and not exists(select lodnum
+                     from invlod
+                    where lodnum = cnfrm_inv_serv.invtid
+                      and invlod.adddte < cnfrm_inv_serv.cmpdte)] catch(-1403)
+|
+[update cnfrm_bck_serv set lodnum=lodnum||'_S'
+  where lodnum not like '%_S%'
+    and moddte < DATEADD(MINUTE, 0 - nvl(@timespan, 5), sysdate)
+    and not exists(select lodnum
+                     from invlod
+                    where lodnum = cnfrm_bck_serv.lodnum
+                      and invlod.adddte < cnfrm_bck_serv.moddte)] catch(-1403)
+]]>
+</local-syntax>
+</command>

@@ -1,0 +1,17 @@
+<action>
+  <id>usrListGLNLocation</id>
+  <name>usrListGLNLocation</name>
+  <description>List GLN Location</description>
+  <type>LIST</type>
+  <ws>
+     <method>GET</method>
+	 <href>/usrListGLNLocation</href>
+  </ws>
+  <impl>
+     <command>list usr gln locations</command>
+  </impl>
+  <auth>
+     <opt>optOpen</opt>
+  </auth>
+  <primary>true</primary>
+</action>

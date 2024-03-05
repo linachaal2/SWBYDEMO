@@ -1,0 +1,169 @@
+<command>
+  <name>process usr merge pick list slots</name>
+  <description>process usr merge pick list slots</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* process usr merge pick list slots
+ * Version history:
+ *  2022-04-11 Radina Ivanova    Initial version
+ *  2023-01-06 Radina Ivanova    Handle trolley without shelves (1 layer)
+ */
+    [select pcklst.asset_typ trolley_asset,
+            pckwrk_view.asset_typ slot_asset,
+            pckwrk_view.client_id
+       from pckwrk_view
+       join pcklst
+         on pckwrk_view.list_id = pcklst.list_id
+      where pckwrk_view.list_id = @list_id
+        and rownum = 1] catch(-1403)
+    |
+    [select rtstr2 final_trolley_asset
+       from poldat_view
+      where polcod = 'USR-INTEGRATOR'
+        and polvar = 'TRANSACTIONS'
+        and polval = 'CONVERT_ASSETS'
+        and rtstr1 = @trolley_asset
+        and wh_id = @wh_id] catch(-1403)
+    |
+    [select rtstr2 final_slot_asset
+       from poldat_view
+      where polcod = 'USR-INTEGRATOR'
+        and polvar = 'TRANSACTIONS'
+        and polval = 'CONVERT_ASSETS'
+        and rtstr1 = @slot_asset
+        and wh_id = @wh_id] catch(-1403)
+    |
+    [select rtstr2 standard_shelves
+       from poldat_view
+      where polcod = 'USR-INVENTORY'
+        and polvar = 'ASSETS'
+        and polval = 'DEFAULT-SHELVES'
+        and rtstr1 = @final_trolley_asset
+        and wh_id = @wh_id] catch(-1403)
+    |
+    publish data
+      where standard_shelves = nvl(@standard_shelves, 0)
+    |
+    [select lodnum trolley_lodnum,
+            slot_lodnum
+       from pcklst_slot_load
+      where slot_lodnum in (select pck_to_id
+                              from pckwrk_view
+                             where list_id = @list_id)] catch(-1403) >> res
+    |
+    if (@? = 0)
+    {
+        publish data
+          where total_slots = rowcount(@res)
+        |
+        publish data combination
+          where res = @res
+        |
+        [select 0 newdst
+           from invlod
+          where lodnum = @trolley_lodnum] catch(-1403)
+        |
+        process inventory move 
+          where srclod = @slot_lodnum
+            and dstloc = @@devcod
+            and dstlod = @trolley_lodnum
+            and newdst = nvl(@newdst, 1)
+            and usr_id = @@usr_id
+            and devcod = @@devcod
+            and wh_id = @wh_id
+            and asset_typ = nvl(@final_trolley_asset, @trolley_asset) >> tmpres
+        |
+        [update invlod
+            set asset_typ = nvl(@final_trolley_asset, @trolley_asset)
+          where lodnum = @trolley_lodnum]
+        |
+        [update pckwrk_hdr
+            set pck_to_id = @trolley_lodnum
+          where pck_to_id = @slot_lodnum
+            and list_id = @list_id]
+        |
+        [select 'x'
+           from inv_asset
+          where asset_typ = nvl(@final_trolley_asset, @trolley_asset)
+            and invtid = @trolley_lodnum] catch(-1403)
+        |
+        if (@? != 0)
+        {
+            create record
+             where table = 'inv_asset'
+               and asset_typ = nvl(@final_trolley_asset, @trolley_asset)
+               and invtid = @trolley_lodnum
+               and untqty = 1
+               and client_id = @client_id
+        }
+        |
+        if (@total_slots > @standard_shelves + 1)
+        {
+            [select 'x'
+               from inv_asset
+              where asset_typ = nvl(@final_slot_asset, @slot_asset)
+                and invtid = @trolley_lodnum] catch(-1403)
+            |
+            if (@? != 0)
+            {
+                create record
+                 where table = 'inv_asset'
+                   and asset_typ = nvl(@final_slot_asset, @slot_asset)
+                   and invtid = @trolley_lodnum
+                   and untqty = @total_slots - @standard_shelves - 1
+                   and client_id = @client_id
+            }
+        }
+        |
+        [delete
+           from inv_asset
+          where invtid = @slot_lodnum] catch(-1403)
+        |
+        [delete
+           from pcklst_slot_load
+          where slot_lodnum = @slot_lodnum]
+        |
+        [select distinct 'x'
+           from device_context
+          where dev_varnam = 'lpn_on_device-' || @trolley_lodnum
+            and devcod = @@devcod
+            and wh_id = @wh_id] catch(-1403)
+        |
+        if (@? != 0)
+        {
+            create record
+             where table = 'device_context'
+               and dev_varnam = 'lpn_on_device-' || @trolley_lodnum
+               and devcod = @@devcod
+               and wh_id = @wh_id
+               and srtseq = 0
+               and value = 'LPCK'
+        }
+        |
+        [delete
+           from device_context
+          where devcod = @@devcod
+            and wh_id = @wh_id
+            and dev_varnam = 'lpn_on_device-' || @slot_lodnum] catch(-1403)
+    }
+    else
+    {
+        if (@final_trolley_asset != '')
+        {
+            [select pck_to_id trolley_lodnum
+               from pckwrk_view
+              where list_id = @list_id]
+            |
+            [update inv_asset
+                set asset_typ = @final_trolley_asset
+              where invtid = @trolley_lodnum]
+            |
+            [update invlod
+                set asset_typ = @final_trolley_asset
+              where lodnum = @trolley_lodnum]            
+        }
+    }
+]]>
+</local-syntax>
+</command>

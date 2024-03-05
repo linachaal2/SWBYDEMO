@@ -1,0 +1,183 @@
+<command>
+  <name>list usr general occupation overview</name>
+  <description>list usr general occupation overview</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* list usr general occupation overview
+ * Overview of location occupation for the complete warehouse and zone level
+ *
+ * Version history:
+ *  2022-08-23 Marco Schouwenaar Initial version
+ *  2022-10-11 Marco Schouwenaar Correction on exception handling
+ */
+[select total.wh_id,
+        COALESCE((select dscmst.lngdsc
+                    from dscmst
+                   where dscmst.colnam = 'sto_zone_cod|wh_id'
+                     and dscmst.colval = total.sto_zone_cod || '|' || total.wh_id
+                     and dscmst.locale_id = 'US_ENGLISH'), total.sto_zone_cod) as zone,
+        sum(total.lpns_received) as lpns_received,
+        sum(total.lpns_stored_wrong) as lpns_stored_wrong,
+        sum(total.total_available) as total_available,
+        sum(total.occupied) as occupied,
+        sum(total.lpns_stored) as lpns_stored,
+        sum(total.free) as free,
+        sum(total.percentage_free) as percentage_free,
+        case when (sum(total.percentage_free) < COALESCE(COALESCE(max(pv.rtnum2), max(pv_bck.rtnum2)), 0)) then '!!!'
+             else ''
+        end critical
+   from (select locmst.wh_id,
+                ' TOTAL' as sto_zone_cod,
+                0 as lpns_received,
+                0 as lpns_stored_wrong,
+                0 as total_available,
+                0 as occupied,
+                count(invlod.lodnum) as lpns_stored,
+                0 as free,
+                0 percentage_free
+           from locmst
+           left
+           join invlod
+             on invlod.wh_id = locmst.wh_id
+            and invlod.stoloc = locmst.stoloc
+          where locmst.stoflg = 1
+            and locmst.pckflg = 1
+            and locmst.locsts not in ('I')
+            and locmst.useflg = 1
+            and locmst.pck_zone_id is not null
+          group by locmst.wh_id
+         union
+         select locmst.wh_id,
+                ' TOTAL' as sto_zone_cod,
+                0 as lpns_received,
+                0 as lpns_stored_wrong,
+                sum(locmst.maxqvl) as total_available,
+                sum(case when (locmst.curqvl + locmst.pndqvl) > locmst.maxqvl then locmst.maxqvl
+                         else locmst.curqvl + locmst.pndqvl
+                    end) as occupied,
+                0 as lpns_stored,
+                sum((Abs(locmst.maxqvl - (locmst.curqvl + locmst.pndqvl)) + locmst.maxqvl - (locmst.curqvl + locmst.pndqvl)) / 2) as free,
+                sum((Abs(locmst.maxqvl - (locmst.curqvl + locmst.pndqvl)) + locmst.maxqvl - (locmst.curqvl + locmst.pndqvl)) / 2) / sum(locmst.maxqvl) *100 percentage_free
+           from locmst
+          where locmst.stoflg = 1
+            and locmst.pckflg = 1
+            and locmst.locsts not in ('I')
+            and locmst.useflg = 1
+            and locmst.pck_zone_id is not null
+          group by locmst.wh_id
+         union
+         select locmst.wh_id,
+                ' TOTAL' as sto_zone_cod,
+                0 as lpns_received,
+                count(invlod.lodnum) as lpns_stored_wrong,
+                0 as total_available,
+                0 as occupied,
+                0 as lpns_stored,
+                0 as free,
+                0 percentage_free
+           from locmst
+           join loc_typ
+             on loc_typ.loc_typ_id = locmst.loc_typ_id
+           join invlod
+             on invlod.wh_id = locmst.wh_id
+            and invlod.stoloc = locmst.stoloc
+           join invsub
+             on invsub.lodnum = invlod.lodnum
+           join invdtl
+             on invdtl.subnum = invsub.subnum
+            and invdtl.ship_line_id is null
+          where locmst.useflg = 1
+            and loc_typ.rcv_stgflg = 0
+            and (locmst.pck_zone_id is null or locmst.locsts in ('I'))
+          group by locmst.wh_id
+         union
+         select locmst.wh_id,
+                ' TOTAL' as sto_zone_cod,
+                count(invlod.lodnum) as lpns_received,
+                0 as lpns_stored_wrong,
+                0 as total_available,
+                0 as occupied,
+                0 as lpns_stored,
+                0 as free,
+                0 percentage_free
+           from locmst
+           join loc_typ
+             on loc_typ.loc_typ_id = locmst.loc_typ_id
+           join invlod
+             on invlod.wh_id = locmst.wh_id
+            and invlod.stoloc = locmst.stoloc
+           join invsub
+             on invsub.lodnum = invlod.lodnum
+           join invdtl
+             on invdtl.subnum = invsub.subnum
+            and invdtl.ship_line_id is null
+          where locmst.stoflg = 1
+            and locmst.useflg = 1
+            and loc_typ.rcv_stgflg = 1
+            and (locmst.pck_zone_id is null or locmst.locsts in ('I'))
+          group by locmst.wh_id
+         union
+         select locmst.wh_id,
+                sto_zone.sto_zone_cod,
+                0 as lpns_received,
+                0 as lpns_stored_wrong,
+                0 as total_available,
+                0 as occupied,
+                count(invlod.lodnum) as lpns_stored,
+                0 as free,
+                0 percentage_free
+           from sto_zone
+           join locmst
+             on sto_zone.sto_zone_id = locmst.sto_zone_id
+           left
+           join invlod
+             on invlod.wh_id = locmst.wh_id
+            and invlod.stoloc = locmst.stoloc
+          where locmst.stoflg = 1
+            and locmst.pckflg = 1
+            and locmst.locsts not in ('I')
+            and locmst.useflg = 1
+            and locmst.pck_zone_id is not null
+          group by sto_zone.sto_zone_cod,
+                locmst.wh_id
+         union
+         select locmst.wh_id,
+                sto_zone.sto_zone_cod,
+                0 as lpns_received,
+                0 as lpns_stored_wrong,
+                sum(locmst.maxqvl) as total_available,
+                sum(case when (locmst.curqvl + locmst.pndqvl) > locmst.maxqvl then locmst.maxqvl
+                         else locmst.curqvl + locmst.pndqvl
+                    end) as occupied,
+                0 as lpns_stored,
+                sum((Abs(locmst.maxqvl - (locmst.curqvl + locmst.pndqvl)) + locmst.maxqvl - (locmst.curqvl + locmst.pndqvl)) / 2) as free,
+                sum((Abs(locmst.maxqvl - (locmst.curqvl + locmst.pndqvl)) + locmst.maxqvl - (locmst.curqvl + locmst.pndqvl)) / 2) / sum(locmst.maxqvl) *100 percentage_free
+           from sto_zone
+           join locmst
+             on sto_zone.sto_zone_id = locmst.sto_zone_id
+          where locmst.stoflg = 1
+            and locmst.pckflg = 1
+            and locmst.locsts not in ('I')
+            and locmst.useflg = 1
+            and locmst.pck_zone_id is not null
+          group by sto_zone.sto_zone_cod,
+                locmst.wh_id) total
+   left
+   join poldat_view pv_bck
+     on pv_bck.wh_id = total.wh_id
+    and pv_bck.polcod = 'USR-DASHBOARD'
+    and pv_bck.polvar = 'CRITICAL_STORAGE_PERCENTAGE'
+    and pv_bck.polval = 'GENERAL'
+    and pv_bck.rtnum1 = 1
+   left
+   join poldat_view pv
+     on pv.wh_id = total.wh_id
+    and pv.polcod = 'USR-DASHBOARD'
+    and pv.polvar = 'CRITICAL_STORAGE_PERCENTAGE'
+    and pv.polval = total.sto_zone_cod
+    and pv.rtnum1 = 1
+  group by total.wh_id,
+        total.sto_zone_cod]]]>
+</local-syntax>
+</command>

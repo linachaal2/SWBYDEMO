@@ -1,0 +1,90 @@
+<command>
+  <name>list usr pickzone inventory api fields</name>
+  <description>list usr pickzone inventory api fields</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* list usr pickzone inventory api fields
+ * Command which fetches the fields required for pickzone inventory api
+ * Version history:
+ *  2021-12-15  Vincent v Vliet
+ */
+validate stack variable not null
+ where name = 'wh_id' and name = 'pck_zone_cod'
+|
+[Select pck_zone.wh_id,
+        invlod.lodnum,
+        max(invsub.subnum) subnum,
+        max(invlod.asset_typ) asset_typ,
+        invdtl.lotnum,
+        max(invdtl.sup_lotnum) sup_lotnum,
+        max(invdtl.supnum) supnum,
+        max(invdtl.inv_attr_str1) inv_attr_str1,
+        max(invdtl.inv_attr_str2) inv_attr_str2,
+        max(invdtl.inv_attr_str3) inv_attr_str3,
+        max(invdtl.inv_attr_str4) inv_attr_str4,
+        max(invdtl.inv_attr_str5) inv_attr_str5,
+        max(invdtl.inv_attr_str6) inv_attr_str6,
+        max(invdtl.inv_attr_str7) inv_attr_str7,
+        max(invdtl.inv_attr_str8) inv_attr_str8,
+        max(invdtl.inv_attr_str9) inv_attr_str9,
+        max(invdtl.inv_attr_str10) inv_attr_str10,
+        max(invdtl.inv_attr_str11) inv_attr_str11,
+        max(invdtl.inv_attr_str12) inv_attr_str12,
+        max(invdtl.inv_attr_str13) inv_attr_str13,
+        max(invdtl.inv_attr_str14) inv_attr_str14,
+        max(invdtl.inv_attr_str15) inv_attr_str15,
+        max(invdtl.inv_attr_str16) inv_attr_str16,
+        max(invdtl.inv_attr_str17) inv_attr_str17,
+        max(invdtl.inv_attr_str18) inv_attr_str18,
+        max(invdtl.inv_attr_int1) inv_attr_int1,
+        max(invdtl.inv_attr_int2) inv_attr_int2,
+        max(invdtl.inv_attr_int3) inv_attr_int3,
+        max(invdtl.inv_attr_int4) inv_attr_int4,
+        max(invdtl.inv_attr_int5) inv_attr_int5,
+        max(invdtl.inv_attr_flt1) inv_attr_flt1,
+        max(invdtl.inv_attr_flt2) inv_attr_flt2,
+        max(invdtl.inv_attr_flt3) inv_attr_flt3,
+        max(invdtl.inv_attr_dte1) inv_attr_dte1,
+        max(invdtl.inv_attr_dte2) inv_attr_dte2,
+        sum(invdtl.untqty) untqty,
+        max(invdtl.prtnum) prtnum,
+        max(invdtl.prt_client_id) prt_client_id,
+        max(prtmst.stkuom) stkuom,
+        max(locmst.arecod) arecod,
+        max(pck_zone.pck_zone_cod) pck_zone_cod,
+        max(locmst.stoloc) stoloc,
+        max(invlod.loducc) loducc,
+        max(invsub.subucc) subucc
+   from pck_zone
+  inner
+   join locmst
+     on pck_zone.pck_zone_id = locmst.pck_zone_id
+  inner
+   join invlod
+     on locmst.stoloc = invlod.stoloc
+    and locmst.wh_id = invlod.wh_id
+  inner
+   join invsub
+     on invlod.lodnum = invsub.lodnum
+  inner
+   join invdtl
+     on invsub.subnum = invdtl.subnum
+  inner
+   join prtmst
+     on invdtl.prtnum = prtmst.prtnum
+  where pck_zone.wh_id = @wh_id
+    and pck_zone.pck_zone_cod = @pck_zone_cod
+  group by pck_zone.wh_id,
+        invlod.lodnum,
+        invdtl.lotnum,
+        invdtl.inv_attr_str4,
+        invdtl.inv_attr_str8]
+]]>
+</local-syntax>
+  <argument name="wh_id" required="yes" datatype="string">wh_id</argument>
+  <argument name="pck_zone_cod" required="yes" datatype="string">pck_zone_cod</argument>
+  <documentation>
+
+</documentation>
+</command>

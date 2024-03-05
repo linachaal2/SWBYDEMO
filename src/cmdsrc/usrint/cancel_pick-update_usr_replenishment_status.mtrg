@@ -1,0 +1,30 @@
+<trigger>
+  <name>update usr replenishment status</name>
+  <on-command>cancel pick</on-command>
+  <description />
+  <fire-sequence>9100</fire-sequence>
+  <local-syntax>
+<![CDATA[
+/* Trigger to update replenishment status to 'failed unknown' so that it doesn't get picked up by the replenishment manager 
+ *
+ *
+ * Version history:
+ *  2023-05-18 Radina Ivanova    Initial version
+ */
+
+    [select ship_line_id
+       from canpck
+      where wrkref = @wrkref] catch(-1403)
+    |
+    if (@? = 0)
+    {
+        [update rplwrk
+            set rplsts = 'U'
+          where ship_line_id = @ship_line_id
+            and rplsts = 'I'] catch(-1403)
+    }
+
+]]>
+</local-syntax>
+  <enable>yes</enable>
+</trigger>

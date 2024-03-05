@@ -1,0 +1,53 @@
+<command>
+  <name>get usr linear value</name>
+  <description>get usr linear value</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* get ust linear value
+ * converts the passed value to passed measurement unit or to the default one
+ * Version history:
+ *  2020-04-16  Radina Ivanova - Initial version 
+ */
+if (@mu = '')
+{
+    [select decode(rtstr1, @fld_nam, decode(polvar,@sysid,1,2),
+            decode(rtstr1, 'DEFAULT', decode(polvar, @sysid,3,4),5) ) policy_order,
+            poldat_view.*
+       from poldat_view
+      where polcod = 'HOST-MU'
+        and polval = 'LINEAR'
+        and @+wh_id
+        and (polvar = @sysid
+         or polvar = 'DEFAULT')
+        and rownum = 1
+      order by wh_id,  policy_order] catch (-1403)
+    |
+    if (@? = 0)
+    {
+        publish data
+          where mu = @rtstr2
+    }
+}
+|
+[select cf_numerator cfn,  cf_denominator cfd
+   from mu_mst
+  where mu = @mu
+] catch(-1403)
+|
+if (@? = 0)
+{
+    publish data where fld_data = @fld_data * @cfn / @cfd
+}
+else
+{
+    publish data where fld_data = @fld_data
+}
+]]>
+</local-syntax>
+<argument name="mu" required="no" datatype="string">Measurement unit</argument>
+<argument name="fld_nam" required="yes" datatype="string">Field name</argument>
+<argument name="fld_data" required="yes" datatype="string">Field data</argument>
+<argument name="sysid" required="no" datatype="string">System</argument>
+<argument name="wh_id" required="no" datatype="string">Warehouse Id</argument>
+</command>

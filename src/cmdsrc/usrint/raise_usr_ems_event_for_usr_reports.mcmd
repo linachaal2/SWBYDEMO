@@ -1,0 +1,57 @@
+<command>
+  <name>raise usr ems event for usr reports</name>
+  <description>raise usr ems event for usr reports</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* raise usr ems event for usr reports
+ *
+ * raise usr ems event to send report via mail
+ * 
+ * Version history:
+ * 2020-31-07 Raoul Scholten      Initial version
+ */
+publish data
+ where evt_nam = 'USR-REPORTS'
+|
+get ems source system
+|
+if (@primer_flg and @primer_flg = 1)
+   {
+    /* We must prime the event definition */
+    publish data
+      where evt_msg = "@body"
+        and evt_subj = "Report "||substr (@rpt_id,1,10)|| " for wh "||@wh_id||" Sysmail"
+        and evt_qual = "client_id,wh_id,body,rep_usr_id,rep_locale_id,src_sys, rpt_id"
+        and evt_grp = 'REPORTS' 
+        and evt_pri = "1"
+        and evt_nam = 'USR-REPORTS'
+        and src_sys = @src_sys
+        and lngdsc = "Send usr report via Email"
+        and rpt_id = @rpt_id
+   }
+else
+   {
+    get ems event information where evt_nam = 'USR-REPORTS'
+    |
+    if (@enabled = 1)
+    {
+        log ems event
+          where evt_nam = 'USR-REPORTS'
+            and key_val = sysdate   
+            and src_sys = @src_sys
+            and client_id = @client_id
+            and wh_id = @wh_id
+            and att_app_srv = @att_app_srv
+            and att_path = @att_path
+            and att_file = @att_file
+            and att_rm_file = @att_rm_file
+            and body = @body
+            and rep_usr_id = @rep_usr_id
+            and rep_locale_id = @rep_locale_id
+            and rpt_id = @rpt_id
+    }
+}
+]]>
+</local-syntax>
+</command>

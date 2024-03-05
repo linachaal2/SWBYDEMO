@@ -1,0 +1,8 @@
+======================================================
+Rollout: USR-RFH-WM.00204.DEV.RFF-CFG-012_ADDITIONAL_ODDSIZE_ZONES_V01
+Generation timestamp: 2023-10-12 11:13:05
+======================================================
+
+Release Notes:
+
+-V01: additional odd size locations in the A, C and E zones

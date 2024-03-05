@@ -1,0 +1,822 @@
+<command>
+  <name>process usr host receipt asn</name>
+  <description>process usr host receipt asn</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* process usr host receipt asn
+ * Logic added to handle assets correct
+ * Version history:
+ *  2018-11-02  Jasper, Tim - Added logic to add correct assets if trntyp = R,C,D 
+ *  2018-11-30  Stephan, fix mbuild warn msg: Referenced command not found: subnum
+ *              - create inventory asset type where invtid = nvl(@lodnum, subnum)
+ * 2018-12-10 Marco Schouwenaar correction on asset type if already exist, don;t create a new one!
+ * 2019-02-19 Jasper for trntyp R delete inventory en then change trntyp to R
+ */
+validate stack variable not null
+ where name = 'trntyp'
+|
+/* Validate warehouse ID or set default */
+get warehouse id
+ where @+wh_id
+|
+get client id
+ where client_id = @client_id
+|
+/* Validate that the supnum is a valid supplier for
+ * the given client */
+validate key exists
+ where key = 'supnum, client_id'
+   and table = 'supmst'
+|
+check lpn spanning multiple planned inbound orders
+ where lodnum = @lodnum
+   and subnum = @subnum
+   and dtlnum = @dtlnum
+   and trknum = @trknum
+   and wh_id = @wh_id
+   and client_id = @client_id
+   and supnum = @supnum
+|
+if (@inv_attr_int1 = '')
+{
+    hide stack variable
+     where name = 'inv_attr_int1'
+}
+|
+if (@inv_attr_int2 = '')
+{
+    hide stack variable
+     where name = 'inv_attr_int2'
+}
+|
+if (@inv_attr_int3 = '')
+{
+    hide stack variable
+     where name = 'inv_attr_int3'
+}
+|
+if (@inv_attr_int4 = '')
+{
+    hide stack variable
+     where name = 'inv_attr_int4'
+}
+|
+if (@inv_attr_int5 = '')
+{
+    hide stack variable
+     where name = 'inv_attr_int5'
+}
+|
+if (@inv_attr_flt1 = '')
+{
+    hide stack variable
+     where name = 'inv_attr_flt1'
+}
+|
+if (@inv_attr_flt2 = '')
+{
+    hide stack variable
+     where name = 'inv_attr_flt2'
+}
+|
+if (@inv_attr_flt3 = '')
+{
+    hide stack variable
+     where name = 'inv_attr_flt3'
+}
+|
+/* Validate if Customs Consignment ID is passed
+ * if it is bonded item and customs is installed.
+ */
+get cached policy
+ where polcod = 'SYSTEM-INFORMATION'
+   and polvar = 'MISCELLANEOUS'
+   and polval = 'ADDON_ID'
+   and colnam = 'rtstr1'
+   and colval = 'CUSTOMS'
+   and wh_id = @wh_id catch(-1403)
+|
+if (@? = 0)
+{
+    publish data
+     where cstmsInstalled = 1
+}
+else
+{
+    publish data
+     where cstmsInstalled = 0
+}
+|
+/* Validate if SSCC Prefix is passed in
+ * it should add/remove the prefix based on the warehouse setting.
+ */
+if (@sscc_prefix_flg != null)
+{
+    standardize sscc prefix
+     where sscc_prefix_flg = @sscc_prefix_flg
+       and wh_id = @wh_id
+       and lodnum = @lodnum
+       and subnum = @subnum
+       and dtlnum = @dtlnum
+}
+|
+if (@cstmsInstalled = 1)
+{
+    [select cstms_typ inv_cstms_typ
+       from rcvinv
+      where client_id = @client_id
+        and supnum = @supnum
+        and invnum = @invnum
+        and wh_id = @wh_id]
+    |
+    /*
+     * If consignment generated automatically, get it from rcvlin
+     * if passed in, just use it
+     */
+    [select nvl(@cstms_cnsgnmnt_id, cstms_cnsgnmnt_id) cstms_cnsgnmnt_id,
+            cstms_typ,
+            cstms_cst,
+            cstms_cmmdty_cod,
+            cstms_vat_cod,
+            dflt_orgcod,
+            dty_stmp_trk_flg,
+            cstms_crncy
+       from rcvlin
+      where @+wh_id
+        and trknum = @trknum
+        and invnum = @invnum
+        and supnum = @supnum
+        and client_id = @client_id
+        and invlin = @invlin
+        and invsln = @invsln
+        and @+seqnum] catch(-1403)
+    |
+    /*
+     * when customs type on receipt is C or E, or when rcvlin
+     * has no customs type and customs type on receipt is not F
+     * check the customs related fields from part view.
+     */
+    if ((@inv_cstms_typ = 'C' or @inv_cstms_typ = 'E') or @inv_cstms_typ != 'F' and (@cstms_typ is null or @cstms_typ = ''))
+    {
+        [select cstms_itm_typ cstms_typ,
+                cstms_cst,
+                cstms_cmmdty_cod,
+                cstms_vat_cod,
+                dflt_orgcod,
+                dty_stmp_trk_flg,
+                cstms_crncy
+           from prtmst_view
+          where prtnum = @prtnum
+            and prt_client_id = @prt_client_id
+            and wh_id = @wh_id] catch(-1403)
+        |
+        if ((@cstms_cnsgnmnt_id is null or @cstms_cnsgnmnt_id = '') and (@cstms_typ = 'C' or @cstms_typ = 'E'))
+        {
+            if (@cstms_cnsgnmnt_id is null or @cstms_cnsgnmnt_id = '')
+            {
+                set return status
+                 where status = 802
+                   and errnum = '802'
+                   and argid = 'cstms_cnsgnmnt_id'
+                   and lookup_argdsc = 'cstms_cnsgnmnt_id'
+            }
+        }
+        |
+        if (@inv_cstms_typ = @cstms_typ or @inv_cstms_typ is null or @inv_cstms_typ = '')
+        {
+            publish data
+             where cstmsInstalled = 1
+               and cstms_typ = @cstms_typ
+               and @+cstms_cnsgnmnt_id
+               and @+cstms_cst
+               and @+cstms_cmmdty_cod
+               and @+cstms_vat_cod
+               and @+dflt_orgcod
+               and @+dty_stmp_trk_flg
+               and @+cstms_crncy
+        }
+        else
+        {
+            publish data
+             where cstmsInstalled = 1
+               and cstms_typ = @inv_cstms_typ
+               and @+cstms_cnsgnmnt_id
+        }
+    }
+    /*
+     * When no customs type set on receipt check customs
+     * from receive invoice line
+     */
+    else if (@cstms_typ is not null and @cstms_typ != '' and @cstms_typ != 'F')
+    {
+        publish data
+         where cstmsInstalled = 1
+           and @+cstms_cnsgnmnt_id
+           and @+cstms_typ
+           and @+cstms_cst
+           and @+cstms_cmmdty_cod
+           and @+cstms_vat_cod
+           and @+dflt_orgcod
+           and @+dty_stmp_trk_flg
+           and @+cstms_crncy
+    }
+}
+|
+/*
+ * We need to check dtlnum, subnum, lodnum in turn.
+ * (1) We can't allow duplicated dtlnum in system.
+ * (2) If the subnum or lodnum already exists, make sure that the inventory
+ *     we're adding to that existing load or sub is being received from an
+ *     invoice for the same trknum and same supnum as the original
+ *     inventory.
+ *
+ * Check to see if dtlnum already exists. This check is restricted only for
+ * the transaction type ADD. If TRNTYP is Change/Refresh/Delete, we should
+ * be allowing dtlnum as input.
+ */
+if (@trntyp = 'A' and @dtlnum is not null)
+{
+    [select 'X'
+       from invdtl
+      where dtlnum = @dtlnum] catch(-1403)
+    |
+    if (@? = 0)
+    {
+        /* 10729 - Detail Load Number already exists in the system. */
+        set return status
+         where status = 10729
+    }
+}
+|
+/*
+ * Check to see if the specified subnum and/or lodnum already exists.
+ *
+ * For given lodnum/subnum check
+ * 1. Any of the existing inventory is associated with a master
+ *    receipt other than the one passed in.
+ *   a) If Yes, it implies inventory is associated with another master
+ *      receipt. This kind of inventory mix is an error.
+ * 2. To check the point 1 mentioned above,
+ *   a) For the specified load or case number, find all inventory detail
+ *      records.
+ *   b) Retrieve the corresponding receipt lines.
+ *   c) Look for a master receipt number that is not the same as the
+ *      current master receipt.
+ *   d) The outer join allows inventory information to be retrieved,
+ *      whether or not corresponding receipt lines exist. This indicates
+ *      inventory mix error.
+ *   e) For the receipt line we check for all PK fields except receipt
+ *      number, line, subline and sequence number because these may be
+ *      different for other receipts.
+ *   f) If the trknum is null then the subnum/lodnum already exist but not
+ *      for any master receipt. Return a general error message.
+ */
+if (@subnum is not null)
+{
+    [select decode(max(rcvlin.trknum), null, 0, 1) other_truck
+       from invdtl
+       join invsub
+         on invdtl.subnum = invsub.subnum
+       left
+       join rcvlin
+         on rcvlin.rcvkey = invdtl.rcvkey
+        and (rcvlin.trknum != @trknum or rcvlin.wh_id != @wh_id or (0 = @lpn_multi_rcvinv and (rcvlin.supnum != @supnum or rcvlin.client_id != @client_id)))
+      where invsub.subnum = @subnum
+      group by rcvlin.trknum] catch(-1403)
+    |
+    /* Inventory mix would result, give an error message */
+    if (@? = 0)
+    {
+        if (@other_truck = 1)
+        {
+            /* 10763 - Sub load already exists. Can't receive inventory from
+             * two different Master Receipts or suppliers on the same sub
+             * load.
+             */
+            set return status
+             where status = 10763
+        }
+        else
+        {
+            [select rcvlin.trknum trknum
+               from invdtl
+               join invsub
+                 on invdtl.subnum = invsub.subnum
+               left
+               join rcvlin
+                 on rcvlin.rcvkey = invdtl.rcvkey
+                and (rcvlin.trknum = @trknum and rcvlin.wh_id = @wh_id and (1 = @lpn_multi_rcvinv or (rcvlin.supnum = @supnum and rcvlin.client_id = @client_id)))
+              where invsub.subnum = @subnum
+              group by rcvlin.trknum] catch(-1403)
+            |
+            if (@? = 0)
+            {
+                if (@trknum is null)
+                {
+                    /* 10728 - Sub Load Number already exists in the system */
+                    set return status
+                     where status = 10728
+                }
+            }
+        }
+    }
+}
+|
+if (@lodnum is not null)
+{
+    [select decode(max(rcvlin.trknum), null, 0, 1) other_truck
+       from invdtl
+       join invsub
+         on invdtl.subnum = invsub.subnum
+       left
+       join rcvlin
+         on rcvlin.rcvkey = invdtl.rcvkey
+        and (rcvlin.trknum != @trknum or rcvlin.wh_id != @wh_id or (0 = @lpn_multi_rcvinv and (rcvlin.supnum != @supnum or rcvlin.client_id != @client_id)))
+      where invsub.lodnum = @lodnum
+      group by rcvlin.trknum] catch(-1403)
+    |
+    /* Inventory mix would result, give an error message */
+    if (@? = 0)
+    {
+        if (@other_truck = 1)
+        {
+            /* 10762 - Load already exists. Can't receive inventory from two
+             * different Master Receipts or suppliers on the same load.
+             */
+            set return status
+             where status = 10762
+        }
+        else
+        {
+            [select rcvlin.trknum trknum
+               from invdtl
+               join invsub
+                 on invdtl.subnum = invsub.subnum
+               left
+               join rcvlin
+                 on rcvlin.rcvkey = invdtl.rcvkey
+                and (rcvlin.trknum = @trknum and rcvlin.wh_id = @wh_id and (1 = @lpn_multi_rcvinv or (rcvlin.supnum = @supnum and rcvlin.client_id = @client_id)))
+              where invsub.lodnum = @lodnum
+              group by rcvlin.trknum] catch(-1403)
+            |
+            if (@? = 0)
+            {
+                if (@trknum is null)
+                {
+                    /*10663 - Load Number already exists in the system */
+                    set return status
+                     where status = 10663
+                }
+            }
+        }
+    }
+}
+|
+/* System will support Refresh, Change and Delete transactions if the
+ * trailer is not checked in or receiving did not begin. Otherwise, it means
+ * that inventory identify has already begun and getting the LMS goal time
+ * may not be required. We will check for the trailer status and return error
+ * message if it is already checked in.
+ */
+if (@trntyp = 'C' or @trntyp = 'R' or @trntyp = 'D')
+{
+    /* 'EX' - Expected, 'OR' - Open For Receiving */
+    [select 'X'
+       from trlr
+      where trlr_num = @trknum
+        and trlr_stat not in ('EX', 'OR')
+        and rownum < 2] catch(-1403)
+    |
+    if (@? = 0)
+    {
+        /* eAPP_INVALID_ARG */
+        set return status
+         where status = 2003
+           and errnum = '2003'
+           and argval = @trntyp
+           and lookup_argdsc = 'trntyp'
+    }
+}
+|
+/* If inventory does not exist, we need to change trntyp
+ * to 'A' mode.
+ */
+if (@trntyp = 'R')
+{
+    if (@dtlnum is not null and @dtlnum <> '')
+    {
+        [select 'x'
+           from invdtl
+          where dtlnum = @dtlnum] catch(-1403)
+        |
+        if (@? = -1403)
+        {
+            publish data
+             where trntyp = 'A'
+        }
+    }
+    else if (@subnum is not null and @subnum <> '')
+    {
+        [select 'x'
+           from invsub
+          where subnum = @subnum] catch(-1403)
+        |
+        if (@? = -1403)
+        {
+            publish data
+             where trntyp = 'A'
+        }
+    }
+    else if (@lodnum is not null and @lodnum <> '')
+    {
+        [select 'x'
+           from invlod
+          where lodnum = @lodnum] catch(-1403)
+        |
+        if (@? = -1403)
+        {
+            publish data
+             where trntyp = 'A'
+        }
+    }
+    |
+    publish data
+     where trntyp = @trntyp
+}
+|
+/* we get default ftpcod as ftpcod if not available.
+ */
+if (@ftpcod is null)
+{
+    [select pf.ftpcod ftpcod
+       from prtftp pf
+      where pf.defftp_flg = 1
+        and pf.prtnum = @prtnum
+        and pf.prt_client_id = @prt_client_id
+        and pf.wh_id = @wh_id
+        and rownum < 2]
+}
+|
+/* we get default case qty as untcas if not available.
+ * Added a check on ftpcod to get the correct quantity
+ */
+if (@untcas is null)
+{
+    [select pd.untqty untcas
+       from prtftp pf,
+            prtftp_dtl pd
+      where pf.prtnum = pd.prtnum
+        and pf.prt_client_id = pd.prt_client_id
+        and pf.wh_id = pd.wh_id
+        and pf.ftpcod = pd.ftpcod
+        and pf.ftpcod = @ftpcod
+        and pd.cas_flg = 1
+        and pd.prtnum = @prtnum
+        and pd.prt_client_id = @prt_client_id
+        and pd.wh_id = @wh_id
+        and rownum < 2]
+}
+|
+/* we get default pak qty as untpak if not available,
+ * if part footprint didn't configure it, default it with 1.
+ * Added a check on ftpcod to get the correct quantity
+ */
+if (@untpak is null)
+{
+    [select pd.untqty untpak
+       from prtftp pf,
+            prtftp_dtl pd
+      where pf.prtnum = pd.prtnum
+        and pf.prt_client_id = pd.prt_client_id
+        and pf.wh_id = pd.wh_id
+        and pf.ftpcod = pd.ftpcod
+        and pf.ftpcod = @ftpcod
+        and pd.pak_flg = 1
+        and pd.prtnum = @prtnum
+        and pd.prt_client_id = @prt_client_id
+        and pd.wh_id = @wh_id
+        and rownum < 2] catch(-1403)
+    |
+    if (@? = 0)
+    {
+        publish data
+         where untpak = @untpak
+    }
+    else
+    {
+        publish data
+         where untpak = 1
+    }
+}
+|
+if (@trntyp = 'R')
+{
+    /* Check if loducc change is requested,if yes, check it is not
+     * associated with any other palette
+     */
+    if (@loducc is not null)
+    {
+        [select invlod.loducc db_loducc
+           from invlod
+          where invlod.lodnum = @lodnum] catch(-1403)
+        |
+        if (@loducc != @db_loducc)
+        {
+            [select 'x'
+               from invlod
+              where invlod.loducc = @loducc] catch(-1403)
+            |
+            /*If subUCC already exists for different case, Return with error */
+            if (@? = 0)
+            {
+                set return status
+                 where status = 12041
+            }
+        }
+    }
+    |
+    /* Check if subucc change is requested,if yes, check it is not
+     * associated with any other case
+     */
+    if (@subucc is not null)
+    {
+        [select invsub.subucc db_subucc
+           from invsub
+          where invsub.subnum = @subnum] catch(-1403)
+        |
+        if (@subucc != @db_subucc)
+        {
+            [select 'x'
+               from invsub
+              where invsub.subucc = @subucc] catch(-1403)
+            |
+            /*If subUCC already exists for different case, Return with error */
+            if (@? = 0)
+            {
+                set return status
+                 where status = 12042
+            }
+        }
+    }
+    |
+    /* Here system will support delete and change. but we also should support
+     * the following scanario:
+     * Multiple segments have one or more of the same lodnum/subnum/dtlnum
+     * and the same prtnum etc, but there are some different other attributes
+     * which don't affect mix in the same load.
+     * here we just catch 502 error, as we only handle this specific scenario.
+     * we throw out the other errors or exception so that keep the same logic
+     * with original design.
+     */
+    /*refresh host receipt asn catch(502)|*/
+    /* If error is 502 then perform below checks.
+     * If any other error then throw out the error.
+     */
+    /*if (@? = 502)
+       {
+       if (@lodnum is not null or @subnum is not null or @dtlnum is not null)
+       {
+       publish data
+       where trntyp = 'A'
+       }
+       else
+       {
+       set return status
+       where status = 502
+       }
+       }*/
+    hide usr stack
+     where exclude_variables = 'lodnum,subnum,dtlnum'
+    |
+    if (@lodnum or @subnum or @dtlnum)
+    {
+        [select invdtl.*
+           from invdtl
+          inner
+           join invsub
+             on invdtl.subnum = invsub.subnum
+          inner
+           join invlod
+             on invlod.lodnum = invsub.lodnum
+          where invlod.lodnum = @lodnum
+            and @+invsub.subnum
+            and @+invdtl.dtlnum] catch(-1403)
+        |
+        if (@? != -1403)
+        {
+            delete inventory for process host receipt asn
+        }
+    }
+    |
+    publish data
+     where trntyp = 'A'
+}
+|
+/* Here, the expl
+   ode inventory portion is added to serial number capture.
+ * The purpose of doing this is if the serialization level on this
+ * inventory's part is less than it's load level (i.e. lodlvl = 'L' and
+ * ser_lvl = 'S') we need to expand the inventory into cases if they are not
+ * already. This is because a serial number will need to be associated with
+ * the new subnum. The same logic applies if the ser_lvl calls for detail
+ * serialization. The latter command handles this logic and requires the
+ * parameters from create inventory.
+ */
+if (@trntyp = 'A')
+{
+    if (@loducc is not null)
+    {
+        validate load ucc
+         where lodnum = @lodnum
+           and loducc = @loducc
+           and trntyp = @trntyp
+    }
+    |
+    if (@subucc is not null)
+    {
+        validate sub ucc
+         where subnum = @subnum
+           and subucc = @subucc
+           and trntyp = @trntyp
+    }
+    |
+    /* If there is an aging profile and either a manuafacture date or expiration date passed in
+       Adjust the status based on the progression. THis scenario works with mandte, expire_dte or both */
+    if (@age_pflnam and (@mandte or @expire_dte))
+    {
+        /* Only process aging profile inventory status changes if the current status is a part of the aging
+         * profile.
+         */
+        list aging profiles
+         where age_pflnam = @age_pflnam
+           and invsts = @invsts catch(-1403)
+        |
+        if (@? = 0)
+        {
+            get inventory status
+             where age_pflnam = @age_pflnam
+               and invsts = @invsts
+               and mandte = @mandte
+               and expire_dte = @expire_dte catch(-1403)
+            |
+            if (@? = 0 and @new_invsts <> null and @new_invsts <> '')
+            {
+                publish data
+                 where invsts = @new_invsts
+            }
+        }
+        else
+        {
+            /* Make sure the inventory status we've been given is valid. Don't use
+             * "list inventory statuses" here as it'll pick up age_pflnam on the
+             *  stack and execute a list that suppresses no rows found.
+             */
+            list code descriptions
+             where colnam = 'invsts'
+               and codval = @invsts catch(-1403)
+            |
+            if (@? != 0)
+            {
+                set return status
+                 where status = 2003
+                   and argval = @invsts
+                   and lookup_argdsc = 'invsts'
+            }
+        }
+    }
+    |
+    create inventory
+    |
+    process host explode inventory for serialization
+    |
+    if (!@asset_typ)
+    {
+        [select def_asset_typ asset_typ
+           from prtftp
+          where prtnum = @prtnum
+            and prt_client_id = @prt_client_id
+            and wh_id = @wh_id
+            and ftpcod = @ftpcod
+            and def_asset_typ is not null] catch(-1403)
+    }
+    |
+    if (@asset_typ)
+    {
+        /* Ensure Asset Type is non-serialized */
+        [select 1
+           from asset_typ
+          where asset_typ.asset_typ = @asset_typ
+            and asset_typ.ser_flg = 0] catch(-1403)
+        |
+        if (@? = 0)
+        {
+            /* Get current expected and identified quantities */
+            [select rcv_asset_key,
+                    idnqty updidnqty,
+                    expqty updexpqty
+               from rcv_asset
+              where supnum = @supnum
+                and invnum = @invnum
+                and trknum = @trknum
+                and client_id = @client_id
+                and wh_id = @wh_id
+                and asset_typ = @asset_typ] catch(-1403)
+            |
+            if (@? = -1403)
+            {
+                create usr receiving asset
+                 where trknum = @trknum
+                   and invnum = @invnum
+                   and supnum = @supnum
+                   and client_id = @client_id
+                   and asset_typ = @asset_typ
+                   and asset_stat = 'ACT'
+                   and wh_id = @wh_id
+                /*quantites for assets in ASN Segment hardcoded set to 1 because for RFH it's hard linked to Lodnum (Stapelwagen/Deen)*/
+                   and expqty = 1
+                   and idnqty = 1
+                |
+                create usr inventory asset type
+                 where invtid = @dstlod
+                   and asset_typ = @asset_typ
+                   and client_id = @client_id
+                /*quantites for assets in ASN Segment hardcoded set to 1 because for RFH it's hard linked to Lodnum (Stapelwagen/Deen)*/
+                   and untqty = 1
+                   and wh_id = @wh_id
+                   and skip_non_ser_asset_mod = 1
+            }
+        }
+    }
+}
+else if (@trntyp = 'C')
+{
+    /* Check if loducc change is requested,if yes, check it is not
+     * associated with any other palette
+     */
+    if (@loducc is not null)
+    {
+        validate load ucc
+         where lodnum = @lodnum
+           and loducc = @loducc
+           and trntyp = @trntyp
+    }
+    |
+    /* Check if subucc change is requested,if yes, check it is not
+     * associated with any other case
+     */
+    if (@subucc is not null)
+    {
+        validate sub ucc
+         where subnum = @subnum
+           and subucc = @subucc
+           and trntyp = @trntyp
+    }
+    |
+    change host receipt asn
+}
+else if (@trntyp = 'D')
+{
+    delete inventory for process host receipt asn
+}
+else
+{
+    /*
+     * as the trntyp has been handled by last logic.
+     * so if the trntyp is still 'R', we think it's normal.
+     */
+    if (@trntyp != 'R')
+    {
+        /* eAPP_INVALID_ARG */
+        set return status
+         where status = 2003
+           and errnum = '2003'
+           and argval = @trntyp
+           and lookup_argdsc = 'trntyp'
+    }
+}
+]]>
+</local-syntax>
+  <documentation>
+<remarks></remarks>
+<exception value="eOK">Normal successful completion</exception>
+<exception value="eLODNUM_EXISTS_NOT_FROM_SAME_TRUCK">Load already exists. Can't
+ receive inventory from two different trucks or suppliers on the same load.
+</exception>
+<exception value="eSUBNUM_EXISTS_NOT_FROM_SAME_TRUCK">Sub load already exists.
+Can't receive inventory from two different trucks or suppliers on the same sub
+ load.</exception>
+<exception value="eINT_DTLNUM_EXISTS">Detail Load Number already exists in the
+ system but transaction type is Add.</exception>
+<exception value="eMOCA_MISSING_ARG">Missing argument Transaction Type
+</exception>
+<exception value="eAPP_INVALID_ARG ">Invalid argument Transaction Type
+</exception>
+<seealso cref="create inventory"></seealso>
+<seealso cref="process host explode inventory for serialization"></seealso>
+<seealso cref="change host receipt asn"></seealso>
+<seealso cref="refresh host receipt asn"></seealso>
+<seealso cref="delete inventory for process host receipt asn"></seealso>
+
+</documentation>
+</command>

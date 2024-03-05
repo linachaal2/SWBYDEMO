@@ -1,0 +1,12 @@
+<trigger>
+  <name>raise usr ems event for allocate wave</name>
+  <on-command>register pick group allocation complete</on-command>
+  <description>raise usr ems event for allocate wave</description>
+  <fire-sequence>90000</fire-sequence>
+  <local-syntax>
+<![CDATA[
+raise usr ems event for allocate wave
+]]>
+</local-syntax>
+  <enable>yes</enable>
+</trigger>

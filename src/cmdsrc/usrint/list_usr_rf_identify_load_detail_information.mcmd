@@ -1,0 +1,91 @@
+<command>
+  <name>list usr rf identify load detail information</name>
+  <description>list usr rf identify load detail information</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* list usr rf identify load detail information
+ * Lists information for the loads entered in the USR_IDENTIFY_LOAD screen.
+ * Version history:
+ *  2018-09-10  Salem Hamze  Initial version.
+ */
+get warehouse id
+|
+publish data
+ where devcod = nvl(@devcod, @@devcod)
+|
+/* Get the loads which were scanned by the user. */
+[select value
+   from device_context
+  where wh_id = @wh_id
+    and devcod = @devcod
+    and dev_varnam in ('USR_IDENTIFY_LOAD|LODNUM', 'USR_IDENTIFY_LOAD|FINISH_IDENTIFIER')] catch(-1403) >> res_loads
+|
+if (@? != -1403)
+{
+    convert column results to string
+     where resultset = @res_loads
+       and colnam = 'value'
+    |
+    convert list to in clause
+     where string = @result_string
+       and table_prefix = 'invlod'
+       and column_name = 'lodnum'
+       and separator = ','
+    |
+    /* List the inventory details. Always include invdtl.dtlnum in the order by to have a unique order. */
+    [select decode(dc_invadj.dev_varnam, null, '', 'X') as invadj_ind,
+            invlod.lodnum,
+            nvl(invdtl.inv_attr_str8, invlod.lodnum) as barcode,
+            invdtl.dtlnum,
+            invdtl.prt_client_id,
+            invdtl.prtnum,
+            invdtl.lotnum,
+            invdtl.inv_attr_str8,
+            invdtl.untqty as org_untqty,
+            decode(dc_invadj.untqty_flg, 1, dc_invadj.untqty, invdtl.untqty) as untqty,
+            null as org_reacod,
+            decode(dc_invadj.reacod_flg, 1, dc_invadj.reacod, null) as reacod
+       from invlod
+      inner
+       join invsub
+         on invsub.lodnum = invlod.lodnum
+      inner
+       join invdtl
+         on invdtl.subnum = invsub.subnum
+      inner
+       join rcvlin
+         on rcvlin.rcvkey = invdtl.rcvkey
+      inner
+       join rcvinv
+         on rcvinv.trknum = rcvlin.trknum
+        and rcvinv.supnum = rcvlin.supnum
+        and rcvinv.invnum = rcvlin.invnum
+        and rcvinv.wh_id = rcvlin.wh_id
+        and rcvinv.client_id = rcvlin.client_id
+       left
+       join (select device_context.wh_id,
+                    device_context.devcod,
+                    device_context.dev_varnam,
+                    max(decode(substr(device_context.value, 0, instr(device_context.value, ':')), 'UNTQTY', 1, 0)) as untqty_flg,
+                    max(decode(substr(device_context.value, 0, instr(device_context.value, ':')), 'UNTQTY', substr(device_context.value, instr(device_context.value, ':') + 1))) as untqty,
+                    max(decode(substr(device_context.value, 0, instr(device_context.value, ':')), 'REACOD', 1, 0)) as reacod_flg,
+                    max(decode(substr(device_context.value, 0, instr(device_context.value, ':')), 'REACOD', substr(device_context.value, instr(device_context.value, ':') + 1))) as reacod
+               from device_context
+              where device_context.dev_varnam like 'USR_IDENTIFY_LOAD_ADJ_DTL|DTLNUM:%'
+              group by device_context.devcod,
+                    device_context.wh_id,
+                    device_context.dev_varnam) dc_invadj
+         on dc_invadj.dev_varnam = 'USR_IDENTIFY_LOAD_ADJ_DTL|DTLNUM:' || invdtl.dtlnum
+        and dc_invadj.devcod = @devcod
+        and dc_invadj.wh_id = @wh_id
+      where @in_clause:raw
+        and @+invdtl.dtlnum
+      order by nvl(invdtl.inv_attr_str8, invlod.lodnum),
+            invdtl.lotnum,
+            invdtl.dtlnum] catch(-1403)
+}
+]]>
+</local-syntax>
+  <argument name="dtlnum" datatype="string">Detail number</argument>
+</command>

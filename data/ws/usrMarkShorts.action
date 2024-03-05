@@ -1,0 +1,21 @@
+<action>
+  <id>usrMarkShorts</id>
+  <name>Mark Short</name>
+  <description>Mark Short as processed</description>
+  <type>ACTION</type>
+  <ws>
+     <method>GET</method>
+	 <href>/usrMarkShorts</href>
+  </ws>
+  <impl>
+     <command>mark usr short</command>
+	 <arguments>
+         <argument name="rplref" type="string" required="true"  description="Replenishment Reference" />
+         <argument name="prtnum" type="string" required="true"  description="Item Number" />
+         <argument name="lotnum" type="string" required="true"  description="Lot Number" />
+     </arguments>
+  </impl>
+  <auth>
+     <opt>optOpen</opt>
+  </auth>
+</action>

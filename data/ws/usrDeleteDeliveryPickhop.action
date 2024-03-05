@@ -1,0 +1,22 @@
+<action>
+  <id>usrDeleteDeliveryPickhop</id>
+  <name>usrDeleteDeliveryPickhop</name>
+  <description>Delete Delivery Pickhop</description>
+  <type>DELETE</type>
+  <ws>
+     <method>DELETE</method>
+	 <href>usrDeleteDeliveryPickhop/{pk}</href>
+  </ws>
+  <impl>
+     <command>remove usr delivery pickhop</command>
+     <arguments>
+        <argument name="uc_delivery_id" type="int" required="true" location="path" />
+        <argument name="dst_mov_zone_id" type="int" required="true" location="path" />
+        <argument name="seqnum" type="int" required="true" location="path" />
+     </arguments>
+  </impl>
+  <auth>
+     <opt>optOpen</opt>
+  </auth>
+  <primary>true</primary>
+</action>

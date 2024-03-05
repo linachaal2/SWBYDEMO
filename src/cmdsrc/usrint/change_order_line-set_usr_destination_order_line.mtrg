@@ -1,0 +1,71 @@
+<trigger>
+  <name>set usr destination order line</name>
+  <on-command>change order line</on-command>
+  <description />
+  <fire-sequence>500</fire-sequence>
+  <local-syntax>
+<![CDATA[
+
+[select ord.rt_adr_id as routeto,
+        ord.st_adr_id as shipto,
+        nvl(rt_loc.stoloc, '-') as routetoloc,
+        nvl(st_loc.stoloc, '-') as shiptoloc
+   from ord
+   join adrmst rt
+     on rt.adr_id = ord.rt_adr_id
+   join adrmst st
+     on st.adr_id = ord.st_adr_id
+   left join usr_gln_location rt_loc
+     on rt.host_ext_id = rt_loc.gln
+    and rt_loc.wh_id = ord.wh_id
+   left join usr_gln_location st_loc
+     on st.host_ext_id = st_loc.gln
+    and st_loc.wh_id = ord.wh_id
+  where ord.ordnum = @ordnum
+    and ord.wh_id = @wh_id
+    and ord.client_id = @client_id] catch (-1403)
+|
+if (@? = 0 and (@routetoloc != '-' or @shiptoloc != '-'))
+{
+    [select stoloc as destloc,
+            mov_zone_id as destzone
+       from locmst
+      where stoloc = @routetoloc
+        and wh_id = @wh_id] catch(-1403)
+    |
+    if (@? = 0)
+    {
+        [update ord_line
+            set dst_mov_zone_id = @destzone,
+                dstloc = @destloc
+          where ordlin = @ordlin
+            and ordsln = @ordsln
+            and wh_id = @wh_id
+            and client_id = @client_id
+            and ordnum = @ordnum] catch(@?)
+    }
+    else
+    {
+        [select stoloc as destloc,
+                mov_zone_id as destzone
+           from locmst
+          where stoloc = @shiptoloc
+            and wh_id = @wh_id] catch(-1403)
+        |
+        if (@? = 0)
+        {
+            [update ord_line
+                set dst_mov_zone_id = @destzone,
+                    dstloc=@destloc
+              where ordlin = @ordlin
+                and ordsln = @ordsln
+                and wh_id = @wh_id
+                and client_id = @client_id
+                and ordnum = @ordnum] catch(@?)
+        }
+    }
+}
+]]>
+</local-syntax>
+  <enable>yes</enable>
+</trigger>

@@ -1,0 +1,16 @@
+<trigger>
+  <name>process usr merge pick list slots</name>
+  <on-command>complete rf pick list</on-command>
+  <description />
+  <fire-sequence>1000</fire-sequence>
+  <local-syntax>
+<![CDATA[
+
+    process usr merge pick list slots
+      where list_id = @list_id
+        and wh_id = @wh_id
+
+]]>
+</local-syntax>
+  <enable>yes</enable>
+</trigger>

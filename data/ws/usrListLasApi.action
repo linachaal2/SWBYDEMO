@@ -1,0 +1,23 @@
+<action>
+  <id>ListLasApi</id>
+  <name>ListLasApi</name>
+  <description>List LAS API fields</description>
+  <type>LIST</type>
+  <ws>
+     <method>GET</method>
+	 <href>/LAS</href>
+  </ws>
+  <impl>
+     <command>list usr las api fields</command>
+  	 <!--arguments>
+		<argument name ="wh_id" type="string" location="body" required="true" description="subsidiary Code"/>
+		<argument name ="lotnum" type="string" location="body" required="false" description="batch number"/>
+		<argument name ="lodnum" type="string" location="body" required="false" description="trolley number"/>
+		<argument name ="ordnum" type="string" location="body" required="false" description="order number"/>
+		<argument name ="inv_attr_str8" type="string" location="body" required="false" description="PAB"/>
+	 </arguments-->
+  </impl>
+  <auth>
+     <opt>optOpen</opt>
+  </auth>
+</action>

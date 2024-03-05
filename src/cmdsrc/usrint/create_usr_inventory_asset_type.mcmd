@@ -1,0 +1,236 @@
+<command>
+  <name>create usr inventory asset type</name>
+  <description>create usr inventory asset type</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* create usr inventory asset type
+ *
+ * Version history:
+ *  2018-11-08 Jasper Removed update in rcv_asset
+ */
+/*
+    ** Create inv_asset using asset_typ,invtid,untqty,moddte,mod_usr_id
+    */
+    validate stack variable not null
+        where name = 'invtid'
+    |
+    validate stack variable not null
+        where name = 'asset_typ'
+    |
+    validate key exists
+        where key = 'asset_typ'
+          and table = 'asset_typ'
+    |
+    publish data where wh_id = nvl(@wh_id, @@wh_id)
+    |
+    /*
+    ** We get the ser_flg to be used later
+    */
+    [select ser_flg
+       from asset_typ
+      where asset_typ = @asset_typ]
+    |
+    check asset category enabled configuration
+        where asset_cat = 'INV'
+          and wh_id = @wh_id
+    |
+    if (@ena_flg = 1 and @ser_flg = 0)
+    {
+        /*
+        ** Fetching the prt_client_id from inventory_view  set it in client_id field.
+        */
+        if(!@client_id)
+        {
+            [select inv.prt_client_id client_id
+               from (
+                     /* Retrieve inventory for the provided inventoy id.
+                      * Use a UNION ALL instead of and OR to prevent a
+                      * significant performance issue.
+                      */
+                     select inventory_view.prt_client_id
+                       from inventory_view
+                      where inventory_view.subnum = @invtid
+                        and inventory_view.wh_id = @wh_id
+                      union all
+                     select inventory_view.prt_client_id
+                       from inventory_view
+                      where inventory_view.lodnum = @invtid
+                        and inventory_view.wh_id = @wh_id
+                    ) inv
+              where rownum = 1] catch(-1403)
+        }
+        |
+        /*
+        ** Checking if it's the platform asset, or if the additional asset is similar to platform asset
+        */
+        validate platform asset for inventory
+            where invtid = @invtid
+              and asset_typ = @asset_typ
+              and wh_id = @wh_id
+        |
+        if(@plat_asset_flg = 1)
+        {
+            /*
+            ** Retrieve the No of assets from INV_ASSET.
+            */
+            [select untqty old_untqty
+               from inv_asset
+              where asset_typ = @asset_typ
+                and invtid = @invtid] catch(-1403)
+            |
+            if(@? = -1403)
+            {
+                create record
+                    where table = 'inv_asset'
+                      and asset_typ = @asset_typ
+                      and invtid = @invtid
+                      and untqty = 1
+                      and client_id = nvl(@client_id,'----')
+                      and ins_user_id = @@usr_id
+                      and ins_dt = sysdate
+                      and moddte = sysdate
+                      and mod_usr_id = @@usr_id
+                |
+                publish data
+                    where platform_flg = 1
+            }
+            else if(@untqty and @?= 0)
+            {
+                /*
+                ** additional asset is same as platform asset
+                */
+                [update inv_asset
+                    set untqty = @untqty
+                  where asset_typ = @asset_typ
+                    and invtid = @invtid] catch(-1403)
+            }
+        }
+        else
+        {
+            /*
+            ** Not a platform asset, neither is the additional asset  similar to platform asset
+            */
+            create record
+                where table = 'inv_asset'
+                  and asset_typ = @asset_typ
+                  and invtid = @invtid
+                  and untqty = nvl(@untqty,1)
+                  and client_id = nvl(@client_id,'----')
+                  and ins_user_id = @@usr_id
+                  and ins_dt = sysdate
+                  and moddte = sysdate
+                  and mod_usr_id = @@usr_id
+            |
+            /*
+            ** check for non-four wall location to update rcv_asset
+            */
+            [select distinct inventory_view.stoloc,
+                    rcvlin.supnum,
+                    rcvlin.invnum,
+                    rcvlin.rcvsts,
+                    rcvlin.client_id
+              from (
+                    /* Retrieve inventory for the provided inventoy id.
+                     * Use a UNION ALL instead of and OR to prevent a
+                     * significant performance issue.
+                     */
+                    select inventory_view.stoloc, inventory_view.rcvkey, inventory_view.wh_id
+                      from inventory_view
+                     where inventory_view.lodnum = @invtid
+                     union all
+                    select inventory_view.stoloc, inventory_view.rcvkey, inventory_view.wh_id
+                      from inventory_view
+                     where inventory_view.subnum = @invtid
+                   ) inventory_view
+              join locmst
+                on locmst.stoloc = inventory_view.stoloc
+               and locmst.wh_id = inventory_view.wh_id
+              join loc_typ
+                on loc_typ.loc_typ_id = locmst.loc_typ_id
+              join rcvlin
+                on rcvlin.rcvkey = inventory_view.rcvkey
+               and rcvlin.trknum = inventory_view.stoloc
+               and rcvlin.wh_id = inventory_view.wh_id
+             where locmst.wh_id = @wh_id
+               and loc_typ.fwiflg = 0
+               and loc_typ.rcvwo_non_fwiflg = 0]catch(-1403)
+            |
+            if(@ ? = 0 )
+            {
+                /*
+                ** Identifier is in a non-four wall location
+                */
+                /*
+                ** We have already taken care of RCV_ASSET for platform assets.
+                ** through Identify process. So only update RCV_ASSET if it is non-platform asset.
+                */
+                identify assets against receive line
+                    where trknum = @stoloc
+                      and asset_typ = @asset_typ
+                      and supnum = @supnum
+                      and client_id = @client_id
+                      and invnum = @invnum
+                      and asset_qty = (@untqty - @old_untqty)
+                |
+                [select rcv_asset_key,
+                        idnqty updidnqty
+                   from rcv_asset
+                  where supnum = @supnum
+                    and invnum = @invnum
+                    and trknum = @stoloc
+                    and client_id = @client_id
+                    and wh_id = @wh_id
+                    and asset_typ = @asset_typ
+                    and asset_stat = 'ACT']catch(-1403)
+                |
+                if(@? !=0)
+                {
+                    /*
+                    ** We do not have RCV_ASSET entries, create here
+                    */
+                    create receive asset
+                        where asset_stat = 'ACT'
+                          and asset_typ = @asset_typ
+                          and client_id = @client_id
+                          and idnqty = nvl(@untqty,1)
+                          and invnum = @invnum
+                          and supnum = @supnum
+                          and trknum = @stoloc
+                          and wh_id  = @wh_id
+                }
+            }
+            else
+            {
+                /*
+                ** This part of the else gets executed if we are trying to identify additional assets for
+                ** inventory which is in a four walled location . The command is used to update the
+                ** on_hand_qty for the additional asset in non_ser_asset table.As we take care of the
+                ** platform assets from the GUI/Rf screens ,we just need to take care of additional assets here
+                ** The on hand quantity (on_hand_qty) will be updated with the quantity of the
+                ** additional asset being identified (untqty)
+                */
+                create inventory asset
+                    where client_id  = nvl(@client_id,@prt_client_id)
+                      and asset_stat = 'ACT'
+                      and wh_id = @wh_id
+                      and on_hand_qty = @untqty
+                      and asset_typ = @asset_typ
+                      and skip_non_ser_asset_mod = @skip_non_ser_asset_mod
+            }
+        }
+    }
+]]>
+</local-syntax>
+  <argument name="asset_typ" required="yes" datatype="string">Asset Type</argument>
+  <argument name="invtid" required="yes" datatype="string">Inventory Id</argument>
+  <argument name="untqty" required="yes" datatype="integer">Unit Quantity</argument>
+  <argument name="client_id" datatype="string">Client ID</argument>
+  <documentation>
+<remarks></remarks>
+<exception value="eOK">Normal successful completion</exception>
+<seealso cref="change inventory asset type"></seealso>
+<seealso cref="remove inventory asset type"></seealso>
+
+</documentation>
+</command>

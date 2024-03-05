@@ -1,0 +1,46 @@
+<trigger>
+  <name>migrate usr vas detail</name>
+  <on-command>migrate dispatched inventory</on-command>
+  <description>Migrate usr vas inventory detail</description>
+  <fire-sequence>1000</fire-sequence>
+  <local-syntax>
+<![CDATA[
+/* Trigger to migrate vas details for migrated inventory details
+ * Do not use the create record functionality of Blue Yonder, insert and update details will be reset!!
+ *
+ * Version history:
+ *  2023-02-17 Marco Schouwenaar   Initial version
+ */
+list table columns where table = 'usr_invdtl_vas' >> res
+|
+convert column results to string
+       where resultset = @res
+         and colnam = 'column_name'
+         and separator = ','
+|
+publish data where invdtlvasColumns = @result_string
+|
+/* Move associated invdtl vas entries to usr_invdt_vas_hist */
+[select invdtl_hist.inv_hist_id, invdtl_hist.dtlnum from invdtl_hist, usr_invdtl_vas
+  where usr_invdtl_vas.dtlnum = invdtl_hist.dtlnum group by invdtl_hist.inv_hist_id, invdtl_hist.dtlnum] catch(-1403)
+  |
+  if (@?=0)
+  {
+[insert
+   into usr_invdtl_vas_hist(inv_hist_id, @invdtlvasColumns:raw)
+ select @inv_hist_id inv_hist_id,
+        @invdtlvasColumns:raw
+   from usr_invdtl_vas
+  where usr_invdtl_vas.dtlnum = @dtlnum] catch(-1403)
+  }
+  ;
+/* Remove the usr_invdt_vas records that were transferred. */
+[delete
+   from usr_invdtl_vas
+  where exists(select 'x'
+                 from usr_invdtl_vas_hist
+                where usr_invdtl_vas_hist.dtlnum=usr_invdtl_vas.dtlnum)] catch(-1403)
+]]>
+</local-syntax>
+  <enable>yes</enable>
+</trigger>

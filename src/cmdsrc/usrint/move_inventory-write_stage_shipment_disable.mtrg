@@ -1,0 +1,6 @@
+<trigger>
+<name>write_stage_shipment</name>
+<on-command>move inventory</on-command>
+<fire-sequence>9450</fire-sequence>
+<disable>yes</disable>
+</trigger>

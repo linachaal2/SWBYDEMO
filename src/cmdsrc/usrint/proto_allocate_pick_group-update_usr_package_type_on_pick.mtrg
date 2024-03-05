@@ -1,0 +1,68 @@
+<trigger>
+  <name>update usr package type on pick</name>
+  <on-command>proto allocate pick group</on-command>
+  <description />
+  <fire-sequence>9000</fire-sequence>
+  <local-syntax>
+<![CDATA[
+/* Trigger to set the correct inv_attr_str2 on the pick to be further used when creating pick lists
+ *
+ *
+ * Version history:
+ *  2022-03-17  Radina Ivanova    Initial version
+ */
+[select distinct 1
+   from poldat_view
+  where polcod = 'USR-PICKING'
+    and polvar = 'CUBING'
+    and polval = 'ENABLED'
+    and wh_id = @wh_id
+    and rtnum1 = 1] catch(-1403)
+|
+if (@? = 0)
+{
+    [select field_name, value
+       from pckwrk_hdr
+       join alloc_rule_dtl
+         on pckwrk_hdr.rule_nam = alloc_rule_dtl.rule_nam
+        and pckwrk_hdr.wh_id = alloc_rule_dtl.wh_id
+      where pckwrk_hdr.wrkref = nvl(@srcref, @wrkref)
+        and rownum = 1] catch(-1403)
+    |
+    get allocation rule whereclause
+    where wrkref = nvl(@srcref, @wrkref)
+      and wh_id = @wh_id catch(-1403)
+    |
+    if (@? = 0)
+    {
+        publish data
+          where alloc_rule_where_clause = @complex_rule_clause
+    }
+    else
+    {
+        publish data
+          where alloc_rule_where_clause = '1 = 1'
+    }
+    |
+    [select max(inv_attr_str2) inv_attr_str2,
+            count(distinct inv_attr_str2) package_count
+       from inventory_view
+      where stoloc = @srcloc
+        and prtnum = @prtnum
+        and prt_client_id = @prt_client_id
+        and wh_id = @wh_id
+        and inv_attr_str2 is not null
+        and @alloc_rule_where_clause:raw] catch(-1403)
+    |
+    if (@? = 0 and @package_count = 1)
+    {
+        [update pckwrk_hdr
+            set inv_attr_str2 = @inv_attr_str2
+          where wrkref = @wrkref]
+
+    }
+}
+]]>
+</local-syntax>
+  <enable>yes</enable>
+</trigger>

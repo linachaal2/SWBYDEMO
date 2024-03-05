@@ -1,0 +1,31 @@
+<command>
+  <name>change description</name>
+  <description>Change Description</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+if (!@colnam)
+    set return status
+     where status = 3
+|
+if (!@status#onstack and @colnam = 'prtnum|prt_client_id|wh_id|ftpcod')
+{
+    [select 1
+       from dscmst
+      where lngdsc = @lngdsc
+        and colnam = @colnam
+        and colval = @colval
+        and locale_id = isnull(@locale_id, @@locale_id)] catch(-1403)
+    |
+    if (@? = -1403)
+    {
+        ^change description
+    }
+}
+else
+{
+    ^change description
+}
+]]>
+</local-syntax>
+</command>

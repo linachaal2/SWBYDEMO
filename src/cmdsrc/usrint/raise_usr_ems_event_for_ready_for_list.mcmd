@@ -1,0 +1,68 @@
+<command>
+  <name>raise usr ems event for ready for list</name>
+  <description>raise usr ems event for ready for list</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* raise usr ems event for ready for list
+ * User event to indicate that the pick release of a list was not completed,
+ * actions of an operator is needed. 
+ * A policy USR-READY-FOR-LIST is configured (EMS) to enable/disable 
+ * the process of generating this EMS events
+ *
+ * Version history:
+ *  2020-06-24  Marco Schouwenaar     Initial version.
+ */
+publish data
+ where evt_nam = 'USR-READY-FOR-LIST'
+|
+/* The EMS definition must be primed in EMS. This means, making sure
+ * there is a record for this evt_name. Its also details the message (EMS event)
+ * that will be sent to the subscribers.
+ */
+get ems source system
+|
+if (@primer_flg and @primer_flg = 1)
+{
+    publish data
+     where evt_msg = 'Workreference @wrkref failed to release with the following work:
+                            Warehouse: @wh_id
+                            Client: @client_id
+                            Wave: @schbat
+                            Shipment: @ship_id
+                            Order: @ordnum
+                            Itemnumber: @prtnum
+                            Lotnum: @lotnum'
+       and evt_subj = 'Work assignment (@wrkref) stays in status ready for list.'
+       and evt_qual = 'wh_id, schbat,ship_id, ordnum, 
+                       wrkref, prtnum, lotnum'
+       and evt_grp = 'AUTO-ALLOCATION'
+       and evt_pri = '1'
+       and evt_nam = @evt_nam
+       and src_sys = @src_sys
+       and lngdsc = 'Release of picklist failed with the following summary.'
+}
+else
+{
+    get ems event information
+     where evt_nam = @evt_nam
+    |
+    if (@enabled = 1)
+    {
+            log ems event
+             where evt_nam = @evt_nam
+               and key_val = @wrkref 
+            /*om een berichtje uniek te maken*/
+               and wh_id = @wh_id
+               and client_id = @client_id
+               and schbat = @schbat
+               and ship_id = @ship_id
+               and ordnum = @ordnum
+               and wrkref = @wrkref
+               and prtnum = @prtnum
+               and lotnum = @lotnum
+    }
+}
+]]>
+</local-syntax>
+</command>

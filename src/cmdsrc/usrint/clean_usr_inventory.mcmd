@@ -1,0 +1,149 @@
+<command>
+  <name>clean usr inventory</name>
+  <description>clean usr inventory</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* clean usr inventory
+ * Clean inventory from the system other then Fulfilment inventory.
+ * All inventory with a last move date/time earlier then system date/time - (policy value USR-INTEGRATOR-CLEANUP-INVENTORY) will be automatically deleted
+ * Version history:
+ * 2018-11-21  Marco Schouwenaar  Initial version (NAI-S04-12).
+ * 2018-12-12  Marco Schouwenaar  adjustment to policy per invtyp instead of not equal to fullfillment
+ * 2019-01-30  Karol Giemza       Re-written. Added more policy options and train support.
+ * 2019-05-22  Raoul Scholten     Added distinct in order to retreive single details.
+ * 2019-07-26  Marco Schouwenaar  Added commit after move inventory to prevent possible locks on daily run instead of hourly run (advice Jeroen Sleddens)(NAI-HYP-032)
+ * 2019-08-06  Salem Hamze        Added catch and rollback after move inventory.
+ * 2020-02-11  Jasper Ringoir     Added logic to add invtyp as parameter for splitting job into 2
+ * 2020-02-11  Raoul Scholten     Added sortorder logic and jobinstance parameter in order to fire to parallel jobs for the same invtype at the same time
+ * 2020-02-11                     order will be asc and desc -this will solve a performance issue in Aalsmeer - move inventory will not run whenever the lodnum has already been processed
+ * 2020-05-28  Radina Ivanova     Inventory will be cleaned only on auction days based on the calendar for invtyp = 10 and on current schedule for intyp = 20 (defined in the job)
+ */
+
+if (@check_auction_day_in_calendar = 1)
+{
+    publish data where date = to_date(to_char(sysdate, 'YYYYMMDD'))
+    |
+    [select 'x'
+       from calmst
+      where dcsdte = to_date(@date)
+        and pckflg = 0
+        and cal_typ = 'P'] catch(-1403)
+    |
+    if (@? = 0)
+    {
+        publish data where skip_cleanup = 1
+    }
+}
+|
+if (@skip_cleanup != 1)
+{
+    get warehouse id
+    |
+    [select perm_adj_sub
+       from wh
+      where wh_id = @wh_id]
+    |
+    if (@jobinstance = '2')
+    {
+        publish data
+         where sortclause = 'sub.lodnum desc'
+    }
+    else
+    {
+        publish data
+         where sortclause = 'sub.lodnum asc'
+    }
+    |
+    [select rtstr1 as pol_invtyp,
+            rtstr2 as pol_loctyp,
+            rtnum1 as pol_enabled,
+            rtnum2 as pol_minutes
+       from poldat_view
+      where polcod = 'USR-INTEGRATOR'
+        and polvar = 'CLEANUP'
+        and polval = 'INVENTORY'
+        and wh_id = @wh_id
+        and rtstr1 = @invtyp] catch(-1403)
+    |
+    if (@? = 0 and @pol_enabled = 1 and @pol_minutes > 0 and @pol_invtyp is not null and @pol_loctyp is not null)
+    {
+        [select dtl.dtlnum,
+                sub.lodnum
+           from invlod lod
+           join invsub sub
+             on sub.lodnum = lod.lodnum
+           join invdtl dtl
+             on dtl.subnum = sub.subnum
+           join locmst loc
+             on loc.stoloc = lod.stoloc
+            and loc.wh_id = lod.wh_id
+           join loc_typ typ
+             on typ.loc_typ_id = loc.loc_typ_id
+           left outer
+           join mov_zone mz
+             on mz.mov_zone_id = loc.mov_zone_id
+           left outer
+           join poldat_view pv
+             on pv.wh_id = mz.wh_id
+            and pv.polcod = 'USR-RECEIVING'
+            and pv.polvar = 'TRAIN'
+            and pv.polval = 'MOV-ZONE-COD'
+            and pv.rtstr1 = mz.mov_zone_cod
+          where lod.wh_id = @wh_id
+            and (lod.uc_train_cls_flg = 1 or nvl(pv.rtnum1, 0) = 0)
+            and typ.loc_typ = @pol_loctyp
+            and typ.fwiflg = 1
+            and typ.rdtflg = 0
+            and dtl.hld_flg = 0
+            and dtl.rcvkey in (select rcvkey
+                                 from rcvlin
+                                where invnum in (select invnum
+                                                   from rcvinv
+                                                  where invtyp = @pol_invtyp))
+            and datediff(mi, lod.lstmov, sysdate) > @pol_minutes
+          group by dtl.dtlnum,
+                sub.lodnum
+          order by @sortclause:raw] catch(-1403)
+        |
+        if (@? = 0)
+        {
+            [select *
+               from invlod
+              where lodnum = @lodnum] catch(@?)
+            |
+            if (@? = 0)
+            {
+                move inventory
+                 where wh_id = @wh_id
+                   and srcdtl = @dtlnum
+                   and dstsub = @perm_adj_sub
+                   and actcod = 'INVDEL'
+                   and reacod = 'CLN-CONVERT'
+                   and adj_ref2 = 'Conversion'
+                   and adj_ref1 = 'Cleanup'
+                   and attr_chg_flg = 1 catch(@?)
+                |
+                if (@? = 0)
+                {
+                    [delete
+                       from inv_asset
+                      where invtid = @lodnum] catch(-1403)
+                    ;
+                    commit
+                }
+                else
+                {
+                    rollback
+                }
+            }
+        }
+    }
+}
+]]>
+</local-syntax>
+  <argument name="wh_id" datatype="">Warehouse ID</argument>
+  <argument name="check_auction_day_in_calendar" datatype="">Check if today is an auction day in the calendar</argument>
+  <argument name="jobinstance" datatype="">Job Instance</argument>
+  <argument name="invtyp" datatype="">Inbound order type</argument>
+</command>

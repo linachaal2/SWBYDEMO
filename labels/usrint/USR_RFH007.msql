@@ -1,0 +1,1080 @@
+[select rtstr1 delivery_day_char,
+        rtnum1 delivery_day_override
+   from poldat_view
+  where polcod = 'USR-LABELS'
+    and polvar = 'DELIVERY-LABELS'
+    and polval = 'DELIVERY-DAY-OVERRIDE'
+    and wh_id = @wh_id] catch(-1403)
+|
+{
+	{
+		[select invlod.lodnum as ID,
+		        substr(@lodnum, len(@lodnum) - 5, 6) ref,
+		        invdtl.supnum as EAN_Supplier,
+		        supmst.uc_ckn_no as CKN_Supplier,
+		        invdtl.inv_attr_str2 as Fustcode,
+		        invdtl.inv_attr_str3 as TradeItem,
+		        invdtl.prtnum as SKU,
+		        nvl(ord_line_note.nottxt, nvl(prtdsc.short_dsc, bckup.short_dsc)) as Description,
+		        ord.rtcust as EAN_Carrier,
+		        route_cst.uc_ckn_no as CKN_Carrier,
+		        ord.stcust as EAN_Customer,
+		        (select count(distinct(ord.stcust)) 
+		           from ord
+		          inner
+		           join shipment_line
+		             on ord.ordnum = shipment_line.ordnum
+		          inner
+		           join invdtl
+		             on invdtl.ship_line_id = shipment_line.ship_line_id
+		          inner
+		           join invsub
+		             on invdtl.subnum = invsub.subnum
+		          inner
+		           join invlod
+		             on invsub.lodnum = invlod.lodnum
+		          where invlod.lodnum = @lodnum) count_cust,
+		        ship_cst.uc_ckn_no as CKN_Customer,
+		        prtftp_view.unthgt as Length,
+		        prtmst_view.prtcolor as Color,
+		        invdtl.inv_attr_int2 as Qty_in_Fust,
+		        invdtl.untqty as Fust_Qty,
+		        (select sum(invdtl.untqty) 
+		           from invdtl
+		          inner
+		           join invsub
+		             on invdtl.subnum = invsub.subnum
+		          where invsub.lodnum = @lodnum) as total_fust_qty,
+		        sum(ord_line.ordqty) over(partition by ord.stcust) total_cust_fust_qty,
+		        (select count(distinct invdtl.dtlnum) 
+		           from invdtl
+		          inner
+		           join invsub
+		             on invdtl.subnum = invsub.subnum
+		          where invsub.lodnum = @lodnum) as total_transactions,
+		        ord_line.uc_shipby as Cons_Criteria,
+		        ord_line.unt_price as Price,
+		        ord_line.ordqty as Order_qty,
+		        ord_line.sales_ordnum as Customer_Ref,
+		        to_char(nvl(ord_line.early_shpdte, ord_line.late_shpdte), 'DD/MM/YYYY HH24:mi') as Early_Ship_date,
+		        invdtl.lotnum as Lotnum,
+		        ord.ordnum as Customer_Order,
+		        (select max(to_char(nvl(ord_line.early_shpdte, ord_line.late_shpdte), 'DD/MM/YYYY HH24:mi')) 
+		           from ord_line
+		          inner
+		           join ord
+		             on ord_line.ordnum = ord.ordnum
+		          inner
+		           join shipment_line
+		             on ord.ordnum = shipment_line.ordnum
+		          inner
+		           join invdtl
+		             on invdtl.ship_line_id = shipment_line.ship_line_id
+		          inner
+		           join invsub
+		             on invdtl.subnum = invsub.subnum
+		          inner
+		           join invlod
+		             on invsub.lodnum = invlod.lodnum
+		          where invlod.lodnum = @lodnum
+		          group by invlod.lodnum) as Earliest_Ship_date,
+		        to_char(ord_line.late_shpdte, 'DD/MM/YYYY HH24:mi') as Late_Ship_date,
+		        (select min(to_char(ord_line.late_shpdte, 'DD/MM/YYYY HH24:mi')) 
+		           from ord_line
+		          inner
+		           join ord
+		             on ord_line.ordnum = ord.ordnum
+		          inner
+		           join shipment_line
+		             on ord.ordnum = shipment_line.ordnum
+		          inner
+		           join invdtl
+		             on invdtl.ship_line_id = shipment_line.ship_line_id
+		          inner
+		           join invsub
+		             on invdtl.subnum = invsub.subnum
+		          inner
+		           join invlod
+		             on invsub.lodnum = invlod.lodnum
+		          where invlod.lodnum = @lodnum
+		          group by invlod.lodnum) as Latest_Ship_date,		        
+				(select min(to_char(ord_line.late_shpdte, 'HH24:mi')) 
+		           from ord_line
+		          inner
+		           join ord
+		             on ord_line.ordnum = ord.ordnum
+		          inner
+		           join shipment_line
+		             on ord.ordnum = shipment_line.ordnum
+		          inner
+		           join invdtl
+		             on invdtl.ship_line_id = shipment_line.ship_line_id
+		          inner
+		           join invsub
+		             on invdtl.subnum = invsub.subnum
+		          inner
+		           join invlod
+		             on invsub.lodnum = invlod.lodnum
+		          where invlod.lodnum = @lodnum
+		          group by invlod.lodnum) as Latest_Ship_time,
+		        (select decode(datepart(weekday, min(ord_line.late_shpdte)) - 1, 0, 7, datepart(weekday, min(ord_line.late_shpdte)) - 1) 
+		           from ord_line
+		          inner
+		           join ord
+		             on ord_line.ordnum = ord.ordnum
+		          inner
+		           join shipment_line
+		             on ord.ordnum = shipment_line.ordnum
+		          inner
+		           join invdtl
+		             on invdtl.ship_line_id = shipment_line.ship_line_id
+		          inner
+		           join invsub
+		             on invdtl.subnum = invsub.subnum
+		          inner
+		           join invlod
+		             on invsub.lodnum = invlod.lodnum
+		          where invlod.lodnum = @lodnum
+		          group by invlod.lodnum) as min_delivery_day,
+		        (select decode(datepart(weekday, max(ord_line.late_shpdte)) - 1, 0, 7, datepart(weekday, max(ord_line.late_shpdte)) - 1) 
+		           from ord_line
+		          inner
+		           join ord
+		             on ord_line.ordnum = ord.ordnum
+		          inner
+		           join shipment_line
+		             on ord.ordnum = shipment_line.ordnum
+		          inner
+		           join invdtl
+		             on invdtl.ship_line_id = shipment_line.ship_line_id
+		          inner
+		           join invsub
+		             on invdtl.subnum = invsub.subnum
+		          inner
+		           join invlod
+		             on invsub.lodnum = invlod.lodnum
+		          where invlod.lodnum = @lodnum
+		          group by invlod.lodnum) as max_delivery_day,
+		        route_cst_name.adrnam as Carrier_Name,
+		        route_to.host_ext_id as Carrier_GLN_Loc,
+		        route_to.adr_district as Carrier_Location,
+		        route_to.adrln1 as Carrier_Address,
+		        route_to.adrpsz as Carrier_Zipcode,
+		        route_to.adrcty as Carrier_City,
+                usr_gln_location.uc_sort_out_id,
+		        ship_cst_name.adrnam as Customer_Name,
+		        ship_to.host_ext_id as Customer_GLN_Loc,
+		        ship_to.adr_district as Customer_Location,
+		        ship_to.adrln1 as Customer_Address,
+		        ship_to.adrpsz as Customer_Zipcode,
+		        ship_to.adrcty as Customer_City,
+		        suplier.adrnam as Supplier_Name,
+		        suplier.adrcty as Supplier_City,
+		        case
+		            when(nvl(ekt.nottxt, '-') = '-') then '-' 
+		           when(nvl(LENGTH(TRIM(TRANSLATE(ekt.nottxt, '0123456789', '          '))), 0) = 0) then ekt.nottxt || substr(to_char(ASCII(substr(invdtl.wrkref_dtl, length(invdtl.wrkref_dtl) - 1, 1)) + ASCII(substr(invdtl.wrkref_dtl, length(invdtl.wrkref_dtl), 1)), '0000'), 4, 2) || '0' || trim(to_char(invdtl.untqty, '0000')) 
+		           when(nvl(ekt.nottxt, '-') <> '-') then 'NONE' 
+		        end as ekt_barcode,
+		        nvl(alt_stat.nottxt, invdtl.invsts) as inv_stat,
+		        nvl(sort1.nottxt, '0') as sort1,
+		        nvl(sort2.nottxt, '0') as sort2,
+		        nvl(sort3.nottxt, '0') as sort3,
+		        nvl(sort4.nottxt, '0') as sort4,
+		        nvl(sort5.nottxt, '0') as sort5,
+		        nvl(negsort1.nottxt, '0') as negsort1,
+		        nvl(negsort2.nottxt, '0') as negsort2,
+		        nvl(buyer.nottxt, '0') as buyer,
+		        nvl(seat.nottxt, '0') as seat,
+		        nvl(clockid.nottxt, '0') as clockid,
+		        nvl(clocktrn.nottxt, '0') as clocktrn,
+		        (select to_char(nvl(max(pckwrk_view.pckdte), sysdate), 'DD/MM/YYYY HH24:mi') 
+		           from pckwrk_view
+		          where pckwrk_view.wrkref_dtl = invdtl.wrkref_dtl
+		            and pckwrk_view.wrkref = invdtl.wrkref) as finished_pick,
+		        invlod.asset_typ as asset_typ,
+		        nvl((select lngdsc
+		               from dscmst
+		              where dscmst.colval = invlod.asset_typ
+		                and dscmst.colnam = 'asset_typ' 
+		                and dscmst.locale_id = nvl(@locale_id, 'US_ENGLISH')), invlod.asset_typ) as Loadcarrier_Type,
+		        (select sum(inv_asset.untqty) 
+		           from inv_asset
+		          where inv_asset.invtid = invlod.lodnum
+		            and invlod.asset_typ != inv_asset.asset_typ) as Additional_Shelves,
+		        case
+		            when(ord.ordtyp = '34') then 1 else 0
+		         end as rush_order
+		   from invlod
+		   join invsub
+		     on(invlod.lodnum = invsub.lodnum) 
+		   join invdtl
+		     on(invdtl.subnum = invsub.subnum) 
+		   join prtmst_view
+		     on(invdtl.prt_client_id = prtmst_view.prt_client_id
+		    and invdtl.prtnum = prtmst_view.prtnum
+		    and invlod.wh_id = prtmst_view.wh_id) 
+		   left
+		   join prtftp_view
+		     on(invdtl.prt_client_id = prtftp_view.prt_client_id
+		    and invdtl.prtnum = prtftp_view.prtnum
+		    and invlod.wh_id = prtftp_view.wh_id
+		    and invdtl.ftpcod = prtftp_view.ftpcod) 
+		   left
+		   join prtdsc
+		     on(prtdsc.colval = prtmst_view.prtnum || '|' || prtmst_view.prt_client_id || '|' || prtmst_view.wh_id
+		    and prtdsc.colnam = 'prtnum|prt_client_id|wh_id_tmpl' 
+		    and prtdsc.locale_id = @locale_id) 
+		   left
+		   join prtdsc bckup
+		     on(bckup.colval = prtmst_view.prtnum || '|' || prtmst_view.prt_client_id || '|' || prtmst_view.wh_id
+		    and bckup.colnam = 'prtnum|prt_client_id|wh_id_tmpl' 
+		    and bckup.locale_id = 'US_ENGLISH') 
+		   left
+		   join shipment_line
+		     on(shipment_line.ship_line_id = invdtl.ship_line_id) 
+		   left
+		   join ord
+		     on(shipment_line.ordnum = ord.ordnum
+		    and shipment_line.wh_id = ord.wh_id
+		    and shipment_line.client_id = ord.client_id) 
+		   left
+		   join ord_line
+		     on(ord.ordnum = ord_line.ordnum
+		    and ord.wh_id = ord_line.wh_id
+		    and ord.client_id = ord_line.client_id
+		    and ord_line.ordlin = shipment_line.ordlin
+		    and ord_line.ordsln = shipment_line.ordsln) 
+		   left
+		   join ord_line_note
+		     on(ord_line_note.ordnum = ord_line.ordnum
+		    and ord_line_note.ordlin = ord_line.ordlin
+		    and ord_line_note.ordsln = ord_line.ordsln
+		    and ord_line_note.wh_id = ord_line.wh_id
+		    and ord_line_note.client_id = ord_line.client_id
+		    and ord_line_note.nottyp = 'TradeitemDescr') 
+		   left
+		   join ord_line_note ekt
+		     on(ekt.ordnum = ord_line.ordnum
+		    and ekt.ordlin = ord_line.ordlin
+		    and ekt.ordsln = ord_line.ordsln
+		    and ekt.wh_id = ord_line.wh_id
+		    and ekt.client_id = ord_line.client_id
+		    and ekt.nottyp = 'EKT_BARCODE') 
+		   left
+		   join ord_line_note alt_stat
+		     on(alt_stat.ordnum = ord_line.ordnum
+		    and alt_stat.ordlin = ord_line.ordlin
+		    and alt_stat.ordsln = ord_line.ordsln
+		    and alt_stat.wh_id = ord_line.wh_id
+		    and alt_stat.client_id = ord_line.client_id
+		    and alt_stat.nottyp = 'ALT_ST_STATUS') 
+		   left
+		   join ord_line_note buyer
+		     on(buyer.ordnum = ord_line.ordnum
+		    and buyer.ordlin = ord_line.ordlin
+		    and buyer.ordsln = ord_line.ordsln
+		    and buyer.wh_id = ord_line.wh_id
+		    and buyer.client_id = ord_line.client_id
+		    and buyer.nottyp = 'PLAAT') 
+		   left
+		   join ord_line_note seat
+		     on(seat.ordnum = ord_line.ordnum
+		    and seat.ordlin = ord_line.ordlin
+		    and seat.ordsln = ord_line.ordsln
+		    and seat.wh_id = ord_line.wh_id
+		    and seat.client_id = ord_line.client_id
+		    and seat.nottyp = 'ZETEL') 
+		   left
+		   join ord_line_note sort1
+		     on(sort1.ordnum = ord_line.ordnum
+		    and sort1.ordlin = ord_line.ordlin
+		    and sort1.ordsln = ord_line.ordsln
+		    and sort1.wh_id = ord_line.wh_id
+		    and sort1.client_id = ord_line.client_id
+		    and sort1.nottyp = 'SORT_1') 
+		   left
+		   join ord_line_note sort2
+		     on(sort2.ordnum = ord_line.ordnum
+		    and sort2.ordlin = ord_line.ordlin
+		    and sort2.ordsln = ord_line.ordsln
+		    and sort2.wh_id = ord_line.wh_id
+		    and sort2.client_id = ord_line.client_id
+		    and sort2.nottyp = 'SORT_2') 
+		   left
+		   join ord_line_note sort3
+		     on(sort3.ordnum = ord_line.ordnum
+		    and sort3.ordlin = ord_line.ordlin
+		    and sort3.ordsln = ord_line.ordsln
+		    and sort3.wh_id = ord_line.wh_id
+		    and sort3.client_id = ord_line.client_id
+		    and sort3.nottyp = 'SORT_3') 
+		   left
+		   join ord_line_note sort4
+		     on(sort4.ordnum = ord_line.ordnum
+		    and sort4.ordlin = ord_line.ordlin
+		    and sort4.ordsln = ord_line.ordsln
+		    and sort4.wh_id = ord_line.wh_id
+		    and sort4.client_id = ord_line.client_id
+		    and sort4.nottyp = 'SORT_4') 
+		   left
+		   join ord_line_note sort5
+		     on(sort5.ordnum = ord_line.ordnum
+		    and sort5.ordlin = ord_line.ordlin
+		    and sort5.ordsln = ord_line.ordsln
+		    and sort5.wh_id = ord_line.wh_id
+		    and sort5.client_id = ord_line.client_id
+		    and sort5.nottyp = 'SORT_5') 
+		   left
+		   join ord_line_note negsort1
+		     on(negsort1.ordnum = ord_line.ordnum
+		    and negsort1.ordlin = ord_line.ordlin
+		    and negsort1.ordsln = ord_line.ordsln
+		    and negsort1.wh_id = ord_line.wh_id
+		    and negsort1.client_id = ord_line.client_id
+		    and negsort1.nottyp = 'N_KENM_1') 
+		   left
+		   join ord_line_note negsort2
+		     on(negsort2.ordnum = ord_line.ordnum
+		    and negsort2.ordlin = ord_line.ordlin
+		    and negsort2.ordsln = ord_line.ordsln
+		    and negsort2.wh_id = ord_line.wh_id
+		    and negsort2.client_id = ord_line.client_id
+		    and negsort2.nottyp = 'N_KENM_2') 
+		   left
+		   join ord_line_note clockid
+		     on(clockid.ordnum = ord_line.ordnum
+		    and clockid.ordlin = ord_line.ordlin
+		    and clockid.ordsln = ord_line.ordsln
+		    and clockid.wh_id = ord_line.wh_id
+		    and clockid.client_id = ord_line.client_id
+		    and clockid.nottyp = 'KLOKNR') 
+		   left
+		   join ord_line_note clocktrn
+		     on(clocktrn.ordnum = ord_line.ordnum
+		    and clocktrn.ordlin = ord_line.ordlin
+		    and clocktrn.ordsln = ord_line.ordsln
+		    and clocktrn.wh_id = ord_line.wh_id
+		    and clocktrn.client_id = ord_line.client_id
+		    and clocktrn.nottyp = 'KLOK_TRN') 
+		   left
+		   join supmst
+		     on(invdtl.supnum = supmst.supnum) 
+		   left
+		   join cstmst as route_cst
+		     on(ord.rtcust = route_cst.cstnum) 
+		   left
+		   join cstmst as ship_cst
+		     on(ord.stcust = ship_cst.cstnum) 
+		   left
+		   join adrmst as ship_cst_name
+		     on(ship_cst_name.adr_id = ship_cst.adr_id) 
+		   left
+		   join adrmst as route_cst_name
+		     on(route_cst_name.adr_id = route_cst.adr_id)
+           left join usr_gln_location
+             on (route_cst_name.host_ext_id = usr_gln_location.gln)
+		   left
+		   join adrmst as route_to
+		     on(ord.rt_adr_id = route_to.adr_id) 
+		   left
+		   join adrmst as ship_to
+		     on(ord.st_adr_id = ship_to.adr_id) 
+		   left
+		   join adrmst as suplier
+		     on(supmst.adr_id = suplier.adr_id) 
+		  where invlod.lodnum = @lodnum
+		  order by total_cust_fust_qty,
+		        ckn_customer desc,
+		        description desc] catch(-1403)
+	} >> query_data
+	|
+	if (@? = -1403)
+	{
+		[select invlod_hist.lodnum as ID,
+		        substr(@lodnum, len(@lodnum) - 5, 6) ref,
+		        invdtl_hist.supnum as EAN_Supplier,
+		        supmst.uc_ckn_no as CKN_Supplier,
+		        invdtl_hist.inv_attr_str2 as Fustcode,
+		        invdtl_hist.inv_attr_str3 as TradeItem,
+		        invdtl_hist.prtnum as SKU,
+		        nvl(ord_line_note.nottxt, nvl(prtdsc.short_dsc, bckup.short_dsc)) as Description,
+		        ord.rtcust as EAN_Carrier,
+		        route_cst.uc_ckn_no as CKN_Carrier,
+		        ord.stcust as EAN_Customer,
+		        (select count(distinct(ord.stcust)) 
+		           from ord
+		          inner
+		           join shipment_line
+		             on ord.ordnum = shipment_line.ordnum
+		          inner
+		           join invdtl_hist
+		             on invdtl_hist.ship_line_id = shipment_line.ship_line_id
+		          inner
+		           join invsub_hist
+		             on invdtl_hist.inv_hist_id = invsub_hist.inv_hist_id
+		            and invdtl_hist.subnum = invsub_hist.subnum
+		          where invsub_hist.lodnum = @lodnum
+		            and invsub_hist.inv_hist_id = invlod_hist.inv_hist_id) count_cust,
+		        ship_cst.uc_ckn_no as CKN_Customer,
+		        prtftp_view.unthgt as Length,
+		        prtmst_view.prtcolor as Color,
+		        invdtl_hist.inv_attr_int2 as Qty_in_Fust,
+		        invdtl_hist.untqty as Fust_Qty,
+		        (select sum(invdtl_hist.untqty) 
+		           from invdtl_hist
+		          inner
+		           join invsub_hist
+		             on(invdtl_hist.inv_hist_id = invsub_hist.inv_hist_id
+		            and invdtl_hist.subnum = invsub_hist.subnum) 
+		          where invsub_hist.lodnum = @lodnum
+		            and invsub_hist.inv_hist_id = invlod_hist.inv_hist_id
+		          group by invsub_hist.lodnum) as total_fust_qty,
+		        sum(ord_line.ordqty) over(partition by ord.stcust) total_cust_fust_qty,
+		        (select count(distinct invdtl_hist.dtlnum) 
+		           from invdtl_hist
+		          inner
+		           join invsub_hist
+		             on invdtl_hist.inv_hist_id = invsub_hist.inv_hist_id
+		            and invdtl_hist.subnum = invsub_hist.subnum
+		          where invsub_hist.lodnum = @lodnum
+		            and invsub_hist.inv_hist_id = invlod_hist.inv_hist_id) as total_transactions,
+		        ord_line.uc_shipby as Cons_Criteria,
+		        ord_line.unt_price as Price,
+		        ord_line.ordqty as Order_qty,
+		        ord_line.sales_ordnum as Customer_Ref,
+		        to_char(nvl(ord_line.early_shpdte, ord_line.late_shpdte), 'DD/MM/YYYY HH24:mi') as Early_Ship_date,
+		        (select max(to_char(nvl(ord_line.early_shpdte, ord_line.late_shpdte), 'DD/MM/YYYY HH24:mi')) 
+		           from ord_line
+		          inner
+		           join ord
+		             on ord_line.ordnum = ord.ordnum
+		          inner
+		           join shipment_line
+		             on ord.ordnum = shipment_line.ordnum
+		          inner
+		           join invdtl_hist
+		             on invdtl_hist.ship_line_id = shipment_line.ship_line_id
+		          inner
+		           join invsub_hist
+		             on invdtl_hist.inv_hist_id = invsub_hist.inv_hist_id
+		            and invdtl_hist.subnum = invsub_hist.subnum
+		          where invsub_hist.lodnum = @lodnum
+		            and invsub_hist.inv_hist_id = invlod_hist.inv_hist_id
+		          group by invsub_hist.lodnum) as Earliest_Ship_date,
+		        to_char(ord_line.late_shpdte, 'DD/MM/YYYY HH24:mi') as Late_Ship_date,
+		        (select min(to_char(ord_line.late_shpdte, 'DD/MM/YYYY HH24:mi')) 
+		           from ord_line
+		          inner
+		           join ord
+		             on ord_line.ordnum = ord.ordnum
+		          inner
+		           join shipment_line
+		             on ord.ordnum = shipment_line.ordnum
+		          inner
+		           join invdtl_hist
+		             on invdtl_hist.ship_line_id = shipment_line.ship_line_id
+		          inner
+		           join invsub_hist
+		             on invdtl_hist.inv_hist_id = invsub_hist.inv_hist_id
+		            and invdtl_hist.subnum = invsub_hist.subnum
+		          where invsub_hist.lodnum = @lodnum
+		            and invsub_hist.inv_hist_id = invlod_hist.inv_hist_id
+		          group by invsub_hist.lodnum) as Latest_Ship_date,
+		        (select min(to_char(ord_line.late_shpdte, 'HH24:mi')) 
+		           from ord_line
+		          inner
+		           join ord
+		             on ord_line.ordnum = ord.ordnum
+		          inner
+		           join shipment_line
+		             on ord.ordnum = shipment_line.ordnum
+		          inner
+		           join invdtl_hist
+		             on invdtl_hist.ship_line_id = shipment_line.ship_line_id
+		          inner
+		           join invsub_hist
+		             on invdtl_hist.inv_hist_id = invsub_hist.inv_hist_id
+		            and invdtl_hist.subnum = invsub_hist.subnum
+		          where invsub_hist.lodnum = @lodnum
+		            and invsub_hist.inv_hist_id = invlod_hist.inv_hist_id
+		          group by invsub_hist.lodnum) as Latest_Ship_time,
+		        invdtl_hist.lotnum as Lotnum,
+		        ord.ordnum as Customer_Order,
+		        to_char(ord.entdte, 'DD/MM/YYYY HH24:mi') as Order_date_received,
+		        route_cst_name.adrnam as Carrier_Name,
+		        route_to.host_ext_id as Carrier_GLN_Loc,
+		        route_to.adr_district as Carrier_Location,
+		        route_to.adrln1 as Carrier_Address,
+		        route_to.adrpsz as Carrier_Zipcode,
+		        route_to.adrcty as Carrier_City,
+		        ship_cst_name.adrnam as Customer_Name,
+		        ship_to.host_ext_id as Customer_GLN_Loc,
+		        ship_to.adr_district as Customer_Location,
+		        ship_to.adrln1 as Customer_Address,
+		        ship_to.adrpsz as Customer_Zipcode,
+		        ship_to.adrcty as Customer_City,
+		        suplier.adrnam as Supplier_Name,
+		        suplier.adrcty as Supplier_City,
+		        to_char(invlod_hist.lstdte, 'DD/MM/YYYY HH24:mi') as finished_pick,
+		        case
+		            when(nvl(ekt.nottxt, '-') = '-') then '-' 
+		           when(nvl(LENGTH(TRIM(TRANSLATE(ekt.nottxt, '0123456789', '          '))), 0) = 0) then ekt.nottxt || substr(to_char(ASCII(substr(invdtl_hist.wrkref_dtl, length(invdtl_hist.wrkref_dtl) - 1, 1)) + ASCII(substr(invdtl_hist.wrkref_dtl, length(invdtl_hist.wrkref_dtl), 1)), '0000'), 4, 2) || '0' || trim(to_char(invdtl_hist.untqty, '0000')) 
+		           when(nvl(ekt.nottxt, '-') <> '-') then 'NONE' 
+		        end as ekt_barcode,
+		        nvl(alt_stat.nottxt, invdtl_hist.invsts) as inv_stat,
+		        nvl(sort1.nottxt, '0') as sort1,
+		        nvl(sort2.nottxt, '0') as sort2,
+		        nvl(sort3.nottxt, '0') as sort3,
+		        nvl(sort4.nottxt, '0') as sort4,
+		        nvl(sort5.nottxt, '0') as sort5,
+		        nvl(negsort1.nottxt, '0') as negsort1,
+		        nvl(negsort2.nottxt, '0') as negsort2,
+		        nvl(buyer.nottxt, '0') as buyer,
+		        nvl(seat.nottxt, '0') as seat,
+		        nvl(clockid.nottxt, '0') as clockid,
+		        nvl(clocktrn.nottxt, '0') as clocktrn,
+		        invlod_hist.asset_typ as asset_typ,
+		        nvl((select lngdsc
+		               from dscmst
+		              where dscmst.colval = invlod_hist.asset_typ
+		                and dscmst.colnam = 'asset_typ' 
+		                and dscmst.locale_id = nvl(@locale_id, 'US_ENGLISH')), invlod_hist.asset_typ) as Loadcarrier_Type,
+		        (select sum(inv_asset_hist.untqty) 
+		           from inv_asset_hist
+		          where inv_asset_hist.invtid = invlod_hist.lodnum
+		            and inv_asset_hist.inv_hist_id = invlod_hist.inv_hist_id
+		            and invlod_hist.asset_typ != inv_asset_hist.asset_typ
+		            and inv_asset_hist.inv_hist_id = invlod_hist.inv_hist_id) as Additional_Shelves,
+		        case
+		            when(ord.ordtyp = '34') then 1 else 0
+		         end as rush_order
+		   from invlod_hist
+		   join invsub_hist
+		     on(invlod_hist.lodnum = invsub_hist.lodnum
+		    and invsub_hist.inv_hist_id = invlod_hist.inv_hist_id) 
+		   join invdtl_hist
+		     on(invdtl_hist.subnum = invsub_hist.subnum
+		    and invdtl_hist.inv_hist_id = invlod_hist.inv_hist_id) 
+		   join prtmst_view
+		     on(invdtl_hist.prt_client_id = prtmst_view.prt_client_id
+		    and invdtl_hist.prtnum = prtmst_view.prtnum
+		    and invlod_hist.wh_id = prtmst_view.wh_id) 
+		   left
+		   join prtftp_view
+		     on(invdtl_hist.prt_client_id = prtftp_view.prt_client_id
+		    and invdtl_hist.prtnum = prtftp_view.prtnum
+		    and invlod_hist.wh_id = prtftp_view.wh_id
+		    and invdtl_hist.ftpcod = prtftp_view.ftpcod) 
+		   left
+		   join prtdsc
+		     on(prtdsc.colval = prtmst_view.prtnum || '|' || prtmst_view.prt_client_id || '|' || prtmst_view.wh_id
+		    and prtdsc.colnam = 'prtnum|prt_client_id|wh_id_tmpl' 
+		    and prtdsc.locale_id = @locale_id) 
+		   left
+		   join prtdsc bckup
+		     on(bckup.colval = prtmst_view.prtnum || '|' || prtmst_view.prt_client_id || '|' || prtmst_view.wh_id
+		    and bckup.colnam = 'prtnum|prt_client_id|wh_id_tmpl' 
+		    and bckup.locale_id = 'US_ENGLISH') 
+		   left
+		   join shipment_line
+		     on(shipment_line.ship_line_id = invdtl_hist.ship_line_id) 
+		   left
+		   join ord
+		     on(shipment_line.ordnum = ord.ordnum
+		    and shipment_line.wh_id = ord.wh_id
+		    and shipment_line.client_id = ord.client_id) 
+		   left
+		   join ord_line
+		     on(ord.ordnum = ord_line.ordnum
+		    and ord.wh_id = ord_line.wh_id
+		    and ord.client_id = ord_line.client_id
+		    and ord_line.ordlin = shipment_line.ordlin
+		    and ord_line.ordsln = shipment_line.ordsln) 
+		   left
+		   join ord_line_note
+		     on(ord_line_note.ordnum = ord_line.ordnum
+		    and ord_line_note.ordlin = ord_line.ordlin
+		    and ord_line_note.ordsln = ord_line.ordsln
+		    and ord_line_note.wh_id = ord_line.wh_id
+		    and ord_line_note.client_id = ord_line.client_id
+		    and ord_line_note.nottyp = 'TradeitemDescr') 
+		   left
+		   join ord_line_note ekt
+		     on(ekt.ordnum = ord_line.ordnum
+		    and ekt.ordlin = ord_line.ordlin
+		    and ekt.ordsln = ord_line.ordsln
+		    and ekt.wh_id = ord_line.wh_id
+		    and ekt.client_id = ord_line.client_id
+		    and ekt.nottyp = 'EKT_BARCODE') 
+		   left
+		   join ord_line_note alt_stat
+		     on(alt_stat.ordnum = ord_line.ordnum
+		    and alt_stat.ordlin = ord_line.ordlin
+		    and alt_stat.ordsln = ord_line.ordsln
+		    and alt_stat.wh_id = ord_line.wh_id
+		    and alt_stat.client_id = ord_line.client_id
+		    and alt_stat.nottyp = 'ALT_ST_STATUS') 
+		   left
+		   join ord_line_note buyer
+		     on(buyer.ordnum = ord_line.ordnum
+		    and buyer.ordlin = ord_line.ordlin
+		    and buyer.ordsln = ord_line.ordsln
+		    and buyer.wh_id = ord_line.wh_id
+		    and buyer.client_id = ord_line.client_id
+		    and buyer.nottyp = 'PLAAT') 
+		   left
+		   join ord_line_note seat
+		     on(seat.ordnum = ord_line.ordnum
+		    and seat.ordlin = ord_line.ordlin
+		    and seat.ordsln = ord_line.ordsln
+		    and seat.wh_id = ord_line.wh_id
+		    and seat.client_id = ord_line.client_id
+		    and seat.nottyp = 'ZETEL') 
+		   left
+		   join ord_line_note sort1
+		     on(sort1.ordnum = ord_line.ordnum
+		    and sort1.ordlin = ord_line.ordlin
+		    and sort1.ordsln = ord_line.ordsln
+		    and sort1.wh_id = ord_line.wh_id
+		    and sort1.client_id = ord_line.client_id
+		    and sort1.nottyp = 'SORT_1') 
+		   left
+		   join ord_line_note sort2
+		     on(sort2.ordnum = ord_line.ordnum
+		    and sort2.ordlin = ord_line.ordlin
+		    and sort2.ordsln = ord_line.ordsln
+		    and sort2.wh_id = ord_line.wh_id
+		    and sort2.client_id = ord_line.client_id
+		    and sort2.nottyp = 'SORT_2') 
+		   left
+		   join ord_line_note sort3
+		     on(sort3.ordnum = ord_line.ordnum
+		    and sort3.ordlin = ord_line.ordlin
+		    and sort3.ordsln = ord_line.ordsln
+		    and sort3.wh_id = ord_line.wh_id
+		    and sort3.client_id = ord_line.client_id
+		    and sort3.nottyp = 'SORT_3') 
+		   left
+		   join ord_line_note sort4
+		     on(sort4.ordnum = ord_line.ordnum
+		    and sort4.ordlin = ord_line.ordlin
+		    and sort4.ordsln = ord_line.ordsln
+		    and sort4.wh_id = ord_line.wh_id
+		    and sort4.client_id = ord_line.client_id
+		    and sort4.nottyp = 'SORT_4') 
+		   left
+		   join ord_line_note sort5
+		     on(sort5.ordnum = ord_line.ordnum
+		    and sort5.ordlin = ord_line.ordlin
+		    and sort5.ordsln = ord_line.ordsln
+		    and sort5.wh_id = ord_line.wh_id
+		    and sort5.client_id = ord_line.client_id
+		    and sort5.nottyp = 'SORT_5') 
+		   left
+		   join ord_line_note negsort1
+		     on(negsort1.ordnum = ord_line.ordnum
+		    and negsort1.ordlin = ord_line.ordlin
+		    and negsort1.ordsln = ord_line.ordsln
+		    and negsort1.wh_id = ord_line.wh_id
+		    and negsort1.client_id = ord_line.client_id
+		    and negsort1.nottyp = 'N_KENM_1') 
+		   left
+		   join ord_line_note negsort2
+		     on(negsort2.ordnum = ord_line.ordnum
+		    and negsort2.ordlin = ord_line.ordlin
+		    and negsort2.ordsln = ord_line.ordsln
+		    and negsort2.wh_id = ord_line.wh_id
+		    and negsort2.client_id = ord_line.client_id
+		    and negsort2.nottyp = 'N_KENM_2') 
+		   left
+		   join ord_line_note clockid
+		     on(clockid.ordnum = ord_line.ordnum
+		    and clockid.ordlin = ord_line.ordlin
+		    and clockid.ordsln = ord_line.ordsln
+		    and clockid.wh_id = ord_line.wh_id
+		    and clockid.client_id = ord_line.client_id
+		    and clockid.nottyp = 'KLOKNR') 
+		   left
+		   join ord_line_note clocktrn
+		     on(clocktrn.ordnum = ord_line.ordnum
+		    and clocktrn.ordlin = ord_line.ordlin
+		    and clocktrn.ordsln = ord_line.ordsln
+		    and clocktrn.wh_id = ord_line.wh_id
+		    and clocktrn.client_id = ord_line.client_id
+		    and clocktrn.nottyp = 'KLOK_TRN') 
+		   left
+		   join supmst
+		     on(invdtl_hist.supnum = supmst.supnum) 
+		   left
+		   join cstmst as route_cst
+		     on(ord.rtcust = route_cst.cstnum) 
+		   left
+		   join cstmst as ship_cst
+		     on(ord.stcust = ship_cst.cstnum) 
+		   left
+		   join adrmst as ship_cst_name
+		     on(ship_cst_name.adr_id = ship_cst.adr_id) 
+		   left
+		   join adrmst as route_cst_name
+		     on(route_cst_name.adr_id = route_cst.adr_id) 
+		   left
+		   join adrmst as route_to
+		     on(ord.rt_adr_id = route_to.adr_id) 
+		   left
+		   join adrmst as ship_to
+		     on(ord.st_adr_id = ship_to.adr_id) 
+		   left
+		   join adrmst as suplier
+		     on(supmst.adr_id = suplier.adr_id) 
+		  where invlod_hist.lodnum = @lodnum
+		    and invlod_hist.inv_hist_id = (select max(id_h.inv_hist_id) 
+		                                     from invlod_hist id_h
+		                                    where id_h.lodnum = invlod_hist.lodnum) 
+		  order by total_cust_fust_qty,
+		        ckn_customer desc,
+		        description desc] catch(-1403)
+	} >> query_data
+	|
+	publish data
+	 where query_data = @query_data
+	   and count = rowcount(@query_data)
+	|
+	if (@count > 0)
+	{
+		[[
+            import com.redprairie.moca.MocaException;
+            import com.redprairie.moca.MocaResults;
+            import com.redprairie.moca.util.MocaUtils;
+            import com.redprairie.moca.MocaContext;
+            MocaContext _moca = MocaUtils.currentContext();  
+            Integer i = count
+            
+            query_data.addColumn("label_counter",MocaType.INTEGER);
+            try
+            {
+                while(query_data.next())
+                {
+                    query_data.setIntValue("label_counter", i);
+                    i--
+                }
+            }
+            catch (MocaException e)
+            {
+                throw e;
+            }
+            return query_data
+    ]]
+	}
+} >> query_data
+|
+{
+	publish data combination
+	 where res = @query_data
+	|
+	/*## Transaction labels ##*/
+	
+	/*this must be the first one to generate as this one needs to be generates multiple times, others only once print order will be defined later*/
+	publish data
+	 where transaction_label = '
+^FX ## TRANSACTIONLABEL ' || @label_counter || '/' || rowcount(@res) || ' ##
+^XA
+^MTD
+^MD0
+^PF0
+^LH040,040
+^LT0
+^LRN
+^FWN
+^PW1198
+^LL800
+^CI27
+^FX HEADER 
+^FO000,000^A0N,20,20^FDTransaction^FS
+^FO000,020^A0N,20,20^FDRef^FS
+^FO031,020^A0N,20,20^FD' || @ref || ' ' || @label_counter || '/' || rowcount(@res) || '^FS
+^FO1000,000^XGR:RFHLOGO.GRF,1,1^FS'
+	/*logo code is stored in the pof file which stores it on the ram of the printer*/
+	|
+	if (@rush_order = 1)
+	{
+		save session variable
+		 where name = 'rush_ord'
+		   and value = 1
+		|
+		publish data
+		 where transaction_label = @transaction_label || '^FO140,000^GB830,70,70,,^FS^FO150,010^A0N,50,40^FR^FDPriority^FS'
+	}
+	|
+	publish data
+	 where transaction_label = @transaction_label || '
+^FX BOX ITEM 
+^FO140,80^GB480,260,3^FS
+^FO150,100^A0N,20,20^FDItem description^FS
+^FO150,125^A0N,30,30^FD' || @description || '^FS
+^FO500,100^A0N,20,20^FDQuantity^FS
+^FO500,125^A0N,30,30^FD' || @fust_qty || '/' || @order_qty || '^FS
+^FO150,170^A0N,20,20^FDContent^FS
+^FO150,195^A0N,28,28^FD' || @Qty_in_Fust || '^FS
+^FO250,170^A0N,20,20^FDPackaging^FS
+^FO250,195^A0N,28,28^FD' || @Fustcode || '^FS
+^FO380,170^A0N,20,20^FDQuality^FS
+^FO380,195^A0N,28,28^FD' || @inv_stat || '^FS
+^FO480,170^A0N,20,20^FDK01^FS
+^FO480,195^A0N,28,28^FD' || @negsort1 || '^FS
+^FO530,170^A0N,20,20^FDK02^FS
+^FO530,195^A0N,28,28^FD' || @negsort2 || '^FS
+^FO150,235^A0N,20,20^FDSorting characteristics^FS
+^FO150,260^A0N,28,28^FD' || @sort1 || '   ' || @sort2 || '   ' || @sort3 || '   ' || @sort4 || '   ' || @sort5 || '^FS
+
+^FX BOX BUYER 
+^FO140,360^GB480,260,3^FS
+^FO150,380^A0N,20,20^FDBuyer^FS
+^FO150,405^A0N,28,28^FD' || @buyer || '^FS
+^FO210,380^A0N,20,20^FDSeat^FS
+^FO210,405^A0N,28,28^FD' || @seat || '^FS
+^FO270,380^A0N,20,20^FDTransaction^FS
+^FO270,405^A0N,28,28^FD' || @clocktrn || '^FS
+^FO470,380^A0N,20,20^FDClock^FS
+^FO470,405^A0N,28,28^FD' || @clockid || '^FS
+^FO530,380^A0N,20,20^FDSite^FS
+^FO530,405^A0N,28,28^FD' || @wh_id || '^FS
+^FO150,460^A0N,20,20^FDEarly ship date^FS
+^FO150,485^A0N,28,28^FD' || @Early_Ship_date || '^FS
+
+^FX BOX SUPPLIER 
+^FO640,360^GB480,260,3^FS
+^FO650,380^A0N,20,20^FDSupplier^FS
+^FO650,405^A0N,28,28^FD' || @CKN_Supplier || '^FS
+^FO870,380^A0N,20,20^FDSupplier GLN^FS
+^FO870,405^A0N,28,28^FD' || @EAN_Supplier || '^FS
+^FO650,460^A0N,20,20^FDLot number^FS
+^FO650,485^A0N,28,28^FD' || @lotnum || '^FS
+^FO870,460^A0N,20,20^FDItem^FS
+^FO870,485^A0N,28,28^FD' || @SKU || '^FS
+^FO650,530^A0N,20,20^FDOrder^FS
+^FO650,555^A0N,28,28^FD' || @Customer_Order || '^FS
+
+^FX BOX CUSTOMER 
+^FO640,80^GB480,260,3^FS
+^FO650,105^A0N,30,30^FD' || @Customer_Name || '^FS
+^FO650,170^A0N,20,20^FDCustomer^FS
+^FO650,195^A0N,28,28^FD' || @CKN_Customer || '^FS
+^FO725,195^A0N,28,28^FD/^FS
+^FO735,170^A0N,20,20^FDCustomer GLN^FS
+^FO735,195^A0N,28,28^FD' || @EAN_Customer || '^FS
+^FO920,195^A0N,28,28^FD/^FS
+^FO930,170^A0N,20,20^FDLocation GLN^FS
+^FO930,195^A0N,28,28^FD' || @Customer_GLN_Loc || '^FS
+^FO650,235^A0N,28,28^FD' || @Customer_Address || '^FS
+^FO650,265^A0N,28,28^FD' || @Customer_zipcode || ' ' || @customer_city || '^FS
+
+^FX BOX BARCODE DATA
+' || decode(@ekt_barcode, '-', '^BY3,2,100^FO000,080^BCB,100,Y,N,N,A^FD' || @Customer_Ref || '^FS', 'NONE', '^BY3,2,100^FO040,080^BCB,50,Y,N,N,A^FD' || @Customer_Ref || '^FS', '^FO420,200^^BY3,2,100^FO00,80^B2B,100,Y,N,N,A^FD' || @ekt_barcode || '^FS') || '
+
+^FX OUT OF THE BOX
+^FO140,640^A0N,60,70^FD' || @Customer_Location || '^FS
+^FO140,700^A0N,50,50^FD' || @Cons_Criteria || '^FS
+^XZ
+'
+} >> transaction_labels
+|
+{
+	convert column results to string
+	 where resultset = @transaction_labels
+	   and colnam = 'transaction_label'
+	   and separator = '
+       '
+	|
+	publish data
+	 where transaction_labels_zpl = @result_string
+}
+|
+publish top rows
+ where count = 1
+   and res = @query_data
+|
+/*## Delivery label ##*/
+publish data
+ where delivery_label = '
+^FX ## DELIVERYLABEL ##
+~TA0
+~SD30
+^XA
+^MTD
+^MD0
+^PF0
+^LH040,030
+^LT0
+^LRN
+^FWN
+^PW1198
+^LL800
+^CI27
+
+^FX HEADER 
+^FO000,000^A0N,40,20^FD- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ^FS
+^FO010,030^A0N,20,20^FDDelivery^FS
+^FO010,050^A0N,20,20^FDRef^FS
+^FO040,050^A0N,20,20^FD' || @ref || '^FS
+^FO1000,020^XGR:RFHLOGO.GRF,1,1^FS'
+/*logo code is stored in the pof file which stores it on the ram of the printer*/
+|
+get session variable
+ where name = 'rush_ord' catch(@?)
+|
+if (@value = 1)
+{
+	publish data
+	 where delivery_label = @delivery_label || '^FO140,025^GB830,70,70,,^FS^FO150,035^A0N,50,40^FR^FDPriority^FS'
+}
+|
+save session variable
+ where name = 'rush_ord'
+   and value = 0
+|
+publish data
+ where delivery_label = @delivery_label || '
+^FX BOX CUSTOMER 
+^FO140,120^GB620,240,3^FS'
+|
+if (@count_cust > 1)
+{
+	publish data
+	 where delivery_label = @delivery_label || '^FO150,145^A0N,30,30^FDMeerdere klanten^FS'
+}
+else
+{
+	publish data
+	 where delivery_label = @delivery_label || '^FO150,145^A0N,30,30^FD' || @Carrier_Name || '^FS'
+}
+|
+publish data
+ where delivery_label = @delivery_label || '
+^FO150,210^A0N,20,20^FDCustomer^FS
+^FO150,235^A0N,28,22^FD' || @CKN_Carrier || '^FS
+^FO220,235^A0N,28,28^FD/^FS
+^FO235,210^A0N,20,20^FDCustomer GLN^FS
+^FO235,235^A0N,28,28^FD' || @EAN_Carrier || '^FS
+^FO425,235^A0N,28,28^FD/^FS
+^FO440,210^A0N,20,20^FDLocation GLN^FS
+^FO440,235^A0N,28,28^FD' || @Carrier_GLN_Loc || '^FS
+^FO150,270^A0N,28,28^FD' || @Carrier_Address || '^FS
+^FO150,305^A0N,28,28^FD' || @carrier_zipcode || ' ' || @carrier_city || '^FS
+
+^FX BOX BARCODE DATA
+^BY3,2,100^FO00,80^BCB,100,Y,N,N,A^FD' || @lodnum || '^FS  
+
+^FX BOX DELIVERY WINDOW 
+^FO140,370^GB620,240,3^FS
+^FO150,415^A0N,22,22^FDDelivery window^FS
+^FO430,415^A0N,28,28^FD' || @Earliest_Ship_date || '^FS
+^FO430,455^A0N,28,28^FD' || @Latest_Ship_date || '^FS
+^FO150,500^A0N,22,22^FDNumber of cases^FS
+^FO430,500^A0N,35,35^FD' || @total_fust_qty || '^FS
+^FO150,560^A0N,22,22^FDNumber of transactions^FS
+^FO430,560^A0N,35,35^FD' || @total_transactions || '^FS
+
+^FX OUT OF THE BOX' ||
+decode(@uc_sort_out_id, '', '', '^FO825,115^B2N,120,N,N,Y^FD' || decode(@delivery_day_override, 1, nvl(@delivery_day_char, '8'), decode(@max_delivery_day, @min_delivery_day, @min_delivery_day, nvl(@delivery_day_char, '8'))) || lpad(@uc_sort_out_id, 2, '0') || '04' || '^FS') ||
+'^FO885,295^A0N,110,115^FD' || @uc_sort_out_id || '^FS
+^FO825,415^A0N,110,115^FD' || @Latest_Ship_time || '^FS
+^FO140,620^A0N,110,115^FD' || @Carrier_Location || '^FS
+^FO140,725^A0N,50,50^FD' || @Cons_Criteria || '^FS
+^XZ
+'
+|
+/*## packaging label ##*/
+if ((@asset_typ = '2') or (@additional_shelves > 0))
+{
+	get usr customer for asset
+	 where lodnum = @lodnum
+	|
+	[select cstmst.uc_ckn_no as alloc_ckn,
+	        adrmst.adrnam as alloc_cust_name
+	   from cstmst
+	  inner
+	   join adrmst
+	     on cstmst.adr_id = adrmst.adr_id
+	  where @stcust = cstmst.cstnum]
+	|
+	publish data
+	 where packaging_label = '
+^FX ## PACKAGINGLABEL ##
+~TA0
+~SD30
+^XA
+^MTD
+^MD0
+^PF0
+^LH040,040
+^LT0
+^LRN
+^FWN
+^PW1198
+^LL800
+^CI27
+
+^FX HEADER 
+^FO010,010^A0N,20,20^FDPackaging^FS
+^FO010,030^A0N,20,20^FDRef^FS
+^FO040,030^A0N,20,20^FD' || @ref || '^FS
+^FO1000,000^XGR:RFHLOGO.GRF,1,1^FS
+
+^FX BOX CUSTOMER
+^FO180,120^GB910,460,3^FS
+^FO200,160^A0N,40,40^FDType loadcarrier^FS
+^FO550,160^A0N,40,40^FD' || @Loadcarrier_Type || '^FS
+^FO200,240^A0N,40,40^FDAdditional shelves^FS
+^FO550,240^A0N,40,40^FD' || @Additional_Shelves || '^FS
+^FO200,320^A0N,40,40^FDTo customer^FS
+^FO550,320^A0N,40,40^FD' || @alloc_cust_name || '^FS
+^FO550,420^A0N,25,25^FDCustomer^FS
+^FO550,455^A0N,40,40^FD' || @alloc_CKN || '^FS
+^FO680,455^A0N,40,40^FD/^FS
+^FO715,420^A0N,25,25^FDCustomer GLN^FS
+^FO715,455^A0N,40,40^FD' || @stcust || '^FS
+
+^FX BOX BARCODE DATA
+^BY3,2,100^FO00,80^BCB,100,Y,N,N,A^FD' || @lodnum || '^FS
+^XZ
+'
+}
+else
+{
+	publish data
+	 where packaging_label = ' '
+}
+|
+[[
+  import java.text.*
+
+MocaResults data = moca.getVariable("res");
+  StringBuilder zplData;
+zplData = new StringBuilder();
+//This is the print order of the labels, the transaction label can be multiple labels
+zplData.append(transaction_labels_zpl.toString());
+zplData.append(packaging_label.toString());
+zplData.append(delivery_label.toString());
+
+int labelLength;
+labelLength = zplData.length();
+int noColumns;
+noColumns = (labelLength / 2000)+1;
+
+// Define our output resultset and make sure we have enough columns for most labels.
+MocaResults labels = moca.newResults();
+for (int i = 0; i < noColumns; i++) {
+    labels.addColumn("zpl" + i, MocaType.STRING);
+}
+
+labels.addRow();
+int zplStart = 0
+int zplEnd = 2000
+/* Split ZPL string in multiple zpl variables to overcome BY limitation of 2048 characters in a variable */
+for (int i = 0; i < noColumns; i++) {
+    labels.setStringValue("zpl" + i, zplData.substring(zplStart,labelLength<zplEnd?labelLength:zplEnd ));
+    zplStart += 2000
+    zplEnd += 2000
+}
+  return labels;
+]]

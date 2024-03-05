@@ -1,0 +1,30 @@
+entity: Message
+version: '1.1'
+data:
+
+# pages
+
+- locale: en-us
+  namespace: refs.menus.pages.titles
+  messages:
+
+  - name: customer-SamplePage
+    text: Sample
+
+# items
+
+- locale: en-us
+  namespace: refs.menus.items.titles
+  messages:
+  - name: customer-Sample
+    text: Customer Sample Menu
+
+  - name: customer-SamplePage
+    text: Sample Page
+
+- locale: en-us
+  namespace: refs.menus.items.descriptions
+  messages:
+
+  - name: customer-Sample
+    text: Customer sample app build from LES

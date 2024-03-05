@@ -1,0 +1,162 @@
+<command>
+  <name>send usr inventory relabel interface</name>
+  <description>send usr inventory relabel interface</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* send usr inventory relabel interface
+ * Send the inventory relabel interface, we trigger the event INV-ATTR-CHANGE.
+ * Version history:
+ *  2018-12-24  Salem Hamze  Initial version.
+ *  2020-10-12 Radina Ivanova Added values for all inventory attributes to prevent null values in the interface
+ */
+validate stack variable not null
+ where name = 'from_id'
+|
+validate stack variable not null
+ where name = 'to_id'
+|
+if (@lodlvl = 'L')
+{
+    get integrator system id
+     where systyp = 'WMD'
+    |
+    [select inventory_view.lodnum,
+            inventory_view.subnum,
+            inventory_view.dtlnum,
+            inventory_view.prtnum,
+            inventory_view.prt_client_id,
+            inventory_view.lotnum,
+            inventory_view.inv_attr_str4,
+            inventory_view.inv_attr_str9,
+            /* Values to prevent the INV-ATTR-CHANGE interface to contain "(null)" text in fields. */
+            inventory_view.asset_typ,
+            inventory_view.inv_attr_str1,
+            inventory_view.inv_attr_str2,
+            inventory_view.inv_attr_str3,
+            inventory_view.inv_attr_str5,
+            inventory_view.inv_attr_str6,
+            inventory_view.inv_attr_str7,
+            inventory_view.inv_attr_str8,
+            inventory_view.inv_attr_str10,
+            inventory_view.inv_attr_str11,
+            inventory_view.inv_attr_str12,
+            inventory_view.inv_attr_str13,
+            inventory_view.inv_attr_str14,
+            inventory_view.inv_attr_str15,
+            inventory_view.inv_attr_str16,
+            inventory_view.inv_attr_str17,
+            inventory_view.inv_attr_str18,
+            inventory_view.inv_attr_int1,
+            inventory_view.inv_attr_int2,
+            inventory_view.inv_attr_int3,
+            inventory_view.inv_attr_int4,
+            inventory_view.inv_attr_int5,
+            inventory_view.inv_attr_flt1,
+            inventory_view.inv_attr_flt2,
+            inventory_view.inv_attr_flt3,
+            inventory_view.inv_attr_dte1,
+            inventory_view.inv_attr_dte2,
+            inventory_view.load_attr1_flg,
+            inventory_view.load_attr2_flg,
+            inventory_view.load_attr3_flg,
+            inventory_view.load_attr4_flg,
+            inventory_view.load_attr5_flg
+       from inventory_view
+      where inventory_view.lodnum = @to_id
+        and inventory_view.untqty > 0] catch(-1403)
+    |
+    if (@? = 0)
+    {
+    sl_log event
+     where evt_id = 'INV-ATTR-CHANGE'
+       and sys_id = @sys_id
+       and wh_id = @wh_id
+    /* Required fields for the interface */
+       and from_prtnum = @prtnum
+       and to_prtnum = @prtnum
+       and from_prt_client_id = @prt_client_id
+       and to_prt_client_id = @prt_client_id
+       and from_lotnum = @lotnum
+       and to_lotnum = @lotnum
+       and from_inv_attr_str4 = @inv_attr_str4
+       and to_inv_attr_str4 = @inv_attr_str4
+       and from_inv_attr_str9 = @inv_attr_str9
+       and to_inv_attr_str9 = @inv_attr_str9
+    /* Actual changes */
+       and from_lodnum = @from_id
+       and to_lodnum = @to_id
+       and lodnum = @to_id
+       and lodlvl = @lodlvl
+       and reacod = @reacod
+       and adj_ref2 = @dtlnum
+    /* Prevent (null) in interface. */
+       and from_load_attr1_flg = @load_attr1_flg
+       and to_load_attr1_flg = @load_attr1_flg
+       and from_load_attr2_flg = @load_attr2_flg
+       and to_load_attr2_flg = @load_attr2_flg
+       and from_load_attr3_flg = @load_attr3_flg
+       and to_load_attr3_flg = @load_attr3_flg
+       and from_load_attr4_flg = @load_attr4_flg
+       and to_load_attr4_flg = @load_attr4_flg
+       and from_load_attr5_flg = @load_attr5_flg
+       and to_load_attr5_flg = @load_attr5_flg
+       and from_asset_typ = nvl(@asset_typ, '')
+       and to_asset_typ = nvl(@asset_typ, '')
+       and from_inv_attr_str1 = nvl(@inv_attr_str1, '')
+       and to_inv_attr_str1 = nvl(@inv_attr_str1, '')
+       and from_inv_attr_str2 = nvl(@inv_attr_str2, '')
+       and to_inv_attr_str2 = nvl(@inv_attr_str2, '')
+       and from_inv_attr_str3 = nvl(@inv_attr_str3, '')
+       and to_inv_attr_str3 = nvl(@inv_attr_str3, '')
+       and from_inv_attr_str5 = nvl(@inv_attr_str5, '')
+       and to_inv_attr_str5 = nvl(@inv_attr_str5, '')
+       and from_inv_attr_str6 = nvl(@inv_attr_str6, '')
+       and to_inv_attr_str6 = nvl(@inv_attr_str6, '')
+       and from_inv_attr_str7 = nvl(@inv_attr_str7, '')
+       and to_inv_attr_str7 = nvl(@inv_attr_str7, '')
+       and from_inv_attr_str8 = nvl(@inv_attr_str8, '')
+       and to_inv_attr_str8 = nvl(@inv_attr_str8, '')
+       and from_inv_attr_str10 = nvl(@inv_attr_str10, '')
+       and to_inv_attr_str10 = nvl(@inv_attr_str10, '')
+       and from_inv_attr_str11 = nvl(@inv_attr_str11, '')
+       and to_inv_attr_str11 = nvl(@inv_attr_str11, '')
+       and from_inv_attr_str12 = nvl(@inv_attr_str12, '')
+       and to_inv_attr_str12 = nvl(@inv_attr_str12, '')
+       and from_inv_attr_str13 = nvl(@inv_attr_str13, '')
+       and to_inv_attr_str13 = nvl(@inv_attr_str13, '')
+       and from_inv_attr_str14 = nvl(@inv_attr_str14, '')
+       and to_inv_attr_str14 = nvl(@inv_attr_str14, '')
+       and from_inv_attr_str15 = nvl(@inv_attr_str15, '')
+       and to_inv_attr_str15 = nvl(@inv_attr_str15, '')
+       and from_inv_attr_str16 = nvl(@inv_attr_str16, '')
+       and to_inv_attr_str16 = nvl(@inv_attr_str16, '')
+       and from_inv_attr_str17 = nvl(@inv_attr_str17, '')
+       and to_inv_attr_str17 = nvl(@inv_attr_str17, '')
+       and from_inv_attr_str18 = nvl(@inv_attr_str18, '')
+       and to_inv_attr_str18 = nvl(@inv_attr_str18, '')
+       and from_inv_attr_int1 = nvl(@inv_attr_int1, '')
+       and to_inv_attr_int1 = nvl(@inv_attr_int1, '')
+       and from_inv_attr_int2 = nvl(@inv_attr_int2, '')
+       and to_inv_attr_int2 = nvl(@inv_attr_int2, '')
+       and from_inv_attr_int3 = nvl(@inv_attr_int3, '')
+       and to_inv_attr_int3 = nvl(@inv_attr_int3, '')
+       and from_inv_attr_int4 = nvl(@inv_attr_int4, '')
+       and to_inv_attr_int4 = nvl(@inv_attr_int4, '')
+       and from_inv_attr_int5 = nvl(@inv_attr_int5, '')
+       and to_inv_attr_int5 = nvl(@inv_attr_int5, '')
+       and from_inv_attr_flt1 = nvl(@inv_attr_flt1, '')
+       and to_inv_attr_flt1 = nvl(@inv_attr_flt1, '')
+       and from_inv_attr_flt2 = nvl(@inv_attr_flt2, '')
+       and to_inv_attr_flt2 = nvl(@inv_attr_flt2, '')
+       and from_inv_attr_flt3 = nvl(@inv_attr_flt3, '')
+       and to_inv_attr_flt3 = nvl(@inv_attr_flt3, '')
+       and from_inv_attr_dte1 = nvl(@inv_attr_dte1, '')
+       and to_inv_attr_dte1 = nvl(@inv_attr_dte1, '')
+       and from_inv_attr_dte2 = nvl(@inv_attr_dte2, '')
+       and to_inv_attr_dte2 = nvl(@inv_attr_dte2, '')
+    }
+}
+]]>
+</local-syntax>
+</command>

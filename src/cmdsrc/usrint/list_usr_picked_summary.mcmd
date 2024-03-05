@@ -1,0 +1,92 @@
+<command>
+  <name>list usr picked summary</name>
+  <description>list usr picked summary</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* list usr picked summary
+ * Lists the picked picks per zone for dashboard
+ * Version history:
+ * 2023-06-12  Jasper Ringoir   Initial setup
+ */
+get warehouse id
+|
+validate stack variable not null
+ where name = 'wh_id'
+|
+{
+	[select rtnum2 as excl_pck_zone_id
+	   from poldat
+	  where polcod = 'USR-PICKING' 
+	    and polvar = 'PICK-TASK-DASHBOARD' 
+	    and polval = 'EXCL-PCKZONE' 
+	    and rtnum1 = 1
+	    and wh_id_tmpl = @wh_id] catch(-1403) >> excl_pck_zone_ids
+	|
+	if (@? = -1403)
+	{
+		publish data
+		 where zone_excl_clause = '1 = 1'
+	}
+	else
+	{
+		convert column results to string
+		 where resultset = @excl_pck_zone_ids
+		   and colnam = 'excl_pck_zone_id'
+		   and separator = ','
+		|
+		publish data
+		 where zone_excl_clause = 'pck_zone.pck_zone_id not in(' || @result_string || ')'
+	}
+}
+|
+[select max(rtnum2) past_time_frames
+   from poldat
+  where polcod = 'USR-PICKING' 
+    and polvar = 'PICK-TASK-DASHBOARD' 
+    and polval = 'PAST-TIME-FRAMES' 
+    and rtnum1 = 1
+    and wh_id_tmpl = @wh_id] catch(-1403)
+|
+if (@? = -1403)
+{
+	publish data
+	 where pckdte_clause = '1 = 1'
+}
+else
+{
+	publish data
+	 where pckdte_clause = 'pckwrk_hdr.pckdte > CONVERT(DATETIME, to_char(sysdate - ((0.5*' || @past_time_frames || ') / 24), ''YYYY-MM-DD HH24'') || decode(sign(to_char(sysdate + ((0.5*' || @past_time_frames || ') / 24), ''mi'') -29), 1, '':30:00'', '':00:00''))'
+}
+|
+publish data
+ where filterByClause = nvl(@filterByClause, [1=1])
+   and sortOrderClause = nvl(@sortOrderClause, 'pck_zone_cod')
+|
+[/*#limit=@offset,@limit,true*/
+ select * from (select pck_zone.pck_zone_id,
+        pck_zone.pck_zone_cod,
+        max(dscmst.lngdsc) as zone_description,
+        count(pckwrk_hdr.wrkref) total_picked
+   from pckwrk_hdr
+   join locmst
+     on locmst.stoloc = pckwrk_hdr.srcloc
+    and locmst.wh_id = pckwrk_hdr.wh_id
+  inner
+   join pck_zone
+     on pck_zone.pck_zone_id = locmst.pck_zone_id
+  inner
+   join dscmst
+     on colnam = 'pck_zone_cod|wh_id' 
+    and colval = pck_zone.pck_zone_cod || '|' || pck_zone.wh_id
+    and dscmst.locale_id = nvl(@locale_id, @@locale_id) 
+  where pckwrk_hdr.pckqty = pckwrk_hdr.appqty
+    and @zone_excl_clause:raw
+    and @pckdte_clause:raw
+  group by pck_zone.pck_zone_id,
+        pck_zone.pck_zone_cod) pick_summary
+  where @filterByClause:raw
+  order by @sortOrderClause:raw]
+]]>
+</local-syntax>
+</command>
