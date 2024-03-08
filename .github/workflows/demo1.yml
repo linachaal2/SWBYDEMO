@@ -10,6 +10,8 @@ jobs:
           echo "Today is $DAY_OF_WEEK!"
           echo 'Hi ${{ github.workspace }}'
           pwd
+          cd scripts
+          perl build_rollout.pl -h
       - name: Set current date as env variable
         run: echo "NOW=$(date +'%Y-%m-%dT%H:%M:%S')" >> $GITHUB_ENV
       - name: Echo current date
