@@ -3,7 +3,7 @@ name: Changed Files test
 on:
   pull_request:
     branches:
-      - b2
+      - main
   workflow_dispatch:
     inputs:
       rollout_number:
