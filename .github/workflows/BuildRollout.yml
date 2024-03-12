@@ -31,6 +31,20 @@ jobs:
       pull-requests: read
 
     steps:
+      - name: Set enviroment
+        shell: bash
+        run: |
+          echo "sha_short=$(git rev-parse --short "$GITHUB_SHA")" >> "$GITHUB_ENV"
+          echo "branch=$(echo ${GITHUB_REF#refs/heads/})" >> "$GITHUB_ENV"
+          echo "secret=second_value" >> "$GITHUB_ENV"
+          
+      - name: Read enviroment
+        shell: bash
+        run: |
+          echo "BRANCH: ${{ env.branch }}"
+          echo "SHA_SHORT: ${{ env.sha_short }}"
+          echo "secret: ${{ env.secret }}"
+          
       - name: Get changed files
         id: changed-files
         uses: tj-actions/changed-files@v41
