@@ -3,7 +3,7 @@ on:
   workflow_dispatch
 jobs:
   track_pr:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     steps:
       - run: |
           numOpenIssues="$(gh api graphql -F owner=$OWNER -F name=$REPO -f query='
