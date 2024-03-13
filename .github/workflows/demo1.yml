@@ -15,7 +15,7 @@ jobs:
       - name: Echo current date
         run: echo $NOW # Gives "2022-12-11T01:42:20"
       - name: running perl
-        run: perl HelloWorldPerl.pl
+        run: perl HelloWorldPerl.pl refs/pull/9/merge 9cfe7bc
   CheckingModifiedFile:
     runs-on: ubuntu-latest
     steps:
