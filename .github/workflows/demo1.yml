@@ -17,13 +17,9 @@ jobs:
       - name: running perl
         run: perl HelloWorldPerl.pl refs/pull/9/merge 9cfe7bc
       - name: Get Git Repo name   
-        uses: appleboy/ssh-action@master
-        env:
-          REPO: ${{ github.repository }} # e.g. "appleboy/ssh-action"
-          TOKEN: ${{ github.token }}
-        with:
-          envs: REPO,TOKEN
-          run: echo https://$TOKEN@github.com/$REPO.git
+          run: |
+            echo "REPO ${{ github.repository }}"
+            echo "REPO ${{ github.token }}"
   CheckingModifiedFile:
     runs-on: ubuntu-latest
     steps:
