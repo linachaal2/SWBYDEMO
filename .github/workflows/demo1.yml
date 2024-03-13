@@ -17,9 +17,9 @@ jobs:
       - name: running perl
         run: perl HelloWorldPerl.pl refs/pull/9/merge 9cfe7bc
       - name: Get Git Repo name   
-          run: |
-            echo "REPO ${{ github.repository }}"
-            echo "REPO ${{ github.token }}"
+        run: |
+          echo "REPO ${{ github.repository }}"
+          echo "REPO ${{ github.token }}"
   CheckingModifiedFile:
     runs-on: ubuntu-latest
     steps:
