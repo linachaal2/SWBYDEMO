@@ -9,12 +9,13 @@ jobs:
           echo "Hello There!"
           echo "Today is $DAY_OF_WEEK!"
           echo 'Hi ${{ github.workspace }}'
+          pwd
       - name: Set current date as env variable
         run: echo "NOW=$(date +'%Y-%m-%dT%H:%M:%S')" >> $GITHUB_ENV
       - name: Echo current date
         run: echo $NOW # Gives "2022-12-11T01:42:20"
       - name: running perl
-        run: perl -v
+        run: perl HelloWorldPerl.pl
   CheckingModifiedFile:
     runs-on: ubuntu-latest
     steps:
