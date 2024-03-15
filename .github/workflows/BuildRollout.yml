@@ -34,6 +34,10 @@ jobs:
       - name: Set enviroment
         shell: bash
         run: |
+          echo "Path is ... $PATH"
+          PATH=$PATH:$(which git)
+          echo "Path is ... $PATH"
+          echo "Branch is ... ${{ github.head_ref }}"         
           echo "sha_short=$(git rev-parse --short "$GITHUB_SHA")" >> "$GITHUB_ENV"
           echo "branch=$(echo ${GITHUB_REF#refs/heads/})" >> "$GITHUB_ENV"
           echo "secret=second_value" >> "$GITHUB_ENV"
@@ -44,6 +48,7 @@ jobs:
           echo "git rev-parse ${{ github.sha }}^@ | grep -Fvx ${{ github.event.pull_request.head.sha }}"
           #export LATEST_BASE_COMMIT=git rev-parse ${{ github.sha }}^@ | grep -Fvx ${{ github.event.pull_request.head.sha }}
           #echo "$LATEST_BASE_COMMIT"
+          git diff --name-only "$GITHUB_BASE_REF..${{ github.head_ref }}"
       - name: Read enviroment
         shell: bash
         run: |
