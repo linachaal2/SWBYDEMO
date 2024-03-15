@@ -37,6 +37,8 @@ jobs:
           echo "Path is ... $PATH"
           PATH=$PATH:$(which git)
           echo "Path is ... $PATH"
+          echo "REPO: ${{ github.event.repository.name }}"  
+          echo "OWNER: ${{ github.repository_owner }}"
           echo "Branch is ... ${{ github.head_ref }}"         
           echo "sha_short=$(git rev-parse --short "$GITHUB_SHA")" >> "$GITHUB_ENV"
           echo "branch=$(echo ${GITHUB_REF#refs/heads/})" >> "$GITHUB_ENV"
@@ -59,12 +61,7 @@ jobs:
           #echo "$LATEST_BASE_COMMIT"
           #git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }}
           #git diff --name-only "$GITHUB_BASE_REF..${{ github.head_ref }}"
-          env:
-            GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-            OWNER: ${{ github.repository_owner }}
-            REPO: ${{ github.event.repository.name }}
-          echo "REPO: $REPO"  
-          echo "OWNER: $OWNER"  
+           
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha }}
