@@ -85,7 +85,7 @@ jobs:
       - name: List changed files
         run: |
           for file in ${{ steps.changed-files.outputs.changed_files }}; do
-           echo "$file was changed"
+           echo "$file was changed !"
           done      
       - name: Read enviroment
         shell: bash
