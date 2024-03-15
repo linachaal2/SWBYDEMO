@@ -58,7 +58,7 @@ jobs:
           #export LATEST_BASE_COMMIT=git rev-parse ${{ github.sha }}^@ | grep -Fvx ${{ github.event.pull_request.head.sha }}
           #echo "$LATEST_BASE_COMMIT"
           git diff --name-only "$PR_BASE_SHA..$GITHUB_SHA"
-          #git diff --name-only "$GITHUB_BASE_REF..${{ github.head_ref }}"
+          #git diff --name-only "$GITHUB_BASE_REF ${{ github.head_ref }}"
       - name: Read enviroment
         shell: bash
         run: |
