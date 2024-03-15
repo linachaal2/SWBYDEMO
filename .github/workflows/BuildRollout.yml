@@ -47,7 +47,6 @@ jobs:
           export PR_HEAD_SHA=${{ github.event.pull_request.head.sha }}
           echo "PR_HEAD_SHA: $PR_HEAD_SHA"
           echo "PR_HEAD_SHA_SHORT=$(git rev-parse --short "$PR_HEAD_SHA")"         
-          export GITHUB_SHA=${{ GITHUB_SHA }}
           echo "GITHUB_SHA: $GITHUB_SHA"
           echo "GITHUB_SHA_SHORT=$(git rev-parse --short "$GITHUB_SHA")"           
           export PR_BASE_REF=${{ github.event.pull_request.base.ref }}
