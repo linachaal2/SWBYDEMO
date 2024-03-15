@@ -96,44 +96,4 @@ jobs:
           echo "secret: ${{ env.secret }}"
           perl HelloWorldPerl.pl ${{ env.branch }} ${{ env.sha_short }}
           
-      - name: Get changed files
-        id: changed-PR-files
-        uses: tj-actions/changed-files@v41
-
-      - name: List all changed files
-        env:
-          ALL_CHANGED_FILES: ${{ steps.changed-PR-files.outputs.all_changed_files }}
-        run: |
-          for file in "$ALL_CHANGED_FILES"; do
-            echo "$file was changed"
-          done
-          
-      - name: Get changed files and write the outputs to a JSON file
-        id: changed-files-write-output-files-json
-        uses: tj-actions/changed-files@v41
-        with:
-          json: true
-          write_output_files: true
-          output_dir: './tmp/outputs'
-          rollout-number: '${{ github.event.inputs.rollout_number }}'
-
-      - name: Checkout into dir1
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          path: dir1
-  
-      - name: Run changed-files with defaults in dir1
-        id: changed-files-for-dir1
-        uses: tj-actions/changed-files@v42
-        with:
-          path: dir1
-  
-      - name: List all added files in dir1
-        env:
-          ADDED_FILES: |-
-            ${{ steps.changed-files-for-dir1.outputs.added_files }}
-        run: |
-          for file in ${ADDED_FILES}; do
-            echo "$file was added"
-          done
+     
