@@ -38,6 +38,8 @@ jobs:
           echo "branch=$(echo ${GITHUB_REF#refs/heads/})" >> "$GITHUB_ENV"
           echo "secret=second_value" >> "$GITHUB_ENV"
           echo "${{ github.event.pull_request.base.sha }}"
+          export PR_BASE_SHA=${{ github.event.pull_request.base.sha }}
+          echo "PR_BASE_SHA: $PR_BASE_SHA"
           echo "git rev-parse ${{ github.sha }}^"
           echo "git rev-parse ${{ github.sha }}^@ | grep -Fvx ${{ github.event.pull_request.head.sha }}"
           #export LATEST_BASE_COMMIT=git rev-parse ${{ github.sha }}^@ | grep -Fvx ${{ github.event.pull_request.head.sha }}
