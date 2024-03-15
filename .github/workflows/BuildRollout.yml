@@ -69,7 +69,7 @@ jobs:
             const { execSync } = require('child_process')
             const { commits } = context.payload.pull_request
             #const rawFiles = execSync(`git diff --name-only HEAD HEAD~${commits}`).toString()
-            const rawFiles = execSync(`git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }}`).toString()
+            const rawFiles = execSync(`git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }}~${commits}`).toString()
             const files = rawFiles.split('\n').filter(Boolean)
 
             console.log(files)       
