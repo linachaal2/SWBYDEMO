@@ -97,12 +97,12 @@ jobs:
           perl HelloWorldPerl.pl ${{ env.branch }} ${{ env.sha_short }}
           
       - name: Get changed files
-        id: changed-files
+        id: changed-PR-files
         uses: tj-actions/changed-files@v41
 
       - name: List all changed files
         env:
-          ALL_CHANGED_FILES: ${{ steps.changed-files.outputs.all_changed_files }}
+          ALL_CHANGED_FILES: ${{ steps.changed-PR-files.outputs.all_changed_files }}
         run: |
           for file in "$ALL_CHANGED_FILES"; do
             echo "$file was changed"
