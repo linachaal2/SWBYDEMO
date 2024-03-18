@@ -2,7 +2,7 @@ name: hello-world
 'on': workflow_dispatch
 jobs:
   GreetingJob:
-    runs-on: self-hosted #ubuntu-latest
+    runs-on: self-hosted
     steps:
       - name: my-helloWorldGreeting
         run: |
@@ -10,16 +10,13 @@ jobs:
           echo "Today is $DAY_OF_WEEK!"
           echo 'Hi ${{ github.workspace }}'
           pwd
+          ls
+          cd ./scripts
+          perl ./build_rollout.pl -h
       - name: Set current date as env variable
         run: echo "NOW=$(date +'%Y-%m-%dT%H:%M:%S')" >> $GITHUB_ENV
       - name: Echo current date
         run: echo $NOW # Gives "2022-12-11T01:42:20"
-      - name: running perl
-        run: perl HelloWorldPerl.pl ${{ github.repository }} ${{ github.token }} refs/pull/9/merge 9cfe7bc
-      - name: Get Git Repo name   
-        run: |
-          echo "REPO ${{ github.repository }}"
-          echo "REPO ${{ github.token }}"
   CheckingModifiedFile:
     runs-on: ubuntu-latest
     steps:
