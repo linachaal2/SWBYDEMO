@@ -34,55 +34,74 @@ jobs:
       - name: Set enviroment
         shell: bash
         run: |
+          echo "Path is ... $PATH"
+          PATH=$PATH:$(which git)
+          echo "Path is ... $PATH"
+          echo "REPO: ${{ github.event.repository.name }}"  
+          echo "OWNER: ${{ github.repository_owner }}"
+          echo "Branch is ... ${{ github.head_ref }}"         
           echo "sha_short=$(git rev-parse --short "$GITHUB_SHA")" >> "$GITHUB_ENV"
           echo "branch=$(echo ${GITHUB_REF#refs/heads/})" >> "$GITHUB_ENV"
           echo "secret=second_value" >> "$GITHUB_ENV"
-          
+          export PR_BASE_SHA=${{ github.event.pull_request.base.sha }}
+          echo "PR_BASE_SHA: $PR_BASE_SHA"
+          echo "PR_BASE_SHA_SHORT=$(git rev-parse --short "$PR_BASE_SHA")"           
+          export PR_HEAD_SHA=${{ github.event.pull_request.head.sha }}
+          echo "PR_HEAD_SHA: $PR_HEAD_SHA"
+          echo "PR_HEAD_SHA_SHORT=$(git rev-parse --short "$PR_HEAD_SHA")"         
+          echo "GITHUB_SHA: $GITHUB_SHA"
+          echo "GITHUB_SHA_SHORT=$(git rev-parse --short "$GITHUB_SHA")"           
+          export PR_BASE_REF=${{ github.event.pull_request.base.ref }}
+          echo "PR_BASE_REF: $PR_HEAD_REF"       
+          export PR_HEAD_REF=${{ github.event.pull_request.head.ref }}
+          echo "PR_HEAD_REF: $PR_HEAD_REF" 
+          echo "git rev-parse ${{ github.sha }}^"
+          echo "git rev-parse ${{ github.sha }}^@ | grep -Fvx ${{ github.event.pull_request.head.sha }}"
+          #export LATEST_BASE_COMMIT=git rev-parse ${{ github.sha }}^@ | grep -Fvx ${{ github.event.pull_request.head.sha }}
+          #echo "$LATEST_BASE_COMMIT"
+          #git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }}
+          #git diff --name-only "$GITHUB_BASE_REF..${{ github.head_ref }}"
+           
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+      - uses: actions/github-script@v6
+        with:
+          script: |
+            const { execSync } = require('child_process')
+            const { commits } = context.payload.pull_request
+            const rawFiles = execSync(`git diff --name-status HEAD HEAD~${commits}`).toString()
+            const files = rawFiles.split('\n').filter(Boolean)
+            console.log(files)       
+      - uses: actions/checkout@v3
+        with:
+         fetch-depth: ${{ github.event_name == 'pull_request' && 2 || 0 }}
+      - name: Get changed files
+        id: changed-files
+        run: |
+         if ${{ github.event_name == 'pull_request' }}; then
+          echo "changed_files=$(git diff --name-only -r HEAD^1 HEAD | xargs)" >> $GITHUB_OUTPUT
+         else
+          echo "changed_files=$(git diff  --name-only ${{ github.event.before }} ${{ github.event.after }} | xargs)" >> $GITHUB_OUTPUT
+         fi
+      - name: List changed files
+        run: |
+          for file in ${{ steps.changed-files.outputs.changed_files }}; do
+           echo "$file"
+          done     
+      - name: Create folder
+        run: |
+          [ -d ./rollout_gen/${{ github.head_ref }} ] && echo "Directory Exists" || mkdir ./rollout_gen/${{ github.head_ref }} 
+         # for file in ${{ steps.changed-files.outputs.changed_files }}; do
+        #   cp $file ./rollout_gen/${{ github.head_ref }}/
+        #  done 
       - name: Read enviroment
         shell: bash
         run: |
           echo "BRANCH: ${{ env.branch }}"
           echo "SHA_SHORT: ${{ env.sha_short }}"
           echo "secret: ${{ env.secret }}"
+          #perl HelloWorldPerl.pl ${{ env.branch }} ${{ env.sha_short }}
           
-      - name: Get changed files
-        id: changed-files
-        uses: tj-actions/changed-files@v41
-
-      - name: List all changed files
-        env:
-          ALL_CHANGED_FILES: ${{ steps.changed-files.outputs.all_changed_files }}
-        run: |
-          for file in "$ALL_CHANGED_FILES"; do
-            echo "$file was changed"
-          done
-          
-      - name: Get changed files and write the outputs to a JSON file
-        id: changed-files-write-output-files-json
-        uses: tj-actions/changed-files@v41
-        with:
-          json: true
-          write_output_files: true
-          output_dir: './tmp/outputs'
-          rollout-number: '${{ github.event.inputs.rollout_number }}'
-
-      - name: Checkout into dir1
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          path: dir1
-  
-      - name: Run changed-files with defaults in dir1
-        id: changed-files-for-dir1
-        uses: tj-actions/changed-files@v42
-        with:
-          path: dir1
-  
-      - name: List all added files in dir1
-        env:
-          ADDED_FILES: |-
-            ${{ steps.changed-files-for-dir1.outputs.added_files }}
-        run: |
-          for file in ${ADDED_FILES}; do
-            echo "$file was added"
-          done
+     
