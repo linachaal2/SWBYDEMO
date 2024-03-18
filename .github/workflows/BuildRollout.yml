@@ -93,15 +93,15 @@ jobs:
       - name: Create folder
         run: |
           [ -d ./rollout_gen/${{ github.head_ref }} ] && echo "Directory Exists" || mkdir ./rollout_gen/${{ github.head_ref }} 
-          for file in ${{ steps.changed-files.outputs.changed_files }}; do
-           cp $file ./rollout_gen/${{ github.head_ref }}/
-          done 
+         # for file in ${{ steps.changed-files.outputs.changed_files }}; do
+        #   cp $file ./rollout_gen/${{ github.head_ref }}/
+        #  done 
       - name: Read enviroment
         shell: bash
         run: |
           echo "BRANCH: ${{ env.branch }}"
           echo "SHA_SHORT: ${{ env.sha_short }}"
           echo "secret: ${{ env.secret }}"
-          perl HelloWorldPerl.pl ${{ env.branch }} ${{ env.sha_short }}
+          #perl HelloWorldPerl.pl ${{ env.branch }} ${{ env.sha_short }}
           
      
