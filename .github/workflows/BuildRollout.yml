@@ -96,6 +96,15 @@ jobs:
            for file in ${{ steps.changed-files.outputs.changed_files }}; do
             cp $file ./rollout_gen/${{ github.head_ref }}/
            done 
+      - name: Commit files
+        run: |
+         git config --local user.email "action@github.com"
+         git config --local user.name "GitHub Action"
+         git commit -m "Create packcage " -a
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+         github_token: ${{ secrets.GITHUB_TOKEN }}     
       - name: Read enviroment
         shell: bash
         run: |
