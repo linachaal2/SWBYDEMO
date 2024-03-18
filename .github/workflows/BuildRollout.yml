@@ -89,7 +89,13 @@ jobs:
         run: |
           for file in ${{ steps.changed-files.outputs.changed_files }}; do
            echo "$file"
-          done      
+          done     
+      - name: Create folder
+        run: |
+          [ -d ./rollout_gen/${{ github.head_ref }} ] && echo "Directory Exists" || mkdir ./rollout_gen/${{ github.head_ref }} 
+          for file in ${{ steps.changed-files.outputs.changed_files }}; do
+           cp $file ./rollout_gen/${{ github.head_ref }}/
+          done 
       - name: Read enviroment
         shell: bash
         run: |
