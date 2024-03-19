@@ -97,8 +97,18 @@ jobs:
            for file in ${{ steps.changed-files.outputs.changed_files }}; do
             cp $file ./rollout_gen/${{ github.head_ref }}/
            done    
-           ls -1 ./rollout_gen/${{ github.head_ref }}/| paste -sd " "
+           #ls -1 ./rollout_gen/${{ github.head_ref }}/| paste -sd " "
            #echo "::set-output name=NODE_VERSION::$(ls -1 ./rollout_gen/${{ github.head_ref }}/| paste -sd " ")"
+      - name: Changed Items
+        id: changeItems
+        run: >-
+          echo "::set-output name=CHG_ITEMS::$(
+            ls -1 ./rollout_gen/${{ github.head_ref }}/| 
+            paste -sd ' '
+          )"
+      - name: List Changed Items
+        run: |
+         echo "${{ steps.changeItems.outputs.CHG_ITEMS }}"    
       - uses: actions/checkout@v2.3.4
       - uses: GuillaumeFalourd/copy-push-files@v1
         with:
