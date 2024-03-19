@@ -114,7 +114,8 @@ jobs:
           commit_message: "Create packcage "
           target_branch: ${{ github.head_ref }}
           source_files: ${{ steps.changeItems.outputs.CHG_ITEMS }}
-          remote_repository: https://github.com/${{ github.repository_owner }}/${{ github.event.repository.name }}/rollouts/${{ github.head_ref }} 
+          target_dir: ./rollouts/${{ github.head_ref }}
+          remote_repository: https://github.com/${{ github.repository_owner }}/${{ github.event.repository.name }} 
           access_token: ${{ github.token }}   
       - name: Read enviroment
         shell: bash
