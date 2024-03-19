@@ -96,15 +96,16 @@ jobs:
            for file in ${{ steps.changed-files.outputs.changed_files }}; do
             cp $file ./rollout_gen/${{ github.head_ref }}/
            done 
-      - name: Commit files
-        run: |
-         git checkout ${{ github.head_ref }}
-         git add .
-         git config --local user.email "action@github.com"
-         git config --local user.name "GitHub Action"
-         git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}  
-         git commit -m "Create packcage " -a
-         git push
+      - uses: actions/checkout@v2.3.4
+      - uses: GuillaumeFalourd/copy-push-files@v1
+        with:
+          email: ${{ github.actor }}[bot]@users.noreply.github.com
+          name: ${{ github.actor }}
+          commit_message: "Create packcage "
+          target_branch: ${{ github.head_ref }}
+          source_files: steps.changed-files.outputs.changed_files ./rollout_gen/${{ github.head_ref }}/
+          remote_repository: https://github.com/${{ github.repository_owner }}/${{ github.repository }} 
+          access_token: ${{ secrets.ACCESS_TOKEN }}     
       - name: Read enviroment
         shell: bash
         run: |
