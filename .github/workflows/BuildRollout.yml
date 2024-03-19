@@ -98,6 +98,7 @@ jobs:
            done 
       - name: Commit files
         run: |
+         git checkout ${{ github.head_ref }}
          git add .
          git config --local user.email "action@github.com"
          git config --local user.name "GitHub Action"
