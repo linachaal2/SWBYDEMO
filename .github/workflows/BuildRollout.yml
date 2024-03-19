@@ -102,10 +102,7 @@ jobs:
          git config --local user.email "action@github.com"
          git config --local user.name "GitHub Action"
          git commit -m "Create packcage " -a
-      - name: Push changes
-        uses: ad-m/github-push-action@master
-        with:
-         github_token: ${{ secrets.GITHUB_TOKEN }}     
+         git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}   
       - name: Read enviroment
         shell: bash
         run: |
