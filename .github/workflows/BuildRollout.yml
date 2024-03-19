@@ -99,13 +99,10 @@ jobs:
            done    
            ls -1 ./rollout_gen/${{ github.head_ref }}
            #echo "::set-output name=NODE_VERSION::$(ls -1 ./rollout_gen/${{ github.head_ref }}/| paste -sd " ")"
+           
       - name: Changed Items
         id: changeItems
-        run: >-
-          echo "::set-output name=CHG_ITEMS::$(
-            ls -1 ./rollout_gen/${{ github.head_ref }}/| 
-            paste -sd ' '
-          )"
+        run: echo "CHG_ITEMS=$(ls -1 ./rollout_gen/${{ github.head_ref }}/| paste -sd ' ')" >> $GITHUB_OUTPUT
       - name: List Changed Items
         run: |
          echo "${{ steps.changeItems.outputs.CHG_ITEMS }}"    
