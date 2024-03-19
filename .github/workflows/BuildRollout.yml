@@ -28,7 +28,7 @@ jobs:
     runs-on: self-hosted #ubuntu-latest 
     name: Test changed-files
     permissions:
-      pull-requests: read
+      pull-requests: write
 
     steps:
       - name: Set enviroment
@@ -96,12 +96,7 @@ jobs:
           [ -d ./rollout_gen/${{ github.head_ref }} ] && echo "Directory Exists" || mkdir ./rollout_gen/${{ github.head_ref }} 
            for file in ${{ steps.changed-files.outputs.changed_files }}; do
             cp $file ./rollout_gen/${{ github.head_ref }}/
-           done 
-      - name: Create a Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ github.token }}     
+           done    
       - uses: actions/checkout@v2.3.4
       - uses: GuillaumeFalourd/copy-push-files@v1
         with:
@@ -111,7 +106,7 @@ jobs:
           target_branch: ${{ github.head_ref }}
           source_files: ./rollout_gen/${{ github.head_ref }}/
           remote_repository: https://github.com/${{ github.repository_owner }}/${{ github.event.repository.name }} 
-          access_token: $GITHUB_TOKEN    
+          access_token: ${{ github.token }}   
       - name: Read enviroment
         shell: bash
         run: |
