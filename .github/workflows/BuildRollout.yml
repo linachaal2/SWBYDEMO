@@ -97,6 +97,11 @@ jobs:
            for file in ${{ steps.changed-files.outputs.changed_files }}; do
             cp $file ./rollout_gen/${{ github.head_ref }}/
            done 
+      - name: Create a Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}     
       - uses: actions/checkout@v2.3.4
       - uses: GuillaumeFalourd/copy-push-files@v1
         with:
@@ -106,7 +111,7 @@ jobs:
           target_branch: ${{ github.head_ref }}
           source_files: ./rollout_gen/${{ github.head_ref }}/
           remote_repository: https://github.com/${{ github.repository_owner }}/${{ github.event.repository.name }} 
-          access_token: ${{ secrets.ACCESS_TOKEN }}     
+          access_token: $GITHUB_TOKEN    
       - name: Read enviroment
         shell: bash
         run: |
