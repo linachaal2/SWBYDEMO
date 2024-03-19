@@ -93,16 +93,16 @@ jobs:
           done     
       - name: Create folder
         run: |
-          [ -d ./rollout_gen/${{ github.head_ref }} ] && echo "Directory Exists" || mkdir ./rollout_gen/${{ github.head_ref }} 
+          [ -d ./rollout_gen/${{ github.head_ref }} ] && echo "Directory Exists" || mkdir ./rollouts/${{ github.head_ref }} >> $GITHUB_STATE
            for file in ${{ steps.changed-files.outputs.changed_files }}; do
-            cp $file ./rollout_gen/${{ github.head_ref }}/
+            cp $file ./rollouts/${{ github.head_ref }}/
            done    
-           ls -1 ./rollout_gen/${{ github.head_ref }}
-           #echo "::set-output name=NODE_VERSION::$(ls -1 ./rollout_gen/${{ github.head_ref }}/| paste -sd " ")"
+           ls -1 ./rollouts/${{ github.head_ref }}
+           #echo "::set-output name=NODE_VERSION::$(ls -1 ./rollouts/${{ github.head_ref }}/| paste -sd " ")"
            
       - name: Changed Items
         id: changeItems
-        run: echo "CHG_ITEMS=$(ls -1 ./rollout_gen/${{ github.head_ref }}/| paste -sd ' ')" >> $GITHUB_OUTPUT
+        run: echo "CHG_ITEMS=$(ls -1 ./rollouts/${{ github.head_ref }}/| paste -sd ' ')" >> $GITHUB_OUTPUT
       - name: List Changed Items
         run: |
          echo "${{ steps.changeItems.outputs.CHG_ITEMS }}"    
@@ -113,8 +113,8 @@ jobs:
           name: ${{ github.actor }}
           commit_message: "Create packcage "
           target_branch: ${{ github.head_ref }}
-          source_files: ./rollout_gen/${{ github.head_ref }}/
-          remote_repository: https://github.com/${{ github.repository_owner }}/${{ github.event.repository.name }} 
+          source_files: ${{ steps.changeItems.outputs.CHG_ITEMS }}
+          remote_repository: https://github.com/${{ github.repository_owner }}/${{ github.event.repository.name }}/rollouts/${{ github.head_ref }} 
           access_token: ${{ github.token }}   
       - name: Read enviroment
         shell: bash
