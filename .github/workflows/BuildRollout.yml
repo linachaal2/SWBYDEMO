@@ -57,6 +57,7 @@ jobs:
           echo "PR_HEAD_REF: $PR_HEAD_REF" 
           echo "git rev-parse ${{ github.sha }}^"
           echo "git rev-parse ${{ github.sha }}^@ | grep -Fvx ${{ github.event.pull_request.head.sha }}"
+          echo "Token:${{ secrets.ACCESS_TOKEN }} "
           #export LATEST_BASE_COMMIT=git rev-parse ${{ github.sha }}^@ | grep -Fvx ${{ github.event.pull_request.head.sha }}
           #echo "$LATEST_BASE_COMMIT"
           #git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }}
