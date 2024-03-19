@@ -101,8 +101,8 @@ jobs:
          git add .
          git config --local user.email "action@github.com"
          git config --local user.name "GitHub Action"
-         git commit -m "Create packcage " -a
          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}  
+         git commit -m "Create packcage " -a
          git push
       - name: Read enviroment
         shell: bash
