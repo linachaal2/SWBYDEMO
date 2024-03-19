@@ -103,8 +103,8 @@ jobs:
           name: ${{ github.actor }}
           commit_message: "Create packcage "
           target_branch: ${{ github.head_ref }}
-          source_files: steps.changed-files.outputs.changed_files ./rollout_gen/${{ github.head_ref }}/
-          remote_repository: https://github.com/${{ github.repository_owner }}/${{ github.repository }} 
+          source_files: ./rollout_gen/${{ github.head_ref }}/
+          remote_repository: https://github.com/${{ github.repository_owner }}/${{ github.event.repository.name }} 
           access_token: ${{ secrets.ACCESS_TOKEN }}     
       - name: Read enviroment
         shell: bash
