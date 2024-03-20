@@ -29,6 +29,7 @@ jobs:
     name: Test changed-files
     permissions:
       pull-requests: write
+      contents: write
 
     steps:
       - name: Set enviroment
