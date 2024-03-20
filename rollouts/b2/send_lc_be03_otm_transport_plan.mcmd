@@ -1,0 +1,78 @@
+<command>
+<name>send lc be03 otm transport plan</name>
+<description>Send otm transport plan</description>
+<type>Local Syntax</type>
+<local-syntax>
+<![CDATA[
+/**************************************************************************   
+   Description: Send otm transport plan in case of error
+   JIRA(s): SWIFTLEX-2715   
+   Developed by: Lin Kasem
+   Last Modified Date: 2021/04/26
+ **************************************************************************************************
+ */
+/* Get attachment file format */
+publish data
+ where car_move_id = decode(@car_move_id, NULL, NULL, ', Load ID:' || @car_move_id)
+|
+publish data
+ where message_details = 'Today :' || to_char(sysdate, 'DDMON-YYYYHH24MI') || nvl(@car_move_id, '') || ', Shipment:' || @ship_id || ', Order Number:' || @ordnum
+|
+/* Send email with CSV file as attachment */
+get cached policies
+ where polcod = 'LC_OTM'
+   and polvar = 'OTM_TRANSPORT_PLAN'
+   and polval = 'SUBJECT'
+   and wh_id = @wh_id catch(-1403)
+|
+if (@rtstr2 = @client_id)
+{
+	publish data
+	 where subject = @rtstr1
+	|
+	get cached policies
+	 where polcod = 'LC_OTM'
+	   and polvar = 'OTM_TRANSPORT_PLAN'
+	   and polval = 'MESSAGE'
+	   and wh_id = @wh_id catch(-1403)
+	|
+	if (@rtstr2 = @client_id)
+	{   
+		publish data
+		 where message = @rtstr1
+		|
+		get cached policies
+		 where polcod = 'LC_OTM'
+		   and polvar = 'OTM_TRANSPORT_PLAN'
+		   and polval = 'SEND_FROM'
+		   and wh_id = @wh_id catch(-1403)
+		|
+		if (@rtstr2 = @client_id)
+		{
+			publish data
+			 where send_from = @rtstr1
+			|
+			get cached policies
+			 where polcod = 'LC_OTM'
+			   and polvar = 'OTM_TRANSPORT_PLAN'
+			   and polval = 'SEND_TO'
+			   and wh_id = @wh_id catch(-1403)
+			|
+			if (@rtstr2 = @client_id)
+			{
+				publish data
+				 where send_to = @rtstr1
+				   and msg = @message || ' ' || @message_reason || @message_details
+				|
+				send email
+				 where send_to = @send_to
+				   and mail_from = @send_from
+				   and subject = @subject
+				   and msg = @message || ' ' || @message_reason || @message_details
+			}
+		}
+	}
+}
+]]>
+</local-syntax>
+</command>
