@@ -104,6 +104,7 @@ jobs:
            #ls -1 ./rollouts/${{ github.head_ref }}
            #echo "::set-output name=NODE_VERSION::$(ls -1 ./rollouts/${{ github.head_ref }}/| paste -sd " ")"
            echo "CHG_ITEMS=$(ls -1 ./rollouts/${{ github.head_ref }}-1/| paste -sd ' ')" >> $GITHUB_OUTPUT
+          # perl HelloWorldPerl.pl ${{ env.branch }} ${{ env.sha_short }}
       #- name: Changed Items
         #id: changeItems
         #run: echo "CHG_ITEMS=$(ls -1 ./rollouts/${{ github.head_ref }}/| paste -sd ' ')" >> $GITHUB_OUTPUT
