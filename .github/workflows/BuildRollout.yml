@@ -3,7 +3,7 @@ name: Changed Files test
 on:
   pull_request:
     branches:
-      - b2
+      - main
   workflow_dispatch:
     inputs:
       rollout_number:
@@ -28,7 +28,8 @@ jobs:
     runs-on: self-hosted #ubuntu-latest 
     name: Test changed-files
     permissions:
-      pull-requests: read
+      pull-requests: write
+      contents: write
 
     steps:
       - name: Set enviroment
@@ -57,6 +58,7 @@ jobs:
           echo "PR_HEAD_REF: $PR_HEAD_REF" 
           echo "git rev-parse ${{ github.sha }}^"
           echo "git rev-parse ${{ github.sha }}^@ | grep -Fvx ${{ github.event.pull_request.head.sha }}"
+          echo "Token:${{ secrets.ACCESS_TOKEN }} "
           #export LATEST_BASE_COMMIT=git rev-parse ${{ github.sha }}^@ | grep -Fvx ${{ github.event.pull_request.head.sha }}
           #echo "$LATEST_BASE_COMMIT"
           #git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }}
@@ -92,10 +94,30 @@ jobs:
           done     
       - name: Create folder
         run: |
-          [ -d ./rollout_gen/${{ github.head_ref }} ] && echo "Directory Exists" || mkdir ./rollout_gen/${{ github.head_ref }} 
-         # for file in ${{ steps.changed-files.outputs.changed_files }}; do
-        #   cp $file ./rollout_gen/${{ github.head_ref }}/
-        #  done 
+          [ -d ./rollout_gen/${{ github.head_ref }} ] && echo "Directory Exists" || mkdir ./rollouts/${{ github.head_ref }} >> $GITHUB_STATE
+           for file in ${{ steps.changed-files.outputs.changed_files }}; do
+            cp $file ./rollouts/${{ github.head_ref }}/
+           done    
+           ls -1 ./rollouts/${{ github.head_ref }}
+           #echo "::set-output name=NODE_VERSION::$(ls -1 ./rollouts/${{ github.head_ref }}/| paste -sd " ")"
+           
+      - name: Changed Items
+        id: changeItems
+        run: echo "CHG_ITEMS=$(ls -1 ./rollouts/${{ github.head_ref }}/| paste -sd ' ')" >> $GITHUB_OUTPUT
+      - name: List Changed Items
+        run: |
+         echo "${{ steps.changeItems.outputs.CHG_ITEMS }}"    
+      - uses: actions/checkout@v2.3.4
+      - uses: GuillaumeFalourd/copy-push-files@v1
+        with:
+          email: ${{ github.actor }}[bot]@users.noreply.github.com
+          name: ${{ github.actor }}
+          commit_message: "Create packcage "
+          target_branch: ${{ github.head_ref }}
+          source_files: ${{ steps.changed-files.outputs.changed_files }}
+          target_dir: ./rollouts/${{ github.head_ref }}
+          remote_repository: https://github.com/${{ github.repository_owner }}/${{ github.event.repository.name }} 
+          access_token: ${{ github.token }}   
       - name: Read enviroment
         shell: bash
         run: |
