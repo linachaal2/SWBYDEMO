@@ -75,7 +75,8 @@ jobs:
             const { commits } = context.payload.pull_request
             const rawFiles = execSync(`git diff --name-status HEAD HEAD~${commits}`).toString()
             const files = rawFiles.split('\n').filter(Boolean)
-            console.log(files)       
+            console.log(files) 
+            
       - uses: actions/checkout@v3
         with:
          fetch-depth: ${{ github.event_name == 'pull_request' && 2 || 0 }}
@@ -91,22 +92,25 @@ jobs:
         run: |
           for file in ${{ steps.changed-files.outputs.changed_files }}; do
            echo "$file"
-          done     
+          done
+          
       - name: Create folder
-        run: |
-          [ -d ./rollout_gen/${{ github.head_ref }} ] && echo "Directory Exists" || mkdir ./rollouts/${{ github.head_ref }} >> $GITHUB_STATE
-           for file in ${{ steps.changed-files.outputs.changed_files }}; do
-            cp $file ./rollouts/${{ github.head_ref }}/
-           done    
-           ls -1 ./rollouts/${{ github.head_ref }}
-           #echo "::set-output name=NODE_VERSION::$(ls -1 ./rollouts/${{ github.head_ref }}/| paste -sd " ")"
-           
-      - name: Changed Items
         id: changeItems
-        run: echo "CHG_ITEMS=$(ls -1 ./rollouts/${{ github.head_ref }}/| paste -sd ' ')" >> $GITHUB_OUTPUT
+        run: |
+          [ -d ./rollout_gen/${{ github.head_ref }}-1 ] && echo "Directory Exists" || mkdir ./rollouts/${{ github.head_ref }}-1 
+           for file in ${{ steps.changed-files.outputs.changed_files }}; do
+            cp $file ./rollouts/${{ github.head_ref }}-1/
+           done    
+           #ls -1 ./rollouts/${{ github.head_ref }}
+           #echo "::set-output name=NODE_VERSION::$(ls -1 ./rollouts/${{ github.head_ref }}/| paste -sd " ")"
+           echo "CHG_ITEMS=$(ls -1 ./rollouts/${{ github.head_ref }}-1/| paste -sd ' ')" >> $GITHUB_OUTPUT
+      #- name: Changed Items
+        #id: changeItems
+        #run: echo "CHG_ITEMS=$(ls -1 ./rollouts/${{ github.head_ref }}/| paste -sd ' ')" >> $GITHUB_OUTPUT
       - name: List Changed Items
         run: |
          echo "${{ steps.changeItems.outputs.CHG_ITEMS }}"    
+         
       - uses: actions/checkout@v2.3.4
       - uses: GuillaumeFalourd/copy-push-files@v1
         with:
