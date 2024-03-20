@@ -95,17 +95,18 @@ jobs:
           done
           
       - name: Create folder
+        id: changeItems
         run: |
           [ -d ./rollout_gen/${{ github.head_ref }} ] && echo "Directory Exists" || mkdir ./rollouts/${{ github.head_ref }} 
            for file in ${{ steps.changed-files.outputs.changed_files }}; do
             cp $file ./rollouts/${{ github.head_ref }}/
            done    
-           ls -1 ./rollouts/${{ github.head_ref }}
+           #ls -1 ./rollouts/${{ github.head_ref }}
            #echo "::set-output name=NODE_VERSION::$(ls -1 ./rollouts/${{ github.head_ref }}/| paste -sd " ")"
-           
-      - name: Changed Items
-        id: changeItems
-        run: echo "CHG_ITEMS=$(ls -1 ./rollouts/${{ github.head_ref }}/| paste -sd ' ')" >> $GITHUB_OUTPUT
+           echo "CHG_ITEMS=$(ls -1 ./rollouts/${{ github.head_ref }}/| paste -sd ' ')" >> $GITHUB_OUTPUT
+      #- name: Changed Items
+        #id: changeItems
+        #run: echo "CHG_ITEMS=$(ls -1 ./rollouts/${{ github.head_ref }}/| paste -sd ' ')" >> $GITHUB_OUTPUT
       - name: List Changed Items
         run: |
          echo "${{ steps.changeItems.outputs.CHG_ITEMS }}"    
