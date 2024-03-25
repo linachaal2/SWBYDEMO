@@ -1,0 +1,15 @@
+<command>
+<name>list usr plgdel</name>
+<description>List PLGDEL records for DDA</description>
+<type>Local Syntax</type>
+<local-syntax>
+<![CDATA[
+
+[select *
+   from uc_plgdel
+  where @+cstnum
+    and @+client_id]
+
+]]>
+</local-syntax>
+</command>

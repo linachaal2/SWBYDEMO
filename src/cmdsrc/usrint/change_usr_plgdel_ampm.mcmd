@@ -1,0 +1,21 @@
+<command>
+  <name>change usr plgdel ampm</name>
+  <description>Update the AM/PM for plgdel.</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+
+if (@client_id is not null and @client_id != '' and @cstnum is not null and @cstnum != '' and @uc_dayofweek is not null and @uc_dayofweek != '')
+{
+    [update uc_plgdel
+        set uc_ampm = @uc_ampm,
+		    last_upd_dt = sysdate,
+			last_upd_user_id = @@usr_id
+      where client_id = @client_id
+	    and cstnum = @cstnum
+		and uc_dayofweek = @uc_dayofweek] catch(-1403)
+}
+
+]]>
+</local-syntax>
+</command>
