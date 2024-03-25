@@ -15,7 +15,7 @@ use File::Find;
 use Time::localtime;
 
 my %opts = ();
-my $lesdir = ".";
+my $lesdir =  "/y/Docker/MY-GIT/SWBYDEMO";
 my $ro_dir;
 my $ro;
 my $logfile;
@@ -24,7 +24,7 @@ my $ro_name;
 my $force_delete;
 my $ro_dir_parm;
 my $logfile_parm;
-my $detailed_output_parm;
+my $detailed_output_parm ="";
 my $ro_name_parm;
 my $pack;
 my $build_script;
@@ -41,9 +41,12 @@ my $notes_text = "Release Notes:\n";
 my $component_text = "Affected Files:\n";
 my $remove_text = "Removed Files:\n";
 my $remove_ro_text = "# Removing files removed by extension.\n";
+my $log = "";
+my $vOutputFile;
 #####################################################################
 # show usage()
 #####################################################################
+#perl createRolloutPackage.pl -n RLTEST1 -d rollout -r inputFile.txt -f -l test1.log
 sub show_usage {
   die "Correct usage for $0 is as follows:\n"   
         . "$0\n"
@@ -77,6 +80,117 @@ sub write_log{
 	}
 }#write_log
 #####################################################################
+# create_ro_dir($fulldir)
+#	$fulldir - this is the full directory path for the directory to
+#				be created.
+#
+# this function will create the lowest level directory, and any missing
+# parent directories defined in the $fulldir parameter
+#####################################################################
+sub create_ro_dir
+{
+	my($fulldir) = @_;
+	my $done = 0;
+	my $curdir = $fulldir;
+	
+	if($detailed_output){printf( "Create RO directory - $fulldir\n\n");}
+	$log = $log . "Create RO directory - $fulldir\n";
+	
+	while(!$done)
+	{
+		if(-d $fulldir)
+		{
+			$done = 1;
+		}
+		else
+		{
+			if(-d dirname($curdir))
+			{
+				mkdir($curdir);
+				$curdir = $fulldir;
+			}
+			else
+			{
+				$curdir = dirname($curdir);
+			}
+		}
+	}
+}#create_ro_dir
+#####################################################################
+# copy_ro_file($filedir, $filename, $new_filedir, $new_filename)
+#	$filedir - current path of file to be copied
+#	$filename - current filename of file to be copied
+#	$new_filedir - new path to copy to
+#	$new_filename - new filename to copy to
+#
+# this will copy an existing file from one location to another
+#####################################################################
+sub copy_ro_file
+{
+	# takes arguments
+		# filedir - directory the file will be copied from
+		# filename - filename to be copied from
+		# new_filedir - directory to copy to
+		# new_filename - filename to copy to - if this argument is not included, we will use the original filename
+	my($filedir,$filename,$new_filedir,$new_filename) = @_;
+	if(!$new_filename)
+	{
+		$new_filename = $filename
+	}
+	
+    my $full_path = $filedir . "/". $filename;
+    
+    
+	if(!-e $full_path)
+	{
+		if($detailed_output){printf( "Cannot find file\n\t$filedir/$filename\n  File will not be copied \n\n");}
+		$log = $log .  "Cannot find file\n\t$filedir/$filename\n  File will not be copied \n\n";
+		$error_text = $error_text .  "- Cannot find file $filedir/$filename.  File will not be copied!\n";
+		$errors_exist = 1;
+	}
+	if(!-e $new_filedir )
+	{
+		if($detailed_output){printf( "Directory to copy file to ($new_filedir) does not exist.  File will not be copied \n\n");}
+		$log = $log . "Directory to copy file to ($new_filedir) does not exist.  File will not be copied \n\n";
+		$error_text = $error_text .  "- Directory to copy file to ($new_filedir) does not exist.  File will not be copied!\n";
+		$errors_exist = 1;
+	}
+	else
+	{
+		copy($full_path, $new_filedir . "/" . $new_filename)
+	}
+	
+}#copy_ro_file
+#####################################################################
+# get_load_directory($table)
+#	$table - table name
+#
+# this will take a table as a parameter and determine if the load directory should be 
+# safetoload or bootstraponly and return that value
+#####################################################################
+sub get_load_directory
+{
+    my ($table) = @_;
+	my $loaddir;
+    
+	if(-d $lesdir . "/db/data/load/base/safetoload/$table")
+	{
+		$loaddir = 'safetoload';
+	}
+	elsif(-d $lesdir . "/db/data/load/base/bootstraponly/$table")
+	{
+		$loaddir = 'bootstraponly';
+	}
+	else
+	{
+		if($detailed_output){printf( "No control file for table $table, this table will not be included\n\n");}
+		$log = $log .  "No control file for table $table, this table will not be included\n\n";
+		$warning_text = $warning_text .  "- No control file for table $table, this table will not be included!\n";
+		$warnings_exist = 1;
+	}
+	return $loaddir;
+}#get_load_directory
+#####################################################################
 # pull_files($cmd_string)
 #	$cmd_string - command line parameters from the ro input file
 #
@@ -88,7 +202,7 @@ sub write_log{
 sub pull_files{
 
 	my %opts = ();
-	my $lesdir = ".";
+	my $lesdir = "/y/Docker/MY-GIT/SWBYDEMO";
 	my $ro_dir;
 	my $logfile;
 	my $detailed_output;
@@ -103,11 +217,14 @@ sub pull_files{
 	my $replacetext;
 	my $ifd_list;
 	my $event_list;
+	my $unload;
 	
+	
+	printf "--------------------PULL FILES----------------------\n\n\n"; 
 	#first we will reset the arguments parameter to be the string passed in so we can pull the parameters
 	#using the standard logic
 	my $cmd_string = shift;
-	if(substr($_,0,5) ne "ISSUE" && substr($_,0,5) ne "NOTES")
+	if(substr($cmd_string,0,5) ne "ISSUE" && substr($cmd_string,0,5) ne "NOTES")
 	{
 		$cmd_string =~ s/\\/\//g;
 	}
@@ -140,7 +257,8 @@ sub pull_files{
 				
 	if($detailed_output){printf( "uc_pull_files.pl: Pulling Components\n\n");}
 	$log = $log . "uc_pull_files.pl: Pulling Components\n\n";
-
+	printf "--------------------table:$table----------------------\n\n\n"; 
+	printf "--------------------Pulling Components----------------------\n\n\n"; 
 	# create RO directory if it doesn't exist
 	if(!-d $ro_dir.$ro_name)
 	{
@@ -149,62 +267,21 @@ sub pull_files{
 		mkdir($ro_dir . $ro_name);
 	}
 
-	#####################################################################
-	# GRP_NAM
-	#####################################################################
-	# if this is for a grp_nam, we will pull all data from the database
-	# that has this grp_nam
-	if(uc($data_type) eq "GRP_NAM")
-	{
-		my $status;
-		my @result;
-        my $tblcnt = 0;
-		
-		if($detailed_output){printf( "GRP_NAM\nPulling Data for grp_nam: $grp_nam\n");}
-		$log = $log . "GRP_NAM\nPulling Data for grp_nam: $grp_nam\n";
-		my $grp_nam_statement = "publish data where grp_nam = '$grp_nam' | list tables with column where column_name = 'grp_nam' | [select distinct \@table_name table_name    from \@table_name:raw  where grp_nam = \@grp_nam] catch(@?) | if(@?=0){publish data where table_name = \@table_name}";
-		if($detailed_output){printf( "grp_nam statement: \n$grp_nam_statement\n");}
-		$log = $log . "grp_nam statement:\n $grp_nam_statement\n";
-		($status, @result) = &MSQLExec($grp_nam_statement);
-		if(@status)
-		{
-			if($detailed_output){printf( "Error pulling grp_nam data for grp_nam: $grp_nam\n\n");}
-			$log = $log . "Error pulling grp_nam data for grp_nam: $grp_nam\n\n";
-			$error_text = $error_text .  "- Error pulling grp_nam data for grp_nam: $grp_nam\n";
-			$errors_exist = 1;
-		}
-		else
-		{
-			foreach(@result)
-			{
-				if($_ && $_ !~ "Executing...")
-				{
-                    $tblcnt++;
-					if($detailed_output){printf( "grp_nam table: $_\n");}
-					$log = $log . "grp_nam table: $_\n";
-					create_csv(lc($_),"[select * from $_ where grp_nam = '$grp_nam']",$ro_dir.$ro_name);
-				}
-			}
-		}
-        #if we didn't find any tables, log an error
-        if($tblcnt == 0)
-        {
-    		$error_text = $error_text .  "- Error, no tables found for grp_nam: $grp_nam\n";
-    		$errors_exist = 1;
-        }
-	}
 
 	#####################################################################
 	# SQL
 	#####################################################################
 	# if this is for an SQL statement, we will pull the data from the
 	# sql statement and write to csv
-	elsif(uc($data_type) eq "SQL")
+	if(uc($data_type) eq "SQL")
 	{
-		if($detailed_output){printf( "SQL\nPulling Data for SQL: $sql_text\n");}
-		$log = $log . "SQL\nPulling Data for SQL: $sql_text\n";
-		#($status, @result) = &MSQLExec($sql_statement);
-		create_csv(lc($table),"[".$sql_text."]",$ro_dir.$ro_name);
+		printf "--------------------Handling a CSV FILE----------------------\n\n\n"; 
+		$component_dir =get_load_directory($table);
+		#if(uc($table) eq "POLDAT"){$component_dir = "bootstraponly";}
+		if($detailed_output){printf( "MOCA\nPulling Moca file: $file\n");}
+		$log = $log . "MOCA\nPulling Moca file: $file\n";
+		create_ro_dir($ro_dir.$ro_name . "/pkg/db/data/load/base/$component_dir/$table");
+		copy_ro_file($lesdir . "/db/data/load/base/$component_dir/$table",$file,$ro_dir.$ro_name . "/pkg/db/data/load/base/$component_dir/$table");
 	}
 
 	#####################################################################
@@ -213,6 +290,8 @@ sub pull_files{
 	# if this is for a moca command, copy file
 	elsif(uc($data_type) eq "MOCA")
 	{
+		
+		if(!$component_dir){$component_dir = "usrint";}
 		if($detailed_output){printf( "MOCA\nPulling Moca file: $file\n");}
 		$log = $log . "MOCA\nPulling Moca file: $file\n";
 		create_ro_dir($ro_dir.$ro_name . "/pkg/src/cmdsrc/$component_dir");
@@ -268,49 +347,6 @@ sub pull_files{
 	}
 
 	#####################################################################
-	# DDA
-	#####################################################################
-	# if this is for a DDA export, copy all data loads from that folder
-	elsif(uc($data_type) eq "DDA")
-	{
-		my $table;
-		my $loaddir;
-        
-        if($unload)
-        {
-    		unload_dda($component_dir);
-        }
-        
-		if($detailed_output){printf( "DDA\nPulling DDA files for: $component_dir\n");}
-		$log = $log . "DDA\nPulling DDA files for: $component_dir\n";
-
-		find({ wanted => \&getdda, no_chdir} => \&nochdir, $lesdir . "/dda_exports/" . $component_dir);
-
-		sub getdda
-		{
-		my $mloadfile = $_;
-			
-			if(-d $File::Find::name && $_ ne "." && $_ ne "..")
-			{
-				$table = $_;
-				$dda_dir = basename($File::Find::dir);
-				$loaddir = get_load_directory($table);
-				create_ro_dir($ro_dir.$ro_name . "/pkg/db/data/load/base/$loaddir/$table");
-				
-				find({ wanted => \&getddafile, no_chdir} => \&nochdir, $lesdir . "/dda_exports/" . $dda_dir . "/" . $table);
-				
-				sub getddafile
-				{	
-					$dda_dir = basename(dirname($File::Find::dir));
-					if(!-d $File::Find::name)
-					{
-						copy_ro_file($lesdir . "/dda_exports/$dda_dir/$table",$_,$ro_dir.$ro_name . "/pkg/db/data/load/base/$loaddir/$table");
-					}
-				}
-			}
-		}
-	}
-	#####################################################################
 	# README
 	#####################################################################
 	# if this is for a README file copy the file
@@ -339,7 +375,7 @@ sub pull_files{
 		if($detailed_output){printf("Creating line for rollout script for adding file\n");}
 		$log = $log . "Creating line for rollout script for adding file\n";
 
-		$replacetext = $replacetext . "REPLACE pkg/$component_dir/$file \$LESDIR/$component_dir\n";
+		$replacetext = $replacetext . "REPLACE pkg/$component_dir/$file \$lesdir/$component_dir\n";
 		
 		$component_text = $component_text . "\t$component_dir/$file\n";
 
@@ -358,7 +394,7 @@ sub pull_files{
 		if($detailed_output){printf("Creating line for rollout script for removing file\n");}
 		$log = $log . "Creating line for rollout script for removing file\n";
 
-		$remove_ro_text = $remove_ro_text . "REMOVE \$LESDIR/$component_dir/$file\n";
+		$remove_ro_text = $remove_ro_text . "REMOVE \$lesdir/$component_dir/$file\n";
 		
 		$remove_text = $remove_text . "\t$component_dir/$file\n";
 
@@ -421,7 +457,7 @@ sub pull_files{
 		if($detailed_output){printf("Creating line for rollout script for adding directory\n");}
 		$log = $log . "Creating line for rollout script for directory file\n";
 
-		$replacetext = $replacetext . "CREATEDIR \$LESDIR/$component_dir\n";
+		$replacetext = $replacetext . "CREATEDIR \$lesdir/$component_dir\n";
 
 	}
 
@@ -493,8 +529,8 @@ sub pull_files{
 			if($detailed_output){printf( "Unload statement: $unload_statement\n");}
 			$log = $log . "Unload statement: $unload_statement\n";
 			($status, @result) = &MSQLExec($unload_statement);
-			if($detailed_output){printf( "status: $status\nresult: $result\n");}
-			if(@status)
+			if($detailed_output){printf( "status: $status\nresult: @result\n");}
+			if($status)
 			{
 				if($detailed_output){printf( "Error unloading integrator transaction(s)\n\tIFD List $ifd_list\n\tEvent List: $event_list\n");}
 				$log = $log . "Error unloading integrator transaction(s)\n\tIFD List $ifd_list\n\tEvent List: $event_list\n";
@@ -530,6 +566,8 @@ sub pull_files{
 	
 }#pull_files
 
+
+
 #####################################################################
 #####################################################################
 # MAIN uc_build_rollout
@@ -538,7 +576,7 @@ sub pull_files{
 
 #get options
 getopts('d:r:l:ohn:fpbm', \%opts);
-#perl createRolloutPackage.pl -n RLTEST1 -d . -r inputFile.txt -f
+#perl createRolloutPackage.pl -n RLTEST1 -d rollout -r inputFile.txt -f -l test1.log 
 # get the arguments
 #$ro = $opts{r} if defined($opts{r}); #-r - required - rollout input file
 # Destination File 
@@ -604,7 +642,9 @@ foreach my $file (@addModFiles)
 		print "------------------------------------------\n\n\n"; 
 	}
 } 
-close(vInputFile); 
+close($vInputFile); 
+move($SrcInputFile, "./rollout/") or die "Move failed: $!";
+
 # Opening a file and reading content  
 #if(open($vOutputFile, '<', $SrcInputFile))  
 #{  
@@ -621,7 +661,7 @@ close(vInputFile);
 #}  
 
 #close(vOutputFile); 
-
+printf("Input file had been created!\n\n");
 #validate ro argument passed in
 if(!$ro)
 {
@@ -758,39 +798,63 @@ $log = $log . "Reading file $ro to get options for creating rollout directory\n\
 $ro_name_parm = "-r $ro_name ";
 
 my $line_count = 0;
+printf(" $ro_dir$ro\n");
+
+# Opening a file and reading content  
+
 # loop through the rollout input file and pass each line to pull_files function
-open (ROFILE,$ro_dir.$ro);
-while (<ROFILE>)
+#open (ROFILE,$ro_dir.$ro);
+open($vOutputFile, '<:encoding(UTF-8)', $ro_dir.$ro) or die "Could not open file '$ro_dir.$ro' $!";
+printf(" input file is opened for reading\n");
+while (my $line = <$vOutputFile>)
 {
+	printf("Starting reading the input file\n");
 	# cannot send d, t, f, s, or n parameters to pull_files as these are reserved
 	# for use in the ro file
-	chomp;
+	#chomp;
 	# don't read line if it starts with #
-	if(substr($_,0,1) ne "\#")
-	{
-		$line_count = $line_count + 1;
-        my $line = $_;
-        if($^O !~ /Win/)
-		{
-			$line =~s/\R//g;
-		}
-		if($detailed_output){printf("Got Line:$line\n");}
-		$log = $log . "Got Line:$line\n";
-		my $pull_file_string ="-c $line $ro_name_parm $ro_dir_parm $logfile_parm $detailed_output_parm\n";
-		if($detailed_output){printf( "Calling pull_files function with: $pull_file_string \n\n");}
-		$log = $log . "Calling pull_files function with: $pull_file_string \n\n";
-		#write to log since we may get new info for the log in pull_files
-		write_log();
-		#call pull files
-		#pull_files($pull_file_string);
-	}
+	
+	chomp $line;
+	printf("Got Line:$line\n");
+	$line_count = $line_count + 1;
+	
+
+	#if($detailed_output){printf("Got Line:$line\n");}
+	#$log = $log . "Got Line:$line\n";
+	
+	my $pull_file_string ="-c $line $ro_name_parm $ro_dir_parm $logfile_parm $detailed_output_parm\n";
+	#if($detailed_output){printf( "Calling pull_files function with: $pull_file_string \n\n");}
+	#$log = $log . "Calling pull_files function with: $pull_file_string \n\n";
+	
+	#write to log since we may get new info for the log in pull_files
+	#write_log();
+	#call pull files
+	printf("Pull Line:$pull_file_string\n");
+	pull_files($pull_file_string);
+	
 }
 if($line_count > 0)
 {
 	$log = $log . "Finished calls to pull_files.  Read in and processed $line_count lines. \n\n";
 	printf("Finished calls to pull_files.  Read in and processed $line_count lines. \n\n");
 }
-close(ROFILE);
+# if -p parameter was passed in, we will package the rollout after creating the directory
+#if($pack or $build_script)
+#{
+#	my $pack_parm;
+	#if($pack)
+	#{
+	#	$pack_parm = '-p';
+	#}
+	#my $pack_cmd = "-d $orig_dir/$ro_name $logfile_parm $detailed_output_parm $pack_parm $readme_parm\n";
+	#if($detailed_output){printf( "Calling package_rollout function with: $pack_cmd \n\n");}
+	#$log = $log . "Calling package_rollout function with: $pack_cmd \n\n";
+	#write to log since we may get new info for the log in package_rollout
+	#write_log();
+	#call package_rollout
+#	package_rollout($pack_cmd);
+#}	
+close($vOutputFile);
 printf("\n");
 if($warnings_exist == 1)
 {

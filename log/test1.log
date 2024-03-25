@@ -1,0 +1,2004 @@
+Creating Rollout Directory 
+
+Current Time: Time::tm=ARRAY(0x8004de6f0)
+
+Options
+Rollout Directory = /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1
+logfile = test1.log
+
+Environment:
+LESDIR = /y/Docker/MY-GIT/SWBYDEMO
+Log directory=/y/Docker/MY-GIT/SWBYDEMOog
+Rollout Name = RLTEST1
+
+Reading file inputFile.txt to get options for creating rollout directory
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+ folder does not exist - creating it
+Invalid option for component type: -r
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+ folder does not exist - creating it
+Invalid option for component type: -r
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+ folder does not exist - creating it
+Invalid option for component type: -r
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+ folder does not exist - creating it
+Invalid option for component type: -r
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+ folder does not exist - creating it
+Invalid option for component type: -r
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+ folder does not exist - creating it
+Invalid option for component type: -r
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+ folder does not exist - creating it
+Invalid option for component type: -r
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+ folder does not exist - creating it
+Invalid option for component type: -r
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+ folder does not exist - creating it
+Invalid option for component type: -r
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+ folder does not exist - creating it
+Invalid option for component type: -r
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+ folder does not exist - creating it
+Invalid option for component type: -r
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+ folder does not exist - creating it
+Invalid option for component type: -r
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+ folder does not exist - creating it
+Invalid option for component type: -r
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+ folder does not exist - creating it
+Invalid option for component type: -r
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+ folder does not exist - creating it
+Invalid option for component type: -r
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+ folder does not exist - creating it
+Invalid option for component type: -r
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+ folder does not exist - creating it
+Invalid option for component type: -r
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+ folder does not exist - creating it
+Invalid option for component type: -r
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+ folder does not exist - creating it
+Invalid option for component type: -r
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+ folder does not exist - creating it
+Invalid option for component type: -r
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+ folder does not exist - creating it
+Invalid option for component type: -r
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+ folder does not exist - creating it
+Invalid option for component type: -r
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+ folder does not exist - creating it
+Invalid option for component type: -r
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+ folder does not exist - creating it
+Invalid option for component type: -r
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+ folder does not exist - creating it
+Invalid option for component type: -r
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+ folder does not exist - creating it
+Invalid option for component type: -r
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+ folder does not exist - creating it
+Invalid option for component type: -r
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+ folder does not exist - creating it
+Invalid option for component type: -r
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+ folder does not exist - creating it
+Invalid option for component type: -r
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+ folder does not exist - creating it
+Invalid option for component type: -r
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+ folder does not exist - creating it
+Invalid option for component type: -r
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+ folder does not exist - creating it
+Invalid option for component type: -r
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+ folder does not exist - creating it
+Invalid option for component type: -r
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+ folder does not exist - creating it
+Invalid option for component type: -r
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+ folder does not exist - creating it
+Invalid option for component type: -r
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+ folder does not exist - creating it
+Invalid option for component type: -r
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+ folder does not exist - creating it
+Invalid option for component type: -r
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+ folder does not exist - creating it
+Invalid option for component type: -r
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+ folder does not exist - creating it
+Invalid option for component type: -r
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+ folder does not exist - creating it
+Invalid option for component type: -r
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+ folder does not exist - creating it
+Invalid option for component type: -r
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+ folder does not exist - creating it
+Invalid option for component type: -r
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+ folder does not exist - creating it
+Invalid option for component type: -r
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+ folder does not exist - creating it
+Invalid option for component type: -r
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+ folder does not exist - creating it
+Invalid option for component type: -r
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+ folder does not exist - creating it
+Invalid option for component type: -r
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+ folder does not exist - creating it
+Invalid option for component type: -r
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+ folder does not exist - creating it
+Invalid option for component type: -r
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+ folder does not exist - creating it
+Invalid option for component type: -r
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+ folder does not exist - creating it
+Invalid option for component type: -r
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+ folder does not exist - creating it
+Invalid option for component type: -r
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+ folder does not exist - creating it
+Invalid option for component type: -r
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+ folder does not exist - creating it
+Invalid option for component type: -r
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+ folder does not exist - creating it
+Invalid option for component type: -r
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+ folder does not exist - creating it
+Invalid option for component type: -r
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+ folder does not exist - creating it
+Invalid option for component type: -r
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+ folder does not exist - creating it
+Invalid option for component type: -r
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+ folder does not exist - creating it
+Invalid option for component type: -r
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+ folder does not exist - creating it
+Invalid option for component type: -r
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+ folder does not exist - creating it
+Invalid option for component type: -r
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+ folder does not exist - creating it
+Invalid option for component type: -r
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+ folder does not exist - creating it
+Invalid option for component type: -r
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+ folder does not exist - creating it
+Invalid option for component type: -r
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+ folder does not exist - creating it
+Invalid option for component type: -r
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+ folder does not exist - creating it
+Invalid option for component type: -r
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+ folder does not exist - creating it
+Invalid option for component type: -r
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+ folder does not exist - creating it
+Invalid option for component type: -r
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+ folder does not exist - creating it
+Invalid option for component type: -r
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+ folder does not exist - creating it
+Invalid option for component type: -r
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+ folder does not exist - creating it
+Invalid option for component type: -r
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+ folder does not exist - creating it
+Invalid option for component type: -r
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+ folder does not exist - creating it
+Invalid option for component type: -r
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+ folder does not exist - creating it
+Invalid option for component type: -r
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+ folder does not exist - creating it
+Invalid option for component type: -r
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+ folder does not exist - creating it
+Invalid option for component type: -r
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+ folder does not exist - creating it
+Invalid option for component type: -r
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+ folder does not exist - creating it
+Invalid option for component type: -r
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+ folder does not exist - creating it
+Invalid option for component type: -r
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+ folder does not exist - creating it
+Invalid option for component type: -r
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+ folder does not exist - creating it
+Invalid option for component type: -r
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+ folder does not exist - creating it
+Invalid option for component type: -r
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+ folder does not exist - creating it
+Invalid option for component type: -r
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+ folder does not exist - creating it
+Invalid option for component type: -r
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+ folder does not exist - creating it
+Invalid option for component type: -r
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+ folder does not exist - creating it
+Invalid option for component type: -r
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+ folder does not exist - creating it
+Invalid option for component type: -r
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+ folder does not exist - creating it
+Invalid option for component type: -r
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+ folder does not exist - creating it
+Invalid option for component type: -r
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+ folder does not exist - creating it
+Invalid option for component type: -r
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+ folder does not exist - creating it
+Invalid option for component type: -r
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+ folder does not exist - creating it
+Invalid option for component type: -r
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+ folder does not exist - creating it
+Invalid option for component type: -r
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Creating Rollout Directory 
+
+Current Time: Time::tm=ARRAY(0x8004de8a0)
+
+Options
+Rollout Directory = /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1
+logfile = test1.log
+
+Environment:
+LESDIR = /y/Docker/MY-GIT/SWBYDEMO
+Log directory=/y/Docker/MY-GIT/SWBYDEMOog
+Rollout Name = RLTEST1
+
+Reading file inputFile.txt to get options for creating rollout directory
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Got Line:
+Calling pull_files function with: -c  -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l test1.log 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Creating Rollout Directory 
+
+Current Time: Time::tm=ARRAY(0x8004e20f0)
+
+Options
+Rollout Directory = /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1
+logfile = test1.log
+
+Environment:
+LESDIR = /y/Docker/MY-GIT/SWBYDEMO
+Log directory=/y/Docker/MY-GIT/SWBYDEMOog
+Rollout Name = RLTEST1
+
+Reading file inputFile.txt to get options for creating rollout directory
+
+uc_pull_files.pl: Pulling Components
+
+RLTEST1 folder does not exist - creating it
+MOCA
+Pulling Moca file: lc_be03_otm_poldat_swiftlex-2715.csv
+Create RO directory - /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/pkg/db/data/load/bootstraponly/poldat
+Cannot find file
+	/y/Docker/MY-GIT/SWBYDEMO/db/ddl/bootstraponly/lc_be03_otm_poldat_swiftlex-2715.csv
+  File will not be copied 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+MOCA
+Pulling Moca file: send_lc_be03_otm_transport_plan.mcmd
+Create RO directory - /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/pkg/src/cmdsrc/usrint
+Cannot find file
+	/y/Docker/MY-GIT/SWBYDEMO/src/cmdsrc/usrint/send_lc_be03_otm_transport_plan.mcmd
+  File will not be copied 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Creating Rollout Directory 
+
+Current Time: Time::tm=ARRAY(0x8004e18b0)
+
+Options
+Rollout Directory = /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1
+logfile = test1.log
+
+Environment:
+LESDIR = /y/Docker/MY-GIT/SWBYDEMO
+Log directory=/y/Docker/MY-GIT/SWBYDEMOog
+Rollout Name = RLTEST1
+
+Reading file inputFile.txt to get options for creating rollout directory
+
+uc_pull_files.pl: Pulling Components
+
+RLTEST1 folder does not exist - creating it
+MOCA
+Pulling Moca file: lc_be03_otm_poldat_swiftlex-2715.csv
+Create RO directory - /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/pkg/db/data/load/bootstraponly/poldat
+Cannot find file
+	/y/Docker/MY-GIT/SWBYDEMO/db/ddl/bootstraponly/lc_be03_otm_poldat_swiftlex-2715.csv
+  File will not be copied 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+MOCA
+Pulling Moca file: send_lc_be03_otm_transport_plan.mcmd
+Create RO directory - /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/pkg/src/cmdsrc/usrint
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Creating Rollout Directory 
+
+Current Time: Time::tm=ARRAY(0x8004e1af8)
+
+Options
+Rollout Directory = /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1
+logfile = test1.log
+
+Environment:
+LESDIR = /y/Docker/MY-GIT/SWBYDEMO
+Log directory=/y/Docker/MY-GIT/SWBYDEMOog
+Rollout Name = RLTEST1
+
+Reading file inputFile.txt to get options for creating rollout directory
+
+uc_pull_files.pl: Pulling Components
+
+RLTEST1 folder does not exist - creating it
+MOCA
+Pulling Moca file: lc_be03_otm_poldat_swiftlex-2715.csv
+Create RO directory - /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/pkg/db/data/load/bootstraponly/poldat
+Cannot find file
+	/y/Docker/MY-GIT/SWBYDEMO/db/ddl/bootstraponly/lc_be03_otm_poldat_swiftlex-2715.csv
+  File will not be copied 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+MOCA
+Pulling Moca file: send_lc_be03_otm_transport_plan.mcmd
+Create RO directory - /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/pkg/src/cmdsrc/usrint
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Creating Rollout Directory 
+
+Current Time: Time::tm=ARRAY(0x8004e2328)
+
+Options
+Rollout Directory = /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1
+logfile = test1.log
+
+Environment:
+LESDIR = /y/Docker/MY-GIT/SWBYDEMO
+Log directory=/y/Docker/MY-GIT/SWBYDEMOog
+Rollout Name = RLTEST1
+
+Reading file inputFile.txt to get options for creating rollout directory
+
+uc_pull_files.pl: Pulling Components
+
+RLTEST1 folder does not exist - creating it
+MOCA
+Pulling Moca file: lc_be03_otm_poldat_swiftlex-2715.csv
+Create RO directory - /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/pkg/db/data/load/bootstraponly/poldat
+Cannot find file
+	/y/Docker/MY-GIT/SWBYDEMO/db/data/load/bootstraponly/lc_be03_otm_poldat_swiftlex-2715.csv
+  File will not be copied 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+MOCA
+Pulling Moca file: send_lc_be03_otm_transport_plan.mcmd
+Create RO directory - /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/pkg/src/cmdsrc/usrint
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Creating Rollout Directory 
+
+Current Time: Time::tm=ARRAY(0x8004ec070)
+
+Options
+Rollout Directory = /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1
+logfile = test1.log
+
+Environment:
+LESDIR = /y/Docker/MY-GIT/SWBYDEMO
+Log directory=/y/Docker/MY-GIT/SWBYDEMOog
+Rollout Name = RLTEST1
+
+Reading file inputFile.txt to get options for creating rollout directory
+
+uc_pull_files.pl: Pulling Components
+
+RLTEST1 folder does not exist - creating it
+MOCA
+Pulling Moca file: lc_be03_otm_poldat_swiftlex-2715.csv
+Create RO directory - /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/pkg/db/data/load/bootstraponly/poldat
+Cannot find file
+	/y/Docker/MY-GIT/SWBYDEMO/db/data/load/bootstraponly/poldat/lc_be03_otm_poldat_swiftlex-2715.csv
+  File will not be copied 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+MOCA
+Pulling Moca file: send_lc_be03_otm_transport_plan.mcmd
+Create RO directory - /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/pkg/src/cmdsrc/usrint
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Creating Rollout Directory 
+
+Current Time: Time::tm=ARRAY(0x8004ebe30)
+
+Options
+Rollout Directory = /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1
+logfile = test1.log
+
+Environment:
+LESDIR = /y/Docker/MY-GIT/SWBYDEMO
+Log directory=/y/Docker/MY-GIT/SWBYDEMOog
+Rollout Name = RLTEST1
+
+Reading file inputFile.txt to get options for creating rollout directory
+
+uc_pull_files.pl: Pulling Components
+
+RLTEST1 folder does not exist - creating it
+MOCA
+Pulling Moca file: lc_be03_otm_poldat_swiftlex-2715.csv
+Create RO directory - /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/pkg/db/data/load/base/bootstraponly/poldat
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+MOCA
+Pulling Moca file: send_lc_be03_otm_transport_plan.mcmd
+Create RO directory - /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/pkg/src/cmdsrc/usrint
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Creating Rollout Directory 
+
+Current Time: Time::tm=ARRAY(0x8004e3560)
+
+Options
+Rollout Directory = /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1
+logfile = test1.log
+
+Environment:
+LESDIR = /y/Docker/MY-GIT/SWBYDEMO
+Log directory=/y/Docker/MY-GIT/SWBYDEMOog
+Rollout Name = RLTEST1
+
+Reading file inputFile.txt to get options for creating rollout directory
+
+uc_pull_files.pl: Pulling Components
+
+RLTEST1 folder does not exist - creating it
+MOCA
+Pulling Moca file: lc_be03_otm_poldat_swiftlex-2715.csv
+Create RO directory - /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/pkg/db/data/load/base/safetoload/poldat
+Cannot find file
+	/y/Docker/MY-GIT/SWBYDEMO/db/data/load/base/safetoload/poldat/lc_be03_otm_poldat_swiftlex-2715.csv
+  File will not be copied 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+MOCA
+Pulling Moca file: send_lc_be03_otm_transport_plan.mcmd
+Create RO directory - /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/pkg/src/cmdsrc/usrint
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Creating Rollout Directory 
+
+Current Time: Time::tm=ARRAY(0x8004e3250)
+
+Options
+Rollout Directory = /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1
+logfile = test1.log
+
+Environment:
+LESDIR = /y/Docker/MY-GIT/SWBYDEMO
+Log directory=/y/Docker/MY-GIT/SWBYDEMOog
+Rollout Name = RLTEST1
+
+Reading file inputFile.txt to get options for creating rollout directory
+
+uc_pull_files.pl: Pulling Components
+
+RLTEST1 folder does not exist - creating it
+MOCA
+Pulling Moca file: lc_be03_otm_poldat_swiftlex-2715.csv
+Create RO directory - /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/pkg/db/data/load/base/safetoload/poldat
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+MOCA
+Pulling Moca file: send_lc_be03_otm_transport_plan.mcmd
+Create RO directory - /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/pkg/src/cmdsrc/usrint
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+Creating Rollout Directory 
+
+Current Time: Time::tm=ARRAY(0x8004e32d0)
+
+Options
+Rollout Directory = /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1
+logfile = test1.log
+
+Environment:
+LESDIR = /y/Docker/MY-GIT/SWBYDEMO
+Log directory=/y/Docker/MY-GIT/SWBYDEMOog
+Rollout Name = RLTEST1
+
+Reading file inputFile.txt to get options for creating rollout directory
+
+uc_pull_files.pl: Pulling Components
+
+RLTEST1 folder does not exist - creating it
+MOCA
+Pulling Moca file: lc_be03_otm_poldat_swiftlex-2715.csv
+Create RO directory - /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/pkg/db/data/load/base/safetoload/poldat
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+
+uc_pull_files.pl: Pulling Components
+
+MOCA
+Pulling Moca file: send_lc_be03_otm_transport_plan.mcmd
+Create RO directory - /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/pkg/src/cmdsrc/usrint
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/test1.log
+

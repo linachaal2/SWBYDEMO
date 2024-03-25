@@ -1,0 +1,2 @@
+SQL -t poldat -f "lc_be03_otm_poldat_swiftlex-2715.csv"
+MOCA -d usrint -f "send_lc_be03_otm_transport_plan.mcmd"
