@@ -4,6 +4,8 @@ jobs:
   GreetingJob:
     runs-on: ubuntu-latest
     steps:
+      - name: Check out the repository to the runner
+        uses: actions/checkout@v4  
       - name: my-helloWorldGreeting
         run: |
           echo "Hello Starware Squad!"          
@@ -13,6 +15,7 @@ jobs:
           echo "RUNNER_WORKSPACE === $RUNNER_WORKSPACE"
           pwd
           ls ${{ github.workspace }}
+          ls ${{ runner.workspace }}
           #perl ./build_rollout.pl -h
       - name: Set current date as env variable
         run: echo "NOW=$(date +'%Y-%m-%dT%H:%M:%S')" >> $GITHUB_ENV
