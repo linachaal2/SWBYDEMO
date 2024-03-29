@@ -17,7 +17,7 @@ jobs:
       - name: Echo current date
         run: echo $NOW # Gives "2022-12-11T01:42:20"
       - name: copy release management scripts
-        run: Copy 'scripts/' '${{ github.workspace }}/Scripts'
+        run: Copy 'scripts/' '${{ github.workspace }}'
         shell: pwsh
       
       - name: publish artifact
