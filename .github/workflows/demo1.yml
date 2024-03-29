@@ -4,8 +4,6 @@ jobs:
   GreetingJob:
     runs-on: ubuntu-latest
     steps:
-      - name: Check out the repository to the runner
-        uses: actions/checkout@v4  
       - name: my-helloWorldGreeting
         run: |
           echo "Hello Starware Squad!"          
@@ -21,10 +19,12 @@ jobs:
         run: echo "NOW=$(date +'%Y-%m-%dT%H:%M:%S')" >> $GITHUB_ENV
       - name: Echo current date
         run: echo $NOW # Gives "2022-12-11T01:42:20"
-  RunningPerlScript:
+  RunningPerlScriptJob:
     needs: GreetingJob
     runs-on: ubuntu-latest
     steps:
+      - name: Check out the repository to the runner
+        uses: actions/checkout@v4
       - name: Execute Perl script
         run: |
           perl ${{ github.workspace }}/scripts/helloStarware.pl
