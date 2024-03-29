@@ -9,6 +9,7 @@ jobs:
           echo "Hello Starware Squad!"
           echo 'This is my workspace: ${{ github.workspace }}'
           pwd
+          Copy 'Scripts/' '${{ github.workspace }}/Scripts'
           #cd ./scripts
           ls
           #perl ./build_rollout.pl -h
@@ -16,5 +17,6 @@ jobs:
         run: echo "NOW=$(date +'%Y-%m-%dT%H:%M:%S')" >> $GITHUB_ENV
       - name: Echo current date
         run: echo $NOW # Gives "2022-12-11T01:42:20"
+  
 
        
