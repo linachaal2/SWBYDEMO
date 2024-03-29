@@ -16,7 +16,7 @@ jobs:
           pwd
           ls ${{ github.workspace }}
           #ls ${{ runner.workspace }}
-          perl ./helloStarware.pl -h
+          perl ${{ github.workspace }}/scripts/helloStarware.pl
       - name: Set current date as env variable
         run: echo "NOW=$(date +'%Y-%m-%dT%H:%M:%S')" >> $GITHUB_ENV
       - name: Echo current date
