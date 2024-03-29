@@ -1,4 +1,4 @@
-name: hello-world
+name: hello-Starware-Squad
 'on': workflow_dispatch
 jobs:
   GreetingJob:
@@ -6,12 +6,11 @@ jobs:
     steps:
       - name: my-helloWorldGreeting
         run: |
-          echo "Hello There!"
-          echo "Today is $DAY_OF_WEEK!"
-          echo 'Hi ${{ github.workspace }}'
+          echo "Hello Starware Squad!"
+          echo 'This is my workspace: ${{ github.workspace }}'
           pwd
+          cd ./scripts
           ls
-          #cd ./scripts
           #perl ./build_rollout.pl -h
       - name: Set current date as env variable
         run: echo "NOW=$(date +'%Y-%m-%dT%H:%M:%S')" >> $GITHUB_ENV
