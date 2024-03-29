@@ -9,7 +9,6 @@ jobs:
           echo "Hello Starware Squad!"
           echo 'This is my workspace: ${{ github.workspace }}'
           pwd
-          Copy 'Scripts/' '${{ github.workspace }}/Scripts'
           #cd ./scripts
           ls
           #perl ./build_rollout.pl -h
