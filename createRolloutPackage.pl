@@ -218,7 +218,7 @@ sub pull_files{
 	my $ifd_list;
 	my $event_list;
 	my $unload;
-	
+	my $replacetext="";
 	
 	printf "--------------------PULL FILES----------------------\n\n\n"; 
 	#first we will reset the arguments parameter to be the string passed in so we can pull the parameters
@@ -257,7 +257,7 @@ sub pull_files{
 				
 	if($detailed_output){printf( "uc_pull_files.pl: Pulling Components\n\n");}
 	$log = $log . "uc_pull_files.pl: Pulling Components\n\n";
-	printf "--------------------table:$table----------------------\n\n\n"; 
+	#printf "--------------------table:$table----------------------\n\n\n"; 
 	printf "--------------------Pulling Components----------------------\n\n\n"; 
 	# create RO directory if it doesn't exist
 	if(!-d $ro_dir.$ro_name)
