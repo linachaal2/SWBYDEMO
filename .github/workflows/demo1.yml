@@ -2,7 +2,10 @@ name: hello-Starware-Squad
 'on': workflow_dispatch
 jobs:
   GreetingJob:
-    runs-on: ubuntu-latest
+    runs-on: ${{matrix.os}}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
     steps:
       - name: my-helloWorldGreeting
         run: |
