@@ -599,7 +599,8 @@ if($help)
 
 # to be replaced after by an input parameter
 
-my $s = 'A db/data/load/base/bootstraponly/poldat/lc_be03_otm_poldat_swiftlex-2715.csv M src/cmdsrc/usrint/send_lc_be03_otm_transport_plan.mcmd';
+#my $s = 'A db/data/load/base/bootstraponly/poldat/lc_be03_otm_poldat_swiftlex-2715.csv M src/cmdsrc/usrint/send_lc_be03_otm_transport_plan.mcmd';
+my $s = 'A db/data/load/base/bootstraponly/client/client.csv A db/data/load/base/bootstraponly/adrmst/adrmst.csv A db/data/load/base/bootstraponly/client_wh/client_wh.csv';
 print "Original files:",$s,"\n\n";
 
 
