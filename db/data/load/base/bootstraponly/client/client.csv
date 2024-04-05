@@ -1,2 +1,2 @@
 client_id,adr_id,bt_locale_id,iso_crncy_flg,sto_blng_typ,free_days,split_stg_cod,lot_anniv_flg,sts_ovr_flg,auto_add_serv,lot_fmt_id,grp_nam,adj_thr_cst,adj_thr_unit,rcpt_confirm_lvl,bola_sfx,bola_pfx,bola_frm_rng,bola_to_rng,bola_nxt_num,is_purged
-TEST2,A000003774,,0,,0,,0,0,0,,,0,0,,,,,,,0
+TEST2,A000003774,,0,,0,,0,0,0,,,0,0,,,,,,,1
