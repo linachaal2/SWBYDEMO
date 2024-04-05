@@ -1,2 +1,0 @@
-client_id,wh_id,trans_wh_id,alw_sup_lot_chg,auto_pop_sup_lot,bulk_pck_flg,ins_dt,last_upd_dt,ins_user_id,last_upd_user_id,lst_ctn_prnt_vis_flg,lst_ctn_prnt_vis_msg,abs_ordinv_win,abs_ordinv_code,ordinv,auto_pack_subline_flg,dlvseq_load_order,inb_full_vld_flg,prev_alloc_on_error_flg,shp_ctnrte_flg,is_purged
-TEST2,WMD1,,0,0,0,20240402073225,20240402073225,SUPER,SUPER,0,,0,,,0,D,0,0,0,0
