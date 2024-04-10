@@ -3,7 +3,7 @@
   <description>process additional assets</description>
   <type>Local Syntax</type>
   <local-syntax>
-  <![CDATA[
+<![CDATA[
 /* process additional assets
  * User version with bugfix for command "process additional assets".
  * Version history:
@@ -64,16 +64,17 @@ if (@remove_inv_asset)
         /* USR - If we already got a src_lod_asset we will use that as this command is getting called for each inv_asset. */
         /* USR - However we should check on existance whenever the command has been fired multiple times */
         /* USR - We should also delete legborden (additional assets) if the ladingdrager (main asset) is deleted, link between asset types is stored in the policies */
+		/* USR - Whenever listpick to a different asset_typ we need to pass the old_lod_asset (type) to be removed */
         [select *
            from inv_asset
-          where asset_typ = @asset_typ
+          where asset_typ = nvl(@old_lod_asset,@asset_typ)
             and invtid = nvl(@invtid, @lodnum)] catch(-1403)
         |
         if (@? = 0)
         {
             remove record
              where table = 'inv_asset'
-               and asset_typ = @asset_typ
+               and asset_typ = nvl(@old_lod_asset,@asset_typ)
                and invtid = nvl(@invtid, @lodnum)
             |
             [select rtstr2 legbord
@@ -81,7 +82,7 @@ if (@remove_inv_asset)
               where polcod = 'USR-RF-FORM'
                 and polvar = 'ASSET_IDENTIFY'
                 and polval = 'ASSET_LINK'
-                and rtstr1 = @asset_typ] catch(-1403)
+                and rtstr1 = nvl(@old_lod_asset,@asset_typ)] catch(-1403)
             |
             if (@legbord != '' and @usr_remove_linked_assets = 1)
             {
@@ -179,8 +180,7 @@ if (@load_cons_or_sub_move)
     }
 }
 ]]>
-  </local-syntax>
-
+</local-syntax>
   <argument name="lodnum" datatype="string">Load Number</argument>
   <argument name="subnum" datatype="string">SubLoad Number</argument>
   <argument name="dstlod" datatype="string">Destination Load</argument>
@@ -193,11 +193,10 @@ if (@load_cons_or_sub_move)
   <argument name="sub_asset_typ" datatype="string">Sub Asset Type</argument>
   <argument name="pick_to_lvl" datatype="string">Picking container level (L or S)</argument>
   <argument name="usr_remove_linked_assets" datatype="integer">Remove linked assets(0/1)</argument>
-
   <documentation>
-    <remarks></remarks>
+<remarks></remarks>
+<exception value="eOK">Normal successful completion</exception>
+<exception value="eDB_NO_ROWS_AFFECTED (510)">No data found</exception>
 
-    <exception value="eOK">Normal successful completion</exception>
-    <exception value="eDB_NO_ROWS_AFFECTED (510)">No data found</exception>
-  </documentation>
+</documentation>
 </command>

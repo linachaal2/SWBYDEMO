@@ -1,0 +1,22 @@
+<trigger>
+  <name>remove usr inventory asset</name>
+  <on-command>remove load</on-command>
+  <description>Remove inventory assets from lodnum</description>
+  <fire-sequence>0</fire-sequence>
+  <local-syntax>
+<![CDATA[
+/* Trigger to clean up inventory assets when removing lpn
+ *
+ * Version history:
+ *  2023-12-28 Marco Schouwenaar   Initial version
+ */
+[select * from inv_asset where invtid=@lodnum] catch (-1403)
+|
+if (@?=0)
+{
+  remove record where table='inv_asset'
+}
+]]>
+</local-syntax>
+  <enable>yes</enable>
+</trigger>
