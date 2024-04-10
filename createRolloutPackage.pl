@@ -120,6 +120,68 @@ sub create_ro_dir
 		}
 	}
 }#create_ro_dir
+
+#####################################################################
+# copy_ctl_ro_file($filedir, $filename, $new_filedir)
+#	$filedir - current path of file to be copied
+#	$filename - current control filename of file to be copied
+#	$new_filedir - new path to copy to
+#
+# this will copy an existing control file from one location to another
+#####################################################################
+sub copy_ctl_ro_file
+{
+	# takes arguments
+		# filedir - directory the file will be copied from
+		# filename - control filename to be copied from
+		# new_filedir - directory to copy to
+	my($filedir,$filename,$new_filedir) = @_;
+	
+    my $full_path = $filedir . "/". $filename;
+    
+    
+	if(!-e $full_path)
+	{
+		if($detailed_output){printf( "Cannot find file\n\t$filedir/$filename\n  File will not be copied \n\n");}
+		$log = $log .  "Cannot find file\n\t$filedir/$filename\n  File will not be copied \n\n";
+		$error_text = $error_text .  "- Cannot find file $filedir/$filename.  File will not be copied!\n";
+		$errors_exist = 1;
+	}
+	if(!-e $new_filedir )
+	{
+		if($detailed_output){printf( "Directory to copy file to ($new_filedir) does not exist.  File will not be copied \n\n");}
+		$log = $log . "Directory to copy file to ($new_filedir) does not exist.  File will not be copied \n\n";
+		$error_text = $error_text .  "- Directory to copy file to ($new_filedir) does not exist.  File will not be copied!\n";
+		$errors_exist = 1;
+	}
+	else
+	{
+		copy($full_path, $new_filedir . "/" . $new_filename)
+	}
+	# Copy the control file of the file name 
+	my $pointPos = rindex($file, "."); 
+		print "Position of point: $pointPos\n"; 
+		my $slashPos = rindex($file, "/"); 
+		my $fileExt = substr($file,$pointPos+1); 
+		my $fileFullName = substr($file,$slashPos+1); 
+		$fileFullName=~ s/\s+$//;
+		$fileExt=~ s/\s+$//;
+		print "File Name: *$fileFullName*\n"; 
+		print "File extension: *$fileExt*\n"; 
+		if ($fileExt eq "mcmd" || $fileExt eq "mtrg") {
+			#MOCA -d usrint -f "list_usr_1234.mcmd"
+			my $fullFileSyntax = "MOCA -d usrint -f \"".$fileFullName."\"";
+			print "File syntax: $fullFileSyntax\n"; 		
+			print {$vInputFile} $fullFileSyntax . "\n";
+		}
+		elsif ($fileExt eq "csv"){
+			##SQL -t poldat  -s "select * from poldat where polcod = 'UC_1234'"
+			my $table_name = substr(substr($file,0,$slashPos),rindex(substr($file,0,$slashPos), "/")+1);
+	my $fullCTRLfileName = .ctl;
+	
+	
+}#copy_ctl_ro_file
+
 #####################################################################
 # copy_ro_file($filedir, $filename, $new_filedir, $new_filename)
 #	$filedir - current path of file to be copied
@@ -284,6 +346,7 @@ sub pull_files{
 		$log = $log . "CSV\nPulling CSV file: $file\n";
 		create_ro_dir($ro_dir.$ro_name . "/pkg/db/data/load/base/$component_dir/$table");
 		copy_ro_file($lesdir . "/db/data/load/base/$component_dir/$table",$file,$ro_dir.$ro_name . "/pkg/db/data/load/base/$component_dir/$table");
+		copy_ctl_ro_file($ro_dir.$ro_name . "/pkg/db/data/load/base/$component_dir/$table");
 	}
 
 	#####################################################################
