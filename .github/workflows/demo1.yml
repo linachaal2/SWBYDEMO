@@ -59,5 +59,11 @@ jobs:
       - uses: actions/checkout@v4
       - name: Test with Pester
         shell: pwsh
-        run: Invoke-Pester Get-Planet.Tests.ps1 
+        run: Invoke-Pester Get-Planet.Tests.ps1 -Passthru > pesterOutput.log
+      - name: Upload Pester test results
+        uses: actions/upload-artifact@v4
+        with:
+          name: Pester-Test
+          path: pesterOutput.log
+    if: ${{ always() }}
    
