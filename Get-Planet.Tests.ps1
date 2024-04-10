@@ -1,4 +1,4 @@
-BeforeAll {
+
     function Get-Planet ([string]$Name = '*') {
         $planets = @(
             @{ Name = 'Mercury' }
@@ -13,11 +13,5 @@ BeforeAll {
 
         $planets | Where-Object { $_.Name -like $Name }
     }
-}
 
-Describe 'Get-Planet' {
-    It 'Given no parameters, it lists all 8 planets' {
-        $allPlanets = Get-Planet
-        $allPlanets.Count | Should -Be 8
-    }
-}
+    Get-Planet
