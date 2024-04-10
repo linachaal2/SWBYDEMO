@@ -52,5 +52,17 @@ jobs:
           value=`cat output.log`
           echo The result is $value
           
-
-       
+  upload-pester-results:
+    name: Run Pester and upload results
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test with Pester
+        shell: pwsh
+        run: Invoke-Pester Get-Planet.Tests.ps1 -Passthru | Export-CliXml -Path Unit.Tests.xml
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        with:
+          name: ubuntu-Unit-Tests
+          path: Unit.Tests.xml
+    if: ${{ always() }}
