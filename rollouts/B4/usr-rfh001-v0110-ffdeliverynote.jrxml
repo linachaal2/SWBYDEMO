@@ -1,0 +1,1018 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.11.0.final using JasperReports Library version 6.10.0   -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Afleverbon" language="groovy" pageWidth="595" pageHeight="842" whenNoDataType="NoPages" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" scriptletClass="com.redprairie.moca.jrds.ReportingIreportScriptlet" resourceBundle="com.redprairie.moca.jrds.Xlate" whenResourceMissingType="Error" uuid="266bc0db-bc21-4c20-a03c-ee0cf6ceb72e">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="NP1"/>
+	<property name="com.jaspersoft.studio.report.description" value="Fulfilment afleverbon"/>
+	<property name="net.sf.jasperreports.style.evaluation.time.enabled" value="true"/>
+	<property name="com.jaspersoft.studio.unit.topMargin" value="pixel"/>
+	<import value="net.sf.jasperreports.engine.*"/>
+	<import value="java.util.*"/>
+	<import value="net.sf.jasperreports.engine.data.*"/>
+	<style name="StyleInvert">
+		<conditionalStyle>
+			<conditionExpression><![CDATA[Boolean.valueOf($V{Priority}.intValue()>0)]]></conditionExpression>
+			<style mode="Opaque" forecolor="#FFFFFF" backcolor="#000000" fill="Solid" hTextAlign="Center" isBlankWhenNull="true"/>
+		</conditionalStyle>
+	</style>
+	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
+		<property name="MOCA" value="true"/>
+		<defaultValueExpression><![CDATA["./"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="MOCA_REPORT_LOCALE" class="java.lang.String">
+		<property name="MOCA" value="true"/>
+		<defaultValueExpression><![CDATA["DUTCH_HOLLAND"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="MOCA_REPORT_CONNECTION" class="com.redprairie.moca.jrds.JRMocaConnection" isForPrompting="false">
+		<property name="MOCA" value="true"/>
+		<defaultValueExpression><![CDATA[new com.redprairie.moca.jrds.JRMocaConnection("http://jda2018100.westeurope.cloudapp.azure.com:18000/service", "SUPER", "SUPER", true)]]></defaultValueExpression>
+	</parameter>
+	<parameter name="MOCA_REPORT_DATE" class="java.lang.String" isForPrompting="false">
+		<property name="MOCA" value="true"/>
+		<defaultValueExpression><![CDATA[DateFormat.getDateInstance(DateFormat.SHORT).format(new Date())]]></defaultValueExpression>
+	</parameter>
+	<parameter name="MOCA_REPORT_TIME" class="java.lang.String" isForPrompting="false">
+		<property name="MOCA" value="true"/>
+		<defaultValueExpression><![CDATA[DateFormat.getTimeInstance(DateFormat.SHORT).format(new Date())]]></defaultValueExpression>
+	</parameter>
+	<parameter name="MOCA_REPORT_TZ" class="java.lang.String" isForPrompting="false">
+		<property name="MOCA" value="true"/>
+		<defaultValueExpression><![CDATA[new java.text.SimpleDateFormat("z").format(new Date())]]></defaultValueExpression>
+	</parameter>
+	<parameter name="MOCA_REPORT_DATE_FMT" class="java.lang.String" isForPrompting="false">
+		<property name="MOCA" value="true"/>
+		<defaultValueExpression><![CDATA[DateFormat.SHORT]]></defaultValueExpression>
+	</parameter>
+	<parameter name="MOCA_REPORT_TIME_FMT" class="java.lang.String" isForPrompting="false">
+		<property name="MOCA" value="true"/>
+		<defaultValueExpression><![CDATA[DateFormat.SHORT]]></defaultValueExpression>
+	</parameter>
+	<parameter name="lodnum" class="java.lang.String">
+		<property name="prompt" value="^lodnum^"/>
+	</parameter>
+	<queryString language="MOCA">
+		<![CDATA[publish data where lodnum=$P{lodnum} and locale_id=$P{MOCA_REPORT_LOCALE}
+|
+get usr customer for asset where lodnum = @lodnum
+|
+[select 
+invlod.lodnum as ID,
+invdtl.supnum as EAN_Supplier,
+supmst.uc_ckn_no as CKN_Supplier,
+invdtl.inv_attr_str2 as Fustcode,
+invdtl.inv_attr_str3 as TradeItem,
+invdtl.prtnum as SKU,
+nvl(ord_line_note.nottxt,nvl(prtdsc.short_dsc,bckup.short_dsc)) as Description,
+ord.rtcust as EAN_Carrier,
+route_cst.uc_ckn_no as CKN_Carrier,
+ord.stcust as EAN_Customer,
+ship_cst.uc_ckn_no as CKN_Customer,
+prtftp_view.unthgt as Length,
+prtmst_view.prtcolor as Color,
+invdtl.inv_attr_int2 as Qty_in_Fust,
+invdtl.untqty as Fust_Qty,
+ord_line.uc_shipby as Cons_Criteria,
+ord_line.unt_price as Price,
+ord_line.ordqty as Order_qty,
+ord_line.sales_ordnum as Customer_Ref,
+nvl(ord_line.early_shpdte,ord_line.late_shpdte) as Early_Ship_date,
+ord_line.late_shpdte as Late_Ship_date,
+invdtl.lotnum as Lotnum,
+ord.ordnum as Customer_Order,
+ord.entdte as Order_date_received,
+route_cst_name.adrnam as Carrier_Name,
+route_to.host_ext_id as Carrier_GLN_Loc,
+route_to.adr_district as Carrier_Location,
+route_to.adrln1 as Carrier_Address,
+route_to.adrpsz as Carrier_Zipcode,
+route_to.adrcty as Carrier_City,
+ship_cst_name.adrnam as Customer_Name,
+ship_to.host_ext_id as Customer_GLN_Loc,
+ship_to.adr_district as Customer_Location,
+ship_to.adrln1 as Customer_Address,
+ship_to.adrpsz as Customer_Zipcode,
+ship_to.adrcty as Customer_City,
+suplier.adrnam as Supplier_Name,
+suplier.adrcty as Supplier_City,
+case 
+when (nvl(ekt.nottxt,'-')='-' ) then '-' 
+when (nvl(LENGTH(TRIM(TRANSLATE(ekt.nottxt, '0123456789','          '))),0)=0) then ekt.nottxt||substr(to_char (ASCII(substr(invdtl.wrkref_dtl,length(invdtl.wrkref_dtl)-1,1))+ASCII(substr(invdtl.wrkref_dtl,length(invdtl.wrkref_dtl),1)),'0000'),4,2)||'0'||trim(to_char(invdtl.untqty,'0000'))
+when (nvl(ekt.nottxt,'-')<>'-' ) then 'NONE'
+end as ekt_barcode,
+nvl(alt_stat.nottxt,invdtl.invsts) as inv_stat,
+nvl(sort1.nottxt,'0') as sort1,
+nvl(sort2.nottxt,'0') as sort2,
+nvl(sort3.nottxt,'0') as sort3,
+nvl(sort4.nottxt,'0') as sort4,
+nvl(sort5.nottxt,'0') as sort5,
+nvl(negsort1.nottxt,'0') as negsort1,
+nvl(negsort2.nottxt,'0') as negsort2,
+nvl(buyer.nottxt,'0') as buyer,
+nvl(seat.nottxt,'0') as seat,
+nvl(clockid.nottxt,'0') as clockid,
+nvl(clocktrn.nottxt,'0') as clocktrn,
+(select nvl(max(pckwrk_view.pckdte),sysdate) from pckwrk_view where pckwrk_view.wrkref_dtl=invdtl.wrkref_dtl and pckwrk_view.wrkref=invdtl.wrkref) as finished_pick,
+nvl((select lngdsc from dscmst where dscmst.colval = invlod.asset_typ and dscmst.colnam='asset_typ' and dscmst.locale_id=@locale_id),invlod.asset_typ) as Loadcarrier_Type,
+decode(@stcust, ord.stcust, (select sum(inv_asset.untqty) from inv_asset where inv_asset.invtid=invlod.lodnum and invlod.asset_typ!=inv_asset.asset_typ), 0) as Additional_Shelves,
+case 
+when (ord.ordtyp='34' ) then 1 
+else 0
+end as rush_order
+from invlod
+join invsub on (invlod.lodnum = invsub.lodnum)
+join invdtl on (invdtl.subnum = invsub.subnum)
+join prtmst_view on (invdtl.prt_client_id=prtmst_view.prt_client_id
+  and invdtl.prtnum=prtmst_view.prtnum
+  and invlod.wh_id=prtmst_view.wh_id)
+left join prtftp_view on (invdtl.prt_client_id=prtftp_view.prt_client_id
+  and invdtl.prtnum=prtftp_view.prtnum
+  and invlod.wh_id=prtftp_view.wh_id
+  and invdtl.ftpcod=prtftp_view.ftpcod) 
+left join prtdsc on (prtdsc.colval = prtmst_view.prtnum||'|'||prtmst_view.prt_client_id||'|'||prtmst_view.wh_id and prtdsc.colnam='prtnum|prt_client_id|wh_id_tmpl' and prtdsc.locale_id=@locale_id)
+left join prtdsc bckup on (bckup.colval = prtmst_view.prtnum||'|'||prtmst_view.prt_client_id||'|'||prtmst_view.wh_id and bckup.colnam='prtnum|prt_client_id|wh_id_tmpl' and bckup.locale_id='US_ENGLISH')
+left join shipment_line on (shipment_line.ship_line_id=invdtl.ship_line_id) 
+left join ord on (shipment_line.ordnum=ord.ordnum and shipment_line.wh_id=ord.wh_id and shipment_line.client_id=ord.client_id)
+left join ord_line on (ord.ordnum = ord_line.ordnum and ord.wh_id = ord_line.wh_id and ord.client_id = ord_line.client_id and ord_line.ordlin=shipment_line.ordlin and ord_line.ordsln=shipment_line.ordsln)
+left join ord_line_note on (ord_line_note.ordnum = ord_line.ordnum and ord_line_note.ordlin = ord_line.ordlin and ord_line_note.ordsln = ord_line.ordsln and ord_line_note.wh_id = ord_line.wh_id and ord_line_note.client_id = ord_line.client_id and ord_line_note.nottyp='TradeitemDescr')
+left join ord_line_note ekt on (ekt.ordnum = ord_line.ordnum and ekt.ordlin = ord_line.ordlin and ekt.ordsln = ord_line.ordsln and ekt.wh_id = ord_line.wh_id and ekt.client_id = ord_line.client_id and ekt.nottyp='EKT_BARCODE')
+left join ord_line_note alt_stat on (alt_stat.ordnum = ord_line.ordnum and alt_stat.ordlin = ord_line.ordlin and alt_stat.ordsln = ord_line.ordsln and alt_stat.wh_id = ord_line.wh_id and alt_stat.client_id = ord_line.client_id and alt_stat.nottyp='ALT_ST_STATUS')
+left join ord_line_note buyer on (buyer.ordnum = ord_line.ordnum and buyer.ordlin = ord_line.ordlin and buyer.ordsln = ord_line.ordsln and buyer.wh_id = ord_line.wh_id and buyer.client_id = ord_line.client_id and buyer.nottyp='PLAAT')
+left join ord_line_note seat on (seat.ordnum = ord_line.ordnum and seat.ordlin = ord_line.ordlin and seat.ordsln = ord_line.ordsln and seat.wh_id = ord_line.wh_id and seat.client_id = ord_line.client_id and seat.nottyp='ZETEL')
+left join ord_line_note sort1 on (sort1.ordnum = ord_line.ordnum and sort1.ordlin = ord_line.ordlin and sort1.ordsln = ord_line.ordsln and sort1.wh_id = ord_line.wh_id and sort1.client_id = ord_line.client_id and sort1.nottyp='SORT_1')
+left join ord_line_note sort2 on (sort2.ordnum = ord_line.ordnum and sort2.ordlin = ord_line.ordlin and sort2.ordsln = ord_line.ordsln and sort2.wh_id = ord_line.wh_id and sort2.client_id = ord_line.client_id and sort2.nottyp='SORT_2')
+left join ord_line_note sort3 on (sort3.ordnum = ord_line.ordnum and sort3.ordlin = ord_line.ordlin and sort3.ordsln = ord_line.ordsln and sort3.wh_id = ord_line.wh_id and sort3.client_id = ord_line.client_id and sort3.nottyp='SORT_3')
+left join ord_line_note sort4 on (sort4.ordnum = ord_line.ordnum and sort4.ordlin = ord_line.ordlin and sort4.ordsln = ord_line.ordsln and sort4.wh_id = ord_line.wh_id and sort4.client_id = ord_line.client_id and sort4.nottyp='SORT_4')
+left join ord_line_note sort5 on (sort5.ordnum = ord_line.ordnum and sort5.ordlin = ord_line.ordlin and sort5.ordsln = ord_line.ordsln and sort5.wh_id = ord_line.wh_id and sort5.client_id = ord_line.client_id and sort5.nottyp='SORT_5')
+left join ord_line_note negsort1 on (negsort1.ordnum = ord_line.ordnum and negsort1.ordlin = ord_line.ordlin and negsort1.ordsln = ord_line.ordsln and negsort1.wh_id = ord_line.wh_id and negsort1.client_id = ord_line.client_id and negsort1.nottyp='N_KENM_1')
+left join ord_line_note negsort2 on (negsort2.ordnum = ord_line.ordnum and negsort2.ordlin = ord_line.ordlin and negsort2.ordsln = ord_line.ordsln and negsort2.wh_id = ord_line.wh_id and negsort2.client_id = ord_line.client_id and negsort2.nottyp='N_KENM_2')
+left join ord_line_note clockid on (clockid.ordnum = ord_line.ordnum and clockid.ordlin = ord_line.ordlin and clockid.ordsln = ord_line.ordsln and clockid.wh_id = ord_line.wh_id and clockid.client_id = ord_line.client_id and clockid.nottyp='KLOKNR')
+left join ord_line_note clocktrn on (clocktrn.ordnum = ord_line.ordnum and clocktrn.ordlin = ord_line.ordlin and clocktrn.ordsln = ord_line.ordsln and clocktrn.wh_id = ord_line.wh_id and clocktrn.client_id = ord_line.client_id and clocktrn.nottyp='KLOK_TRN')
+left join supmst on (invdtl.supnum = supmst.supnum)
+left join cstmst as route_cst on (ord.rtcust = route_cst.cstnum)
+left join cstmst as ship_cst on (ord.stcust = ship_cst.cstnum)
+left join adrmst as ship_cst_name on (ship_cst_name.adr_id = ship_cst.adr_id)
+left join adrmst as route_cst_name on (route_cst_name.adr_id = route_cst.adr_id)
+left join adrmst as route_to on (ord.rt_adr_id = route_to.adr_id)
+left join adrmst as ship_to on (ord.st_adr_id = ship_to.adr_id)
+left join adrmst as suplier on (supmst.adr_id = suplier.adr_id)
+where invlod.lodnum= @lodnum] catch (-1403)>> res_data
+|
+if (@?=-1403)
+{
+[select 
+invlod_hist.lodnum as ID,
+invdtl_hist.supnum as EAN_Supplier,
+supmst.uc_ckn_no as CKN_Supplier,
+invdtl_hist.inv_attr_str2 as Fustcode,
+invdtl_hist.inv_attr_str3 as TradeItem,
+invdtl_hist.prtnum as SKU,
+nvl(ord_line_note.nottxt,nvl(prtdsc.short_dsc,bckup.short_dsc)) as Description,
+ord.rtcust as EAN_Carrier,
+route_cst.uc_ckn_no as CKN_Carrier,
+ord.stcust as EAN_Customer,
+ship_cst.uc_ckn_no as CKN_Customer,
+prtftp_view.unthgt as Length,
+prtmst_view.prtcolor as Color,
+invdtl_hist.inv_attr_int2 as Qty_in_Fust,
+invdtl_hist.untqty as Fust_Qty,
+ord_line.uc_shipby as Cons_Criteria,
+ord_line.unt_price as Price,
+ord_line.ordqty as Order_qty,
+ord_line.sales_ordnum as Customer_Ref,
+nvl(ord_line.early_shpdte,ord_line.late_shpdte) as Early_Ship_date,
+ord_line.late_shpdte as Late_Ship_date,
+invdtl_hist.lotnum as Lotnum,
+ord.ordnum as Customer_Order,
+ord.entdte as Order_date_received,
+route_cst_name.adrnam as Carrier_Name,
+route_to.host_ext_id as Carrier_GLN_Loc,
+route_to.adr_district as Carrier_Location,
+route_to.adrln1 as Carrier_Address,
+route_to.adrpsz as Carrier_Zipcode,
+route_to.adrcty as Carrier_City,
+ship_cst_name.adrnam as Customer_Name,
+ship_to.host_ext_id as Customer_GLN_Loc,
+ship_to.adr_district as Customer_Location,
+ship_to.adrln1 as Customer_Address,
+ship_to.adrpsz as Customer_Zipcode,
+ship_to.adrcty as Customer_City,
+suplier.adrnam as Supplier_Name,
+suplier.adrcty as Supplier_City,
+invlod_hist.lstdte as finished_pick,
+case 
+when (nvl(ekt.nottxt,'-')='-' ) then '-' 
+when (nvl(LENGTH(TRIM(TRANSLATE(ekt.nottxt, '0123456789','          '))),0)=0) then ekt.nottxt||substr(to_char (ASCII(substr(invdtl_hist.wrkref_dtl,length(invdtl_hist.wrkref_dtl)-1,1))+ASCII(substr(invdtl_hist.wrkref_dtl,length(invdtl_hist.wrkref_dtl),1)),'0000'),4,2)||'0'||trim(to_char(invdtl_hist.untqty,'0000'))
+when (nvl(ekt.nottxt,'-')<>'-' ) then 'NONE'
+end as ekt_barcode,
+nvl(alt_stat.nottxt,invdtl_hist.invsts) as inv_stat,
+nvl(sort1.nottxt,'0') as sort1,
+nvl(sort2.nottxt,'0') as sort2,
+nvl(sort3.nottxt,'0') as sort3,
+nvl(sort4.nottxt,'0') as sort4,
+nvl(sort5.nottxt,'0') as sort5,
+nvl(negsort1.nottxt,'0') as negsort1,
+nvl(negsort2.nottxt,'0') as negsort2,
+nvl(buyer.nottxt,'0') as buyer,
+nvl(seat.nottxt,'0') as seat,
+nvl(clockid.nottxt,'0') as clockid,
+nvl(clocktrn.nottxt,'0') as clocktrn,
+nvl((select lngdsc from dscmst where dscmst.colval = invlod_hist.asset_typ and dscmst.colnam='asset_typ' and dscmst.locale_id=@locale_id),invlod_hist.asset_typ) as Loadcarrier_Type,
+(select sum(inv_asset_hist.untqty) from inv_asset_hist where inv_asset_hist.invtid=invlod_hist.lodnum and invlod_hist.asset_typ!=inv_asset_hist.asset_typ and inv_asset_hist.inv_hist_id=invlod_hist.inv_hist_id) as Additional_Shelves,
+case 
+when (ord.ordtyp='34' ) then 1 
+else 0
+end as rush_order
+from invlod_hist
+join invsub_hist on (invlod_hist.lodnum = invsub_hist.lodnum
+  and invsub_hist.inv_hist_id=invlod_hist.inv_hist_id)
+join invdtl_hist on (invdtl_hist.subnum = invsub_hist.subnum
+  and invdtl_hist.inv_hist_id=invlod_hist.inv_hist_id)
+join prtmst_view on (invdtl_hist.prt_client_id=prtmst_view.prt_client_id
+  and invdtl_hist.prtnum=prtmst_view.prtnum
+  and invlod_hist.wh_id=prtmst_view.wh_id)
+left join prtftp_view on (invdtl_hist.prt_client_id=prtftp_view.prt_client_id
+  and invdtl_hist.prtnum=prtftp_view.prtnum
+  and invlod_hist.wh_id=prtftp_view.wh_id
+  and invdtl_hist.ftpcod=prtftp_view.ftpcod) 
+left join prtdsc on (prtdsc.colval = prtmst_view.prtnum||'|'||prtmst_view.prt_client_id||'|'||prtmst_view.wh_id and prtdsc.colnam='prtnum|prt_client_id|wh_id_tmpl' and prtdsc.locale_id=@locale_id)
+left join prtdsc bckup on (bckup.colval = prtmst_view.prtnum||'|'||prtmst_view.prt_client_id||'|'||prtmst_view.wh_id and bckup.colnam='prtnum|prt_client_id|wh_id_tmpl' and bckup.locale_id='US_ENGLISH')
+left join shipment_line on (shipment_line.ship_line_id=invdtl_hist.ship_line_id) 
+left join ord on (shipment_line.ordnum=ord.ordnum and shipment_line.wh_id=ord.wh_id and shipment_line.client_id=ord.client_id)
+left join ord_line on (ord.ordnum = ord_line.ordnum and ord.wh_id = ord_line.wh_id and ord.client_id = ord_line.client_id and ord_line.ordlin=shipment_line.ordlin and ord_line.ordsln=shipment_line.ordsln)
+left join ord_line_note on (ord_line_note.ordnum = ord_line.ordnum and ord_line_note.ordlin = ord_line.ordlin and ord_line_note.ordsln = ord_line.ordsln and ord_line_note.wh_id = ord_line.wh_id and ord_line_note.client_id = ord_line.client_id and ord_line_note.nottyp='TradeitemDescr')
+left join ord_line_note ekt on (ekt.ordnum = ord_line.ordnum and ekt.ordlin = ord_line.ordlin and ekt.ordsln = ord_line.ordsln and ekt.wh_id = ord_line.wh_id and ekt.client_id = ord_line.client_id and ekt.nottyp='EKT_BARCODE')
+left join ord_line_note alt_stat on (alt_stat.ordnum = ord_line.ordnum and alt_stat.ordlin = ord_line.ordlin and alt_stat.ordsln = ord_line.ordsln and alt_stat.wh_id = ord_line.wh_id and alt_stat.client_id = ord_line.client_id and alt_stat.nottyp='ALT_ST_STATUS')
+left join ord_line_note buyer on (buyer.ordnum = ord_line.ordnum and buyer.ordlin = ord_line.ordlin and buyer.ordsln = ord_line.ordsln and buyer.wh_id = ord_line.wh_id and buyer.client_id = ord_line.client_id and buyer.nottyp='PLAAT')
+left join ord_line_note seat on (seat.ordnum = ord_line.ordnum and seat.ordlin = ord_line.ordlin and seat.ordsln = ord_line.ordsln and seat.wh_id = ord_line.wh_id and seat.client_id = ord_line.client_id and seat.nottyp='ZETEL')
+left join ord_line_note sort1 on (sort1.ordnum = ord_line.ordnum and sort1.ordlin = ord_line.ordlin and sort1.ordsln = ord_line.ordsln and sort1.wh_id = ord_line.wh_id and sort1.client_id = ord_line.client_id and sort1.nottyp='SORT_1')
+left join ord_line_note sort2 on (sort2.ordnum = ord_line.ordnum and sort2.ordlin = ord_line.ordlin and sort2.ordsln = ord_line.ordsln and sort2.wh_id = ord_line.wh_id and sort2.client_id = ord_line.client_id and sort2.nottyp='SORT_2')
+left join ord_line_note sort3 on (sort3.ordnum = ord_line.ordnum and sort3.ordlin = ord_line.ordlin and sort3.ordsln = ord_line.ordsln and sort3.wh_id = ord_line.wh_id and sort3.client_id = ord_line.client_id and sort3.nottyp='SORT_3')
+left join ord_line_note sort4 on (sort4.ordnum = ord_line.ordnum and sort4.ordlin = ord_line.ordlin and sort4.ordsln = ord_line.ordsln and sort4.wh_id = ord_line.wh_id and sort4.client_id = ord_line.client_id and sort4.nottyp='SORT_4')
+left join ord_line_note sort5 on (sort5.ordnum = ord_line.ordnum and sort5.ordlin = ord_line.ordlin and sort5.ordsln = ord_line.ordsln and sort5.wh_id = ord_line.wh_id and sort5.client_id = ord_line.client_id and sort5.nottyp='SORT_5')
+left join ord_line_note negsort1 on (negsort1.ordnum = ord_line.ordnum and negsort1.ordlin = ord_line.ordlin and negsort1.ordsln = ord_line.ordsln and negsort1.wh_id = ord_line.wh_id and negsort1.client_id = ord_line.client_id and negsort1.nottyp='N_KENM_1')
+left join ord_line_note negsort2 on (negsort2.ordnum = ord_line.ordnum and negsort2.ordlin = ord_line.ordlin and negsort2.ordsln = ord_line.ordsln and negsort2.wh_id = ord_line.wh_id and negsort2.client_id = ord_line.client_id and negsort2.nottyp='N_KENM_2')
+left join ord_line_note clockid on (clockid.ordnum = ord_line.ordnum and clockid.ordlin = ord_line.ordlin and clockid.ordsln = ord_line.ordsln and clockid.wh_id = ord_line.wh_id and clockid.client_id = ord_line.client_id and clockid.nottyp='KLOKNR')
+left join ord_line_note clocktrn on (clocktrn.ordnum = ord_line.ordnum and clocktrn.ordlin = ord_line.ordlin and clocktrn.ordsln = ord_line.ordsln and clocktrn.wh_id = ord_line.wh_id and clocktrn.client_id = ord_line.client_id and clocktrn.nottyp='KLOK_TRN')
+left join supmst on (invdtl_hist.supnum = supmst.supnum)
+left join cstmst as route_cst on (ord.rtcust = route_cst.cstnum)
+left join cstmst as ship_cst on (ord.stcust = ship_cst.cstnum)
+left join adrmst as ship_cst_name on (ship_cst_name.adr_id = ship_cst.adr_id)
+left join adrmst as route_cst_name on (route_cst_name.adr_id = route_cst.adr_id)
+left join adrmst as route_to on (ord.rt_adr_id = route_to.adr_id)
+left join adrmst as ship_to on (ord.st_adr_id = ship_to.adr_id)
+left join adrmst as suplier on (supmst.adr_id = suplier.adr_id)
+where invlod_hist.lodnum= @lodnum
+  and invlod_hist.inv_hist_id = (select max(id_h.inv_hist_id) from invlod_hist id_h where id_h.lodnum=invlod_hist.lodnum)] catch (-1403)>> res_data
+}
+|
+publish data combination where res=@res_data]]>
+	</queryString>
+	<field name="id" class="java.lang.String"/>
+	<field name="ean_supplier" class="java.lang.String"/>
+	<field name="ckn_supplier" class="java.lang.String"/>
+	<field name="fustcode" class="java.lang.String"/>
+	<field name="tradeitem" class="java.lang.String"/>
+	<field name="sku" class="java.lang.String"/>
+	<field name="description" class="java.lang.String"/>
+	<field name="ean_carrier" class="java.lang.String"/>
+	<field name="ckn_carrier" class="java.lang.String"/>
+	<field name="ean_customer" class="java.lang.String"/>
+	<field name="ckn_customer" class="java.lang.String"/>
+	<field name="length" class="java.lang.Double"/>
+	<field name="color" class="java.lang.String"/>
+	<field name="qty_in_fust" class="java.lang.Integer"/>
+	<field name="fust_qty" class="java.lang.Integer"/>
+	<field name="price" class="java.lang.Double"/>
+	<field name="customer_ref" class="java.lang.String"/>
+	<field name="customer_order" class="java.lang.String"/>
+	<field name="order_date_received" class="java.util.Date"/>
+	<field name="carrier_name" class="java.lang.String"/>
+	<field name="carrier_gln_loc" class="java.lang.String"/>
+	<field name="carrier_location" class="java.lang.String"/>
+	<field name="carrier_address" class="java.lang.String"/>
+	<field name="carrier_zipcode" class="java.lang.String"/>
+	<field name="carrier_city" class="java.lang.String"/>
+	<field name="customer_name" class="java.lang.String"/>
+	<field name="customer_gln_loc" class="java.lang.String"/>
+	<field name="customer_location" class="java.lang.String"/>
+	<field name="customer_address" class="java.lang.String"/>
+	<field name="customer_zipcode" class="java.lang.String"/>
+	<field name="customer_city" class="java.lang.String"/>
+	<field name="supplier_name" class="java.lang.String"/>
+	<field name="supplier_city" class="java.lang.String"/>
+	<field name="lotnum" class="java.lang.String"/>
+	<field name="finished_pick" class="java.util.Date"/>
+	<field name="Late_Ship_date" class="java.util.Date">
+		<fieldDescription><![CDATA[Latest Ship date]]></fieldDescription>
+	</field>
+	<field name="Early_Ship_date" class="java.util.Date">
+		<fieldDescription><![CDATA[Early Ship Date]]></fieldDescription>
+	</field>
+	<field name="Loadcarrier_Type" class="java.lang.String">
+		<fieldDescription><![CDATA[Loadcarrier Type]]></fieldDescription>
+	</field>
+	<field name="Additional_Shelves" class="java.lang.Integer"/>
+	<field name="ekt_barcode" class="java.lang.String">
+		<fieldDescription><![CDATA[EKT_BARCODE (- WHEN NOT IN USE)]]></fieldDescription>
+	</field>
+	<field name="Cons_Criteria" class="java.lang.String">
+		<fieldDescription><![CDATA[Consolidation Criteria]]></fieldDescription>
+	</field>
+	<field name="rush_order" class="java.lang.Integer">
+		<fieldDescription><![CDATA[Rush order indicator]]></fieldDescription>
+	</field>
+	<field name="Order_qty" class="java.lang.Integer">
+		<fieldDescription><![CDATA[Order line quantity]]></fieldDescription>
+	</field>
+	<field name="inv_stat" class="java.lang.String">
+		<fieldDescription><![CDATA[Inventory status]]></fieldDescription>
+	</field>
+	<field name="sort1" class="java.lang.String">
+		<fieldDescription><![CDATA[Sorting criteria 1]]></fieldDescription>
+	</field>
+	<field name="sort2" class="java.lang.String">
+		<fieldDescription><![CDATA[Sorting criteria 2]]></fieldDescription>
+	</field>
+	<field name="sort3" class="java.lang.String">
+		<fieldDescription><![CDATA[Sorting criteria 3]]></fieldDescription>
+	</field>
+	<field name="sort4" class="java.lang.String">
+		<fieldDescription><![CDATA[Sorting criteria 4]]></fieldDescription>
+	</field>
+	<field name="sort5" class="java.lang.String">
+		<fieldDescription><![CDATA[Sorting criteria 5]]></fieldDescription>
+	</field>
+	<field name="negsort1" class="java.lang.String">
+		<fieldDescription><![CDATA[Negative sorting criteria 1]]></fieldDescription>
+	</field>
+	<field name="negsort2" class="java.lang.String">
+		<fieldDescription><![CDATA[Negative sorting criteria 2]]></fieldDescription>
+	</field>
+	<field name="buyer" class="java.lang.String">
+		<fieldDescription><![CDATA[Buyer ID]]></fieldDescription>
+	</field>
+	<field name="seat" class="java.lang.String">
+		<fieldDescription><![CDATA[Seat of the buyer]]></fieldDescription>
+	</field>
+	<field name="clockid" class="java.lang.String">
+		<fieldDescription><![CDATA[Clock id]]></fieldDescription>
+	</field>
+	<field name="clocktrn" class="java.lang.String">
+		<fieldDescription><![CDATA[Clock Transaction]]></fieldDescription>
+	</field>
+	<sortField name="description"/>
+	<sortField name="customer_order"/>
+	<variable name="NrOfFusts" class="java.lang.Long" resetType="Group" resetGroup="Customer address ID" calculation="Sum">
+		<variableExpression><![CDATA[$F{fust_qty}]]></variableExpression>
+	</variable>
+	<variable name="lodnum" class="java.lang.String" resetType="Page"/>
+	<variable name="maxlatestshipdate" class="java.util.Date" resetType="Group" resetGroup="Carrier" calculation="Lowest">
+		<variableExpression><![CDATA[$F{Late_Ship_date}]]></variableExpression>
+	</variable>
+	<variable name="minearliestshipdate" class="java.util.Date" resetType="Group" resetGroup="Carrier" calculation="Highest">
+		<variableExpression><![CDATA[$F{Early_Ship_date}]]></variableExpression>
+	</variable>
+	<variable name="Priority" class="java.lang.Integer" calculation="Highest">
+		<variableExpression><![CDATA[$F{rush_order}]]></variableExpression>
+		<initialValueExpression><![CDATA[0]]></initialValueExpression>
+	</variable>
+	<group name="Carrier" isStartNewPage="true" isResetPageNumber="true">
+		<groupExpression><![CDATA[$F{customer_gln_loc} + $F{ean_customer}]]></groupExpression>
+		<groupHeader>
+			<band height="195">
+				<textField isBlankWhenNull="true">
+					<reportElement x="290" y="0" width="279" height="23" isRemoveLineWhenBlank="true" uuid="70d92da7-06b1-4d89-b044-a067a978e201"/>
+					<textElement>
+						<font fontName="Liberation Sans" size="16" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[IF(EQUALS($F{ean_carrier},$F{ean_customer}) && EQUALS($F{carrier_gln_loc},$F{customer_gln_loc})," ",$F{customer_name})]]></textFieldExpression>
+				</textField>
+				<textField isBlankWhenNull="true">
+					<reportElement x="290" y="70" width="264" height="37" isRemoveLineWhenBlank="true" uuid="b9998bd1-fdfe-40fa-9141-c8c76f37d757"/>
+					<textElement>
+						<font fontName="Liberation Sans" size="26" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[IF(EQUALS($F{ean_carrier},$F{ean_customer}) && EQUALS($F{carrier_gln_loc},$F{customer_gln_loc})," ",$F{customer_location})]]></textFieldExpression>
+				</textField>
+				<textField isBlankWhenNull="true">
+					<reportElement x="290" y="39" width="264" height="15" isRemoveLineWhenBlank="true" uuid="29a47469-e547-4b57-8510-59bd2e78d682"/>
+					<textElement>
+						<font fontName="Liberation Sans" size="10"/>
+					</textElement>
+					<textFieldExpression><![CDATA[IF(EQUALS($F{ean_carrier},$F{ean_customer}) && EQUALS($F{carrier_gln_loc},$F{customer_gln_loc})," ",$F{customer_address})]]></textFieldExpression>
+				</textField>
+				<textField isBlankWhenNull="true">
+					<reportElement x="290" y="55" width="264" height="14" isRemoveLineWhenBlank="true" uuid="63e6b677-0441-4168-b64f-b3edf410eb59"/>
+					<textElement>
+						<font fontName="Liberation Sans" size="10"/>
+					</textElement>
+					<textFieldExpression><![CDATA[IF(EQUALS($F{ean_carrier},$F{ean_customer}) && EQUALS($F{carrier_gln_loc},$F{customer_gln_loc})," ",T($F{customer_zipcode}) + "  " + T($F{customer_city}))]]></textFieldExpression>
+				</textField>
+				<textField isBlankWhenNull="true">
+					<reportElement x="290" y="24" width="264" height="15" isRemoveLineWhenBlank="true" uuid="a700a4a0-5596-47f9-a39f-8efcbb5e3f4a"/>
+					<textElement>
+						<font fontName="Liberation Sans"/>
+					</textElement>
+					<textFieldExpression><![CDATA[IF(EQUALS($F{ean_carrier},$F{ean_customer}) && EQUALS($F{carrier_gln_loc},$F{customer_gln_loc})," ",T($F{ckn_customer}) + " / " + T($F{ean_customer}) + " / " + T($F{customer_gln_loc}))]]></textFieldExpression>
+				</textField>
+				<textField isBlankWhenNull="true">
+					<reportElement x="0" y="0" width="279" height="23" isRemoveLineWhenBlank="true" uuid="5d625e04-a93e-445e-9fc0-e1bbae8e17a4"/>
+					<textElement>
+						<font fontName="Liberation Sans" size="16" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{carrier_name}]]></textFieldExpression>
+				</textField>
+				<textField isBlankWhenNull="true">
+					<reportElement x="0" y="24" width="264" height="15" isRemoveLineWhenBlank="true" uuid="48c5a9e6-a474-4ad7-a5d5-d4b4e55bb000"/>
+					<textElement>
+						<font fontName="Liberation Sans"/>
+					</textElement>
+					<textFieldExpression><![CDATA[T($F{ckn_carrier}) + " / " + T($F{ean_carrier}) + " / " + T($F{carrier_gln_loc})]]></textFieldExpression>
+				</textField>
+				<textField isBlankWhenNull="true">
+					<reportElement x="0" y="39" width="264" height="15" isRemoveLineWhenBlank="true" uuid="f075d81b-3c8a-42cd-906c-760096b92163"/>
+					<textElement>
+						<font fontName="Liberation Sans" size="10"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{carrier_address}]]></textFieldExpression>
+				</textField>
+				<textField isBlankWhenNull="true">
+					<reportElement x="0" y="55" width="264" height="14" isRemoveLineWhenBlank="true" uuid="4a7a4cd2-07ea-4d72-a9bf-76ce0070ec63"/>
+					<textElement>
+						<font fontName="Liberation Sans" size="10"/>
+					</textElement>
+					<textFieldExpression><![CDATA[T($F{carrier_zipcode}) + "  " + T($F{carrier_city})]]></textFieldExpression>
+				</textField>
+				<textField isBlankWhenNull="true">
+					<reportElement x="0" y="70" width="264" height="37" isRemoveLineWhenBlank="true" uuid="33ff8985-c090-4732-90a4-517bbcc9a42f"/>
+					<textElement>
+						<font fontName="Liberation Sans" size="26" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{carrier_location}]]></textFieldExpression>
+				</textField>
+				<textField evaluationTime="Group" evaluationGroup="Customer address ID">
+					<reportElement x="191" y="148" width="109" height="15" uuid="fe30cd09-5844-42d3-a6fc-bc1a32669d63"/>
+					<textElement>
+						<font fontName="Liberation Sans" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{NrOfFusts}]]></textFieldExpression>
+				</textField>
+				<textField isBlankWhenNull="true">
+					<reportElement x="0" y="148" width="180" height="15" uuid="c68ab02c-390a-4abb-a762-f9da63d6d684"/>
+					<textElement>
+						<font fontName="Liberation Sans" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$R{^nroffusts^}]]></textFieldExpression>
+				</textField>
+				<textField isBlankWhenNull="true">
+					<reportElement x="0" y="133" width="180" height="15" uuid="a2110cbd-30eb-4589-bcf8-8018f42920df"/>
+					<textElement>
+						<font fontName="Liberation Sans" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$R{^delwindow^}]]></textFieldExpression>
+				</textField>
+				<textField evaluationTime="Report" pattern="dd/MM/yyyy HH:mm" isBlankWhenNull="true">
+					<reportElement x="191" y="133" width="109" height="15" uuid="5cabb7e7-c1a4-4e91-819f-8eab8b926ba7"/>
+					<textElement textAlignment="Left">
+						<font fontName="Liberation Sans" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{minearliestshipdate}]]></textFieldExpression>
+				</textField>
+				<textField isBlankWhenNull="true">
+					<reportElement x="0" y="163" width="180" height="15" uuid="59cad262-2811-4d83-aa6d-d69cf6429acd"/>
+					<textElement>
+						<font fontName="Liberation Sans" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$R{^loadcartyp^}]]></textFieldExpression>
+				</textField>
+				<textField evaluationTime="Report" pattern="dd/MM/yyyy HH:mm" isBlankWhenNull="true">
+					<reportElement x="326" y="133" width="149" height="15" uuid="9d0195c8-e568-4717-b2bb-5f8955aa0fc3"/>
+					<textElement textAlignment="Left">
+						<font fontName="Liberation Sans" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{maxlatestshipdate}]]></textFieldExpression>
+				</textField>
+				<textField evaluationTime="Group" evaluationGroup="Customer address ID" isBlankWhenNull="true">
+					<reportElement x="0" y="178" width="180" height="15" uuid="9b94cbd8-693f-4b7f-abfe-e9b1d6714e3c">
+						<printWhenExpression><![CDATA[$F{Additional_Shelves} > 0]]></printWhenExpression>
+					</reportElement>
+					<textElement>
+						<font fontName="Liberation Sans" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$R{^loadcaraddon^}]]></textFieldExpression>
+				</textField>
+				<textField evaluationTime="Report" pattern="dd/MM/yyyy HH:mm" isBlankWhenNull="true">
+					<reportElement x="310" y="133" width="16" height="15" uuid="5ecea7df-fafc-4623-9a74-7383a098fd5e"/>
+					<textElement textAlignment="Left">
+						<font fontName="Liberation Sans" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA["-"]]></textFieldExpression>
+				</textField>
+				<textField evaluationTime="Report" isBlankWhenNull="true">
+					<reportElement x="191" y="163" width="109" height="15" uuid="f1446e95-1f15-4cbb-88ae-042f476f89c2"/>
+					<textElement>
+						<font fontName="Liberation Sans" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{Loadcarrier_Type}]]></textFieldExpression>
+				</textField>
+				<textField evaluationTime="Group" evaluationGroup="Customer address ID" isBlankWhenNull="true">
+					<reportElement x="191" y="178" width="109" height="15" uuid="82127c21-db08-4bcf-bf11-6fb2f11a916c">
+						<printWhenExpression><![CDATA[$F{Additional_Shelves} > 0]]></printWhenExpression>
+					</reportElement>
+					<textElement>
+						<font fontName="Liberation Sans" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{Additional_Shelves}]]></textFieldExpression>
+				</textField>
+				<textField isBlankWhenNull="true">
+					<reportElement x="0" y="107" width="554" height="25" isRemoveLineWhenBlank="true" uuid="ddf60476-a939-46c4-891a-734a4d5e22a0"/>
+					<textElement>
+						<font fontName="Liberation Sans" size="16" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{Cons_Criteria}]]></textFieldExpression>
+				</textField>
+				<line>
+					<reportElement x="0" y="192" width="554" height="2" uuid="0be5ead2-5ed0-4726-986c-c4105027b233"/>
+				</line>
+			</band>
+		</groupHeader>
+		<groupFooter>
+			<band/>
+		</groupFooter>
+	</group>
+	<group name="Customer address ID">
+		<groupExpression><![CDATA[$F{customer_gln_loc}]]></groupExpression>
+		<groupHeader>
+			<band/>
+		</groupHeader>
+		<groupFooter>
+			<band/>
+		</groupFooter>
+	</group>
+	<group name="Order level" isReprintHeaderOnEachPage="true" keepTogether="true">
+		<groupHeader>
+			<band height="75">
+				<textField>
+					<reportElement x="191" y="37" width="50" height="15" uuid="789b450c-897e-4224-8413-944a8321acde">
+						<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="96971f76-5796-4bec-afc8-5118aab92081"/>
+					</reportElement>
+					<textElement>
+						<font fontName="Liberation Sans" size="10" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$R{^quantity^}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement x="191" y="3" width="200" height="15" uuid="b01ddf24-e8f6-4512-afe4-c12235cc4071">
+						<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="4ae12144-9469-45ed-aba9-8810443e2f4d"/>
+					</reportElement>
+					<textElement>
+						<font fontName="Liberation Sans" size="10" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$R{^prtdsc^}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement x="191" y="20" width="80" height="15" uuid="ac63939b-568c-428c-80bf-af2802bc002a">
+						<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="ca8e3a60-4104-46e6-96f0-65e41880af8a"/>
+					</reportElement>
+					<textElement>
+						<font fontName="Liberation Sans" size="10" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$R{^lblItem^}]]></textFieldExpression>
+				</textField>
+				<line>
+					<reportElement x="1" y="71" width="554" height="2" uuid="bd73bcf4-0171-4d53-b275-8b30fa4298f3"/>
+				</line>
+				<textField>
+					<reportElement x="245" y="37" width="45" height="15" uuid="464bec03-428c-4d1c-bed7-9f72b7cd1372">
+						<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="96971f76-5796-4bec-afc8-5118aab92081"/>
+					</reportElement>
+					<textElement>
+						<font fontName="Liberation Sans" size="10" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$R{^content^}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement x="295" y="37" width="60" height="15" uuid="14204863-cba4-45fb-a27b-157e2cd7cfdb">
+						<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="96971f76-5796-4bec-afc8-5118aab92081"/>
+					</reportElement>
+					<textElement>
+						<font fontName="Liberation Sans" size="10" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$R{^Fustcode^}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement x="395" y="20" width="140" height="15" uuid="3f22f334-f8ff-4f09-8f49-460f6ac479dd">
+						<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="ca8e3a60-4104-46e6-96f0-65e41880af8a"/>
+					</reportElement>
+					<textElement>
+						<font fontName="Liberation Sans" size="10" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$R{^custref^}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement x="295" y="20" width="90" height="15" uuid="ad3f3f9e-3f71-4e48-9690-60670011bfd1">
+						<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="4ae12144-9469-45ed-aba9-8810443e2f4d"/>
+					</reportElement>
+					<textElement>
+						<font fontName="Liberation Sans" size="10" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$R{^lotnum^}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement x="0" y="20" width="180" height="15" uuid="3f8f5714-c6c9-4503-8e20-bff871f3d881">
+						<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="96971f76-5796-4bec-afc8-5118aab92081"/>
+					</reportElement>
+					<textElement>
+						<font fontName="Liberation Sans" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$R{^lblSupplier^}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement x="0" y="37" width="179" height="15" uuid="15ae87d5-8f34-433d-b74e-6523c032a501">
+						<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="96971f76-5796-4bec-afc8-5118aab92081"/>
+					</reportElement>
+					<textElement>
+						<font fontName="Liberation Sans" size="10" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$R{^early_shpdte^}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement x="0" y="3" width="180" height="15" uuid="385b3dad-9ffe-4b5c-b8ae-593abb376807">
+						<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="96971f76-5796-4bec-afc8-5118aab92081"/>
+					</reportElement>
+					<textElement>
+						<font fontName="Liberation Sans" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$R{^order^}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement x="191" y="54" width="149" height="15" uuid="454a0c47-7845-4524-ae7e-478d2320adb4">
+						<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="96971f76-5796-4bec-afc8-5118aab92081"/>
+					</reportElement>
+					<textElement>
+						<font fontName="Liberation Sans" size="10" isBold="true" isUnderline="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$R{^sort_x^}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement x="0" y="54" width="40" height="15" uuid="5e425562-a449-4177-a36d-88761757ea85">
+						<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="96971f76-5796-4bec-afc8-5118aab92081"/>
+					</reportElement>
+					<textElement>
+						<font fontName="Liberation Sans" size="10" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$R{^Buyer^}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement x="40" y="54" width="40" height="15" uuid="6bce0f5d-bc2c-4b26-b3a9-142d6b428fba">
+						<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="96971f76-5796-4bec-afc8-5118aab92081"/>
+					</reportElement>
+					<textElement>
+						<font fontName="Liberation Sans" size="10" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$R{^Seat^}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement x="80" y="54" width="70" height="15" uuid="c250c2b9-587a-4e12-b132-4c245bdaff74">
+						<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="96971f76-5796-4bec-afc8-5118aab92081"/>
+					</reportElement>
+					<textElement>
+						<font fontName="Liberation Sans" size="10" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$R{^KLOK_TRN^}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement x="150" y="54" width="40" height="15" uuid="cb296b66-ed10-4d4e-a9d7-ffc35cbcb892">
+						<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="96971f76-5796-4bec-afc8-5118aab92081"/>
+					</reportElement>
+					<textElement>
+						<font fontName="Liberation Sans" size="10" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$R{^KLOKNR^}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement x="355" y="37" width="60" height="15" uuid="608790a1-f94a-4921-a68b-3a1ae414e3dd">
+						<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="96971f76-5796-4bec-afc8-5118aab92081"/>
+					</reportElement>
+					<textElement>
+						<font fontName="Liberation Sans" size="10" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$R{^ALT_ST_STATUS^}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement x="380" y="54" width="25" height="15" uuid="654f410c-c356-4b6a-8c75-9d43382c18fa">
+						<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="96971f76-5796-4bec-afc8-5118aab92081"/>
+					</reportElement>
+					<textElement>
+						<font fontName="Liberation Sans" size="10" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$R{^N_KENM_2^}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement x="355" y="54" width="25" height="15" uuid="46e8ac93-a12c-405b-a58d-2a1e611ce869">
+						<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="96971f76-5796-4bec-afc8-5118aab92081"/>
+					</reportElement>
+					<textElement textAlignment="Left">
+						<font fontName="Liberation Sans" size="10" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$R{^N_KENM_1^}]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupHeader>
+		<groupFooter>
+			<band/>
+		</groupFooter>
+	</group>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band splitType="Prevent"/>
+	</title>
+	<pageHeader>
+		<band height="150" splitType="Stretch">
+			<image>
+				<reportElement x="0" y="46" width="165" height="100" uuid="f25cd84b-3e35-49e4-b78f-76603ebbe03a"/>
+				<imageExpression><![CDATA["RFH_logo.png"]]></imageExpression>
+			</image>
+			<textField isBlankWhenNull="true">
+				<reportElement x="359" y="56" width="196" height="30" uuid="2b74a7f2-4e07-4760-a373-6d9880651efb"/>
+				<textElement textAlignment="Right">
+					<font fontName="Liberation Sans" size="20" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$R{^Usr-RFH-FFDeliveryNote^}]]></textFieldExpression>
+			</textField>
+			<textField evaluationTime="Group" evaluationGroup="Carrier">
+				<reportElement x="500" y="86" width="54" height="30" uuid="b3398ea4-4e51-4ab2-8f3b-33e37857433b"/>
+				<textElement textAlignment="Left" verticalAlignment="Bottom">
+					<font fontName="Liberation Sans" size="20" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["/ "+$V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+			<textField evaluationTime="Page">
+				<reportElement x="440" y="86" width="54" height="30" uuid="658db556-f53f-473b-8db6-251abc085d68"/>
+				<textElement textAlignment="Right" verticalAlignment="Bottom">
+					<font fontName="Liberation Sans" size="20" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+			<textField evaluationTime="Group" evaluationGroup="Carrier" isBlankWhenNull="true">
+				<reportElement key="textField" style="StyleInvert" isPrintRepeatedValues="false" mode="Opaque" x="400" y="119" width="155" height="30" isRemoveLineWhenBlank="true" uuid="0c3117f1-68f6-42b1-8fb1-295ae9deef2d"/>
+				<textElement textAlignment="Center" markup="styled">
+					<font fontName="Liberation Sans" size="20" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[IF ($V{Priority}>0,$R{^priority^} ,null)]]></textFieldExpression>
+			</textField>
+			<textField evaluationTime="Master" isBlankWhenNull="true">
+				<reportElement x="455" y="0" width="100" height="20" uuid="3665ffad-fb41-4394-a148-386d5bdb62ed"/>
+				<textElement textAlignment="Right">
+					<font fontName="Liberation Sans" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{MASTER_TOTAL_PAGES}]]></textFieldExpression>
+			</textField>
+			<componentElement>
+				<reportElement x="165" y="76" width="194" height="64" isRemoveLineWhenBlank="true" uuid="c05ad617-72dd-45b0-8953-fb8a1d9b194d">
+					<property name="net.sf.jasperreports.style.isPdfEmbedded" value="true"/>
+				</reportElement>
+				<jr:Code128 xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd" moduleWidth="1.0" textPosition="bottom">
+					<jr:codeExpression><![CDATA[$F{id}]]></jr:codeExpression>
+				</jr:Code128>
+			</componentElement>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band splitType="Stretch"/>
+	</columnHeader>
+	<detail>
+		<band height="71" splitType="Stretch">
+			<textField isBlankWhenNull="true">
+				<reportElement x="295" y="34" width="60" height="15" uuid="2706366c-c88f-4607-96eb-d5cbed3ae2e2">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="96971f76-5796-4bec-afc8-5118aab92081"/>
+				</reportElement>
+				<textElement>
+					<font fontName="Liberation Sans"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{fustcode}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="191" y="17" width="94" height="15" uuid="3e3e93d1-b95a-4e35-8e4d-e50eb0338ab7">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="ca8e3a60-4104-46e6-96f0-65e41880af8a"/>
+				</reportElement>
+				<textElement>
+					<font fontName="Liberation Sans"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{sku}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="191" y="0" width="353" height="15" uuid="8eb8cbb2-f15b-409d-8b0f-f2928728f737">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="84a6ac02-a918-4880-a0db-1e942ebe195f"/>
+				</reportElement>
+				<textElement>
+					<font fontName="Liberation Sans" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{description}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="191" y="34" width="59" height="15" uuid="6f21845c-ff6a-4d83-8f23-dffb2af0102f">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="f6d2a1ba-90d7-4b6a-8640-766f21895c0a"/>
+				</reportElement>
+				<textElement>
+					<font fontName="Liberation Sans" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{fust_qty} + " / " + $F{Order_qty}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="250" y="34" width="40" height="15" uuid="da517c47-91b6-4b5e-ab82-559c2a65100b">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="1510f4ec-b9a9-423f-9278-c5d518504d69"/>
+				</reportElement>
+				<textElement>
+					<font fontName="Liberation Sans"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{qty_in_fust}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="295" y="17" width="90" height="15" uuid="4d525203-f5b1-4a0d-af57-a48fe4ad6b10"/>
+				<textElement>
+					<font fontName="Liberation Sans"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{lotnum}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="1" y="68" width="554" height="1" uuid="377068a5-946e-45c1-8bbc-6c8043b22bcc"/>
+			</line>
+			<textField isBlankWhenNull="true">
+				<reportElement x="0" y="0" width="180" height="15" uuid="fddac366-834a-420b-a4ab-2859ad3136e7"/>
+				<textElement>
+					<font fontName="Liberation Sans"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{customer_order}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="0" y="17" width="179" height="15" isRemoveLineWhenBlank="true" uuid="6f93acb1-2b72-4091-843b-380ee0df68ce"/>
+				<textElement textAlignment="Left">
+					<font fontName="Liberation Sans" size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[T($F{ckn_supplier}) + " - " + T( $F{ean_supplier})]]></textFieldExpression>
+			</textField>
+			<textField pattern="dd/MM/yyyy HH:mm" isBlankWhenNull="true">
+				<reportElement x="0" y="34" width="179" height="15" isRemoveLineWhenBlank="true" uuid="473a1f9a-5df8-4a50-ba89-0b9fb8a889b6"/>
+				<textElement textAlignment="Left">
+					<font fontName="Liberation Sans" size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{Early_Ship_date}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="355" y="34" width="40" height="15" uuid="eb80d641-6493-4363-bc59-58c5d5164abd">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="96971f76-5796-4bec-afc8-5118aab92081"/>
+				</reportElement>
+				<textElement>
+					<font fontName="Liberation Sans"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{inv_stat}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="191" y="51" width="30" height="15" uuid="ae6b5f0f-9b22-4741-af05-2fc4eb976c68">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="96971f76-5796-4bec-afc8-5118aab92081"/>
+				</reportElement>
+				<textElement>
+					<font fontName="Liberation Sans" size="10" isBold="false" isUnderline="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{sort1}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="51" width="40" height="15" uuid="0632cd7a-5bd1-42e8-b680-818dfad547f5">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="96971f76-5796-4bec-afc8-5118aab92081"/>
+				</reportElement>
+				<textElement>
+					<font fontName="Liberation Sans" size="10" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{buyer}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="40" y="51" width="40" height="15" uuid="789f6608-fd84-42ee-9cd2-7ad3725e938a">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="96971f76-5796-4bec-afc8-5118aab92081"/>
+				</reportElement>
+				<textElement>
+					<font fontName="Liberation Sans" size="10" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{seat}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="80" y="51" width="70" height="15" uuid="b3dd674f-3483-40ba-a0d5-a54d62de28a5">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="96971f76-5796-4bec-afc8-5118aab92081"/>
+				</reportElement>
+				<textElement>
+					<font fontName="Liberation Sans" size="10" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{clocktrn}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="150" y="51" width="40" height="15" uuid="89dcc1c4-a4d4-44ed-acb9-c0fa862586aa">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="96971f76-5796-4bec-afc8-5118aab92081"/>
+				</reportElement>
+				<textElement>
+					<font fontName="Liberation Sans" size="10" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{clockid}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="380" y="51" width="25" height="15" uuid="4ecf120b-4881-43e3-8efe-8eaf683d4638">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="96971f76-5796-4bec-afc8-5118aab92081"/>
+				</reportElement>
+				<textElement>
+					<font fontName="Liberation Sans" size="10" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{negsort2}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="355" y="51" width="25" height="15" uuid="13677845-ec31-44d5-a479-d662e7b884bc">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="96971f76-5796-4bec-afc8-5118aab92081"/>
+				</reportElement>
+				<textElement textAlignment="Left">
+					<font fontName="Liberation Sans" size="10" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{negsort1}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="223" y="51" width="30" height="15" uuid="6367e8ab-b706-482f-8b93-f472959d789a">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="96971f76-5796-4bec-afc8-5118aab92081"/>
+				</reportElement>
+				<textElement>
+					<font fontName="Liberation Sans" size="10" isBold="false" isUnderline="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{sort2}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="255" y="51" width="30" height="15" uuid="15edaa04-3ea0-4034-9420-249adaa06c46">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="96971f76-5796-4bec-afc8-5118aab92081"/>
+				</reportElement>
+				<textElement>
+					<font fontName="Liberation Sans" size="10" isBold="false" isUnderline="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{sort3}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="287" y="51" width="30" height="15" uuid="9ddb2a00-5db8-4154-96f5-9708b660be97">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="96971f76-5796-4bec-afc8-5118aab92081"/>
+				</reportElement>
+				<textElement>
+					<font fontName="Liberation Sans" size="10" isBold="false" isUnderline="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{sort4}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="319" y="51" width="30" height="15" uuid="4299a8ad-af5d-4fb0-b361-c1cf195c6985">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="96971f76-5796-4bec-afc8-5118aab92081"/>
+				</reportElement>
+				<textElement>
+					<font fontName="Liberation Sans" size="10" isBold="false" isUnderline="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{sort5}]]></textFieldExpression>
+			</textField>
+			<componentElement>
+				<reportElement x="395" y="17" width="154" height="33" uuid="340ed12d-53cc-4cf6-817b-5c2dce4fd2ae">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					<printWhenExpression><![CDATA[EQUALS($F{ekt_barcode},'-')]]></printWhenExpression>
+				</reportElement>
+				<jr:Code128 xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd" moduleWidth="1.0" textPosition="bottom">
+					<jr:codeExpression><![CDATA[$F{customer_ref}]]></jr:codeExpression>
+				</jr:Code128>
+			</componentElement>
+			<componentElement>
+				<reportElement x="395" y="13" width="154" height="33" uuid="ad8ba5b0-ad4b-416c-9e41-67cce3a65f4b">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<printWhenExpression><![CDATA[AND(NOT( EQUALS($F{ekt_barcode},'-')),EQUALS(LEN($F{ekt_barcode} ),20))]]></printWhenExpression>
+				</reportElement>
+				<jr:Interleaved2Of5 xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd" moduleWidth="1.0" textPosition="bottom">
+					<jr:codeExpression><![CDATA[$F{ekt_barcode}]]></jr:codeExpression>
+				</jr:Interleaved2Of5>
+			</componentElement>
+		</band>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band height="15" splitType="Stretch">
+			<textField pattern="yyyy/MM/dd">
+				<reportElement x="0" y="0" width="177" height="15" uuid="ffff36f2-443a-4e99-a936-c5a13a4a9bdc"/>
+				<textElement verticalAlignment="Bottom">
+					<font fontName="Liberation Sans"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="220" y="0" width="120" height="15" uuid="ce5285c2-4237-4009-8cf9-b92ced615afa"/>
+				<textElement textAlignment="Center" verticalAlignment="Bottom">
+					<font fontName="Liberation Sans" size="10"/>
+				</textElement>
+				<text><![CDATA[V 1.10 (2023-11-07)]]></text>
+			</staticText>
+		</band>
+	</pageFooter>
+</jasperReport>
