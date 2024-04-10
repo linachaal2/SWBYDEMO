@@ -132,52 +132,33 @@ sub create_ro_dir
 sub copy_ctl_ro_file
 {
 	# takes arguments
-		# filedir - directory the file will be copied from
-		# filename - control filename to be copied from
-		# new_filedir - directory to copy to
+	# filedir - directory the control file will be copied from
+	# filename - control filename to be copied from
+	# new_filedir - directory to copy to
 	my($filedir,$filename,$new_filedir) = @_;
 	
-    my $full_path = $filedir . "/". $filename;
+    my $full_control_path = $filedir;
     
     
-	if(!-e $full_path)
+	if(!-e $full_control_path)
 	{
-		if($detailed_output){printf( "Cannot find file\n\t$filedir/$filename\n  File will not be copied \n\n");}
+		if($detailed_output){printf( "Cannot find control file\n\t$filedir/$filename\n  Control File will not be copied \n\n");}
 		$log = $log .  "Cannot find file\n\t$filedir/$filename\n  File will not be copied \n\n";
 		$error_text = $error_text .  "- Cannot find file $filedir/$filename.  File will not be copied!\n";
 		$errors_exist = 1;
 	}
 	if(!-e $new_filedir )
 	{
-		if($detailed_output){printf( "Directory to copy file to ($new_filedir) does not exist.  File will not be copied \n\n");}
-		$log = $log . "Directory to copy file to ($new_filedir) does not exist.  File will not be copied \n\n";
-		$error_text = $error_text .  "- Directory to copy file to ($new_filedir) does not exist.  File will not be copied!\n";
+		if($detailed_output){printf( "Directory to copy control file to ($new_filedir) does not exist. Control File will not be copied \n\n");}
+		$log = $log . "Directory to copy control file to ($new_filedir) does not exist. Control File will not be copied \n\n";
+		$error_text = $error_text .  "- Directory to copy control file to ($new_filedir) does not exist. Control File will not be copied!\n";
 		$errors_exist = 1;
 	}
 	else
 	{
-		copy($full_path, $new_filedir . "/" . $new_filename)
+		copy($full_control_path, $new_filedir . "/" . $filename)
 	}
 	# Copy the control file of the file name 
-	my $pointPos = rindex($file, "."); 
-		print "Position of point: $pointPos\n"; 
-		my $slashPos = rindex($file, "/"); 
-		my $fileExt = substr($file,$pointPos+1); 
-		my $fileFullName = substr($file,$slashPos+1); 
-		$fileFullName=~ s/\s+$//;
-		$fileExt=~ s/\s+$//;
-		print "File Name: *$fileFullName*\n"; 
-		print "File extension: *$fileExt*\n"; 
-		if ($fileExt eq "mcmd" || $fileExt eq "mtrg") {
-			#MOCA -d usrint -f "list_usr_1234.mcmd"
-			my $fullFileSyntax = "MOCA -d usrint -f \"".$fileFullName."\"";
-			print "File syntax: $fullFileSyntax\n"; 		
-			print {$vInputFile} $fullFileSyntax . "\n";
-		}
-		elsif ($fileExt eq "csv"){
-			##SQL -t poldat  -s "select * from poldat where polcod = 'UC_1234'"
-			my $table_name = substr(substr($file,0,$slashPos),rindex(substr($file,0,$slashPos), "/")+1);
-	my $fullCTRLfileName = .ctl;
 	
 	
 }#copy_ctl_ro_file
@@ -346,7 +327,7 @@ sub pull_files{
 		$log = $log . "CSV\nPulling CSV file: $file\n";
 		create_ro_dir($ro_dir.$ro_name . "/pkg/db/data/load/base/$component_dir/$table");
 		copy_ro_file($lesdir . "/db/data/load/base/$component_dir/$table",$file,$ro_dir.$ro_name . "/pkg/db/data/load/base/$component_dir/$table");
-		copy_ctl_ro_file($ro_dir.$ro_name . "/pkg/db/data/load/base/$component_dir/$table");
+		copy_ctl_ro_file($lesdir . "/db/data/load/base/$component_dir",$table.".ctl",$ro_dir.$ro_name . "/pkg/db/data/load/base/$component_dir");
 	}
 
 	#####################################################################
@@ -794,8 +775,13 @@ find(\&writemload, $mloaddir);
 			
 			if($detailed_output){printf("Found MLOAD: \n\tfile = $mloadfile\n\ttable = $mloadtable\n\tload directory = $mloaddir\nWriting REPLACE and LOADDATA lines to rollout script for $mloadfile\n\n");}
 			$log = $log . "Found MLOAD: \n\tfile = $mloadfile\n\ttable = $mloadtable\n\tload directory = $mloaddir\nWriting lines to rollout script \n\tREPLACE pkg/db/data/load/base/$mloaddir/$mloadtable/$mloadfile \$lesdir/db/data/load/base/$mloaddir/$mloadtable\n\tLOADDATA \$lesdir/db/data/load/base/$mloaddir/$mloadtable.ctl $mloadfile\n\n";
-			$replacetext = $replacetext . "REPLACE pkg/db/data/load/base/$mloaddir/$mloadtable/$mloadfile \$lesdir/db/data/load/base/$mloaddir/$mloadtable\n";
-			$loaddatatext = $loaddatatext . "LOADDATA \$lesdir/db/data/load/base/$mloaddir/$mloadtable.ctl $mloadfile\n";
+			#$replacetext = $replacetext . "REPLACE pkg/db/data/load/base/$mloaddir/$mloadtable/$mloadfile \$lesdir/db/data/load/base/$mloaddir/$mloadtable\n";
+			# check if mloadfile is a control file or CSV one, if it is a CSV one we need to include LOADDATA command 
+			my $pointPos = rindex($mloadfile, ".");
+			my $fileExt = substr($mloadfile,$pointPos+1); 
+			if ($fileExt eq "csv"){
+				$loaddatatext = $loaddatatext . "LOADDATA \$lesdir/db/data/load/base/$mloaddir/$mloadtable.ctl $mloadfile\n";
+			}
 			$loadexist = 1;
 			$component_text = $component_text . "\tdb/data/load/base/$mloaddir/$mloadtable/$mloadfile\n";
 		}
@@ -815,7 +801,7 @@ find(\&writemload, $mloaddir);
 	
 	my $mocadir = "$lesdir/$ro_dir/pkg/src/cmdsrc";
 	#find({ wanted => \&writemoca, no_chdir} => \&nochdir, $mocadir);
-find(\&writemoca, $mocadir);
+	find(\&writemoca, $mocadir);
 	sub writemoca
 	{
 		if(!-d $File::Find::name)
@@ -841,6 +827,46 @@ find(\&writemoca, $mocadir);
 		$mbuildtext = $mbuildtext . "MBUILD\n";
 	}
 	
+	#####################################################################
+	# MSQL
+	#####################################################################
+	if($detailed_output){printf( "Checking for MSQL (database changes) files\n");}
+	$log = $log . "Checking for MSQL (database changes) files\n";
+	my $msqlexist;
+	my $msqldir = "$lesdir/$ro_dir/pkg/db/ddl";
+	#find({ wanted => \&writemsql, preprocess => \&preprocess, no_chdir} => \&nochdir, $msqldir);
+	find(\&writemsql, $msqldir);
+    sub preprocess
+    { 
+        sort { uc $a cmp uc $b } @_ ;
+    }
+    
+	sub writemsql
+	{
+		if(!-d $File::Find::name)
+		{
+			my $msqlfile = $_;
+			my $msqldir = basename($File::Find::dir);
+			
+			if($detailed_output){printf("Found MSQL: \n\tfile = $msqlfile\n\tdirectory = $msqldir\nWriting REPLACE and RUNSQL lines to rollout script for $msqlfile\n\n");}
+			$log = $log . "Found MSQL: \n\tfile = $msqlfile\n\tdirectory = $msqldir\nWriting REPLACE and RUNSQL lines to rollout script for $msqlfile \n\tREPLACE pkg/db/ddl/$msqldir/$msqlfile \$LESDIR/db/ddl/$msqldir\n\trunsql \$LESDIR/db/ddl/$msqldir/$msqlfile\n\n";
+			$replacetext = $replacetext . "REPLACE pkg/db/ddl/$msqldir/$msqlfile \$LESDIR/db/ddl/$msqldir\n";
+            #don't want to run docs - they get run from inside other scripts
+            if(uc($msqldir) ne "DOCS")
+            {
+			    $runsqltext = $runsqltext . "RUNSQL \$LESDIR/db/ddl/$msqldir/$msqlfile\n";
+            }
+			$msqlexist = 1;
+			$component_text = $component_text . "\tdb/ddl/$msqldir/$msqlfile\n";
+		}
+	}
+
+	if(!$msqlexist)
+	{
+		if($detailed_output){printf("No MSQLs found...Continuing\n\n");}
+		$log = $log . "No MSQLs found...Continuing\n\n";
+	}
+
 	#####################################################################
 	# README file
 	#####################################################################
