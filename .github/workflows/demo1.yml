@@ -79,7 +79,7 @@ jobs:
          echo "A db/data/load/base/bootstraponly/poldat/lc_be03_otm_poldat_swiftlex-2715.csv M src/cmdsrc/usrint/send_lc_be03_otm_transport_plan.mcmd" > inputFile.txt
      - name: Execute Perl Create Rollout script
        run: |
-         perl createRolloutPackage.pl -n RLTEST1 -d rollout -r inputFile.txt -f -l RLTEST1.log -p -o -m
+         perl ${{ github.workspace }}/createRolloutPackage.pl -n RLTEST1 -d rollout -r inputFile.txt -f -l RLTEST1.log -p -o -m
     
     
     
