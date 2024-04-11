@@ -46,6 +46,7 @@ my $component_text = "Affected Files:\n";
 my $remove_text = "Removed Files:\n";
 my $remove_ro_text = "# Removing files removed by extension.\n";
 my $log = "";
+my $SrcInputFile ="";
 my $vOutputFile;
 #####################################################################
 # show usage()
@@ -265,6 +266,7 @@ sub pull_files{
 	my $event_list;
 	my $unload;
 	my $replacetextp="";
+	
 	
 	printf "--------------------PULL FILES----------------------\n\n\n"; 
 	#first we will reset the arguments parameter to be the string passed in so we can pull the parameters
@@ -1073,12 +1075,10 @@ my $ro_script = "# Extension $ro_name\n#\n# This script has been built specifica
 
 #get options
 getopts('d:r:l:ohn:fpbm', \%opts);
-#perl createRolloutPackage.pl -n RLTEST1 -d rollout -r inputFile.txt -f -l test1.log 
+#perl createRolloutPackage.pl -n RLTEST1 -d rollout -r inputFile.txt -f -l RLTEST1.log -p -o -m
+
 # get the arguments
-#$ro = $opts{r} if defined($opts{r}); #-r - required - rollout input file
-# Destination File 
-my $SrcInputFile = 'inputFile.txt'; 
-$ro = $SrcInputFile ;
+$ro = $opts{r} if defined($opts{r}); #-r - required - rollout input file
 $ro_dir = $opts{d} if defined($opts{d}); #-d - required - directory where the rollout input file is located
 $logfile = $opts{l} if defined($opts{l});
 $detailed_output = $opts{o} if defined($opts{o});
@@ -1087,6 +1087,7 @@ $force_delete = $opts{f} if defined($opts{f});
 $pack = $opts{p} if defined($opts{p});
 $build_script = $opts{b} if defined($opts{b});
 $build_readme = $opts{m} if defined($opts{m});
+$SrcInputFile = $ro ;
 my $help = $opts{h} if defined($opts{h});
 
 if($help)
@@ -1374,10 +1375,10 @@ while (my $line = <$vOutputFile>)
 	
 	my $pull_file_string ="-c $line $ro_name_parm $ro_dir_parm $logfile_parm $detailed_output_parm\n";
 	#if($detailed_output){printf( "Calling pull_files function with: $pull_file_string \n\n");}
-	#$log = $log . "Calling pull_files function with: $pull_file_string \n\n";
+	$log = $log . "Calling pull_files function with: $pull_file_string \n\n";
 	
 	#write to log since we may get new info for the log in pull_files
-	#write_log();
+	write_log();
 	#call pull files
 	printf("Pull Line:$pull_file_string\n");
 	pull_files($pull_file_string);
