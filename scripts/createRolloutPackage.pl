@@ -1302,6 +1302,7 @@ if (!-e  $ro_dir.$ro)
 		}
 	} 
 	close($vInputFile); 
+        printf("Moving $SrcInputFile\n");
 	move($SrcInputFile, "./rollout/") or die "Move failed: $!";
 } # done creating input file
 #validate ro file exist
