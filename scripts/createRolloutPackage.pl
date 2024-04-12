@@ -1305,6 +1305,7 @@ if (!-e  $ro_dir.$ro)
         printf("Moving $SrcInputFile\n");
 	move($SrcInputFile, "./rollout/") or die "Move failed: $!";
 } # done creating input file
+printf("Validating $SrcInputFile\n");
 #validate ro file exist
 if (!-e "$ro_dir$ro")
 {
@@ -1319,6 +1320,7 @@ if (!-e "$ro_dir$ro")
 	
 	exit 0;
 }
+printf("Checking if $ro_name exists\n");
 #if ro directory already exists, stop - need to delete directory first
 #we don't want to do this automatically in case it is the wrong ro name
 #UNLESS they pass in -f argument to force delete of existing directory
