@@ -1303,7 +1303,7 @@ if (!-e  $ro_dir.$ro)
 	} 
 	close($vInputFile); 
         printf("Moving $SrcInputFile into $ro_dir\n");
-	move($SrcInputFile, $ro_dir) or die "Move failed: $!";
+	move($lesdir/$SrcInputFile, $ro_dir) or die "Move failed: $!";
         printf("$SrcInputFile moved\n");
 } # done creating input file
 printf("Validating $SrcInputFile\n");
