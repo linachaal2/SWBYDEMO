@@ -100,7 +100,7 @@ jobs:
           name: ${{ github.actor }}
           commit_message: "Create package "
           target_branch: ${{ github.head_ref }}
-          source_files: ${{ steps.tar-file.outputs.changed_files }}
+          source_files: ${{ github.workspace }}/rollout/RLTEST1.tar
           target_dir: ./rollouts/${{ github.head_ref }}
           remote_repository: https://github.com/${{ github.repository_owner }}/${{ github.event.repository.name }} 
           access_token: ${{ github.token }} 
