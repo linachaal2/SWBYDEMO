@@ -1210,7 +1210,7 @@ $log = $log . "Creating Rollout Directory \n\nCurrent Time: " . localtime() . "\
 
 printf("Check if Input File   $ro_dir$ro Exists");
 # Check if the Input File exists
-if (!-e  $ro_dir$ro)
+if (!-e  $ro_dir.$ro)
 {
 	printf("Input File Does Not Exist");
 	#my $s = 'A db/data/load/base/bootstraponly/poldat/lc_be03_otm_poldat_swiftlex-2715.csv M src/cmdsrc/usrint/send_lc_be03_otm_transport_plan.mcmd';
