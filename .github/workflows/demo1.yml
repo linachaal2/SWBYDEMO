@@ -87,7 +87,7 @@ jobs:
          perl ${{ github.workspace }}/scripts/createRolloutPackage.pl -n RLTEST1 -d rollout -r inputFile.txt -f -l RLTEST1.log -p -o -m
      - name: Check output files
        run: |
-         ls RLTEST1.tar
+         ls *
      - name: Upload tar file
        uses: actions/upload-artifact@v4
        with:
