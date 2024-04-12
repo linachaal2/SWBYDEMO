@@ -93,14 +93,14 @@ jobs:
        uses: actions/upload-artifact@v4
        with:
           name: output-tar-file
-          path: ${{ github.workspace }}/rollout/RLTEST1.tar    
+          path: echo "changed_files= ${{ github.workspace }}/rollout/RLTEST1.tar" >> $GITHUB_OUTPUT  
      - uses: GuillaumeFalourd/copy-push-files@v1
        with:
           email: ${{ github.actor }}[bot]@users.noreply.github.com
           name: ${{ github.actor }}
           commit_message: "Create package "
           target_branch: ${{ github.head_ref }}
-          source_files: ${{ steps.tar-file.output-tar-file }}
+          source_files: ${{ steps.tar-file.outputs.changed_files }}
           target_dir: ./rollouts/${{ github.head_ref }}
           remote_repository: https://github.com/${{ github.repository_owner }}/${{ github.event.repository.name }} 
           access_token: ${{ github.token }} 
