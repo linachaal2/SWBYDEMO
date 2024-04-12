@@ -85,7 +85,9 @@ jobs:
      - name: Execute Perl Create Rollout script
        run: |
          perl ${{ github.workspace }}/scripts/createRolloutPackage.pl -n RLTEST1 -d rollout -r inputFile.txt -f -l RLTEST1.log -p -o -m
-         ls *.tar
+     - name: Check output files
+       run: |
+         ls
     
     
     
