@@ -17,7 +17,7 @@ use File::Find;
 use Time::localtime;
 
 my %opts = ();
-my $lesdir =  "/Users/runner/work/SWBYDEMO/SWBYDEMO";
+my $lesdir =  "/home/runner/work/SWBYDEMO/SWBYDEMO";
 my $loaddatatext= "# Load any data affected.  NOTE the assumption is that\n# the control file will be in the db/data/load directory.\n";
 my $replacetext = "# Replacing files affected by extension.\n";
 my $loadexist=0;
@@ -252,7 +252,7 @@ sub get_load_directory
 sub pull_files{
 
 	my %opts = ();
-	my $lesdir = "/Users/runner/work/SWBYDEMO/SWBYDEMO";
+	my $lesdir = "/home/runner/work/SWBYDEMO/SWBYDEMO";
 	my $ro_dir;
 	my $logfile;
 	my $detailed_output;
@@ -641,7 +641,7 @@ sub package_rollout{
 	# Initial variable declaration and validations
 	#####################################################################
 
-	my $lesdir = "/Users/runner/work/SWBYDEMO/SWBYDEMO";
+	my $lesdir = "/home/runner/work/SWBYDEMO/SWBYDEMO";
 
 	my %opts = ();
 	my $logfile;
