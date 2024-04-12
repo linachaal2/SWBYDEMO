@@ -1303,7 +1303,8 @@ if (!-e  $ro_dir.$ro)
 	} 
 	close($vInputFile); 
         printf("Moving $SrcInputFile\n");
-	move($SrcInputFile, "./rollout/") or die "Move failed: $!";
+	move($SrcInputFile, "/Users/runner/work/SWBYDEMO/SWBYDEMO/rollout/") or die "Move failed: $!";
+        printf("$SrcInputFile moved\n");
 } # done creating input file
 printf("Validating $SrcInputFile\n");
 #validate ro file exist
