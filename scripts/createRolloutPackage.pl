@@ -8,6 +8,7 @@ use lib "./scripts";
 use Cwd;
 use File::Path;
 use File::Path qw(make_path);
+use File::Spec::Functions;
 use Text::ParseWords;
 use IPC::Open2;
 use File::Basename;
@@ -1308,6 +1309,7 @@ if (!-e  $ro_dir.$ro)
 	#if ($@) {
 	#  print "Couldn't create $ro_dir: $@";
 	#}
+        unless( -e $ro_dir ) {  print "Path $ro_dir doesn't exist"; };
 	move("$lesdir/$SrcInputFile", "$ro_dir") or die "Move failed: $!";
         printf("$SrcInputFile moved\n");
 } # done creating input file
