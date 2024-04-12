@@ -1304,7 +1304,7 @@ if (!-e  $ro_dir.$ro)
 	} 
 	close($vInputFile); 
         printf("Moving $lesdir/$SrcInputFile into $ro_dir\n");
-	eval { make_path($ro_dir) };
+	eval { make_path($ro_dir,{mode => 0777}) };
 	if ($@) {
 	  print "Couldn't create $ro_dir: $@";
 	}
