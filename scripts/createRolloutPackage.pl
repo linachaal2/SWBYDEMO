@@ -7,6 +7,7 @@ use Getopt::Std;
 use lib "./scripts";
 use Cwd;
 use File::Path;
+use File::Path qw(make_path);
 use Text::ParseWords;
 use IPC::Open2;
 use File::Basename;
@@ -1303,6 +1304,10 @@ if (!-e  $ro_dir.$ro)
 	} 
 	close($vInputFile); 
         printf("Moving $lesdir/$SrcInputFile into $ro_dir\n");
+	eval { make_path($ro_dir) };
+	if ($@) {
+	  print "Couldn't create $dir: $@";
+	}
 	move("$lesdir/$SrcInputFile", "$ro_dir") or die "Move failed: $!";
         printf("$SrcInputFile moved\n");
 } # done creating input file
