@@ -77,6 +77,9 @@ jobs:
      - name: Get Input File for Perl Script
        run: |
          echo "A db/data/load/base/bootstraponly/poldat/lc_be03_otm_poldat_swiftlex-2715.csv M src/cmdsrc/usrint/send_lc_be03_otm_transport_plan.mcmd" > inputFile.txt
+     - name: Check input file data
+       run: |
+         cat inputFile.txt
      - name: Check out the repository to the runner
        uses: actions/checkout@v4
      - name: Execute Perl Create Rollout script
