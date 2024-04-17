@@ -1212,6 +1212,9 @@ if(!$ro_name)
 if($detailed_output){printf( "Creating Rollout Directory \n\nCurrent Time: " . localtime() . "\n\nOptions\nRollout Directory = $ro_dir$ro_name\nlogfile = $logfile\n\nEnvironment:\nLESDIR = $lesdir\nLog directory=$lesdir\log\nRollout Name = $ro_name\n\n");}
 $log = $log . "Creating Rollout Directory \n\nCurrent Time: " . localtime() . "\n\nOptions\nRollout Directory = $ro_dir$ro_name\nlogfile = $logfile\n\nEnvironment:\nLESDIR = $lesdir\nLog directory=$lesdir\log\nRollout Name = $ro_name\n\n";
 
+create_ro_dir($ro_dir.$ro_name);
+move("$lesdir/$SrcInputFile", "$ro_dir") or die "Move failed: $!";
+
 printf("Check if Input File   $ro_dir.$ro Exists");
 # Check if the Input File exists
 if (!-e  $ro_dir.$ro)
