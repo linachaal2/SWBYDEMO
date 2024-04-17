@@ -97,10 +97,17 @@ jobs:
           for file in ${{ steps.changed-files.outputs.changed_files }}; do
            echo "$file"
           done 
-          
+      - name: Get Input File for Perl Script
+        run: |
+         echo ${{ steps.changed-files.outputs.changed_files }} > inputFile.txt
+      - name: Check input file data
+        run: |
+         cat inputFile.txt
+      - name: Check out the repository to the runner
+        uses: actions/checkout@v4    
       - name: Execute Perl Create Rollout script
         run: |
-         perl ${{ github.workspace }}/scripts/createRolloutPackage.pl -g ${{ steps.changed-files.outputs.changed_files }} -n RLTEST1 -d rollout -r inputFile.txt -f -l RLTEST1.log -p -o -m
+         perl ${{ github.workspace }}/scripts/createRolloutPackage.pl -n RLTEST1 -d rollout -r inputFile.txt -f -l RLTEST1.log -p -o -m
       - name: Check output files
         run: |
          ls ${{ github.workspace }}/rollout/RLTEST1.tar
