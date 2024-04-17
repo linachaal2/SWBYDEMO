@@ -1077,7 +1077,7 @@ my $ro_script = "# Extension $ro_name\n#\n# This script has been built specifica
 #####################################################################
 
 #get options
-getopts('d:r:l:ohn:fpbm', \%opts);
+getopts('g:d:r:l:ohn:fpbm', \%opts);
 #perl createRolloutPackage.pl -n RLTEST1 -d rollout -r inputFile.txt -f -l RLTEST1.log -p -o -m
 
 # get the arguments
