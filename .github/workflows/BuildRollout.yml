@@ -109,24 +109,8 @@ jobs:
          ls
       - name: Execute Perl Create Rollout script
         run: |
-         perl ${{ github.workspace }}/scripts/createRolloutPackage.pl -g "${{ steps.changed-files.outputs.changed_files }}" -n RLTEST1 -d rollout -r inputFile.txt -f -l RLTEST1.log -p -o -m
-      - name: Check output files
-        run: |
-         ls ${{ github.workspace }}/rollout/RLTEST1.tar
-      - name: Upload tar file
-        id: tar-file
-        uses: actions/upload-artifact@v4
-        with:
-          name: output-tar-file
-          path: echo "changed_files= ${{ github.workspace }}/rollout/RLTEST1.tar" >> $GITHUB_OUTPUT  
-      - uses: GuillaumeFalourd/copy-push-files@v1
-        with:
-          email: ${{ github.actor }}[bot]@users.noreply.github.com
-          name: ${{ github.actor }}
-          commit_message: "Create package "
-          target_branch: ${{ github.head_ref }}
-          source_files: ${{ github.workspace }}/rollout/RLTEST1.tar
-          target_dir: ./rollouts/${{ github.head_ref }}
+         perl ${{ github.workspace }}/scripts/createRolloutPackage.pl -g "${{ steps.changed-files.outputs.changed_files }}" -n RLTEST1 -d rollout -r inputFile.txt -f -o -m
+      
           remote_repository: https://github.com/${{ github.repository_owner }}/${{ github.event.repository.name }} 
           access_token: ${{ github.token }} 
           
