@@ -17,7 +17,8 @@ use File::Find;
 use Time::localtime;
 
 my %opts = ();
-my $lesdir =  "/home/runner/work/SWBYDEMO/SWBYDEMO";
+#my $lesdir =  "/home/runner/work/SWBYDEMO/SWBYDEMO";
+my $lesdir =  "";
 my $loaddatatext= "# Load any data affected.  NOTE the assumption is that\n# the control file will be in the db/data/load directory.\n";
 my $replacetext = "# Replacing files affected by extension.\n";
 my $loadexist=0;
@@ -253,7 +254,6 @@ sub get_load_directory
 sub pull_files{
 
 	my %opts = ();
-	my $lesdir = "/home/runner/work/SWBYDEMO/SWBYDEMO";
 	my $ro_dir;
 	my $logfile;
 	my $detailed_output;
@@ -641,8 +641,6 @@ sub package_rollout{
   	#####################################################################
 	# Initial variable declaration and validations
 	#####################################################################
-
-	my $lesdir = "/home/runner/work/SWBYDEMO/SWBYDEMO";
 
 	my %opts = ();
 	my $logfile;
@@ -1077,11 +1075,12 @@ my $ro_script = "# Extension $ro_name\n#\n# This script has been built specifica
 #####################################################################
 
 #get options
-getopts('g:d:r:l:ohn:fpbm', \%opts);
+getopts('g:t:d:r:l:ohn:fpbm', \%opts);
 #perl createRolloutPackage.pl -n RLTEST1 -d rollout -r inputFile.txt -f -l RLTEST1.log -p -o -m
 
 # get the arguments
 $s = $opts{g} if defined($opts{g}); #list of modified files
+$lesdir = $opts{t} if defined($opts{t}); #LESDIR
 $ro = $opts{r} if defined($opts{r}); #-r - required - rollout input file
 $ro_dir = $opts{d} if defined($opts{d}); #-d - required - directory where the rollout input file is located
 $logfile = $opts{l} if defined($opts{l});
