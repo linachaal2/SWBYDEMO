@@ -1,6 +1,6 @@
 <command>
   <name>add lc file to xml</name>
-  <description>add lc file to xml</description>
+  <description>add lc file   to xml</description>
   <type>Java Method</type>
   <class>moca.ReplXmlUtils</class>
   <method>addLcFileToXml</method>
