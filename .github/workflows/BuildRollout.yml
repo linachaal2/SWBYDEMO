@@ -80,11 +80,10 @@ jobs:
             const rawFiles = execSync(`git diff --name-status HEAD HEAD~${commits}`).toString()
             const files = rawFiles.split('\n').filter(Boolean)
             console.log(files) 
-      - name: Check out the repository to the runner
-        uses: actions/checkout@v4        
-     # - uses: actions/checkout@v3
-     #   with:
-     #    fetch-depth: ${{ github.event_name == 'pull_request' && 2 || 0 }}
+             
+      - uses: actions/checkout@v3
+        with:
+         fetch-depth: ${{ github.event_name == 'pull_request' && 2 || 0 }}
       - name: Get changed files
         id: modified-list
         run: |
@@ -93,6 +92,8 @@ jobs:
          else
           echo "modified_files=$(git diff  --name-status ${{ github.event.before }} ${{ github.event.after }} | xargs)" >> $GITHUB_OUTPUT
          fi
+      - name: Check out the repository to the runner
+        uses: actions/checkout@v4  
     #  - name: List changed files
     #    run: |
     #      for file in ${{ steps.changed-files.outputs.changed_files }}; do
