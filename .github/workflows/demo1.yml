@@ -78,15 +78,12 @@ jobs:
      - name: Check out the repository to the runner
        uses: actions/checkout@v4
      - name: Get Input File for Perl Script
+       id: modified-list 
        run: |
-         echo "A db/data/load/base/bootstraponly/poldat/lc_be03_otm_poldat_swiftlex-2715.csv M src/cmdsrc/usrint/send_lc_be03_otm_transport_plan.mcmd" > inputFile.txt 
-     - name: Check input file data
-       run: |
-         cat inputFile.txt  
-         ls ${{ github.workspace }}/inputFile.txt 
+         echo "modified_files= A db/data/load/base/bootstraponly/poldat/lc_be03_otm_poldat_swiftlex-2715.csv M src/cmdsrc/usrint/send_lc_be03_otm_transport_plan.mcmd" >> $GITHUB_OUTPUT  
      - name: Execute Perl Create Rollout script
        run: |
-         perl ${{ github.workspace }}/scripts/createRolloutPackageManual.pl -n RLTEST1 -d rollout -r inputFile.txt -f -l RLTEST1.log -p -o -m
+         perl ${{ github.workspace }}/scripts/createRolloutPackageManual.pl -g "${{ steps.modified-list.outputs.modified_files }}" -n RLTEST1 -d rollout -r inputFile.txt -f -l RLTEST1.log -p -o -m
      - name: Check output files
        run: |
          ls ${{ github.workspace }}/rollout/RLTEST1.tar
