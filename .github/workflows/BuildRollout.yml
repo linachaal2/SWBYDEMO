@@ -99,8 +99,8 @@ jobs:
           done  
       - name: Get Input File for Perl Script
         run: |
-         #echo ${{ steps.changed-files.outputs.changed_files }} > inputFile.txt
-         echo "A db/data/load/base/bootstraponly/poldat/lc_be03_otm_poldat_swiftlex-2715.csv M src/cmdsrc/usrint/send_lc_be03_otm_transport_plan.mcmd" > inputFile.txt
+         echo ${{ steps.changed-files.outputs.changed_files }} > inputFile.txt
+         #echo "A db/data/load/base/bootstraponly/poldat/lc_be03_otm_poldat_swiftlex-2715.csv M src/cmdsrc/usrint/send_lc_be03_otm_transport_plan.mcmd" > inputFile.txt
       - name: Check input file data
         run: |
          cat inputFile.txt  
