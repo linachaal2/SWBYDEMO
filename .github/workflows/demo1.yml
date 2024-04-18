@@ -92,7 +92,8 @@ jobs:
        uses: actions/upload-artifact@v4
        with:
           name: output-tar-file
-          path: echo "changed_files= ${{ github.workspace }}/rollout/RLTEST1.tar" >> $GITHUB_OUTPUT  
+          path: ${{ github.workspace }}/rollout/RLTEST1.tar"
+         # path: echo "changed_files= ${{ github.workspace }}/rollout/RLTEST1.tar" >> $GITHUB_OUTPUT
    #  - uses: GuillaumeFalourd/copy-push-files@v1
    #    with:
     #      email: ${{ github.actor }}[bot]@users.noreply.github.com
