@@ -96,22 +96,27 @@ jobs:
         run: |
           for file in ${{ steps.changed-files.outputs.changed_files }}; do
            echo "$file"
-          done 
-      - name: Check out the repository to the runner
-        uses: actions/checkout@v4    
+          done  
       - name: Get Input File for Perl Script
         run: |
-         echo ${{ steps.changed-files.outputs.changed_files }} > inputFile2.txt
+         #echo ${{ steps.changed-files.outputs.changed_files }} > inputFile.txt
+         echo "A db/data/load/base/bootstraponly/poldat/lc_be03_otm_poldat_swiftlex-2715.csv M src/cmdsrc/usrint/send_lc_be03_otm_transport_plan.mcmd" > inputFile.txt
       - name: Check input file data
         run: |
-         cat inputFile2.txt  
+         cat inputFile.txt  
          pwd
          ls
+      - name: Check out the repository to the runner
+        uses: actions/checkout@v4
       - name: Execute Perl Create Rollout script
         run: |
-         perl ${{ github.workspace }}/scripts/createRolloutPackage.pl -t "${{ runner.workspace }}" -g "${{ steps.changed-files.outputs.changed_files }}" -n RLTEST1 -d rollout -r inputFile.txt -f -o -m
+         perl ${{ github.workspace }}/scripts/createRolloutPackageManual.pl -n RLTEST1 -d rollout -r inputFile.txt -f -l RLTEST1.log -p -o -m
+        
+     # - name: Execute Perl Create Rollout script
+     #   run: |
+      #   perl ${{ github.workspace }}/scripts/createRolloutPackage.pl -t "${{ runner.workspace }}" -g "${{ steps.changed-files.outputs.changed_files }}" -n RLTEST1 -d rollout -r inputFile.txt -f -o -m
       
-          remote_repository: https://github.com/${{ github.repository_owner }}/${{ github.event.repository.name }} 
-          access_token: ${{ github.token }} 
+      #    remote_repository: https://github.com/${{ github.repository_owner }}/${{ github.event.repository.name }} 
+       #   access_token: ${{ github.token }} 
           
      
