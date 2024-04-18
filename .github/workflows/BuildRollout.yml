@@ -80,39 +80,37 @@ jobs:
             const rawFiles = execSync(`git diff --name-status HEAD HEAD~${commits}`).toString()
             const files = rawFiles.split('\n').filter(Boolean)
             console.log(files) 
-            
-      - uses: actions/checkout@v3
-        with:
-         fetch-depth: ${{ github.event_name == 'pull_request' && 2 || 0 }}
+      - name: Check out the repository to the runner
+        uses: actions/checkout@v4        
+     # - uses: actions/checkout@v3
+     #   with:
+     #    fetch-depth: ${{ github.event_name == 'pull_request' && 2 || 0 }}
       - name: Get changed files
-        id: changed-files
+        id: modified-list
         run: |
          if ${{ github.event_name == 'pull_request' }}; then
-          echo "changed_files=$(git diff --name-status  -r HEAD^1 HEAD | xargs)" >> $GITHUB_OUTPUT
+          echo "modified_files=$(git diff --name-status  -r HEAD^1 HEAD | xargs)" >> $GITHUB_OUTPUT
          else
-          echo "changed_files=$(git diff  --name-status ${{ github.event.before }} ${{ github.event.after }} | xargs)" >> $GITHUB_OUTPUT
+          echo "modified_files=$(git diff  --name-status ${{ github.event.before }} ${{ github.event.after }} | xargs)" >> $GITHUB_OUTPUT
          fi
-      - name: List changed files
-        run: |
-          for file in ${{ steps.changed-files.outputs.changed_files }}; do
-           echo "$file"
-          done  
-      - name: Get Input File for Perl Script
-        run: |
-         #echo "${{ steps.changed-files.outputs.changed_files }}" > inputFile.txt
-         git diff --name-status  -r HEAD^1 HEAD | xargs> inputFile.txt
-         #echo "A db/data/load/base/bootstraponly/poldat/lc_be03_otm_poldat_swiftlex-2715.csv M src/cmdsrc/usrint/send_lc_be03_otm_transport_plan.mcmd" > inputFile.txt
-      - name: Check input file data
-        run: |
-         cat inputFile.txt  
-         pwd
-         ls
-      - name: Check out the repository to the runner
-        uses: actions/checkout@v4
+    #  - name: List changed files
+    #    run: |
+    #      for file in ${{ steps.changed-files.outputs.changed_files }}; do
+    #       echo "$file"
+     #     done  
+
       - name: Execute Perl Create Rollout script
         run: |
-         perl ${{ github.workspace }}/scripts/createRolloutPackageManual.pl -n RLTEST1 -d rollout -r inputFile.txt -f -l RLTEST1.log -p -o -m
-        
+         perl ${{ github.workspace }}/scripts/createRolloutPackageManual.pl -g "${{ steps.modified-list.outputs.modified_files }}" -n RLTEST1 -d rollout -r inputFile.txt -f -l RLTEST1.log -p -o -m
+      - name: Check output files
+        run: |
+          ls ${{ github.workspace }}/rollout/RLTEST1.tar
+      - name: Upload tar file
+        id: tar-file
+        uses: actions/upload-artifact@v4
+        with:
+          name: output-tar-file
+          path: echo "changed_files= ${{ github.workspace }}/rollout/RLTEST1.tar" >> $GITHUB_OUTPUT   
      # - name: Execute Perl Create Rollout script
      #   run: |
       #   perl ${{ github.workspace }}/scripts/createRolloutPackage.pl -t "${{ runner.workspace }}" -g "${{ steps.changed-files.outputs.changed_files }}" -n RLTEST1 -d rollout -r inputFile.txt -f -o -m
