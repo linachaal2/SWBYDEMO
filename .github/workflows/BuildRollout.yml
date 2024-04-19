@@ -87,11 +87,12 @@ jobs:
       - name: Get changed files
         id: modified-list
         run: |
-         if ${{ github.event_name == 'pull_request' }}; then
-          echo "modified_files=$(git diff --name-status  -r HEAD^1 HEAD | xargs)" >> $GITHUB_OUTPUT
-         else
-          echo "modified_files=$(git diff  --name-status ${{ github.event.before }} ${{ github.event.after }} | xargs)" >> $GITHUB_OUTPUT
-         fi
+         echo "modified_files=$(git diff --name-status  -r HEAD^1 HEAD | xargs)" >> $GITHUB_OUTPUT
+        # if ${{ github.event_name == 'pull_request' }}; then
+        #echo "modified_files=$(git diff --name-status  -r HEAD^1 HEAD | xargs)" >> $GITHUB_OUTPUT
+        # else
+         # echo "modified_files=$(git diff  --name-status ${{ github.event.before }} ${{ github.event.after }} | xargs)" >> $GITHUB_OUTPUT
+        # fi
       - name: Check out the repository to the runner
         uses: actions/checkout@v4  
     #  - name: List changed files
