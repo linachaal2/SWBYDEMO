@@ -88,8 +88,9 @@ jobs:
           regex: '#\S*'     
       - name: echo the hash tag from comment message
         id: get_release_bump_type
+        shell: bash
         run: |
-          if [${{ steps.regex-match.outputs.match != '' }}]; then
+          if [${{ steps.regex-match.outputs.match }}  != '']; then
             echo "HASH_BUMP_VALUE: ${{ steps.regex-match.outputs.group1 != '' }}"  >> "$GITHUB_OUTPUT"
           else
             echo "HASH_BUMP_VALUE:PATCH"  >> "$GITHUB_OUTPUT"
