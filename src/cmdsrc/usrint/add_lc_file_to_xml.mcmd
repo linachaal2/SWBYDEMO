@@ -1,0 +1,11 @@
+<command>
+  <name>add lc file to xml</name>
+  <description>add lc      file to xml</description>
+  <type>Java Method</type>
+  <class>moca.ReplXmlUtils</class>
+  <method>addLcFileToXml</method>
+  <argument name="XML_DataString" required="no" datatype="string">Current XML datastring</argument>
+  <argument name="parent_node" required="yes" datatype="string">parent node for the tag</argument>
+  <argument name="tag_name" required="yes" datatype="string">tag name to hold the file data</argument>
+  <argument name="Filename" required="yes" datatype="string">Full file path and name</argument>
+</command>
