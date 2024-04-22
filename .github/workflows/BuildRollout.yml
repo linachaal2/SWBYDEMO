@@ -68,7 +68,14 @@ jobs:
           #echo "$LATEST_BASE_COMMIT"
           #git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }}
           #git diff --name-only "$GITHUB_BASE_REF..${{ github.head_ref }}"
-           
+      - uses: actions-ecosystem/action-regex-match@v2
+        id: regex-match
+        with:
+          text: ${{ github.event.head_commit.message }}
+          regex: '#\S*'     
+      - name: echo the hash tag from comment message
+        run: |
+         echo "The hash tag from the comment message (If Applicable): ${{ steps.regex-match.outputs.match != '' }}"    
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha }}
