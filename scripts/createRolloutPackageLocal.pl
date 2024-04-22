@@ -17,7 +17,6 @@ use File::Find;
 use Time::localtime;
 
 my %opts = ();
-#my $lesdir =  "/home/runner/work/SWBYDEMO/SWBYDEMO";
 my $lesdir =  "";
 my $loaddatatext= "# Load any data affected.  NOTE the assumption is that\n# the control file will be in the db/data/load directory.\n";
 my $replacetext = "# Replacing files affected by extension.\n";
@@ -254,6 +253,7 @@ sub get_load_directory
 sub pull_files{
 
 	my %opts = ();
+	#my $lesdir = "/y/Docker/MY-GIT/SWBYDEMO";
 	my $ro_dir;
 	my $logfile;
 	my $detailed_output;
@@ -616,8 +616,18 @@ sub pull_files{
 	close(OUTF);
 	
 }#pull_files
-
-
+  
+#####################################################################
+# package_rollout($cmd_string)
+#	$cmd_string - command line parameters from the ro input file
+#
+# this will look through a directory to determine what components are 
+# included in the rollout and build the rollout script and potentially
+# tar up the directory
+# 
+# this initially started as a separate perl script, so it is expecting
+# parameters as -a, -b, etc. in a string
+#####################################################################
 sub package_rollout{
 
 	
@@ -641,6 +651,8 @@ sub package_rollout{
   	#####################################################################
 	# Initial variable declaration and validations
 	#####################################################################
+
+	#my $lesdir = "/y/Docker/MY-GIT/SWBYDEMO";
 
 	my %opts = ();
 	my $logfile;
@@ -977,6 +989,39 @@ my $ro_script = "# Extension $ro_name\n#\n# This script has been built specifica
 		$log = $log . "No Low Priority MSQLs found...Continuing\n\n";
 	}
 
+    #####################################################################
+	# MTF files
+	#####################################################################
+	if($detailed_output){printf( "Checking for MTF files\n");}
+	$log = $log . "Checking for MTF files\n";
+	my $mtfexist;
+	my $mtfdir = "$lesdir/$ro_dir/pkg/mtfclient/src/java/com/redprairie/les/formlogic";
+	#find({ wanted => \&writemtf, no_chdir} => \&nochdir, $mtfdir);
+	find(\&writemtf, $mtfdir);
+	sub writemtf
+	{
+		if(!-d $File::Find::name)
+		{
+			my $mtffile = $_;
+			
+			if($detailed_output){printf("Found MTF File: \n\tfile = $mtffile\nWriting REPLACE and REBUILD LES lines to rollout script for $mtffile\n\n");}
+			$log = $log . "Found MTF File: \n\tfile = $mtffile\nWriting REPLACE and REBUILD LES lines to rollout script for $mtffile\n\n";
+			$replacetext = $replacetext . "REPLACE pkg/mtfclient/src/java/com/redprairie/les/formlogic/$mtffile \$LESDIR/mtfclient/src/java/com/redprairie/les/formlogic\n";
+			$mtfexist = 1;
+			$component_text = $component_text . "\tmtfclient/src/java/com/redprairie/les/formlogic/$mtffile\n";
+		}
+	}
+
+	if(!$mtfexist)
+	{
+		if($detailed_output){printf("No MTF files found...Continuing\n\n");}
+		$log = $log . "No MTF files found...Continuing\n\n";
+	}
+	else
+	{
+		$rebuildtext = $rebuildtext . "REBUILD LES\n";
+	}
+
 	#####################################################################
 	# README file
 	#####################################################################
@@ -1010,7 +1055,7 @@ my $ro_script = "# Extension $ro_name\n#\n# This script has been built specifica
     
     
     # if we are removing a moca command, write MBUILD
-    if($remove_ro_text =~ /.*REMOVE.*src.*cmdsrc.*/)
+    if($remove_ro_text =~ /.*REMOVE.*mcmd.*/ || $remove_ro_text =~ /.*REMOVE.*mtrg.*/)
     {
         $mbuildtext = $mbuildtext . "MBUILD\n";
     }
@@ -1076,7 +1121,7 @@ my $ro_script = "# Extension $ro_name\n#\n# This script has been built specifica
 
 #get options
 getopts('g:t:d:r:l:ohn:fpbm', \%opts);
-#perl createRolloutPackage.pl -n RLTEST1 -d rollout -r inputFile.txt -f -l RLTEST1.log -p -o -m
+#perl createRolloutPackage.pl -g  "M javalib/barcode4j-2.2.jar M src/cmdsrc/usrint/remove_load-remove_usr_inventory_asset.mtrg A reports/usrint/usr-rfh001-v0110-ffdeliverynote.jrxml M db/ddl/afterrun/90_Rollout_install_insert.msql A db/ddl/prerun/20_delete_data.msql A db/ddl/afterrun/80_integrator_sys_comm.msql" -t "/y/Docker/MY-GIT/SWBYDEMO" -n RLTEST1 -d rollout -r inputFile.txt -f -l RLTEST1.log -p -o -m
 
 # get the arguments
 $s = $opts{g} if defined($opts{g}); #list of modified files
@@ -1211,9 +1256,6 @@ if(!$ro_name)
 if($detailed_output){printf( "Creating Rollout Directory \n\nCurrent Time: " . localtime() . "\n\nOptions\nRollout Directory = $ro_dir$ro_name\nlogfile = $logfile\n\nEnvironment:\nLESDIR = $lesdir\nLog directory=$lesdir\log\nRollout Name = $ro_name\n\n");}
 $log = $log . "Creating Rollout Directory \n\nCurrent Time: " . localtime() . "\n\nOptions\nRollout Directory = $ro_dir$ro_name\nlogfile = $logfile\n\nEnvironment:\nLESDIR = $lesdir\nLog directory=$lesdir\log\nRollout Name = $ro_name\n\n";
 
-create_ro_dir($ro_dir);
-#move("$lesdir/$SrcInputFile", "$ro_dir") or die "Move failed: $!";
-
 printf("Check if Input File   $ro_dir.$ro Exists");
 # Check if the Input File exists
 if (!-e  $ro_dir.$ro)
@@ -1221,17 +1263,113 @@ if (!-e  $ro_dir.$ro)
 	printf("Input File Does Not Exist");
 	#my $s = 'A db/data/load/base/bootstraponly/poldat/lc_be03_otm_poldat_swiftlex-2715.csv M src/cmdsrc/usrint/send_lc_be03_otm_transport_plan.mcmd';
 	#my $s = 'A db/data/load/base/bootstraponly/client/client.csv A db/data/load/base/bootstraponly/adrmst/adrmst.csv A db/data/load/base/bootstraponly/client_wh/client_wh.csv';
-	# $s = 'M javalib/barcode4j-2.2.jar M src/cmdsrc/usrint/remove_load-remove_usr_inventory_asset.mtrg A reports/usrint/usr-rfh001-v0110-ffdeliverynote.jrxml M db/ddl/afterrun/90_Rollout_install_insert.msql A db/ddl/prerun/20_delete_data.msql A db/ddl/afterrun/80_integrator_sys_comm.msql';
+	#my $s = 'M javalib/barcode4j-2.2.jar M src/cmdsrc/usrint/remove_load-remove_usr_inventory_asset.mtrg A reports/usrint/usr-rfh001-v0110-ffdeliverynote.jrxml M db/ddl/afterrun/90_Rollout_install_insert.msql A db/ddl/prerun/20_delete_data.msql A db/ddl/afterrun/80_integrator_sys_comm.msql';
 
-	print "Original files:",$s,"\n\n";
+	print "*******************************\nOriginal files:",$s,"\n*******************************\n";
 
 
-	my @addModFiles = split /((?:A|M)\s\S*\s)/, $s;
+	my @addModFiles = split /((?:A|M)\s\S*\s*)/, $s;
+	my @delFiles = split /(D\s\S*\s*)/, $s;
 	#print Dumper \@addModFiles;
 	# open destination file for writing 
 	open my $vInputFile, '>', $SrcInputFile;
 	# EX. A db/data/load/base/bootstraponly/poldat/lc_be03_otm_poldat
 	foreach my $file (@addModFiles)  
+	{ 
+		if($file){
+			print "Looking into $file\n\n\n"; 
+			my $firstChar = substr($file,0,1);
+			#print "firstChar $firstChar\n\n\n"; 
+			if($firstChar eq "A" or $firstChar eq "M")
+			{
+				my $pointPos = rindex($file, "."); 
+				print "Position of point: $pointPos\n"; 
+				my $slashPos = rindex($file, "/"); 
+				print "Right Slash position: $slashPos\n"; 
+				my $fileExt = substr($file,$pointPos+1); 
+				my $fileFullName = substr($file,$slashPos+1); 
+				$fileFullName=~ s/\s+$//;
+				$fileExt=~ s/\s+$//;
+				print "File Name: *$fileFullName*\n"; 
+				print "File extension: *$fileExt*\n"; 
+				# Map MOCA and triggers files 
+				if ($fileExt eq "mcmd" || $fileExt eq "mtrg") {
+					#MOCA -d usrint -f "list_usr_1234.mcmd"
+					my $fullFileSyntax = "MOCA -d usrint -f \"".$fileFullName."\"";
+					print "File syntax: $fullFileSyntax\n"; 		
+					print {$vInputFile} $fullFileSyntax . "\n";
+				}
+				# Map CSV files 
+				elsif ($fileExt eq "csv"){
+					##SQL -t poldat  -s "select * from poldat where polcod = 'UC_1234'"
+					my $table_name = substr(substr($file,0,$slashPos),rindex(substr($file,0,$slashPos), "/")+1);
+					#print "table_name: $table_name\n";
+					my $fullFileSyntax = "SQL -t ".$table_name." -f \"".$fileFullName."\"";
+					print "File syntax: $fullFileSyntax\n"; 
+					
+					print {$vInputFile} $fullFileSyntax . "\n";
+					
+				}
+				# Map MSQL files 
+				elsif ($fileExt eq "msql"){
+					#DDL -d Tables -f prtmst_view-UC_1234.msql
+					my $table_name = substr(substr($file,0,$slashPos),rindex(substr($file,0,$slashPos), "/")+1);
+					print "table_name: $table_name\n";
+					my $fullFileSyntax = "DDL -d ".$table_name." -f \"".$fileFullName."\"";
+					print "File syntax: $fullFileSyntax\n"; 
+					
+					print {$vInputFile} $fullFileSyntax . "\n";
+				}
+				# Map POF files 
+				elsif ($fileExt eq "POF"){
+					#LABEL -d z140xiII -f UC_1234.POF
+					my $table_name = substr(substr($file,0,$slashPos),rindex(substr($file,0,$slashPos), "/")+1);
+					print "table_name: $table_name\n";
+					my $fullFileSyntax = "LABEL -d ".$table_name." -f \"".$fileFullName."\"";
+					print "File syntax: $fullFileSyntax\n"; 
+					
+					print {$vInputFile} $fullFileSyntax . "\n";
+				}
+				# Map REPORTS files 
+				elsif ($fileExt eq "jrxml"){
+					#REPORT -d usrint -f UC_1234.jrxml
+					my $table_name = substr(substr($file,0,$slashPos),rindex(substr($file,0,$slashPos), "/")+1);
+					print "table_name: $table_name\n";
+					my $fullFileSyntax = "REPORT -d ".$table_name." -f \"".$fileFullName."\"";
+					print "File syntax: $fullFileSyntax\n"; 
+					
+					print {$vInputFile} $fullFileSyntax . "\n";
+				}
+				# Map JAVA files 
+				elsif ($fileExt eq "jar"){
+					#FILE -d javalib -f UC_1234.jar
+					my $table_name = substr($file,2,$slashPos-2);
+					print "table_name: $table_name\n";
+					my $fullFileSyntax = "FILE -d ".$table_name." -f \"".$fileFullName."\"";
+					print "File syntax: $fullFileSyntax\n"; 
+					
+					print {$vInputFile} $fullFileSyntax . "\n";
+				}
+				# Map MTF Java files
+				elsif ($fileExt eq "java" ){
+					#MTF -f UcTest1.java
+					my $fullFileSyntax = "MTF -f \"".$fileFullName."\"";
+					print "File syntax: $fullFileSyntax\n"; 		
+					print {$vInputFile} $fullFileSyntax . "\n";
+				}
+				# Map MTF properties files
+				elsif ($fileExt eq "properties" ){
+					#MTF -f UcTest1.properties
+					my $fullFileSyntax = "MTF -f \"".$fileFullName."\"";
+					print "File syntax: $fullFileSyntax\n"; 		
+					print {$vInputFile} $fullFileSyntax . "\n";
+				}
+				print "------------------------------------------\n\n\n"; 
+			}
+		}
+	} # end dealing with added/modified files
+	
+	foreach my $file (@delFiles)  
 	{ 
 		if($file){
 			print "Looking into $file\n\n\n"; 
@@ -1245,68 +1383,17 @@ if (!-e  $ro_dir.$ro)
 			$fileFullName=~ s/\s+$//;
 			$fileExt=~ s/\s+$//;
 			print "File Name: *$fileFullName*\n"; 
-			print "File extension: *$fileExt*\n"; 
-			# Map MOCA and triggers files 
+			print "File extension: *$fileExt*\n";
+			# delete MOCA and triggers files 
 			if ($fileExt eq "mcmd" || $fileExt eq "mtrg") {
-				#MOCA -d usrint -f "list_usr_1234.mcmd"
-				my $fullFileSyntax = "MOCA -d usrint -f \"".$fileFullName."\"";
+				#REMOVE -d usrint -f "list_usr_1234.mcmd"
+				my $fullFileSyntax = "REMOVE -d usrint -f \"".$fileFullName."\"";
 				print "File syntax: $fullFileSyntax\n"; 		
 				print {$vInputFile} $fullFileSyntax . "\n";
 			}
-			# Map CSV files 
-			elsif ($fileExt eq "csv"){
-				##SQL -t poldat  -s "select * from poldat where polcod = 'UC_1234'"
-				my $table_name = substr(substr($file,0,$slashPos),rindex(substr($file,0,$slashPos), "/")+1);
-				#print "table_name: $table_name\n";
-				my $fullFileSyntax = "SQL -t ".$table_name." -f \"".$fileFullName."\"";
-				print "File syntax: $fullFileSyntax\n"; 
-				
-				print {$vInputFile} $fullFileSyntax . "\n";
-				
-			}
-			# Map MSQL files 
-			elsif ($fileExt eq "msql"){
-				#DDL -d Tables -f prtmst_view-UC_1234.msql
-				my $table_name = substr(substr($file,0,$slashPos),rindex(substr($file,0,$slashPos), "/")+1);
-				print "table_name: $table_name\n";
-				my $fullFileSyntax = "DDL -d ".$table_name." -f \"".$fileFullName."\"";
-				print "File syntax: $fullFileSyntax\n"; 
-				
-				print {$vInputFile} $fullFileSyntax . "\n";
-			}
-			# Map POF files 
-			elsif ($fileExt eq "POF"){
-				#LABEL -d z140xiII -f UC_1234.POF
-				my $table_name = substr(substr($file,0,$slashPos),rindex(substr($file,0,$slashPos), "/")+1);
-				print "table_name: $table_name\n";
-				my $fullFileSyntax = "LABEL -d ".$table_name." -f \"".$fileFullName."\"";
-				print "File syntax: $fullFileSyntax\n"; 
-				
-				print {$vInputFile} $fullFileSyntax . "\n";
-			}
-			# Map REPORTS files 
-			elsif ($fileExt eq "jrxml"){
-				#REPORT -d usrint -f UC_1234.jrxml
-				my $table_name = substr(substr($file,0,$slashPos),rindex(substr($file,0,$slashPos), "/")+1);
-				print "table_name: $table_name\n";
-				my $fullFileSyntax = "REPORT -d ".$table_name." -f \"".$fileFullName."\"";
-				print "File syntax: $fullFileSyntax\n"; 
-				
-				print {$vInputFile} $fullFileSyntax . "\n";
-			}
-			# Map JAVA files 
-			elsif ($fileExt eq "jar"){
-				#FILE -d javalib -f UC_1234.jar
-				my $table_name = substr($file,2,$slashPos-2);
-				print "table_name: $table_name\n";
-				my $fullFileSyntax = "FILE -d ".$table_name." -f \"".$fileFullName."\"";
-				print "File syntax: $fullFileSyntax\n"; 
-				
-				print {$vInputFile} $fullFileSyntax . "\n";
-			}
-			print "------------------------------------------\n\n\n"; 
 		}
-	} 
+	}# end dealing with deleted files
+	
 	close($vInputFile); 
         printf("Moving $lesdir/$SrcInputFile into $ro_dir\n");
 	#eval { make_path($ro_dir,{mode => 0777}) };

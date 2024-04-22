@@ -14,7 +14,7 @@ on:
         description: 'Rollout version'
         required: false
         default: ''
-
+concurrency: production
 jobs:
   # -------------------------------------------------------------
   # Event `pull_request`: Returns all changed pull request files.
@@ -25,7 +25,7 @@ jobs:
     # - A maximum of 3000 files can be returned.
     # - For more flexibility and no limitations see "Using local .git history" above.
 
-    runs-on: self-hosted #ubuntu-latest 
+    runs-on: ubuntu-latest #self-hosted 
     name: Test changed-files
     permissions:
       pull-requests: write
@@ -72,6 +72,8 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
+
+          # to be deleted
       - uses: actions/github-script@v6
         with:
           script: |
@@ -80,45 +82,125 @@ jobs:
             const rawFiles = execSync(`git diff --name-status HEAD HEAD~${commits}`).toString()
             const files = rawFiles.split('\n').filter(Boolean)
             console.log(files) 
-            
+
+      - name: Minor version for each merge
+        id: taggerDryRun
+        uses: anothrNick/github-tag-action@1.36.0
+        env:
+         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+         WITH_V: true
+         DRY_RUN: true
+
+      - name: echo new tag
+        run: |
+         echo "The next tag version will be: ${{ steps.taggerDryRun.outputs.new_tag }}"
+      - name: echo tag
+        run: |
+         echo "The current tag is: ${{ steps.taggerDryRun.outputs.tag }}"
+      - name: echo part
+        run: |
+         echo "The version increment was: ${{ steps.taggerDryRun.outputs.part }}"         
+          
+          # Get list of modifed files for current branch
       - uses: actions/checkout@v3
         with:
          fetch-depth: ${{ github.event_name == 'pull_request' && 2 || 0 }}
       - name: Get changed files
-        id: changed-files
+        id: modified-list
         run: |
-         if ${{ github.event_name == 'pull_request' }}; then
-          echo "changed_files=$(git diff --name-status  -r HEAD^1 HEAD | xargs)" >> $GITHUB_OUTPUT
-         else
-          echo "changed_files=$(git diff  --name-status ${{ github.event.before }} ${{ github.event.after }} | xargs)" >> $GITHUB_OUTPUT
-         fi
-      - name: List changed files
-        run: |
-          for file in ${{ steps.changed-files.outputs.changed_files }}; do
-           echo "$file"
-          done 
-          
+         echo "modified_files=$(git diff --name-status  -r HEAD^1 HEAD | xargs)" >> $GITHUB_OUTPUT
+        # if ${{ github.event_name == 'pull_request' }}; then
+        #echo "modified_files=$(git diff --name-status  -r HEAD^1 HEAD | xargs)" >> $GITHUB_OUTPUT
+        # else
+         # echo "modified_files=$(git diff  --name-status ${{ github.event.before }} ${{ github.event.after }} | xargs)" >> $GITHUB_OUTPUT
+        # fi
+      - name: Check out the repository to the runner
+        uses: actions/checkout@v4  
+    #  - name: List changed files
+    #    run: |
+    #      for file in ${{ steps.changed-files.outputs.changed_files }}; do
+    #       echo "$file"
+     #     done  
+
       - name: Execute Perl Create Rollout script
         run: |
-         perl ${{ github.workspace }}/scripts/createRolloutPackage.pl -n RLTEST1 -d rollout -r inputFile.txt -f -l RLTEST1.log -p -o -m
-      - name: Check output files
-        run: |
-         ls ${{ github.workspace }}/rollout/RLTEST1.tar
+         perl ${{ github.workspace }}/scripts/createRolloutPackageManual.pl -g "${{ steps.modified-list.outputs.modified_files }}" -n "${{ github.head_ref }}-${{ steps.taggerDryRun.outputs.new_tag }}" -d rollout -r inputFile.txt -f -l ${{ github.head_ref }}.log -p -o -m
+     # - name: Check output files
+     #   run: |
+     #     ls ${{ github.workspace }}/rollout/RLTEST1.tar
       - name: Upload tar file
         id: tar-file
         uses: actions/upload-artifact@v4
         with:
           name: output-tar-file
-          path: echo "changed_files= ${{ github.workspace }}/rollout/RLTEST1.tar" >> $GITHUB_OUTPUT  
+          path: ${{ github.workspace }}/rollout/${{ github.head_ref }}-${{ steps.taggerDryRun.outputs.new_tag }}.tar
       - uses: GuillaumeFalourd/copy-push-files@v1
         with:
           email: ${{ github.actor }}[bot]@users.noreply.github.com
           name: ${{ github.actor }}
-          commit_message: "Create package "
+          commit_message: "Create package ${{ github.head_ref }}-${{ steps.taggerDryRun.outputs.new_tag }}.tar "
           target_branch: ${{ github.head_ref }}
-          source_files: ${{ github.workspace }}/rollout/RLTEST1.tar
+          source_files: ${{ github.workspace }}/rollout/${{ github.head_ref }}-${{ steps.taggerDryRun.outputs.new_tag }}.tar
           target_dir: ./rollouts/${{ github.head_ref }}
           remote_repository: https://github.com/${{ github.repository_owner }}/${{ github.event.repository.name }} 
-          access_token: ${{ github.token }} 
+          access_token: ${{ github.token }}    
+          
+      - name: Minor version for each merge
+        id: taggerFinal
+        uses: anothrNick/github-tag-action@1.36.0
+        env:
+         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+         WITH_V: true
+     # - name: Create release notes
+     #   id: release_notes
+     #   run: gh release create ${{ steps.taggerFinal.outputs.new_tag }} --generate-notes
+     #   env:
+    #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - uses: ncipollo/release-action@v1
+        with:
+         artifacts:  ${{ github.workspace }}/rollout/${{ github.head_ref }}-${{ steps.taggerDryRun.outputs.new_tag }}.tar
+         tag: ${{ steps.taggerFinal.outputs.new_tag }}
+      
+   #   - name: Release
+   #     id: create_release_with_new_tag
+   #     uses: softprops/action-gh-release@v2
+    #    if: startsWith(github.ref, 'refs/tags/')
+    #    with:
+    #      body_path: ${{ github.workspace }}/rollout/${{ github.head_ref }}.tar
+   #       repository: ${{ github.event.repository.name }}
+    #      tag_name: ${{ steps.taggerFinal.outputs.new_tag }}
+          # note you'll typically need to create a personal access token
+          # with permissions to create releases in the other repo
+   #       token: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
+   #       files: |
+  #          ${{ github.workspace }}/rollout/${{ github.head_ref }}.tar
+         
+     # - name: Create Release
+     #   id: create_release
+     #   uses: actions/create-release@v1
+     #   env:
+     #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+     #   with:
+     #     tag_name: ${{ steps.taggerFinal.outputs.new_tag }}
+     #     release_name: Release ${{ steps.taggerFinal.outputs.new_tag }}
+     #     draft: false
+     #     prerelease: false
+     # - name: Upload Release Asset
+     #   id: upload-release-asset 
+    #    uses: actions/upload-release-asset@v1
+    #    env:
+    #      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+     #   with:
+    #      upload_url: ${{ steps.create_release_with_new_tag.outputs.url }} 
+    #      asset_path: ${{ github.workspace }}/rollout/${{ github.head_ref }}.tar
+    #      asset_name: ${{ github.head_ref }}.tar
+    #      asset_content_type: application/x-tar    
+     # - name: Execute Perl Create Rollout script
+     #   run: |
+      #   perl ${{ github.workspace }}/scripts/createRolloutPackage.pl -t "${{ runner.workspace }}" -g "${{ steps.changed-files.outputs.changed_files }}" -n RLTEST1 -d rollout -r inputFile.txt -f -o -m
+      
+      #    remote_repository: https://github.com/${{ github.repository_owner }}/${{ github.event.repository.name }} 
+       #   access_token: ${{ github.token }} 
+    
           
      

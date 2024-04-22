@@ -17,8 +17,7 @@ use File::Find;
 use Time::localtime;
 
 my %opts = ();
-#my $lesdir =  "/home/runner/work/SWBYDEMO/SWBYDEMO";
-my $lesdir =  "";
+my $lesdir =  "/home/runner/work/SWBYDEMO/SWBYDEMO";
 my $loaddatatext= "# Load any data affected.  NOTE the assumption is that\n# the control file will be in the db/data/load directory.\n";
 my $replacetext = "# Replacing files affected by extension.\n";
 my $loadexist=0;
@@ -254,6 +253,7 @@ sub get_load_directory
 sub pull_files{
 
 	my %opts = ();
+	my $lesdir = "/home/runner/work/SWBYDEMO/SWBYDEMO";
 	my $ro_dir;
 	my $logfile;
 	my $detailed_output;
@@ -641,6 +641,8 @@ sub package_rollout{
   	#####################################################################
 	# Initial variable declaration and validations
 	#####################################################################
+
+	my $lesdir = "/home/runner/work/SWBYDEMO/SWBYDEMO";
 
 	my %opts = ();
 	my $logfile;
@@ -1075,12 +1077,11 @@ my $ro_script = "# Extension $ro_name\n#\n# This script has been built specifica
 #####################################################################
 
 #get options
-getopts('g:t:d:r:l:ohn:fpbm', \%opts);
+getopts('g:d:r:l:ohn:fpbm', \%opts);
 #perl createRolloutPackage.pl -n RLTEST1 -d rollout -r inputFile.txt -f -l RLTEST1.log -p -o -m
 
 # get the arguments
 $s = $opts{g} if defined($opts{g}); #list of modified files
-$lesdir = $opts{t} if defined($opts{t}); #LESDIR
 $ro = $opts{r} if defined($opts{r}); #-r - required - rollout input file
 $ro_dir = $opts{d} if defined($opts{d}); #-d - required - directory where the rollout input file is located
 $logfile = $opts{l} if defined($opts{l});
@@ -1211,9 +1212,6 @@ if(!$ro_name)
 if($detailed_output){printf( "Creating Rollout Directory \n\nCurrent Time: " . localtime() . "\n\nOptions\nRollout Directory = $ro_dir$ro_name\nlogfile = $logfile\n\nEnvironment:\nLESDIR = $lesdir\nLog directory=$lesdir\log\nRollout Name = $ro_name\n\n");}
 $log = $log . "Creating Rollout Directory \n\nCurrent Time: " . localtime() . "\n\nOptions\nRollout Directory = $ro_dir$ro_name\nlogfile = $logfile\n\nEnvironment:\nLESDIR = $lesdir\nLog directory=$lesdir\log\nRollout Name = $ro_name\n\n";
 
-create_ro_dir($ro_dir);
-#move("$lesdir/$SrcInputFile", "$ro_dir") or die "Move failed: $!";
-
 printf("Check if Input File   $ro_dir.$ro Exists");
 # Check if the Input File exists
 if (!-e  $ro_dir.$ro)
@@ -1221,7 +1219,7 @@ if (!-e  $ro_dir.$ro)
 	printf("Input File Does Not Exist");
 	#my $s = 'A db/data/load/base/bootstraponly/poldat/lc_be03_otm_poldat_swiftlex-2715.csv M src/cmdsrc/usrint/send_lc_be03_otm_transport_plan.mcmd';
 	#my $s = 'A db/data/load/base/bootstraponly/client/client.csv A db/data/load/base/bootstraponly/adrmst/adrmst.csv A db/data/load/base/bootstraponly/client_wh/client_wh.csv';
-	# $s = 'M javalib/barcode4j-2.2.jar M src/cmdsrc/usrint/remove_load-remove_usr_inventory_asset.mtrg A reports/usrint/usr-rfh001-v0110-ffdeliverynote.jrxml M db/ddl/afterrun/90_Rollout_install_insert.msql A db/ddl/prerun/20_delete_data.msql A db/ddl/afterrun/80_integrator_sys_comm.msql';
+	#my $s = 'M javalib/barcode4j-2.2.jar M src/cmdsrc/usrint/remove_load-remove_usr_inventory_asset.mtrg A reports/usrint/usr-rfh001-v0110-ffdeliverynote.jrxml M db/ddl/afterrun/90_Rollout_install_insert.msql A db/ddl/prerun/20_delete_data.msql A db/ddl/afterrun/80_integrator_sys_comm.msql';
 
 	print "Original files:",$s,"\n\n";
 
