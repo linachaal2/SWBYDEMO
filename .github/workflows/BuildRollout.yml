@@ -78,10 +78,13 @@ jobs:
         run: |   
          echo "Commit message :${{ github.event.head_commit.message }}"  
          echo "Commit message 2 :${{ github.event.comment.body }}"
+      - name: Get Head Commit Message
+        id: get_head_commit_message
+        run: echo "HEAD_COMMIT_MESSAGE=$(git show -s --format=%s)" >> "$GITHUB_OUTPUT"   
       - uses: actions-ecosystem/action-regex-match@v2
         id: regex-match
         with:
-          text: ${{ github.event.head_commit.message }}
+          text: ${{ steps.get_head_commit_message.outputs.HEAD_COMMIT_MESSAGE }}
           regex: '#\S*'     
       - name: echo the hash tag from comment message
         run: |
