@@ -141,11 +141,11 @@ jobs:
         env:
          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
          WITH_V: true
-      - name: Create release notes
-        id: release_notes
-        run: gh release create ${{ steps.taggerFinal.outputs.new_tag }} --generate-notes
-        env:
-         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+     # - name: Create release notes
+     #   id: release_notes
+     #   run: gh release create ${{ steps.taggerFinal.outputs.new_tag }} --generate-notes
+     #   env:
+    #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Release
         id: create_release_with_new_tag
         uses: softprops/action-gh-release@v2
@@ -170,16 +170,16 @@ jobs:
      #     release_name: Release ${{ steps.taggerFinal.outputs.new_tag }}
      #     draft: false
      #     prerelease: false
-      - name: Upload Release Asset
-        id: upload-release-asset 
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release_with_new_tag.outputs.url }} 
-          asset_path: ${{ github.workspace }}/rollout/${{ github.head_ref }}.tar
-          asset_name: ${{ github.head_ref }}.tar
-          asset_content_type: application/x-tar    
+     # - name: Upload Release Asset
+     #   id: upload-release-asset 
+    #    uses: actions/upload-release-asset@v1
+    #    env:
+    #      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+     #   with:
+    #      upload_url: ${{ steps.create_release_with_new_tag.outputs.url }} 
+    #      asset_path: ${{ github.workspace }}/rollout/${{ github.head_ref }}.tar
+    #      asset_name: ${{ github.head_ref }}.tar
+    #      asset_content_type: application/x-tar    
      # - name: Execute Perl Create Rollout script
      #   run: |
       #   perl ${{ github.workspace }}/scripts/createRolloutPackage.pl -t "${{ runner.workspace }}" -g "${{ steps.changed-files.outputs.changed_files }}" -n RLTEST1 -d rollout -r inputFile.txt -f -o -m
