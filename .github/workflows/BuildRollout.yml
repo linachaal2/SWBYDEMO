@@ -85,13 +85,17 @@ jobs:
         id: regex-match
         with:
           text: ${{ steps.get_head_commit_message.outputs.HEAD_COMMIT_MESSAGE }}
-          regex: '#\S*'     
+          regex: '#\S*'    
+      - name: print regex value      
+        run: |     
+           echo "print regex value:${{ steps.regex-match.outputs.group1 }}"   
+           echo "print match value:${{ steps.regex-match.outputs.match }}" 
       - name: echo the hash tag from comment message
         id: get_release_bump_type
         shell: bash
         run: |
           if [${{ steps.regex-match.outputs.match }}  != '']; then
-            echo "HASH_BUMP_VALUE: ${{ steps.regex-match.outputs.group1 != '' }}"  >> "$GITHUB_OUTPUT"
+            echo "HASH_BUMP_VALUE: ${{ steps.regex-match.outputs.group1 }}"  >> "$GITHUB_OUTPUT"
           else
             echo "HASH_BUMP_VALUE:PATCH"  >> "$GITHUB_OUTPUT"
           fi    
