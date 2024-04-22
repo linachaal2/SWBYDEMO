@@ -1,0 +1,13 @@
+<command>
+  <name>add lc results set to xml</name>
+  <description>add lc results set to xml</description>
+  <type>Java Method</type>
+  <class>moca.ReplXmlUtils</class>
+  <method>addLcResultSetToXML</method>
+  <argument name="XML_DataString" required="no" datatype="string">Existing XML data string</argument>
+  <argument name="parent_node" required="yes" datatype="string">Parent node to add segments under</argument>
+  <argument name="segment_name" required="yes" datatype="string">Segment name to repeat for each record</argument>
+  <argument name="uppercase_tagnames" default-value="0" required="yes" datatype="integer">1 = make tag names uppercase</argument>
+  <argument name="tagname_prefix" required="yes" datatype="string">prefix for tag names added</argument>
+  <argument name="res" required="yes" datatype="results">Results set holding data, tag is added for each column</argument>
+</command>
