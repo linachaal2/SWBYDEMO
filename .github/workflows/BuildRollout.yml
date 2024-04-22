@@ -14,7 +14,7 @@ on:
         description: 'Rollout version'
         required: false
         default: ''
-
+concurrency: production
 jobs:
   # -------------------------------------------------------------
   # Event `pull_request`: Returns all changed pull request files.
@@ -72,6 +72,8 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
+
+          # to be deleted
       - uses: actions/github-script@v6
         with:
           script: |
@@ -80,10 +82,26 @@ jobs:
             const rawFiles = execSync(`git diff --name-status HEAD HEAD~${commits}`).toString()
             const files = rawFiles.split('\n').filter(Boolean)
             console.log(files) 
-        
-               
+
+      - name: Minor version for each merge
+        id: taggerDryRun
+        uses: anothrNick/github-tag-action@1.36.0
+        env:
+         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+         WITH_V: true
+         DRY_RUN: true
+
+      - name: echo new tag
+        run: |
+         echo "The next tag version will be: ${{ steps.taggerDryRun.outputs.new_tag }}"
+      - name: echo tag
+        run: |
+         echo "The current tag is: ${{ steps.taggerDryRun.outputs.tag }}"
+      - name: echo part
+        run: |
+         echo "The version increment was: ${{ steps.taggerDryRun.outputs.part }}"         
           
-          # Best way to get files
+          # Get list of modifed files for current branch
       - uses: actions/checkout@v3
         with:
          fetch-depth: ${{ github.event_name == 'pull_request' && 2 || 0 }}
@@ -116,15 +134,26 @@ jobs:
         with:
           name: output-tar-file
           path: ${{ github.workspace }}/rollout/${{ github.head_ref }}.tar
-
+          
+      - name: Minor version for each merge
+        id: taggerFinal
+        uses: anothrNick/github-tag-action@1.36.0
+        env:
+         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+         WITH_V: true
+      - name: Create release notes
+        id: release_notes
+        run: gh release create ${{ steps.taggerFinal.outputs.new_tag }} --generate-notes
+        env:
+         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
+          tag_name: ${{ steps.taggerFinal.outputs.new_tag }}
+          release_name: Release ${{ steps.taggerFinal.outputs.new_tag }}
           draft: false
           prerelease: false
       - name: Upload Release Asset
@@ -133,7 +162,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+          upload_url: ${{ steps.create_release.outputs.upload_url }} 
           asset_path: ${{ github.workspace }}/rollout/${{ github.head_ref }}.tar
           asset_name: ${{ github.head_ref }}.tar
           asset_content_type: application/x-tar    
