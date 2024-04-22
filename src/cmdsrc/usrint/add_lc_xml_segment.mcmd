@@ -1,0 +1,10 @@
+<command>
+  <name>add lc xml data segment</name>
+  <description>creates n new XML data segment</description>
+  <type>Java Method</type>
+  <class>moca.ReplXmlUtils</class>
+  <method>addLcXMLSegment</method>
+  <argument name="XML_DataString" datatype="string" />
+  <argument name="parent_node" required="yes" datatype="string" />
+  <argument name="segment_name" required="yes" datatype="string" />
+</command>
