@@ -93,10 +93,10 @@ jobs:
         id: get_release_bump_type
         shell: bash
         run: |
-          if ${{ steps.regex-match.outputs.match != '' }} then
-            echo "HASH_BUMP_VALUE=${{ steps.regex-match.outputs.match }}"  >> "$GITHUB_OUTPUT"
+          if ${{ steps.regex-match.outputs.match != '' }}; then
+            echo "HASH_BUMP_VALUE=${{ steps.regex-match.outputs.match }}"  >> $GITHUB_OUTPUT
           else
-            echo "HASH_BUMP_VALUE='PATCH'"  >> "$GITHUB_OUTPUT"
+            echo "HASH_BUMP_VALUE='PATCH'"  >> $GITHUB_OUTPUT
           fi    
       - name: print release bump value      
         run: |     
