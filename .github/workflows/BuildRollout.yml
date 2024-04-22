@@ -89,7 +89,7 @@ jobs:
         env:
          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
          WITH_V: true
-         DEFAULT_BUMP: patch
+        # DEFAULT_BUMP: patch
          DRY_RUN: true
 
       - name: echo new tag
@@ -152,7 +152,7 @@ jobs:
         env:
          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
          WITH_V: true
-         DEFAULT_BUMP: patch
+        # DEFAULT_BUMP: patch
      # - name: Create release notes
      #   id: release_notes
      #   run: gh release create ${{ steps.taggerFinal.outputs.new_tag }} --generate-notes
