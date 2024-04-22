@@ -149,7 +149,7 @@ jobs:
       - uses: ncipollo/release-action@v1
         with:
          artifacts:  ${{ github.workspace }}/rollout/${{ github.head_ref }}.tar
-         tag_name: ${{ steps.taggerFinal.outputs.new_tag }}
+         tag: ${{ steps.taggerFinal.outputs.new_tag }}
       
    #   - name: Release
    #     id: create_release_with_new_tag
