@@ -63,6 +63,7 @@ jobs:
           echo "git rev-parse ${{ github.sha }}^"
           echo "git rev-parse ${{ github.sha }}^@ | grep -Fvx ${{ github.event.pull_request.head.sha }}"
           echo "Token:${{ secrets.ACCESS_TOKEN }} "
+          echo ${{ github.event.head_commit.message }}
           #export LATEST_BASE_COMMIT=git rev-parse ${{ github.sha }}^@ | grep -Fvx ${{ github.event.pull_request.head.sha }}
           #echo "$LATEST_BASE_COMMIT"
           #git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }}
@@ -89,7 +90,7 @@ jobs:
         env:
          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
          WITH_V: true
-        # DEFAULT_BUMP: patch
+         DEFAULT_BUMP: patch
          DRY_RUN: true
 
       - name: echo new tag
@@ -152,7 +153,7 @@ jobs:
         env:
          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
          WITH_V: true
-        # DEFAULT_BUMP: patch
+         DEFAULT_BUMP: patch
      # - name: Create release notes
      #   id: release_notes
      #   run: gh release create ${{ steps.taggerFinal.outputs.new_tag }} --generate-notes
