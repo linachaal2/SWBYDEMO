@@ -40,10 +40,10 @@ jobs:
         with:
           text: ${{ steps.get_head_commit_message.outputs.HEAD_COMMIT_MESSAGE }}
           regex: '(?<=#)\S*'    
-      - name: print regex value      
+      - name: Print regex value      
         run: |     
            echo "print match value:${{ steps.regex-match.outputs.match }}" 
-      - name: echo the hash tag from comment message
+      - name: Get the bump type from GIT commit message
         id: get_release_bump_type
         shell: bash
         run: |
@@ -52,26 +52,27 @@ jobs:
           else
             echo "HASH_BUMP_VALUE='PATCH'"  >> $GITHUB_OUTPUT
           fi    
-      - name: print release bump value      
+      - name: Print release bump value      
         run: |     
            echo "Final Bump Value: ${{ steps.get_release_bump_type.outputs.HASH_BUMP_VALUE }}"
     
       # Determine the next version without tagging the branch
-      - name: Minor version for each merge
+      - name: Bump version for each merge
         id: taggerDryRun
         uses: anothrNick/github-tag-action@1.67.0
         env:
          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+         DEFAULT_BRANCH: ${{ github.head_ref }}
          WITH_V: true
          DEFAULT_BUMP: ${{ steps.get_release_bump_type.outputs.HASH_BUMP_VALUE }} 
          DRY_RUN: true
-      - name: echo new tag
+      - name: Echo new tag
         run: |
          echo "The next tag version will be: ${{ steps.taggerDryRun.outputs.new_tag }}"
-      - name: echo tag
+      - name: Echo current tag
         run: |
          echo "The current tag is: ${{ steps.taggerDryRun.outputs.tag }}"
-      - name: echo part
+      - name: Echo part
         run: |
          echo "The version increment was: ${{ steps.taggerDryRun.outputs.part }}"         
           
@@ -124,11 +125,12 @@ jobs:
           access_token: ${{ github.token }}    
 
       # Tag the branch with the bump versioning passed in the commit message or Patch by default    
-      - name: Minor version for each merge
+      - name: Tag branch
         id: taggerFinal
         uses: anothrNick/github-tag-action@1.67.0
         env:
          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+         DEFAULT_BRANCH: ${{ github.head_ref }}
          WITH_V: true
          DEFAULT_BUMP: ${{ steps.get_release_bump_type.outputs.HASH_BUMP_VALUE }}
       # - name: Create release notes
