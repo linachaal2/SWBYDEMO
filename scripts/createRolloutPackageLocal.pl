@@ -511,95 +511,6 @@ sub pull_files{
 		$replacetextp = $replacetextp . "CREATEDIR \$lesdir/$component_dir\n";
 
 	}
-
-	#####################################################################
-	# IU - Integrator Unload
-	#####################################################################
-	# if this is for a directory, copy directory
-	elsif(uc($data_type) eq "IU")
-	{
-
-		my $status;
-		my @result;
-		my $unload_statement;
-		my $src_system = $sql_text;
-		my $dest_system = $component_dir;
-		
-		if(!$ifd_list && !$event_list)
-		{
-			if($detailed_output){printf( "Error!  No ifds or events specified to unload.  No integrator unloads will be performed.\n");}
-			$log = $log . "Error!  No ifds or events specified to unload.  No integrator unloads will be performed.\n";
-			$error_text = $error_text .  "- Error!  No ifds or events specified to unload.  No integrator unloads will be performed!\n";
-			$errors_exist = 1;
-		}
-		else
-		{
-			if($detailed_output){printf( "IU\nUnloading Integrator Transaction(s)\n\tIFD List $ifd_list\n\tEvent List: $event_list\n");}
-			$log = $log . "IU\nUnloading Integrator Transaction(s)\n\tIFD List $ifd_list\n\tEvent List: $event_list\n";
-		
-			if(!$ifd_list)
-			{
-				$ifd_list = "NULL";
-			}
-			if(!$event_list)
-			{
-				$event_list = "NULL"
-			
-			}
-			
-			if(!$file)
-			{
-				if($detailed_output){printf( "No filename specified for integrator unload.  Using default: $ro_name.slexp\n");}
-				$log = $log . "No filename specified for integrator unload.  Using default: $ro_name.slexp\n";
-				$file = $ro_name . ".slexp";
-			}
-			else
-			{
-				if($detailed_output){printf( "Unloading to file: $file\n");}
-				$log = $log . "Unloading to file: $file\n";
-			}
-			my $full_path = $lesdir . "/db/data/integrator/". $file;
-			
-			if(-e $full_path)
-			{
-				if($detailed_output){printf( "Unload already exists: $file\nDeleting...\n");}
-				$log = $log . "Unload already exists: $file\nDeleting...\n";
-				unlink($full_path);
-			}
-			
-			my $unload_statement = "sl_list dependencies where evt_list = \"$event_list\" and ifd_list = \"$ifd_list\" and unload_filename = '$full_path'";
-			if($src_system)
-			{
-				$unload_statement = $unload_statement . " and TRG_SYS_ID = '$src_system'";
-			}
-			if($dest_system)
-			{
-				$unload_statement = $unload_statement . " and DEST_SYS_ID = '$dest_system'";
-			}
-			
-			if($detailed_output){printf( "Unload statement: $unload_statement\n");}
-			$log = $log . "Unload statement: $unload_statement\n";
-			($status, @result) = &MSQLExec($unload_statement);
-			if($detailed_output){printf( "status: $status\nresult: @result\n");}
-			if($status)
-			{
-				if($detailed_output){printf( "Error unloading integrator transaction(s)\n\tIFD List $ifd_list\n\tEvent List: $event_list\n");}
-				$log = $log . "Error unloading integrator transaction(s)\n\tIFD List $ifd_list\n\tEvent List: $event_list\n";
-				$error_text = $error_text .  "- Error unloading integrator transaction(s)\n\t- IFD List $ifd_list\n\t- Event List: $event_list\n";
-				$errors_exist = 1;
-			}
-			else
-			{
-				if($detailed_output){printf( "Succesfully unloaded integrator transaction(s)\n\tIFD List $ifd_list\n\tEvent List: $event_list\n");}
-				$log = $log . "Succesfully unloaded integrator transaction(s)\n\tIFD List $ifd_list\n\tEvent List: $event_list\n";
-				
-				create_ro_dir($ro_dir.$ro_name . "/pkg/db/data/integrator");
-				copy_ro_file($lesdir . "/db/data/integrator",$file,$ro_dir.$ro_name . "/pkg/db/data/integrator");
-			
-			}
-
-		}
-	}
 	else
 	{
 		if($detailed_output){printf( "Invalid option for component type: $data_type\n\n");}
@@ -1361,6 +1272,13 @@ if (!-e  $ro_dir.$ro)
 				elsif ($fileExt eq "properties" ){
 					#MTF -f UcTest1.properties
 					my $fullFileSyntax = "MTF -f \"".$fileFullName."\"";
+					print "File syntax: $fullFileSyntax\n"; 		
+					print {$vInputFile} $fullFileSyntax . "\n";
+				}
+				# Map Integrator files  
+				elsif ($fileExt eq "slexp" ){
+					#INT -f UC_1234.slexp
+					my $fullFileSyntax = "INT -f \"".$fileFullName."\"";
 					print "File syntax: $fullFileSyntax\n"; 		
 					print {$vInputFile} $fullFileSyntax . "\n";
 				}
