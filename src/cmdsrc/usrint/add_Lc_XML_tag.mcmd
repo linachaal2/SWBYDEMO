@@ -1,0 +1,16 @@
+<command>
+  <name>add lc xml data tag</name>
+  <description>adds a new XML data tag</description>
+  <type>Java Method</type>
+  <class>moca.ReplXmlUtils</class>
+  <method>addLcXMLtag</method>
+  <argument name="XML_DataString" datatype="string" />
+  <argument name="parent_node" required="yes" datatype="string" />
+  <argument name="tag_name" required="yes" datatype="string" />
+  <argument name="value" required="no" datatype="string" />
+  <documentation>
+<remarks></remarks>
+<exception value="eOK">Normal successful completion</exception>
+
+</documentation>
+</command>
