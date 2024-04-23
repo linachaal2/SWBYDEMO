@@ -52,24 +52,29 @@ my $remove_ro_text = "# Removing files removed by extension.\n";
 my $log = "";
 my $SrcInputFile ="";
 my $vOutputFile;
+
 #####################################################################
 # show usage()
 #####################################################################
-#perl createRolloutPackage.pl -n RLTEST1 -d rollout -r inputFile.txt -f -l test1.log
+
+#perl /home/runner/work/SWBYDEMO/SWBYDEMO/scripts/createRolloutPackageManual.pl -g "A src/cmdsrc/usrint/add_Lc_XML_tag.mcmd M src/cmdsrc/usrint/add_lc_file_to_xml.mcmd" -t "/home/runner/work/SWBYDEMO/SWBYDEMO" -n "B6-v1.1.2" -d rollout -r inputFile.txt -f -l B6.log -p -o -m
 sub show_usage {
   die "Correct usage for $0 is as follows:\n"   
         . "$0\n"
+	. "\t-g <List of modified files>\n"
+        . "\t-t <Workspace path of GIT repository, replaces LESDIR>\n"
         . "\t-n <Rollout Name>\n"
         . "\t-d <Rollout Directory - path from \$lesdir where the rollout package will be created>\n"
         . "\t-r <Rollout Input File>\n"
         . "\t-f <Force delete of package if it already exists>\n"
-        . "\t-p <create the rollout script and package this to a tar file after pulling all components>\n"
-        . "\t-b <create the rollout script>\n"
-        . "\t-m <create a readme file>\n"
+        . "\t-p <Create the rollout script and package this to a tar file after pulling all components>\n"
+        . "\t-b <Create the rollout script>\n"
+        . "\t-m <Create a readme file>\n"
         . "\t-l <Log File - file will be written to LESDIR/log directory>\n"
-        . "\t-o show detailed output\n"
+        . "\t-o Show detailed output\n"
         . "\t-h <Help - this screen>\n";
 }#show_usage
+
 #####################################################################
 # write_log()
 #
@@ -88,6 +93,7 @@ sub write_log{
 		$log = "";
 	}
 }#write_log
+
 #####################################################################
 # create_ro_dir($fulldir)
 #	$fulldir - this is the full directory path for the directory to
@@ -213,6 +219,7 @@ sub copy_ro_file
 	}
 	
 }#copy_ro_file
+
 #####################################################################
 # get_load_directory($table)
 #	$table - table name
@@ -242,6 +249,7 @@ sub get_load_directory
 	}
 	return $loaddir;
 }#get_load_directory
+
 #####################################################################
 # pull_files($cmd_string)
 #	$cmd_string - command line parameters from the ro input file
@@ -617,7 +625,17 @@ sub pull_files{
 	
 }#pull_files
 
-
+#####################################################################
+# package_rollout($cmd_string)
+#	$cmd_string - command line parameters from the ro input file
+#
+# this will look through a directory to determine what components are 
+# included in the rollout and build the rollout script and potentially
+# tar up the directory
+# 
+# this initially started as a separate perl script, so it is expecting
+# parameters as -a, -b, etc. in a string
+#####################################################################
 sub package_rollout{
 
 	
@@ -656,7 +674,7 @@ sub package_rollout{
 	my $rebuildtext;
 	my $pack;
 	my $readme;
-my $ro_script = "# Extension $ro_name\n#\n# This script has been built specifically to deploy patch $ro_name\n";
+        my $ro_script = "# Extension $ro_name\n#\n# This script has been built specifically to deploy patch $ro_name\n";
 	#get options
 	getopts('d:l:ohpm', \%opts);
 
