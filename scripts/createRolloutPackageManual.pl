@@ -378,8 +378,8 @@ sub pull_files{
 	{
 		if($detailed_output){printf( "LABEL\nPulling Label file: $file\n");}
 		$log = $log . "LABEL\nPulling Label file: $file\n";
-		create_ro_dir($ro_dir.$ro_name . "/pkg/labels/$component_dir");
-		copy_ro_file($lesdir . "/labels/$component_dir",$file,$ro_dir.$ro_name . "/pkg/labels/$component_dir");
+		create_ro_dir($ro_dir.$ro_name . "/pkg/labels/usrint/$component_dir");
+		copy_ro_file($lesdir . "/labels/usrint/$component_dir",$file,$ro_dir.$ro_name . "/pkg/labels/usrint/$component_dir");
 	}
 
 	#####################################################################
