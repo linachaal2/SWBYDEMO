@@ -22,6 +22,7 @@ my $loaddatatext= "# Load any data affected.  NOTE the assumption is that\n# the
 my $replacetext = "# Replacing files affected by extension.\n";
 my $loadexist=0;
 my $mocaexist=0;
+my $intexist=0;
 my $ro_dir;
 my $ro;
 my $s;
@@ -579,7 +580,7 @@ sub package_rollout{
 	my $rebuildtext;
 	my $pack;
 	my $readme;
-my $ro_script = "# Extension $ro_name\n#\n# This script has been built specifically to deploy patch $ro_name\n";
+    my $ro_script = "# Extension $ro_name\n#\n# This script has been built specifically to deploy patch $ro_name\n";
 	#get options
 	getopts('d:l:ohpm', \%opts);
 
@@ -759,6 +760,39 @@ my $ro_script = "# Extension $ro_name\n#\n# This script has been built specifica
 	{
 		if($detailed_output){printf("No MLOADS found...Continuing\n\n");}
 		$log = $log . "No MLOADS found...Continuing\n\n";
+	}
+
+    #####################################################################
+	# Integrator Loads
+	#####################################################################
+	if($detailed_output){printf( "Checking for Integrator Loads\n");}
+	$log = $log . "Checking for Integrator Loads\n";
+	
+	my $intdir = "$lesdir/$ro_dir/pkg/db/data/integrator";
+	#find({ wanted => \&writeint, no_chdir} => \&nochdir, $intdir);
+	find(\&writeint, $intdir);
+   
+	sub writeint
+	{
+		if(!-d $File::Find::name)
+		{
+			my $intfile = $_;
+			
+			if($detailed_output){printf("Found Integraotr Load: \n\tfile = $intfile\n\tdirectory = $intdir\nWriting REPLACE and IMPORTSLDATA lines to rollout script for $intfile\n\n");}
+			$log = $log . "Found Integraotr Load: \n\tfile = $intfile\n\tdirectory = $intdir\nWriting REPLACE and IMPORTSLDATA lines to rollout script for $intfile \n\tREPLACE pkg/db/data/load/base/$intdir/$intfile \$LESDIR/db/data/load/base/$intdir\n\tUPDATESLDATA \$LESDIR/db/data/load/base/$intdir/$intfile\n\n";
+			$replacetext = $replacetext . "REPLACE pkg/db/data/integrator/$intfile \$LESDIR/db/data/integrator\n";
+			#$importsldatatext = $importsldatatext . "IMPORTSLDATA \$LESDIR/db/data/integrator/$intfile\n";
+			$importsldatatext = $importsldatatext . "UPDATESLDATA \$LESDIR/db/data/integrator/$intfile\n";
+			
+			$intexist = 1;
+			$component_text = $component_text . "\tdb/data/integrator/$intfile\n";
+		}
+	}
+
+	if(!$intexist)
+	{
+		if($detailed_output){printf("No Integrator Loads found...Continuing\n\n");}
+		$log = $log . "No Integrator Loads found...Continuing\n\n";
 	}
 
 	#####################################################################
@@ -984,7 +1018,7 @@ my $ro_script = "# Extension $ro_name\n#\n# This script has been built specifica
 	if($detailed_output){printf("Creating rollout script $ro_name\n\n");}
 	$log = $log . "Creating rollout script $ro_name\n\n";
 	open(OUTF, ">>$lesdir/$ro_dir/$ro_name");
-	print OUTF $ro_script . "\n" . $replacetext . "\n". $rotext . "\n"  . $remove_ro_text . "\n" . $runhighsqltext . "\n" . $loaddatatext . "\n" . $importsldatatext . "\n" . $runlowsqltext . "\n" . $rebuildpretext . "\n" . $rebuildtext . "\n" . $mbuildtext . "\n" . "#END OF SCRIPT";
+	print OUTF $ro_script . "\n" . $remove_ro_text . "\n" . $runhighsqltext . "\n" .  $replacetext . "\n". $rotext . "\n" . $loaddatatext . "\n" . $importsldatatext . "\n" . $runlowsqltext . "\n" . $rebuildpretext . "\n" . $rebuildtext . "\n" . $mbuildtext . "\n" . $runhighsqltext . "\n"  ."#END OF SCRIPT";
 	close(OUTF);
 	
 	$log = $log . "Created Rollout file $ro_name in $lesdir/$ro_dir \n\n";
