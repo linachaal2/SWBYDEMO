@@ -6,6 +6,8 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
+    env: 
+     CUSTOMER_NAME: ${{ secrets.CUSTOMER_NAME }}     
     steps:
       - name: my-helloWorldGreeting
         run: |
@@ -83,7 +85,7 @@ jobs:
          echo "modified_files= A db/data/load/base/bootstraponly/poldat/lc_be03_otm_poldat_swiftlex-2715.csv M src/cmdsrc/usrint/send_lc_be03_otm_transport_plan.mcmd" >> $GITHUB_OUTPUT  
      - name: Execute Perl Create Rollout script
        run: |
-         perl ${{ github.workspace }}/scripts/createRolloutPackageManual.pl -g "${{ steps.modified-list.outputs.modified_files }}" -n RLTEST1 -d rollout -r inputFile.txt -f -l RLTEST1.log -p -o -m
+         perl ${{ github.workspace }}/scripts/createRolloutPackageManual.pl - $CUSTOMER_NAME -g "${{ steps.modified-list.outputs.modified_files }}" -n RLTEST1 -d rollout -r inputFile.txt -f -l RLTEST1.log -p -o -m
      - name: Check output files
        run: |
          ls ${{ github.workspace }}/rollout/RLTEST1.tar
