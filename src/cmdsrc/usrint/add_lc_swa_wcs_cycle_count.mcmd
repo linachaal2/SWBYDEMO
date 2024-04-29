@@ -1,0 +1,71 @@
+<command>
+  <name>add lc swa wcs cycle count</name>
+  <description>add lc swa wcs cycle count</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/*Command to add record to custom table when WCS Cycle Count is created, there is no standard command that does this.*/
+list lc swa count batch details
+ where wh_id = nvl(@wh_id, @@wh_id)
+   and cntbat = @cntbat catch(-1403)
+|
+list lc swa filterlines catch(-1403)
+|
+if (@? = 0)
+{
+    create record
+     where table = 'usr_lc_swa_wcs_cntbat'
+       and wh_id = nvl(@wh_id, @@wh_id)
+       and cntbat = @cntbat
+       and prtnum = @prtnum
+       and subnum = @subnum
+       and stoloc = @stoloc
+       and lotnum = @lotnum
+       and ins_dte = sysdate
+       and ins_usr_id = nvl(@usr_id, @@usr_id)
+}
+else
+{
+    /*No available command exists - Getting the required fields if the item is blank on the screen*/
+    [select prtnum,
+            prt_client_id
+       from all_inventory_view
+      where all_inventory_view.wh_id = @wh_id
+        and all_inventory_view.stoloc = @stoloc
+      group by all_inventory_view.prt_client_id,
+            all_inventory_view.prtnum] catch(-1403)
+    |
+    if (@? = 0)
+    {
+        /*Command to return count details at subnum level, there is no standard command that does this. */
+        [select all_inventory_view.subnum,
+                all_inventory_view.prtnum
+           from all_inventory_view
+          where all_inventory_view.wh_id = @wh_id
+            and all_inventory_view.stoloc = @stoloc
+            and all_inventory_view.prtnum = @prtnum
+            and all_inventory_view.prt_client_id = @prt_client_id
+          group by all_inventory_view.subnum,
+                all_inventory_view.prtnum]
+        |
+        create record
+         where table = 'usr_lc_swa_wcs_cntbat'
+           and wh_id = nvl(@wh_id, @@wh_id)
+           and cntbat = @cntbat
+           and prtnum = @prtnum
+           and subnum = @subnum
+           and stoloc = @stoloc
+           and lotnum = @lotnum
+           and ins_dte = sysdate
+           and ins_usr_id = nvl(@usr_id, @@usr_id)
+    }
+    else
+    {
+        set return status
+         where code = '9999'
+           and error_message = 'No Item present in the location'
+    }
+};
+]]>
+</local-syntax>
+</command>
