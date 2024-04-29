@@ -74,6 +74,7 @@ jobs:
     
   get-input-file-for-perl-script:
     runs-on: ubuntu-latest
+    environment: RFH
     env: 
      CUSTOMER_NAME: ${{ vars.CUSTOMER_NAME }}
     steps:
