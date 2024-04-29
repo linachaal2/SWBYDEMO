@@ -75,8 +75,9 @@ my $vOutputFile;
 sub show_usage {
   die "Correct usage for $0 is as follows:\n"   
         . "$0\n"
-	. "\t-g <List of modified files>\n"
+		. "\t-g <List of modified files>\n"
         . "\t-t <Workspace path of GIT repository, replaces LESDIR>\n"
+		. "\t-c <Customer Name>\n"
         . "\t-n <Rollout Name>\n"
         . "\t-d <Rollout Directory - path from \$LESDIR where the rollout package will be created>\n"
         . "\t-r <Rollout Input File>\n"
@@ -587,7 +588,7 @@ sub pull_files{
 				if($detailed_output){printf( "Unloading to file: $file\n");}
 				$log = $log . "Unloading to file: $file\n";
 			}
-			my $full_path = $lesdir . "/db/data/integrator/". $file;
+			my $full_path = $LESDIR . "/db/data/integrator/". $file;
 			
 			if(-e $full_path)
 			{
@@ -623,7 +624,7 @@ sub pull_files{
 				$log = $log . "Succesfully unloaded integrator transaction(s)\n\tIFD List $ifd_list\n\tEvent List: $event_list\n";
 				
 				create_ro_dir($ro_dir.$ro_name . "/pkg/db/data/integrator");
-				copy_ro_file($lesdir . "/db/data/integrator",$file,$ro_dir.$ro_name . "/pkg/db/data/integrator");
+				copy_ro_file($LESDIR . "/db/data/integrator",$file,$ro_dir.$ro_name . "/pkg/db/data/integrator");
 			
 			}
 
