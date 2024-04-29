@@ -75,7 +75,7 @@ jobs:
   get-input-file-for-perl-script:
     runs-on: ubuntu-latest
     env: 
-     CUSTOMER_NAME: ${{ secrets.CUSTOMER_NAME }}
+     CUSTOMER_NAME: ${{ vars.CUSTOMER_NAME }}
     steps:
      
      - name: Check out the repository to the runner
