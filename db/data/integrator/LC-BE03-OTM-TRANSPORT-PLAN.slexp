@@ -1,0 +1,746 @@
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_alg_def_grp
+SL_VERSION,alg_grp_id,alg_grp_descr,val_in_bnd_var_flg,val_out_bnd_var_flg
+2019.1,'SHIPPING','Group - Shipping','T','T'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_alg_def
+SL_VERSION,alg_id,alg_grp_id,alg_typ_cd,alg_descr,need_evt_flg,need_evt_arg_flg,need_next_eo_seg_flg,need_this_eo_seg_flg,var_arg_list_flg,overstack_arg_flg,always_local_flg,code,code_len
+2019.1,'LC_GET_OTM_CLIENT_ID','SL_IFD_FLD','MOCA','Get KN OTM client ID','F','F','F','F','F','F','T','list lc otm inbound client info catch(-1403)','44'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_alg_def
+SL_VERSION,alg_id,alg_grp_id,alg_typ_cd,alg_descr,need_evt_flg,need_evt_arg_flg,need_next_eo_seg_flg,need_this_eo_seg_flg,var_arg_list_flg,overstack_arg_flg,always_local_flg,code,code_len
+2019.1,'LC_GET_OTM_WH_ID','SL_IFD_FLD','MOCA','Get KN OTM warehouse ID','F','F','F','F','F','F','T','list lc otm inbound warehouse info catch(-1403)','47'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_alg_def
+SL_VERSION,alg_id,alg_grp_id,alg_typ_cd,alg_descr,need_evt_flg,need_evt_arg_flg,need_next_eo_seg_flg,need_this_eo_seg_flg,var_arg_list_flg,overstack_arg_flg,always_local_flg,code,code_len
+2019.1,'LC_DEL_BE03_OTM_SHIP','SL_IFD_SEG_PROC','MOCA','delete OTM shipment if it''s not allocated yet','F','F','F','F','F','F','T','delete lc be03 otm inbound shipment where host_ship_id = :i_c_cons_ship and host_client_id = :i_c_host_client_id and wh_id = :i_c_wh_id','135'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_alg_def
+SL_VERSION,alg_id,alg_grp_id,alg_typ_cd,alg_descr,need_evt_flg,need_evt_arg_flg,need_next_eo_seg_flg,need_this_eo_seg_flg,var_arg_list_flg,overstack_arg_flg,always_local_flg,code,code_len
+2019.1,'LC_PRC_BE03_OTM_SHIP_ORD_ALG','SL_IFD_SEG_PROC','MOCA','process OTM shipment for order','F','F','F','F','T','T','T','process lc be03 otm inbound shipment pre conversion for order where <<OVERSTACKED_ARGS>>','88'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_alg_def
+SL_VERSION,alg_id,alg_grp_id,alg_typ_cd,alg_descr,need_evt_flg,need_evt_arg_flg,need_next_eo_seg_flg,need_this_eo_seg_flg,var_arg_list_flg,overstack_arg_flg,always_local_flg,code,code_len
+2019.1,'LC_BE03_OTM_SERV_ATTR_ALG','SL_IFD_SEG_PROC','MOCA','process OTM service attributes','F','F','F','F','F','T','T','process lc be03 otm service attribute for order where  <<OVERSTACKED_ARGS>> and value=:i_c_value and client_id = :i_c_client_id and wh_id = :i_c_wh_id and ordnum =  :i_c_ordnum and carcod= :i_c_carcod and srvlvl= :i_c_srvlvl','224'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_alg_def
+SL_VERSION,alg_id,alg_grp_id,alg_typ_cd,alg_descr,need_evt_flg,need_evt_arg_flg,need_next_eo_seg_flg,need_this_eo_seg_flg,var_arg_list_flg,overstack_arg_flg,always_local_flg,code,code_len
+2019.1,'LC_OTM_BE03_PARAM_VAL_ALG','SHIPPING','MOCA','Algorithm to insert parameter values in the serv_opt_param table','F','F','F','F','F','F','F','process lc be03 otm parameter value
+ where value = :i_c_value
+   and name = :i_c_name
+   and client_id = :i_c_client_id
+   and wh_id = :i_c_wh_id
+   and ordnum = :i_c_ordnum
+   and opt_id = :i_c_opt_id
+   and carcod = :i_c_carcod
+   and srvlvl = :i_c_srvlvl','257'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_alg_in_bnd_var
+SL_VERSION,alg_id,in_bnd_var_id,bnd_var_tag
+2019.1,'LC_DEL_BE03_OTM_SHIP','I_C_CONS_SHIP',''
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_alg_in_bnd_var
+SL_VERSION,alg_id,in_bnd_var_id,bnd_var_tag
+2019.1,'LC_DEL_BE03_OTM_SHIP','I_C_HOST_CLIENT_ID',''
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_alg_in_bnd_var
+SL_VERSION,alg_id,in_bnd_var_id,bnd_var_tag
+2019.1,'LC_DEL_BE03_OTM_SHIP','I_C_WH_ID',''
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_alg_in_bnd_var
+SL_VERSION,alg_id,in_bnd_var_id,bnd_var_tag
+2019.1,'CONVERT_EARLY_DEV_DT_TO_UTC','I_C_EARLY_DEV_DT',''
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_alg_in_bnd_var
+SL_VERSION,alg_id,in_bnd_var_id,bnd_var_tag
+2019.1,'CONVERT_EARLY_SHP_DT_TO_UTC','I_C_EARLY_SHP_DT',''
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_alg_in_bnd_var
+SL_VERSION,alg_id,in_bnd_var_id,bnd_var_tag
+2019.1,'CONVERT_LATE_DEV_DT_TO_UTC','I_C_LATE_DEV_DT',''
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_alg_in_bnd_var
+SL_VERSION,alg_id,in_bnd_var_id,bnd_var_tag
+2019.1,'CONVERT_LATE_SHP_DT_TO_UTC','I_C_LATE_SHP_DT',''
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_alg_in_bnd_var
+SL_VERSION,alg_id,in_bnd_var_id,bnd_var_tag
+2019.1,'LC_BE03_OTM_SERV_ATTR_ALG','I_C_CARCOD',''
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_alg_in_bnd_var
+SL_VERSION,alg_id,in_bnd_var_id,bnd_var_tag
+2019.1,'LC_BE03_OTM_SERV_ATTR_ALG','I_C_CLIENT_ID',''
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_alg_in_bnd_var
+SL_VERSION,alg_id,in_bnd_var_id,bnd_var_tag
+2019.1,'LC_BE03_OTM_SERV_ATTR_ALG','I_C_ORDNUM',''
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_alg_in_bnd_var
+SL_VERSION,alg_id,in_bnd_var_id,bnd_var_tag
+2019.1,'LC_BE03_OTM_SERV_ATTR_ALG','I_C_SRVLVL',''
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_alg_in_bnd_var
+SL_VERSION,alg_id,in_bnd_var_id,bnd_var_tag
+2019.1,'LC_BE03_OTM_SERV_ATTR_ALG','I_C_VALUE',''
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_alg_in_bnd_var
+SL_VERSION,alg_id,in_bnd_var_id,bnd_var_tag
+2019.1,'LC_BE03_OTM_SERV_ATTR_ALG','I_C_WH_ID',''
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_alg_in_bnd_var
+SL_VERSION,alg_id,in_bnd_var_id,bnd_var_tag
+2019.1,'LC_OTM_BE03_PARAM_VAL_ALG','I_C_CARCOD',''
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_alg_in_bnd_var
+SL_VERSION,alg_id,in_bnd_var_id,bnd_var_tag
+2019.1,'LC_OTM_BE03_PARAM_VAL_ALG','I_C_CLIENT_ID',''
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_alg_in_bnd_var
+SL_VERSION,alg_id,in_bnd_var_id,bnd_var_tag
+2019.1,'LC_OTM_BE03_PARAM_VAL_ALG','I_C_NAME',''
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_alg_in_bnd_var
+SL_VERSION,alg_id,in_bnd_var_id,bnd_var_tag
+2019.1,'LC_OTM_BE03_PARAM_VAL_ALG','I_C_OPT_ID',''
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_alg_in_bnd_var
+SL_VERSION,alg_id,in_bnd_var_id,bnd_var_tag
+2019.1,'LC_OTM_BE03_PARAM_VAL_ALG','I_C_ORDNUM',''
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_alg_in_bnd_var
+SL_VERSION,alg_id,in_bnd_var_id,bnd_var_tag
+2019.1,'LC_OTM_BE03_PARAM_VAL_ALG','I_C_SRVLVL',''
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_alg_in_bnd_var
+SL_VERSION,alg_id,in_bnd_var_id,bnd_var_tag
+2019.1,'LC_OTM_BE03_PARAM_VAL_ALG','I_C_VALUE',''
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_alg_in_bnd_var
+SL_VERSION,alg_id,in_bnd_var_id,bnd_var_tag
+2019.1,'LC_OTM_BE03_PARAM_VAL_ALG','I_C_WH_ID',''
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_comm_mthd_def
+SL_VERSION,comm_mthd_id,comm_mthd_descr,post_alg_id,pre_alg_id,alg_id,inhibit_ifd_group_flg,comm_dir_cd,comm_mthd_stat_cd
+2019.1,'UC_INB_HTTP','inbound http xml method for receiving from ESB for example','','','SL_PROC_INB_NOOP','','I','A'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_comm_mthd_attr
+SL_VERSION,comm_mthd_id,comm_mthd_attr,comm_mthd_attr_descr,in_bnd_var_id,alg_id
+2019.1,'UC_INB_HTTP','ENABLED','Placeholder attribute for UC_INB_HTTP method','',''
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_retr_mthd_def
+SL_VERSION,retr_mthd_id,retr_mthd_descr
+2019.1,'LC_BE03_OTM_PARAM_VALUE','Paramater Name and Value from OTM'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_retr_mthd_def
+SL_VERSION,retr_mthd_id,retr_mthd_descr
+2019.1,'LC_BE03_OTM_SERVICE_ATTRIBUTE','Service Attribute'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_retr_mthd_def
+SL_VERSION,retr_mthd_id,retr_mthd_descr
+2019.1,'LC_OTM_RELEASE_RM','Release retrieve method'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_retr_mthd_def
+SL_VERSION,retr_mthd_id,retr_mthd_descr
+2019.1,'LC_OTM_SHIP_RM','Shipment retrieve method'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_retr_mthd_def
+SL_VERSION,retr_mthd_id,retr_mthd_descr
+2019.1,'CTRL_SEG_RM','Control segment retrieve method'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_ifd_def
+SL_VERSION,ifd_id,ifd_ver,ifd_descr,ifd_typ_cd,data_lay_id,ifd_grp_id,eo_id,eo_ver,root_seg_rpt_brk_flg,recursive_flg,post_alg_id,pre_alg_id,ifd_tag,post_proc_flg
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN','9.0','Transport Plan (Planned Shipment) interface from OTM to Swiftlog','I','CSV','SHIPPING','','','F','T','','','LC-BE03-OTM-TRANSPORT-PLAN',''
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_ifd_seg
+SL_VERSION,ifd_id,ifd_ver,ifd_seg_id,ifd_seg_rel_pos,ifd_seg_descr,ifd_seg_ordr,eo_id,eo_ver,eo_seg_id,pre_alg_id,post_alg_id,parent_ifd_id,parent_ifd_ver,parent_ifd_seg_id,blk_alg_id,blk_alg_eval_cd,proc_alg_id,xml_use_seg_tag_flg,ifd_seg_tag,sib_is_rel_flg,sync_with_eo_flg,ifd_seg_ol_attr_cd
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN','9.0','CTRL_SEG','','Transmission','10','','','','','','','','','','','','','CTRL_SEG','','',''
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_ifd_seg
+SL_VERSION,ifd_id,ifd_ver,ifd_seg_id,ifd_seg_rel_pos,ifd_seg_descr,ifd_seg_ordr,eo_id,eo_ver,eo_seg_id,pre_alg_id,post_alg_id,parent_ifd_id,parent_ifd_ver,parent_ifd_seg_id,blk_alg_id,blk_alg_eval_cd,proc_alg_id,xml_use_seg_tag_flg,ifd_seg_tag,sib_is_rel_flg,sync_with_eo_flg,ifd_seg_ol_attr_cd
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN','9.0','SHIPMENT','','Shipment SEG','20','','','','','','LC-BE03-OTM-TRANSPORT-PLAN','9.0','CTRL_SEG','','','','','SHIPMENT','','',''
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_ifd_seg
+SL_VERSION,ifd_id,ifd_ver,ifd_seg_id,ifd_seg_rel_pos,ifd_seg_descr,ifd_seg_ordr,eo_id,eo_ver,eo_seg_id,pre_alg_id,post_alg_id,parent_ifd_id,parent_ifd_ver,parent_ifd_seg_id,blk_alg_id,blk_alg_eval_cd,proc_alg_id,xml_use_seg_tag_flg,ifd_seg_tag,sib_is_rel_flg,sync_with_eo_flg,ifd_seg_ol_attr_cd
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN','9.0','ORDER_ASSIGN','','Release','30','','','','','','LC-BE03-OTM-TRANSPORT-PLAN','9.0','SHIPMENT','','','','','ORDER_ASSIGN','','',''
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_ifd_seg
+SL_VERSION,ifd_id,ifd_ver,ifd_seg_id,ifd_seg_rel_pos,ifd_seg_descr,ifd_seg_ordr,eo_id,eo_ver,eo_seg_id,pre_alg_id,post_alg_id,parent_ifd_id,parent_ifd_ver,parent_ifd_seg_id,blk_alg_id,blk_alg_eval_cd,proc_alg_id,xml_use_seg_tag_flg,ifd_seg_tag,sib_is_rel_flg,sync_with_eo_flg,ifd_seg_ol_attr_cd
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN','9.0','SERVICE_ATTRIBUTE','','Release','30','','','','','','LC-BE03-OTM-TRANSPORT-PLAN','9.0','ORDER_ASSIGN','','','','','SERVICE_ATTRIBUTE','','',''
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_ifd_seg
+SL_VERSION,ifd_id,ifd_ver,ifd_seg_id,ifd_seg_rel_pos,ifd_seg_descr,ifd_seg_ordr,eo_id,eo_ver,eo_seg_id,pre_alg_id,post_alg_id,parent_ifd_id,parent_ifd_ver,parent_ifd_seg_id,blk_alg_id,blk_alg_eval_cd,proc_alg_id,xml_use_seg_tag_flg,ifd_seg_tag,sib_is_rel_flg,sync_with_eo_flg,ifd_seg_ol_attr_cd
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN','9.0','PARAM_VALUE','','Paramater Name and Value from OTM','','','','','','','LC-BE03-OTM-TRANSPORT-PLAN','9.0','SERVICE_ATTRIBUTE','','','','','PARAM_VALUE','','',''
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_ifd_fld
+SL_VERSION,ifd_id,ifd_ver,ifd_seg_id,ifd_fld_id,ifd_fld_descr,ifd_fld_ordr,ifd_fld_tag,eo_id,eo_ver,eo_seg_id,eo_fld_id,evt_id,evt_arg_id,eo_fld_grp_func,ifd_fld_sql_ordr,ifd_fld_class_cd,data_typ_cd,fld_alg_id,kw_id,pre_alg_bnd_var_id,fld_val,sql_expr,default_expr,change_expr,fld_jus_cd,fld_fmt,fld_trm_cd,pad_char,trm_char,ifd_fld_len,ifd_fld_attr_cd,create_only_flg,ol_fld_tag,ol_grp_func,validation_cmnt,required_flg,default_val_cmnt,ifd_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN','9.0','CTRL_SEG','SENDER_TRANSMISSION_NO','SENDER_TRANSMISSION_NO','30','','','','','','','','','','','C','','','','','','','','N','','N','','','80','','F','','','','F','','20'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_ifd_fld
+SL_VERSION,ifd_id,ifd_ver,ifd_seg_id,ifd_fld_id,ifd_fld_descr,ifd_fld_ordr,ifd_fld_tag,eo_id,eo_ver,eo_seg_id,eo_fld_id,evt_id,evt_arg_id,eo_fld_grp_func,ifd_fld_sql_ordr,ifd_fld_class_cd,data_typ_cd,fld_alg_id,kw_id,pre_alg_bnd_var_id,fld_val,sql_expr,default_expr,change_expr,fld_jus_cd,fld_fmt,fld_trm_cd,pad_char,trm_char,ifd_fld_len,ifd_fld_attr_cd,create_only_flg,ol_fld_tag,ol_grp_func,validation_cmnt,required_flg,default_val_cmnt,ifd_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN','9.0','CTRL_SEG','TRANSMISSION_TYPE','TRANSMISSION_TYPE','40','','','','','','','','','','','C','','','','','','','','N','','N','','','60','','F','','','Expected value "PlannedShipment"','T','','15'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_ifd_fld
+SL_VERSION,ifd_id,ifd_ver,ifd_seg_id,ifd_fld_id,ifd_fld_descr,ifd_fld_ordr,ifd_fld_tag,eo_id,eo_ver,eo_seg_id,eo_fld_id,evt_id,evt_arg_id,eo_fld_grp_func,ifd_fld_sql_ordr,ifd_fld_class_cd,data_typ_cd,fld_alg_id,kw_id,pre_alg_bnd_var_id,fld_val,sql_expr,default_expr,change_expr,fld_jus_cd,fld_fmt,fld_trm_cd,pad_char,trm_char,ifd_fld_len,ifd_fld_attr_cd,create_only_flg,ol_fld_tag,ol_grp_func,validation_cmnt,required_flg,default_val_cmnt,ifd_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN','9.0','CTRL_SEG','TRNNAM','Transaction ID - Identifier for this IFD.','10','','','','','','','','','','','C','','','','','','','','N','','N','','','120','','F','','','Expected value "LC-BE03-OTM-TRANSPORT-PLAN".','T','','30'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_ifd_fld
+SL_VERSION,ifd_id,ifd_ver,ifd_seg_id,ifd_fld_id,ifd_fld_descr,ifd_fld_ordr,ifd_fld_tag,eo_id,eo_ver,eo_seg_id,eo_fld_id,evt_id,evt_arg_id,eo_fld_grp_func,ifd_fld_sql_ordr,ifd_fld_class_cd,data_typ_cd,fld_alg_id,kw_id,pre_alg_bnd_var_id,fld_val,sql_expr,default_expr,change_expr,fld_jus_cd,fld_fmt,fld_trm_cd,pad_char,trm_char,ifd_fld_len,ifd_fld_attr_cd,create_only_flg,ol_fld_tag,ol_grp_func,validation_cmnt,required_flg,default_val_cmnt,ifd_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN','9.0','CTRL_SEG','TRNVER','Transaction version','20','','','','','','','','','','','C','','','','','','','','N','','N','','','60','','F','','','Expected value "9.0"','F','','15'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_ifd_fld
+SL_VERSION,ifd_id,ifd_ver,ifd_seg_id,ifd_fld_id,ifd_fld_descr,ifd_fld_ordr,ifd_fld_tag,eo_id,eo_ver,eo_seg_id,eo_fld_id,evt_id,evt_arg_id,eo_fld_grp_func,ifd_fld_sql_ordr,ifd_fld_class_cd,data_typ_cd,fld_alg_id,kw_id,pre_alg_bnd_var_id,fld_val,sql_expr,default_expr,change_expr,fld_jus_cd,fld_fmt,fld_trm_cd,pad_char,trm_char,ifd_fld_len,ifd_fld_attr_cd,create_only_flg,ol_fld_tag,ol_grp_func,validation_cmnt,required_flg,default_val_cmnt,ifd_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN','9.0','SHIPMENT','ACTUAL_DELIVERY_DTE','Actual Delivery Date IOD','100','','','','','','','','','','','C','','','','','','','','N','YYYYMMDDHH24MISS','N','','','14','','F','','','','F','',''
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_ifd_fld
+SL_VERSION,ifd_id,ifd_ver,ifd_seg_id,ifd_fld_id,ifd_fld_descr,ifd_fld_ordr,ifd_fld_tag,eo_id,eo_ver,eo_seg_id,eo_fld_id,evt_id,evt_arg_id,eo_fld_grp_func,ifd_fld_sql_ordr,ifd_fld_class_cd,data_typ_cd,fld_alg_id,kw_id,pre_alg_bnd_var_id,fld_val,sql_expr,default_expr,change_expr,fld_jus_cd,fld_fmt,fld_trm_cd,pad_char,trm_char,ifd_fld_len,ifd_fld_attr_cd,create_only_flg,ol_fld_tag,ol_grp_func,validation_cmnt,required_flg,default_val_cmnt,ifd_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN','9.0','SHIPMENT','CARCOD','Carrier code info','120','','','','','','','','','','','C','','','','','','','','N','','N','','','40','','F','','','','F','','10'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_ifd_fld
+SL_VERSION,ifd_id,ifd_ver,ifd_seg_id,ifd_fld_id,ifd_fld_descr,ifd_fld_ordr,ifd_fld_tag,eo_id,eo_ver,eo_seg_id,eo_fld_id,evt_id,evt_arg_id,eo_fld_grp_func,ifd_fld_sql_ordr,ifd_fld_class_cd,data_typ_cd,fld_alg_id,kw_id,pre_alg_bnd_var_id,fld_val,sql_expr,default_expr,change_expr,fld_jus_cd,fld_fmt,fld_trm_cd,pad_char,trm_char,ifd_fld_len,ifd_fld_attr_cd,create_only_flg,ol_fld_tag,ol_grp_func,validation_cmnt,required_flg,default_val_cmnt,ifd_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN','9.0','SHIPMENT','CAR_MOVE_ID','Carrier movde id','140','','','','','','','','','','','C','','','','','','','','N','','N','','','40','','F','','','Currently, no English translation is available.','F','Currently, no English translation is available.','10'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_ifd_fld
+SL_VERSION,ifd_id,ifd_ver,ifd_seg_id,ifd_fld_id,ifd_fld_descr,ifd_fld_ordr,ifd_fld_tag,eo_id,eo_ver,eo_seg_id,eo_fld_id,evt_id,evt_arg_id,eo_fld_grp_func,ifd_fld_sql_ordr,ifd_fld_class_cd,data_typ_cd,fld_alg_id,kw_id,pre_alg_bnd_var_id,fld_val,sql_expr,default_expr,change_expr,fld_jus_cd,fld_fmt,fld_trm_cd,pad_char,trm_char,ifd_fld_len,ifd_fld_attr_cd,create_only_flg,ol_fld_tag,ol_grp_func,validation_cmnt,required_flg,default_val_cmnt,ifd_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN','9.0','SHIPMENT','CONS_SHIP','Consolidated Ship_ID','150','','','','','','','','','','','C','','','','','','','','N','','N','','','160','','F','','','Currently, no English translation is available.','F','Currently, no English translation is available.','40'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_ifd_fld
+SL_VERSION,ifd_id,ifd_ver,ifd_seg_id,ifd_fld_id,ifd_fld_descr,ifd_fld_ordr,ifd_fld_tag,eo_id,eo_ver,eo_seg_id,eo_fld_id,evt_id,evt_arg_id,eo_fld_grp_func,ifd_fld_sql_ordr,ifd_fld_class_cd,data_typ_cd,fld_alg_id,kw_id,pre_alg_bnd_var_id,fld_val,sql_expr,default_expr,change_expr,fld_jus_cd,fld_fmt,fld_trm_cd,pad_char,trm_char,ifd_fld_len,ifd_fld_attr_cd,create_only_flg,ol_fld_tag,ol_grp_func,validation_cmnt,required_flg,default_val_cmnt,ifd_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN','9.0','SHIPMENT','CST_NUM','CSTNUM- Alternate identifier for the customer''s name information','50','','','','','','','','','','','C','','','','','','','','N','','N','','','160','','F','','','','F','','40'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_ifd_fld
+SL_VERSION,ifd_id,ifd_ver,ifd_seg_id,ifd_fld_id,ifd_fld_descr,ifd_fld_ordr,ifd_fld_tag,eo_id,eo_ver,eo_seg_id,eo_fld_id,evt_id,evt_arg_id,eo_fld_grp_func,ifd_fld_sql_ordr,ifd_fld_class_cd,data_typ_cd,fld_alg_id,kw_id,pre_alg_bnd_var_id,fld_val,sql_expr,default_expr,change_expr,fld_jus_cd,fld_fmt,fld_trm_cd,pad_char,trm_char,ifd_fld_len,ifd_fld_attr_cd,create_only_flg,ol_fld_tag,ol_grp_func,validation_cmnt,required_flg,default_val_cmnt,ifd_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN','9.0','SHIPMENT','EARLY_DLVDTE','Early Delivery Date - First day of the delivery range. The delivery range identifies a series of expected delivery dates for the shipment.','80','','','','','','','','','','','C','','','','','','','','N','','N','','','19','','F','','','','F','',''
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_ifd_fld
+SL_VERSION,ifd_id,ifd_ver,ifd_seg_id,ifd_fld_id,ifd_fld_descr,ifd_fld_ordr,ifd_fld_tag,eo_id,eo_ver,eo_seg_id,eo_fld_id,evt_id,evt_arg_id,eo_fld_grp_func,ifd_fld_sql_ordr,ifd_fld_class_cd,data_typ_cd,fld_alg_id,kw_id,pre_alg_bnd_var_id,fld_val,sql_expr,default_expr,change_expr,fld_jus_cd,fld_fmt,fld_trm_cd,pad_char,trm_char,ifd_fld_len,ifd_fld_attr_cd,create_only_flg,ol_fld_tag,ol_grp_func,validation_cmnt,required_flg,default_val_cmnt,ifd_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN','9.0','SHIPMENT','EARLY_SHPDTE','Entered Date - The date the shipment was added to the host system.','60','','','','','','','','','','','C','','','','','','','','N','','N','','','19','','F','','','','F','',''
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_ifd_fld
+SL_VERSION,ifd_id,ifd_ver,ifd_seg_id,ifd_fld_id,ifd_fld_descr,ifd_fld_ordr,ifd_fld_tag,eo_id,eo_ver,eo_seg_id,eo_fld_id,evt_id,evt_arg_id,eo_fld_grp_func,ifd_fld_sql_ordr,ifd_fld_class_cd,data_typ_cd,fld_alg_id,kw_id,pre_alg_bnd_var_id,fld_val,sql_expr,default_expr,change_expr,fld_jus_cd,fld_fmt,fld_trm_cd,pad_char,trm_char,ifd_fld_len,ifd_fld_attr_cd,create_only_flg,ol_fld_tag,ol_grp_func,validation_cmnt,required_flg,default_val_cmnt,ifd_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN','9.0','SHIPMENT','HOST_CLIENT_ID','Host Client ID - The client associated with the host_ship_id.','30','','','','','','','','','','','C','LC_GET_OTM_CLIENT_ID','','','','','','','N','','N','','','128','','F','','','Must exist as a valid client_id in CLIENT table.','T','','32'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_ifd_fld
+SL_VERSION,ifd_id,ifd_ver,ifd_seg_id,ifd_fld_id,ifd_fld_descr,ifd_fld_ordr,ifd_fld_tag,eo_id,eo_ver,eo_seg_id,eo_fld_id,evt_id,evt_arg_id,eo_fld_grp_func,ifd_fld_sql_ordr,ifd_fld_class_cd,data_typ_cd,fld_alg_id,kw_id,pre_alg_bnd_var_id,fld_val,sql_expr,default_expr,change_expr,fld_jus_cd,fld_fmt,fld_trm_cd,pad_char,trm_char,ifd_fld_len,ifd_fld_attr_cd,create_only_flg,ol_fld_tag,ol_grp_func,validation_cmnt,required_flg,default_val_cmnt,ifd_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN','9.0','SHIPMENT','LATE_DLVDTE','Late Delivery Date - Last day of the delivery range. To define a single delivery date, enter the first day of the delivery range.','90','','','','','','','','','','','C','','','','','','','','N','','N','','','19','','F','','','','F','',''
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_ifd_fld
+SL_VERSION,ifd_id,ifd_ver,ifd_seg_id,ifd_fld_id,ifd_fld_descr,ifd_fld_ordr,ifd_fld_tag,eo_id,eo_ver,eo_seg_id,eo_fld_id,evt_id,evt_arg_id,eo_fld_grp_func,ifd_fld_sql_ordr,ifd_fld_class_cd,data_typ_cd,fld_alg_id,kw_id,pre_alg_bnd_var_id,fld_val,sql_expr,default_expr,change_expr,fld_jus_cd,fld_fmt,fld_trm_cd,pad_char,trm_char,ifd_fld_len,ifd_fld_attr_cd,create_only_flg,ol_fld_tag,ol_grp_func,validation_cmnt,required_flg,default_val_cmnt,ifd_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN','9.0','SHIPMENT','LATE_SHPDTE','Late Ship Date - Last day of the shipment range. To define a single shipment date, enter the first day of the shipment range.','70','','','','','','','','','','','C','','','','','','','','N','','N','','','19','','F','','','','F','',''
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_ifd_fld
+SL_VERSION,ifd_id,ifd_ver,ifd_seg_id,ifd_fld_id,ifd_fld_descr,ifd_fld_ordr,ifd_fld_tag,eo_id,eo_ver,eo_seg_id,eo_fld_id,evt_id,evt_arg_id,eo_fld_grp_func,ifd_fld_sql_ordr,ifd_fld_class_cd,data_typ_cd,fld_alg_id,kw_id,pre_alg_bnd_var_id,fld_val,sql_expr,default_expr,change_expr,fld_jus_cd,fld_fmt,fld_trm_cd,pad_char,trm_char,ifd_fld_len,ifd_fld_attr_cd,create_only_flg,ol_fld_tag,ol_grp_func,validation_cmnt,required_flg,default_val_cmnt,ifd_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN','9.0','SHIPMENT','SEGNAM','Shipment','10','','','','','','','','','','','C','','','','','','','','N','','N','','','120','','F','','','Expected value "SHIPMENT"','T','','30'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_ifd_fld
+SL_VERSION,ifd_id,ifd_ver,ifd_seg_id,ifd_fld_id,ifd_fld_descr,ifd_fld_ordr,ifd_fld_tag,eo_id,eo_ver,eo_seg_id,eo_fld_id,evt_id,evt_arg_id,eo_fld_grp_func,ifd_fld_sql_ordr,ifd_fld_class_cd,data_typ_cd,fld_alg_id,kw_id,pre_alg_bnd_var_id,fld_val,sql_expr,default_expr,change_expr,fld_jus_cd,fld_fmt,fld_trm_cd,pad_char,trm_char,ifd_fld_len,ifd_fld_attr_cd,create_only_flg,ol_fld_tag,ol_grp_func,validation_cmnt,required_flg,default_val_cmnt,ifd_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN','9.0','SHIPMENT','SRVLVL','Service Level','130','','','','','','','','','','','C','','','','','','','','N','','N','','','40','','F','','','Currently, no English translation is available.','F','Currently, no English translation is available.','10'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_ifd_fld
+SL_VERSION,ifd_id,ifd_ver,ifd_seg_id,ifd_fld_id,ifd_fld_descr,ifd_fld_ordr,ifd_fld_tag,eo_id,eo_ver,eo_seg_id,eo_fld_id,evt_id,evt_arg_id,eo_fld_grp_func,ifd_fld_sql_ordr,ifd_fld_class_cd,data_typ_cd,fld_alg_id,kw_id,pre_alg_bnd_var_id,fld_val,sql_expr,default_expr,change_expr,fld_jus_cd,fld_fmt,fld_trm_cd,pad_char,trm_char,ifd_fld_len,ifd_fld_attr_cd,create_only_flg,ol_fld_tag,ol_grp_func,validation_cmnt,required_flg,default_val_cmnt,ifd_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN','9.0','SHIPMENT','WH_ID','Warehouse ID','110','','','','','','','','','','','C','LC_GET_OTM_WH_ID','','','','','','','N','','N','','','128','','F','','','Expected value "NLHLM01"','T','','32'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_ifd_fld
+SL_VERSION,ifd_id,ifd_ver,ifd_seg_id,ifd_fld_id,ifd_fld_descr,ifd_fld_ordr,ifd_fld_tag,eo_id,eo_ver,eo_seg_id,eo_fld_id,evt_id,evt_arg_id,eo_fld_grp_func,ifd_fld_sql_ordr,ifd_fld_class_cd,data_typ_cd,fld_alg_id,kw_id,pre_alg_bnd_var_id,fld_val,sql_expr,default_expr,change_expr,fld_jus_cd,fld_fmt,fld_trm_cd,pad_char,trm_char,ifd_fld_len,ifd_fld_attr_cd,create_only_flg,ol_fld_tag,ol_grp_func,validation_cmnt,required_flg,default_val_cmnt,ifd_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN','9.0','ORDER_ASSIGN','CUSTOMS_BROKER_ADR_ID','Customs Broker to the ORD.RTCUST','60','','','','','','','','','','','C','','','','','','','','N','','N','','','160','','F','','','','F','','40'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_ifd_fld
+SL_VERSION,ifd_id,ifd_ver,ifd_seg_id,ifd_fld_id,ifd_fld_descr,ifd_fld_ordr,ifd_fld_tag,eo_id,eo_ver,eo_seg_id,eo_fld_id,evt_id,evt_arg_id,eo_fld_grp_func,ifd_fld_sql_ordr,ifd_fld_class_cd,data_typ_cd,fld_alg_id,kw_id,pre_alg_bnd_var_id,fld_val,sql_expr,default_expr,change_expr,fld_jus_cd,fld_fmt,fld_trm_cd,pad_char,trm_char,ifd_fld_len,ifd_fld_attr_cd,create_only_flg,ol_fld_tag,ol_grp_func,validation_cmnt,required_flg,default_val_cmnt,ifd_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN','9.0','ORDER_ASSIGN','DELIVERY_INSTR','ORD.DLV_CONTACT to hold the Delivery Instructions (RemarkText)','50','','','','','','','','','','','C','','','','','','','','N','','N','','','1024','','F','','','','F','','256'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_ifd_fld
+SL_VERSION,ifd_id,ifd_ver,ifd_seg_id,ifd_fld_id,ifd_fld_descr,ifd_fld_ordr,ifd_fld_tag,eo_id,eo_ver,eo_seg_id,eo_fld_id,evt_id,evt_arg_id,eo_fld_grp_func,ifd_fld_sql_ordr,ifd_fld_class_cd,data_typ_cd,fld_alg_id,kw_id,pre_alg_bnd_var_id,fld_val,sql_expr,default_expr,change_expr,fld_jus_cd,fld_fmt,fld_trm_cd,pad_char,trm_char,ifd_fld_len,ifd_fld_attr_cd,create_only_flg,ol_fld_tag,ol_grp_func,validation_cmnt,required_flg,default_val_cmnt,ifd_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN','9.0','ORDER_ASSIGN','DELIVERY_REFERENCE','ORD_NOTE.NOTTYP to hold the Delivery Reference Consignee (Release Refnum value )','40','','','','','','','','','','','C','','','','','','','','N','','N','','','160','','F','','','','F','','40'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_ifd_fld
+SL_VERSION,ifd_id,ifd_ver,ifd_seg_id,ifd_fld_id,ifd_fld_descr,ifd_fld_ordr,ifd_fld_tag,eo_id,eo_ver,eo_seg_id,eo_fld_id,evt_id,evt_arg_id,eo_fld_grp_func,ifd_fld_sql_ordr,ifd_fld_class_cd,data_typ_cd,fld_alg_id,kw_id,pre_alg_bnd_var_id,fld_val,sql_expr,default_expr,change_expr,fld_jus_cd,fld_fmt,fld_trm_cd,pad_char,trm_char,ifd_fld_len,ifd_fld_attr_cd,create_only_flg,ol_fld_tag,ol_grp_func,validation_cmnt,required_flg,default_val_cmnt,ifd_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN','9.0','ORDER_ASSIGN','HOST_CLIENT_ID','Client ID','80','','','','','','','','','','','C','LC_GET_OTM_CLIENT_ID','','','','','','','N','','N','','','128','','F','','','','F','','32'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_ifd_fld
+SL_VERSION,ifd_id,ifd_ver,ifd_seg_id,ifd_fld_id,ifd_fld_descr,ifd_fld_ordr,ifd_fld_tag,eo_id,eo_ver,eo_seg_id,eo_fld_id,evt_id,evt_arg_id,eo_fld_grp_func,ifd_fld_sql_ordr,ifd_fld_class_cd,data_typ_cd,fld_alg_id,kw_id,pre_alg_bnd_var_id,fld_val,sql_expr,default_expr,change_expr,fld_jus_cd,fld_fmt,fld_trm_cd,pad_char,trm_char,ifd_fld_len,ifd_fld_attr_cd,create_only_flg,ol_fld_tag,ol_grp_func,validation_cmnt,required_flg,default_val_cmnt,ifd_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN','9.0','ORDER_ASSIGN','HOST_SHIP_ID','External Shipment ID - The shipment identifier for the host.','90','','','','','','','','','','','C','','','','','','','','N','','N','','','160','','F','','','Currently, no English translation is available.','F','Currently, no English translation is available.','40'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_ifd_fld
+SL_VERSION,ifd_id,ifd_ver,ifd_seg_id,ifd_fld_id,ifd_fld_descr,ifd_fld_ordr,ifd_fld_tag,eo_id,eo_ver,eo_seg_id,eo_fld_id,evt_id,evt_arg_id,eo_fld_grp_func,ifd_fld_sql_ordr,ifd_fld_class_cd,data_typ_cd,fld_alg_id,kw_id,pre_alg_bnd_var_id,fld_val,sql_expr,default_expr,change_expr,fld_jus_cd,fld_fmt,fld_trm_cd,pad_char,trm_char,ifd_fld_len,ifd_fld_attr_cd,create_only_flg,ol_fld_tag,ol_grp_func,validation_cmnt,required_flg,default_val_cmnt,ifd_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN','9.0','ORDER_ASSIGN','ORDNUM','Order Number - Unique identifier for the order.','20','','','','','','','','','','','C','','','','','','','','N','','N','','','140','','F','','','','T','','35'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_ifd_fld
+SL_VERSION,ifd_id,ifd_ver,ifd_seg_id,ifd_fld_id,ifd_fld_descr,ifd_fld_ordr,ifd_fld_tag,eo_id,eo_ver,eo_seg_id,eo_fld_id,evt_id,evt_arg_id,eo_fld_grp_func,ifd_fld_sql_ordr,ifd_fld_class_cd,data_typ_cd,fld_alg_id,kw_id,pre_alg_bnd_var_id,fld_val,sql_expr,default_expr,change_expr,fld_jus_cd,fld_fmt,fld_trm_cd,pad_char,trm_char,ifd_fld_len,ifd_fld_attr_cd,create_only_flg,ol_fld_tag,ol_grp_func,validation_cmnt,required_flg,default_val_cmnt,ifd_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN','9.0','ORDER_ASSIGN','SEGNAM','Segment Name - Identifier for this IFD segment.','10','','','','','','','','','','','C','','','','','','','','N','','N','','','80','','F','','','Expected value "ORDER_ASSIGN"','T','','20'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_ifd_fld
+SL_VERSION,ifd_id,ifd_ver,ifd_seg_id,ifd_fld_id,ifd_fld_descr,ifd_fld_ordr,ifd_fld_tag,eo_id,eo_ver,eo_seg_id,eo_fld_id,evt_id,evt_arg_id,eo_fld_grp_func,ifd_fld_sql_ordr,ifd_fld_class_cd,data_typ_cd,fld_alg_id,kw_id,pre_alg_bnd_var_id,fld_val,sql_expr,default_expr,change_expr,fld_jus_cd,fld_fmt,fld_trm_cd,pad_char,trm_char,ifd_fld_len,ifd_fld_attr_cd,create_only_flg,ol_fld_tag,ol_grp_func,validation_cmnt,required_flg,default_val_cmnt,ifd_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN','9.0','ORDER_ASSIGN','WH_ID','warehouse ID','70','','','','','','','','','','','C','LC_GET_OTM_WH_ID','','','','','','','N','','N','','','128','','F','','','Expected value "NLHLM01"','F','','32'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_ifd_fld
+SL_VERSION,ifd_id,ifd_ver,ifd_seg_id,ifd_fld_id,ifd_fld_descr,ifd_fld_ordr,ifd_fld_tag,eo_id,eo_ver,eo_seg_id,eo_fld_id,evt_id,evt_arg_id,eo_fld_grp_func,ifd_fld_sql_ordr,ifd_fld_class_cd,data_typ_cd,fld_alg_id,kw_id,pre_alg_bnd_var_id,fld_val,sql_expr,default_expr,change_expr,fld_jus_cd,fld_fmt,fld_trm_cd,pad_char,trm_char,ifd_fld_len,ifd_fld_attr_cd,create_only_flg,ol_fld_tag,ol_grp_func,validation_cmnt,required_flg,default_val_cmnt,ifd_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN','9.0','SERVICE_ATTRIBUTE','VALUE','Service Attribute Value','60','','','','','','','','','','','C','','','','','','','','N','','N','','','140','','F','','','Currently, no English translation is available.','F','Currently, no English translation is available.','35'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_ifd_fld
+SL_VERSION,ifd_id,ifd_ver,ifd_seg_id,ifd_fld_id,ifd_fld_descr,ifd_fld_ordr,ifd_fld_tag,eo_id,eo_ver,eo_seg_id,eo_fld_id,evt_id,evt_arg_id,eo_fld_grp_func,ifd_fld_sql_ordr,ifd_fld_class_cd,data_typ_cd,fld_alg_id,kw_id,pre_alg_bnd_var_id,fld_val,sql_expr,default_expr,change_expr,fld_jus_cd,fld_fmt,fld_trm_cd,pad_char,trm_char,ifd_fld_len,ifd_fld_attr_cd,create_only_flg,ol_fld_tag,ol_grp_func,validation_cmnt,required_flg,default_val_cmnt,ifd_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN','9.0','PARAM_VALUE','NAME','Paramater Name from OTM','10','NAME','','','','','','','','','','C','','','','','','','','N','','N','','','100','','F','','','Currently, no English translation is available.','F','Currently, no English translation is available.','100'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_ifd_fld
+SL_VERSION,ifd_id,ifd_ver,ifd_seg_id,ifd_fld_id,ifd_fld_descr,ifd_fld_ordr,ifd_fld_tag,eo_id,eo_ver,eo_seg_id,eo_fld_id,evt_id,evt_arg_id,eo_fld_grp_func,ifd_fld_sql_ordr,ifd_fld_class_cd,data_typ_cd,fld_alg_id,kw_id,pre_alg_bnd_var_id,fld_val,sql_expr,default_expr,change_expr,fld_jus_cd,fld_fmt,fld_trm_cd,pad_char,trm_char,ifd_fld_len,ifd_fld_attr_cd,create_only_flg,ol_fld_tag,ol_grp_func,validation_cmnt,required_flg,default_val_cmnt,ifd_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN','9.0','PARAM_VALUE','VALUE','Paramater Value from OTM','20','VALUE','','','','','','','','','','C','','','','','','','','N','','N','','','250','','F','','','Currently, no English translation is available.','F','Currently, no English translation is available.','250'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_retr_mthd_impl_def
+SL_VERSION,retr_mthd_id,retr_mthd_impl_genid,sys_id,ifd_id,ifd_ver,ifd_seg_id,retr_mthd_impl_cd,alg_id
+2019.1,'CTRL_SEG_RM','SEG_LC-BE03-OTM-TRANSPORT-PLAN    _9.0            _CTRL_SEG','','LC-BE03-OTM-TRANSPORT-PLAN','9.0','CTRL_SEG','SI',''
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_retr_mthd_impl_def
+SL_VERSION,retr_mthd_id,retr_mthd_impl_genid,sys_id,ifd_id,ifd_ver,ifd_seg_id,retr_mthd_impl_cd,alg_id
+2019.1,'LC_BE03_OTM_PARAM_VALUE','SEG_LC-BE03-OTM-TRANSPORT-PLAN    _9.0            _PARAM_VALUE','','LC-BE03-OTM-TRANSPORT-PLAN','9.0','PARAM_VALUE','SI',''
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_retr_mthd_impl_def
+SL_VERSION,retr_mthd_id,retr_mthd_impl_genid,sys_id,ifd_id,ifd_ver,ifd_seg_id,retr_mthd_impl_cd,alg_id
+2019.1,'LC_BE03_OTM_SERVICE_ATTRIBUTE','SEG_LC-BE03-OTM-TRANSPORT-PLAN    _9.0            _SERVICE_ATTRIBUTE','','LC-BE03-OTM-TRANSPORT-PLAN','9.0','SERVICE_ATTRIBUTE','SI',''
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_retr_mthd_impl_def
+SL_VERSION,retr_mthd_id,retr_mthd_impl_genid,sys_id,ifd_id,ifd_ver,ifd_seg_id,retr_mthd_impl_cd,alg_id
+2019.1,'LC_OTM_RELEASE_RM','SEG_LC-BE03-OTM-TRANSPORT-PLAN    _9.0            _ORDER_ASSIGN','','LC-BE03-OTM-TRANSPORT-PLAN','9.0','ORDER_ASSIGN','SI',''
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_retr_mthd_impl_def
+SL_VERSION,retr_mthd_id,retr_mthd_impl_genid,sys_id,ifd_id,ifd_ver,ifd_seg_id,retr_mthd_impl_cd,alg_id
+2019.1,'LC_OTM_SHIP_RM','SEG_LC-BE03-OTM-TRANSPORT-PLAN    _9.0            _SHIPMENT','','LC-BE03-OTM-TRANSPORT-PLAN','9.0','SHIPMENT','SI',''
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_sql_crsr_component
+SL_VERSION,retr_mthd_id,retr_mthd_impl_genid,sys_id,ifd_id,ifd_ver,ifd_seg_id,sql_component_seq,component_ordr,sql_set_oper,sql_code,sql_code_len
+2019.1,'CTRL_SEG_RM','SEG_LC-BE03-OTM-TRANSPORT-PLAN    _9.0            _CTRL_SEG','','LC-BE03-OTM-TRANSPORT-PLAN','9.0','CTRL_SEG','0','0','','where sl_data_fk = :sl_data_pk','30'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_sql_crsr_component
+SL_VERSION,retr_mthd_id,retr_mthd_impl_genid,sys_id,ifd_id,ifd_ver,ifd_seg_id,sql_component_seq,component_ordr,sql_set_oper,sql_code,sql_code_len
+2019.1,'LC_BE03_OTM_PARAM_VALUE','SEG_LC-BE03-OTM-TRANSPORT-PLAN    _9.0            _PARAM_VALUE','','LC-BE03-OTM-TRANSPORT-PLAN','9.0','PARAM_VALUE','0','0','','where sl_data_fk = :sl_data_pk','30'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_sql_crsr_component
+SL_VERSION,retr_mthd_id,retr_mthd_impl_genid,sys_id,ifd_id,ifd_ver,ifd_seg_id,sql_component_seq,component_ordr,sql_set_oper,sql_code,sql_code_len
+2019.1,'LC_BE03_OTM_SERVICE_ATTRIBUTE','SEG_LC-BE03-OTM-TRANSPORT-PLAN    _9.0            _SERVICE_ATTRIBUTE','','LC-BE03-OTM-TRANSPORT-PLAN','9.0','SERVICE_ATTRIBUTE','0','0','','where sl_data_fk = :sl_data_pk','30'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_sql_crsr_component
+SL_VERSION,retr_mthd_id,retr_mthd_impl_genid,sys_id,ifd_id,ifd_ver,ifd_seg_id,sql_component_seq,component_ordr,sql_set_oper,sql_code,sql_code_len
+2019.1,'LC_OTM_RELEASE_RM','SEG_LC-BE03-OTM-TRANSPORT-PLAN    _9.0            _ORDER_ASSIGN','','LC-BE03-OTM-TRANSPORT-PLAN','9.0','ORDER_ASSIGN','0','0','','where sl_data_fk = :sl_data_pk','30'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_sql_crsr_component
+SL_VERSION,retr_mthd_id,retr_mthd_impl_genid,sys_id,ifd_id,ifd_ver,ifd_seg_id,sql_component_seq,component_ordr,sql_set_oper,sql_code,sql_code_len
+2019.1,'LC_OTM_SHIP_RM','SEG_LC-BE03-OTM-TRANSPORT-PLAN    _9.0            _SHIPMENT','','LC-BE03-OTM-TRANSPORT-PLAN','9.0','SHIPMENT','0','0','','where sl_data_fk = :sl_data_pk','30'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_evt_def_grp
+SL_VERSION,evt_grp_id,evt_grp_descr
+2019.1,'SHIPPING','Group - Shipping'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_evt_def
+SL_VERSION,evt_id,evt_descr,log_evt_flg,evt_grp_id
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN','Transport Plan (Planned Shipment) interface from OTM to Swiftlog','F','SHIPPING'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_eo_def
+SL_VERSION,eo_id,eo_ver,eo_descr,evt_id,always_create_flg
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN','9.0','Transport Plan (Planned Shipment) interface from OTM to Swiftlog','LC-BE03-OTM-TRANSPORT-PLAN',''
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_eo_seg
+SL_VERSION,eo_id,eo_ver,eo_seg_id,eo_seg_descr,parent_eo_id,parent_eo_ver,parent_eo_seg_id,blk_alg_id,blk_alg_eval_cd,retr_mthd_id,eo_seg_ordr
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN','9.0','ROOT','Root Segment','','','','','','CTRL_SEG_RM','10'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_eo_seg
+SL_VERSION,eo_id,eo_ver,eo_seg_id,eo_seg_descr,parent_eo_id,parent_eo_ver,parent_eo_seg_id,blk_alg_id,blk_alg_eval_cd,retr_mthd_id,eo_seg_ordr
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN','9.0','SHIPMENT','Shipment','LC-BE03-OTM-TRANSPORT-PLAN','9.0','ROOT','','','LC_OTM_SHIP_RM','20'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_eo_seg
+SL_VERSION,eo_id,eo_ver,eo_seg_id,eo_seg_descr,parent_eo_id,parent_eo_ver,parent_eo_seg_id,blk_alg_id,blk_alg_eval_cd,retr_mthd_id,eo_seg_ordr
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN','9.0','ORDER_ASSIGN','Order info','LC-BE03-OTM-TRANSPORT-PLAN','9.0','SHIPMENT','','','LC_OTM_RELEASE_RM','30'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_eo_seg
+SL_VERSION,eo_id,eo_ver,eo_seg_id,eo_seg_descr,parent_eo_id,parent_eo_ver,parent_eo_seg_id,blk_alg_id,blk_alg_eval_cd,retr_mthd_id,eo_seg_ordr
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN','9.0','SERVICE_ATTRIBUTE','Service Attribute','LC-BE03-OTM-TRANSPORT-PLAN','9.0','ORDER_ASSIGN','','','LC_BE03_OTM_SERVICE_ATTRIBUTE',''
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_eo_seg
+SL_VERSION,eo_id,eo_ver,eo_seg_id,eo_seg_descr,parent_eo_id,parent_eo_ver,parent_eo_seg_id,blk_alg_id,blk_alg_eval_cd,retr_mthd_id,eo_seg_ordr
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN','9.0','PARAM_VALUE','Paramater Name and Value from OTM','LC-BE03-OTM-TRANSPORT-PLAN','9.0','SERVICE_ATTRIBUTE','','','LC_BE03_OTM_PARAM_VALUE',''
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_eo_fld
+SL_VERSION,eo_id,eo_ver,eo_seg_id,eo_fld_id,eo_fld_descr,data_typ_cd,eo_fld_ordr,eo_fld_sql_ordr,eo_fld_len,eo_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN','9.0','ROOT','DUMFLD','Dummy field','C','10','','1','1'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_eo_fld
+SL_VERSION,eo_id,eo_ver,eo_seg_id,eo_fld_id,eo_fld_descr,data_typ_cd,eo_fld_ordr,eo_fld_sql_ordr,eo_fld_len,eo_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN','9.0','SHIPMENT','ACTUAL_DELIVERY_DTE','Actual Delivery Date IOD','C','100','','14',''
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_eo_fld
+SL_VERSION,eo_id,eo_ver,eo_seg_id,eo_fld_id,eo_fld_descr,data_typ_cd,eo_fld_ordr,eo_fld_sql_ordr,eo_fld_len,eo_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN','9.0','SHIPMENT','CARCOD','Carrier code info','C','120','','40','10'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_eo_fld
+SL_VERSION,eo_id,eo_ver,eo_seg_id,eo_fld_id,eo_fld_descr,data_typ_cd,eo_fld_ordr,eo_fld_sql_ordr,eo_fld_len,eo_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN','9.0','SHIPMENT','CAR_MOVE_ID','Carrier movde id','C','150','','40','10'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_eo_fld
+SL_VERSION,eo_id,eo_ver,eo_seg_id,eo_fld_id,eo_fld_descr,data_typ_cd,eo_fld_ordr,eo_fld_sql_ordr,eo_fld_len,eo_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN','9.0','SHIPMENT','CONS_SHIP','Consolidated Ship_ID','C','20','','160',''
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_eo_fld
+SL_VERSION,eo_id,eo_ver,eo_seg_id,eo_fld_id,eo_fld_descr,data_typ_cd,eo_fld_ordr,eo_fld_sql_ordr,eo_fld_len,eo_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN','9.0','SHIPMENT','CST_NUM','CSTNUM- Alternate identifier for the customer''s name information','C','130','','160','40'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_eo_fld
+SL_VERSION,eo_id,eo_ver,eo_seg_id,eo_fld_id,eo_fld_descr,data_typ_cd,eo_fld_ordr,eo_fld_sql_ordr,eo_fld_len,eo_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN','9.0','SHIPMENT','EARLY_DEV_DT','Early Delivery Date - First day of the delivery range. The delivery range identifies a series of expected delivery dates for the shipment.','C','200','','19',''
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_eo_fld
+SL_VERSION,eo_id,eo_ver,eo_seg_id,eo_fld_id,eo_fld_descr,data_typ_cd,eo_fld_ordr,eo_fld_sql_ordr,eo_fld_len,eo_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN','9.0','SHIPMENT','EARLY_SHP_DT','Entered Date - The date the shipment was added to the host system.','C','160','','19',''
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_eo_fld
+SL_VERSION,eo_id,eo_ver,eo_seg_id,eo_fld_id,eo_fld_descr,data_typ_cd,eo_fld_ordr,eo_fld_sql_ordr,eo_fld_len,eo_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN','9.0','SHIPMENT','HOST_CLIENT_ID','Host Client ID - The client associated with the host_ship_id.','C','50','','128','32'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_eo_fld
+SL_VERSION,eo_id,eo_ver,eo_seg_id,eo_fld_id,eo_fld_descr,data_typ_cd,eo_fld_ordr,eo_fld_sql_ordr,eo_fld_len,eo_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN','9.0','SHIPMENT','LATE_DEV_DT','Late Delivery Date - Last day of the delivery range. To define a single delivery date, enter the first day of the delivery range.','C','210','','19',''
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_eo_fld
+SL_VERSION,eo_id,eo_ver,eo_seg_id,eo_fld_id,eo_fld_descr,data_typ_cd,eo_fld_ordr,eo_fld_sql_ordr,eo_fld_len,eo_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN','9.0','SHIPMENT','LATE_SHP_DT','Late Ship Date - Last day of the shipment range. To define a single shipment date, enter the first day of the shipment range.','C','170','','19',''
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_eo_fld
+SL_VERSION,eo_id,eo_ver,eo_seg_id,eo_fld_id,eo_fld_descr,data_typ_cd,eo_fld_ordr,eo_fld_sql_ordr,eo_fld_len,eo_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN','9.0','SHIPMENT','SRVLVL','Service Level','C','140','','40','10'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_eo_fld
+SL_VERSION,eo_id,eo_ver,eo_seg_id,eo_fld_id,eo_fld_descr,data_typ_cd,eo_fld_ordr,eo_fld_sql_ordr,eo_fld_len,eo_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN','9.0','SHIPMENT','WH_ID','Warehouse ID','C','110','','128','32'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_eo_fld
+SL_VERSION,eo_id,eo_ver,eo_seg_id,eo_fld_id,eo_fld_descr,data_typ_cd,eo_fld_ordr,eo_fld_sql_ordr,eo_fld_len,eo_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN','9.0','ORDER_ASSIGN','CUSTOMS_BROKER_ADR_ID','Customs Broker to the ORD.RTCUST','C','60','','160','40'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_eo_fld
+SL_VERSION,eo_id,eo_ver,eo_seg_id,eo_fld_id,eo_fld_descr,data_typ_cd,eo_fld_ordr,eo_fld_sql_ordr,eo_fld_len,eo_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN','9.0','ORDER_ASSIGN','DELIVERY_INSTR','ORD.DLV_CONTACT to hold the Delivery Instructions (RemarkText)','C','50','','1024','256'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_eo_fld
+SL_VERSION,eo_id,eo_ver,eo_seg_id,eo_fld_id,eo_fld_descr,data_typ_cd,eo_fld_ordr,eo_fld_sql_ordr,eo_fld_len,eo_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN','9.0','ORDER_ASSIGN','DELIVERY_REFERENCE','ORD_NOTE.NOTTYP to hold the Delivery Reference Consignee (Release Refnum value )','C','40','','160','40'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_eo_fld
+SL_VERSION,eo_id,eo_ver,eo_seg_id,eo_fld_id,eo_fld_descr,data_typ_cd,eo_fld_ordr,eo_fld_sql_ordr,eo_fld_len,eo_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN','9.0','ORDER_ASSIGN','HOST_CLIENT_ID','Client ID','C','80','','128','32'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_eo_fld
+SL_VERSION,eo_id,eo_ver,eo_seg_id,eo_fld_id,eo_fld_descr,data_typ_cd,eo_fld_ordr,eo_fld_sql_ordr,eo_fld_len,eo_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN','9.0','ORDER_ASSIGN','HOST_SHIP_ID','External Ship_ID','C','30','','160',''
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_eo_fld
+SL_VERSION,eo_id,eo_ver,eo_seg_id,eo_fld_id,eo_fld_descr,data_typ_cd,eo_fld_ordr,eo_fld_sql_ordr,eo_fld_len,eo_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN','9.0','ORDER_ASSIGN','ORDNUM','Order Number - Unique identifier for the order.','C','10','','140','35'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_eo_fld
+SL_VERSION,eo_id,eo_ver,eo_seg_id,eo_fld_id,eo_fld_descr,data_typ_cd,eo_fld_ordr,eo_fld_sql_ordr,eo_fld_len,eo_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN','9.0','ORDER_ASSIGN','WH_ID','warehouse ID','C','70','','128','32'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_eo_fld
+SL_VERSION,eo_id,eo_ver,eo_seg_id,eo_fld_id,eo_fld_descr,data_typ_cd,eo_fld_ordr,eo_fld_sql_ordr,eo_fld_len,eo_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN','9.0','SERVICE_ATTRIBUTE','VALUE','Service Attribute Value','C','20','','140','35'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_eo_fld
+SL_VERSION,eo_id,eo_ver,eo_seg_id,eo_fld_id,eo_fld_descr,data_typ_cd,eo_fld_ordr,eo_fld_sql_ordr,eo_fld_len,eo_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN','9.0','PARAM_VALUE','NAME','Paramater Name from OTM','C','10','','100','100'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_eo_fld
+SL_VERSION,eo_id,eo_ver,eo_seg_id,eo_fld_id,eo_fld_descr,data_typ_cd,eo_fld_ordr,eo_fld_sql_ordr,eo_fld_len,eo_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN','9.0','PARAM_VALUE','VALUE','Parameter value from OTM','C','20','','250','250'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_eo_col
+SL_VERSION,eo_id,eo_ver,eo_seg_id,eo_fld_id,retr_mthd_id,retr_mthd_impl_genid,sys_id,ifd_id,ifd_ver,ifd_seg_id,sql_component_seq,sql_crsr_col,grp_by_flg
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN','9.0','ORDER_ASSIGN','CUSTOMS_BROKER_ADR_ID','LC_OTM_RELEASE_RM','SEG_LC-BE03-OTM-TRANSPORT-PLAN    _9.0            _ORDER_ASSIGN','','LC-BE03-OTM-TRANSPORT-PLAN','9.0','ORDER_ASSIGN','0','customs_broker_adr_id','F'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_eo_col
+SL_VERSION,eo_id,eo_ver,eo_seg_id,eo_fld_id,retr_mthd_id,retr_mthd_impl_genid,sys_id,ifd_id,ifd_ver,ifd_seg_id,sql_component_seq,sql_crsr_col,grp_by_flg
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN','9.0','ORDER_ASSIGN','DELIVERY_INSTR','LC_OTM_RELEASE_RM','SEG_LC-BE03-OTM-TRANSPORT-PLAN    _9.0            _ORDER_ASSIGN','','LC-BE03-OTM-TRANSPORT-PLAN','9.0','ORDER_ASSIGN','0','delivery_instr','F'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_eo_col
+SL_VERSION,eo_id,eo_ver,eo_seg_id,eo_fld_id,retr_mthd_id,retr_mthd_impl_genid,sys_id,ifd_id,ifd_ver,ifd_seg_id,sql_component_seq,sql_crsr_col,grp_by_flg
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN','9.0','ORDER_ASSIGN','DELIVERY_REFERENCE','LC_OTM_RELEASE_RM','SEG_LC-BE03-OTM-TRANSPORT-PLAN    _9.0            _ORDER_ASSIGN','','LC-BE03-OTM-TRANSPORT-PLAN','9.0','ORDER_ASSIGN','0','delivery_reference','F'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_eo_col
+SL_VERSION,eo_id,eo_ver,eo_seg_id,eo_fld_id,retr_mthd_id,retr_mthd_impl_genid,sys_id,ifd_id,ifd_ver,ifd_seg_id,sql_component_seq,sql_crsr_col,grp_by_flg
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN','9.0','ORDER_ASSIGN','HOST_CLIENT_ID','LC_OTM_RELEASE_RM','SEG_LC-BE03-OTM-TRANSPORT-PLAN    _9.0            _ORDER_ASSIGN','','LC-BE03-OTM-TRANSPORT-PLAN','9.0','ORDER_ASSIGN','0','host_client_id','F'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_eo_col
+SL_VERSION,eo_id,eo_ver,eo_seg_id,eo_fld_id,retr_mthd_id,retr_mthd_impl_genid,sys_id,ifd_id,ifd_ver,ifd_seg_id,sql_component_seq,sql_crsr_col,grp_by_flg
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN','9.0','ORDER_ASSIGN','HOST_SHIP_ID','LC_OTM_RELEASE_RM','SEG_LC-BE03-OTM-TRANSPORT-PLAN    _9.0            _ORDER_ASSIGN','','LC-BE03-OTM-TRANSPORT-PLAN','9.0','ORDER_ASSIGN','0','host_ship_id','F'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_eo_col
+SL_VERSION,eo_id,eo_ver,eo_seg_id,eo_fld_id,retr_mthd_id,retr_mthd_impl_genid,sys_id,ifd_id,ifd_ver,ifd_seg_id,sql_component_seq,sql_crsr_col,grp_by_flg
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN','9.0','ORDER_ASSIGN','ORDNUM','LC_OTM_RELEASE_RM','SEG_LC-BE03-OTM-TRANSPORT-PLAN    _9.0            _ORDER_ASSIGN','','LC-BE03-OTM-TRANSPORT-PLAN','9.0','ORDER_ASSIGN','0','ordnum','F'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_eo_col
+SL_VERSION,eo_id,eo_ver,eo_seg_id,eo_fld_id,retr_mthd_id,retr_mthd_impl_genid,sys_id,ifd_id,ifd_ver,ifd_seg_id,sql_component_seq,sql_crsr_col,grp_by_flg
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN','9.0','ORDER_ASSIGN','WH_ID','LC_OTM_RELEASE_RM','SEG_LC-BE03-OTM-TRANSPORT-PLAN    _9.0            _ORDER_ASSIGN','','LC-BE03-OTM-TRANSPORT-PLAN','9.0','ORDER_ASSIGN','0','wh_id','F'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_eo_col
+SL_VERSION,eo_id,eo_ver,eo_seg_id,eo_fld_id,retr_mthd_id,retr_mthd_impl_genid,sys_id,ifd_id,ifd_ver,ifd_seg_id,sql_component_seq,sql_crsr_col,grp_by_flg
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN','9.0','PARAM_VALUE','NAME','LC_BE03_OTM_PARAM_VALUE','SEG_LC-BE03-OTM-TRANSPORT-PLAN    _9.0            _PARAM_VALUE','','LC-BE03-OTM-TRANSPORT-PLAN','9.0','PARAM_VALUE','0','name','F'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_eo_col
+SL_VERSION,eo_id,eo_ver,eo_seg_id,eo_fld_id,retr_mthd_id,retr_mthd_impl_genid,sys_id,ifd_id,ifd_ver,ifd_seg_id,sql_component_seq,sql_crsr_col,grp_by_flg
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN','9.0','PARAM_VALUE','VALUE','LC_BE03_OTM_PARAM_VALUE','SEG_LC-BE03-OTM-TRANSPORT-PLAN    _9.0            _PARAM_VALUE','','LC-BE03-OTM-TRANSPORT-PLAN','9.0','PARAM_VALUE','0','value','F'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_eo_col
+SL_VERSION,eo_id,eo_ver,eo_seg_id,eo_fld_id,retr_mthd_id,retr_mthd_impl_genid,sys_id,ifd_id,ifd_ver,ifd_seg_id,sql_component_seq,sql_crsr_col,grp_by_flg
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN','9.0','ROOT','DUMFLD','CTRL_SEG_RM','SEG_LC-BE03-OTM-TRANSPORT-PLAN    _9.0            _CTRL_SEG','','LC-BE03-OTM-TRANSPORT-PLAN','9.0','CTRL_SEG','0','''X''','F'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_eo_col
+SL_VERSION,eo_id,eo_ver,eo_seg_id,eo_fld_id,retr_mthd_id,retr_mthd_impl_genid,sys_id,ifd_id,ifd_ver,ifd_seg_id,sql_component_seq,sql_crsr_col,grp_by_flg
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN','9.0','SERVICE_ATTRIBUTE','VALUE','LC_BE03_OTM_SERVICE_ATTRIBUTE','SEG_LC-BE03-OTM-TRANSPORT-PLAN    _9.0            _SERVICE_ATTRIBUTE','','LC-BE03-OTM-TRANSPORT-PLAN','9.0','SERVICE_ATTRIBUTE','0','value','F'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_eo_col
+SL_VERSION,eo_id,eo_ver,eo_seg_id,eo_fld_id,retr_mthd_id,retr_mthd_impl_genid,sys_id,ifd_id,ifd_ver,ifd_seg_id,sql_component_seq,sql_crsr_col,grp_by_flg
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN','9.0','SHIPMENT','ACTUAL_DELIVERY_DTE','LC_OTM_SHIP_RM','SEG_LC-BE03-OTM-TRANSPORT-PLAN    _9.0            _SHIPMENT','','LC-BE03-OTM-TRANSPORT-PLAN','9.0','SHIPMENT','0','actual_delivery_dte','F'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_eo_col
+SL_VERSION,eo_id,eo_ver,eo_seg_id,eo_fld_id,retr_mthd_id,retr_mthd_impl_genid,sys_id,ifd_id,ifd_ver,ifd_seg_id,sql_component_seq,sql_crsr_col,grp_by_flg
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN','9.0','SHIPMENT','CARCOD','LC_OTM_SHIP_RM','SEG_LC-BE03-OTM-TRANSPORT-PLAN    _9.0            _SHIPMENT','','LC-BE03-OTM-TRANSPORT-PLAN','9.0','SHIPMENT','0','carcod','F'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_eo_col
+SL_VERSION,eo_id,eo_ver,eo_seg_id,eo_fld_id,retr_mthd_id,retr_mthd_impl_genid,sys_id,ifd_id,ifd_ver,ifd_seg_id,sql_component_seq,sql_crsr_col,grp_by_flg
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN','9.0','SHIPMENT','CAR_MOVE_ID','LC_OTM_SHIP_RM','SEG_LC-BE03-OTM-TRANSPORT-PLAN    _9.0            _SHIPMENT','','LC-BE03-OTM-TRANSPORT-PLAN','9.0','SHIPMENT','0','car_move_id','F'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_eo_col
+SL_VERSION,eo_id,eo_ver,eo_seg_id,eo_fld_id,retr_mthd_id,retr_mthd_impl_genid,sys_id,ifd_id,ifd_ver,ifd_seg_id,sql_component_seq,sql_crsr_col,grp_by_flg
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN','9.0','SHIPMENT','CONS_SHIP','LC_OTM_SHIP_RM','SEG_LC-BE03-OTM-TRANSPORT-PLAN    _9.0            _SHIPMENT','','LC-BE03-OTM-TRANSPORT-PLAN','9.0','SHIPMENT','0','cons_ship','F'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_eo_col
+SL_VERSION,eo_id,eo_ver,eo_seg_id,eo_fld_id,retr_mthd_id,retr_mthd_impl_genid,sys_id,ifd_id,ifd_ver,ifd_seg_id,sql_component_seq,sql_crsr_col,grp_by_flg
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN','9.0','SHIPMENT','CST_NUM','LC_OTM_SHIP_RM','SEG_LC-BE03-OTM-TRANSPORT-PLAN    _9.0            _SHIPMENT','','LC-BE03-OTM-TRANSPORT-PLAN','9.0','SHIPMENT','0','cst_num','F'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_eo_col
+SL_VERSION,eo_id,eo_ver,eo_seg_id,eo_fld_id,retr_mthd_id,retr_mthd_impl_genid,sys_id,ifd_id,ifd_ver,ifd_seg_id,sql_component_seq,sql_crsr_col,grp_by_flg
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN','9.0','SHIPMENT','EARLY_DEV_DT','LC_OTM_SHIP_RM','SEG_LC-BE03-OTM-TRANSPORT-PLAN    _9.0            _SHIPMENT','','LC-BE03-OTM-TRANSPORT-PLAN','9.0','SHIPMENT','0','early_dlvdte','F'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_eo_col
+SL_VERSION,eo_id,eo_ver,eo_seg_id,eo_fld_id,retr_mthd_id,retr_mthd_impl_genid,sys_id,ifd_id,ifd_ver,ifd_seg_id,sql_component_seq,sql_crsr_col,grp_by_flg
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN','9.0','SHIPMENT','EARLY_SHP_DT','LC_OTM_SHIP_RM','SEG_LC-BE03-OTM-TRANSPORT-PLAN    _9.0            _SHIPMENT','','LC-BE03-OTM-TRANSPORT-PLAN','9.0','SHIPMENT','0','early_shpdte','F'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_eo_col
+SL_VERSION,eo_id,eo_ver,eo_seg_id,eo_fld_id,retr_mthd_id,retr_mthd_impl_genid,sys_id,ifd_id,ifd_ver,ifd_seg_id,sql_component_seq,sql_crsr_col,grp_by_flg
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN','9.0','SHIPMENT','HOST_CLIENT_ID','LC_OTM_SHIP_RM','SEG_LC-BE03-OTM-TRANSPORT-PLAN    _9.0            _SHIPMENT','','LC-BE03-OTM-TRANSPORT-PLAN','9.0','SHIPMENT','0','host_client_id','F'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_eo_col
+SL_VERSION,eo_id,eo_ver,eo_seg_id,eo_fld_id,retr_mthd_id,retr_mthd_impl_genid,sys_id,ifd_id,ifd_ver,ifd_seg_id,sql_component_seq,sql_crsr_col,grp_by_flg
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN','9.0','SHIPMENT','LATE_DEV_DT','LC_OTM_SHIP_RM','SEG_LC-BE03-OTM-TRANSPORT-PLAN    _9.0            _SHIPMENT','','LC-BE03-OTM-TRANSPORT-PLAN','9.0','SHIPMENT','0','late_dlvdte','F'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_eo_col
+SL_VERSION,eo_id,eo_ver,eo_seg_id,eo_fld_id,retr_mthd_id,retr_mthd_impl_genid,sys_id,ifd_id,ifd_ver,ifd_seg_id,sql_component_seq,sql_crsr_col,grp_by_flg
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN','9.0','SHIPMENT','LATE_SHP_DT','LC_OTM_SHIP_RM','SEG_LC-BE03-OTM-TRANSPORT-PLAN    _9.0            _SHIPMENT','','LC-BE03-OTM-TRANSPORT-PLAN','9.0','SHIPMENT','0','late_shpdte','F'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_eo_col
+SL_VERSION,eo_id,eo_ver,eo_seg_id,eo_fld_id,retr_mthd_id,retr_mthd_impl_genid,sys_id,ifd_id,ifd_ver,ifd_seg_id,sql_component_seq,sql_crsr_col,grp_by_flg
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN','9.0','SHIPMENT','SRVLVL','LC_OTM_SHIP_RM','SEG_LC-BE03-OTM-TRANSPORT-PLAN    _9.0            _SHIPMENT','','LC-BE03-OTM-TRANSPORT-PLAN','9.0','SHIPMENT','0','srvlvl','F'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_eo_col
+SL_VERSION,eo_id,eo_ver,eo_seg_id,eo_fld_id,retr_mthd_id,retr_mthd_impl_genid,sys_id,ifd_id,ifd_ver,ifd_seg_id,sql_component_seq,sql_crsr_col,grp_by_flg
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN','9.0','SHIPMENT','WH_ID','LC_OTM_SHIP_RM','SEG_LC-BE03-OTM-TRANSPORT-PLAN    _9.0            _SHIPMENT','','LC-BE03-OTM-TRANSPORT-PLAN','9.0','SHIPMENT','0','wh_id','F'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_ifd_def
+SL_VERSION,ifd_id,ifd_ver,ifd_descr,ifd_typ_cd,data_lay_id,ifd_grp_id,eo_id,eo_ver,root_seg_rpt_brk_flg,recursive_flg,post_alg_id,pre_alg_id,ifd_tag,post_proc_flg
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN-MGM','9.0','LC-BE03-OTM-TRANSPORT-PLAN result IFD','O','CSV','SHIPPING','LC-BE03-OTM-TRANSPORT-PLAN','9.0','T','T','','','LC-OTM-TRANSPORT-PLAN-MGM','F'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_ifd_seg
+SL_VERSION,ifd_id,ifd_ver,ifd_seg_id,ifd_seg_rel_pos,ifd_seg_descr,ifd_seg_ordr,eo_id,eo_ver,eo_seg_id,pre_alg_id,post_alg_id,parent_ifd_id,parent_ifd_ver,parent_ifd_seg_id,blk_alg_id,blk_alg_eval_cd,proc_alg_id,xml_use_seg_tag_flg,ifd_seg_tag,sib_is_rel_flg,sync_with_eo_flg,ifd_seg_ol_attr_cd
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN-MGM','9.0','SHIPMENT','','Shipment Info','1','LC-BE03-OTM-TRANSPORT-PLAN','9.0','SHIPMENT','LC_DEL_BE03_OTM_SHIP','','','','','','','','','SHIPMENT','','','XTXTN'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_ifd_seg
+SL_VERSION,ifd_id,ifd_ver,ifd_seg_id,ifd_seg_rel_pos,ifd_seg_descr,ifd_seg_ordr,eo_id,eo_ver,eo_seg_id,pre_alg_id,post_alg_id,parent_ifd_id,parent_ifd_ver,parent_ifd_seg_id,blk_alg_id,blk_alg_eval_cd,proc_alg_id,xml_use_seg_tag_flg,ifd_seg_tag,sib_is_rel_flg,sync_with_eo_flg,ifd_seg_ol_attr_cd
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN-MGM','9.0','ORDER_ASSIGN','','Order info','2','LC-BE03-OTM-TRANSPORT-PLAN','9.0','ORDER_ASSIGN','','','LC-BE03-OTM-TRANSPORT-PLAN-MGM','9.0','SHIPMENT','','','LC_PRC_BE03_OTM_SHIP_ORD_ALG','','ORDER_ASSIGN','','','XTXTN'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_ifd_seg
+SL_VERSION,ifd_id,ifd_ver,ifd_seg_id,ifd_seg_rel_pos,ifd_seg_descr,ifd_seg_ordr,eo_id,eo_ver,eo_seg_id,pre_alg_id,post_alg_id,parent_ifd_id,parent_ifd_ver,parent_ifd_seg_id,blk_alg_id,blk_alg_eval_cd,proc_alg_id,xml_use_seg_tag_flg,ifd_seg_tag,sib_is_rel_flg,sync_with_eo_flg,ifd_seg_ol_attr_cd
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN-MGM','9.0','SERVICE_ATTRIBUTE','','Service Attribute','3','LC-BE03-OTM-TRANSPORT-PLAN','9.0','SERVICE_ATTRIBUTE','','','LC-BE03-OTM-TRANSPORT-PLAN-MGM','9.0','ORDER_ASSIGN','','','LC_BE03_OTM_SERV_ATTR_ALG','','SERVICE_ATTRIBUTE','','','XTXTN'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_ifd_seg
+SL_VERSION,ifd_id,ifd_ver,ifd_seg_id,ifd_seg_rel_pos,ifd_seg_descr,ifd_seg_ordr,eo_id,eo_ver,eo_seg_id,pre_alg_id,post_alg_id,parent_ifd_id,parent_ifd_ver,parent_ifd_seg_id,blk_alg_id,blk_alg_eval_cd,proc_alg_id,xml_use_seg_tag_flg,ifd_seg_tag,sib_is_rel_flg,sync_with_eo_flg,ifd_seg_ol_attr_cd
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN-MGM','9.0','PARAM_VALUE','','Paramater Name and Value from OTM','4','LC-BE03-OTM-TRANSPORT-PLAN','9.0','PARAM_VALUE','','','LC-BE03-OTM-TRANSPORT-PLAN-MGM','9.0','SERVICE_ATTRIBUTE','','','LC_OTM_BE03_PARAM_VAL_ALG','','PARAM_VALUE','','','XTXTN'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_ifd_fld
+SL_VERSION,ifd_id,ifd_ver,ifd_seg_id,ifd_fld_id,ifd_fld_descr,ifd_fld_ordr,ifd_fld_tag,eo_id,eo_ver,eo_seg_id,eo_fld_id,evt_id,evt_arg_id,eo_fld_grp_func,ifd_fld_sql_ordr,ifd_fld_class_cd,data_typ_cd,fld_alg_id,kw_id,pre_alg_bnd_var_id,fld_val,sql_expr,default_expr,change_expr,fld_jus_cd,fld_fmt,fld_trm_cd,pad_char,trm_char,ifd_fld_len,ifd_fld_attr_cd,create_only_flg,ol_fld_tag,ol_grp_func,validation_cmnt,required_flg,default_val_cmnt,ifd_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN-MGM','9.0','SHIPMENT','ACTUAL_DELIVERY_DATE','Actual delivery date','120','','LC-BE03-OTM-TRANSPORT-PLAN','9.0','SHIPMENT','ACTUAL_DELIVERY_DTE','','','','','EO','D','','','','','','','','N','YYYYMMDDHH24MISS','N','','','14','','F','','','','F','',''
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_ifd_fld
+SL_VERSION,ifd_id,ifd_ver,ifd_seg_id,ifd_fld_id,ifd_fld_descr,ifd_fld_ordr,ifd_fld_tag,eo_id,eo_ver,eo_seg_id,eo_fld_id,evt_id,evt_arg_id,eo_fld_grp_func,ifd_fld_sql_ordr,ifd_fld_class_cd,data_typ_cd,fld_alg_id,kw_id,pre_alg_bnd_var_id,fld_val,sql_expr,default_expr,change_expr,fld_jus_cd,fld_fmt,fld_trm_cd,pad_char,trm_char,ifd_fld_len,ifd_fld_attr_cd,create_only_flg,ol_fld_tag,ol_grp_func,validation_cmnt,required_flg,default_val_cmnt,ifd_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN-MGM','9.0','SHIPMENT','CARCOD','Carrier code','140','','LC-BE03-OTM-TRANSPORT-PLAN','9.0','SHIPMENT','CARCOD','','','','','EO','C','','','','','','','','N','','N','','','40','','F','','','','F','','10'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_ifd_fld
+SL_VERSION,ifd_id,ifd_ver,ifd_seg_id,ifd_fld_id,ifd_fld_descr,ifd_fld_ordr,ifd_fld_tag,eo_id,eo_ver,eo_seg_id,eo_fld_id,evt_id,evt_arg_id,eo_fld_grp_func,ifd_fld_sql_ordr,ifd_fld_class_cd,data_typ_cd,fld_alg_id,kw_id,pre_alg_bnd_var_id,fld_val,sql_expr,default_expr,change_expr,fld_jus_cd,fld_fmt,fld_trm_cd,pad_char,trm_char,ifd_fld_len,ifd_fld_attr_cd,create_only_flg,ol_fld_tag,ol_grp_func,validation_cmnt,required_flg,default_val_cmnt,ifd_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN-MGM','9.0','SHIPMENT','CAR_MOVE_ID','Carrier move ID','160','','LC-BE03-OTM-TRANSPORT-PLAN','9.0','SHIPMENT','CAR_MOVE_ID','','','','','EO','C','','','','','','','','N','','N','','','40','','F','','','Currently, no English translation is available.','F','Currently, no English translation is available.','10'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_ifd_fld
+SL_VERSION,ifd_id,ifd_ver,ifd_seg_id,ifd_fld_id,ifd_fld_descr,ifd_fld_ordr,ifd_fld_tag,eo_id,eo_ver,eo_seg_id,eo_fld_id,evt_id,evt_arg_id,eo_fld_grp_func,ifd_fld_sql_ordr,ifd_fld_class_cd,data_typ_cd,fld_alg_id,kw_id,pre_alg_bnd_var_id,fld_val,sql_expr,default_expr,change_expr,fld_jus_cd,fld_fmt,fld_trm_cd,pad_char,trm_char,ifd_fld_len,ifd_fld_attr_cd,create_only_flg,ol_fld_tag,ol_grp_func,validation_cmnt,required_flg,default_val_cmnt,ifd_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN-MGM','9.0','SHIPMENT','CONS_SHIP','Consolidated Ship','170','','LC-BE03-OTM-TRANSPORT-PLAN','9.0','SHIPMENT','CONS_SHIP','','','','','EO','C','','','','','','','','N','','N','','','160','','F','','','Currently, no English translation is available.','F','Currently, no English translation is available.','40'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_ifd_fld
+SL_VERSION,ifd_id,ifd_ver,ifd_seg_id,ifd_fld_id,ifd_fld_descr,ifd_fld_ordr,ifd_fld_tag,eo_id,eo_ver,eo_seg_id,eo_fld_id,evt_id,evt_arg_id,eo_fld_grp_func,ifd_fld_sql_ordr,ifd_fld_class_cd,data_typ_cd,fld_alg_id,kw_id,pre_alg_bnd_var_id,fld_val,sql_expr,default_expr,change_expr,fld_jus_cd,fld_fmt,fld_trm_cd,pad_char,trm_char,ifd_fld_len,ifd_fld_attr_cd,create_only_flg,ol_fld_tag,ol_grp_func,validation_cmnt,required_flg,default_val_cmnt,ifd_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN-MGM','9.0','SHIPMENT','CST_NUM','CSTNUM- Alternate identifier for the customer''s name information','50','','LC-BE03-OTM-TRANSPORT-PLAN','9.0','SHIPMENT','CST_NUM','','','','','EO','C','','','','','','','','N','','N','','','160','','F','','','','F','','40'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_ifd_fld
+SL_VERSION,ifd_id,ifd_ver,ifd_seg_id,ifd_fld_id,ifd_fld_descr,ifd_fld_ordr,ifd_fld_tag,eo_id,eo_ver,eo_seg_id,eo_fld_id,evt_id,evt_arg_id,eo_fld_grp_func,ifd_fld_sql_ordr,ifd_fld_class_cd,data_typ_cd,fld_alg_id,kw_id,pre_alg_bnd_var_id,fld_val,sql_expr,default_expr,change_expr,fld_jus_cd,fld_fmt,fld_trm_cd,pad_char,trm_char,ifd_fld_len,ifd_fld_attr_cd,create_only_flg,ol_fld_tag,ol_grp_func,validation_cmnt,required_flg,default_val_cmnt,ifd_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN-MGM','9.0','SHIPMENT','EARLY_DLVDTE','Early Delivery date','90','','LC-BE03-OTM-TRANSPORT-PLAN','9.0','SHIPMENT','EARLY_DEV_DT','','','','','EO','D','CONVERT_EARLY_DEV_DT_TO_UTC','','','','','','','N','YYYYMMDDHH24MISS','N','','','19','','F','','','','F','',''
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_ifd_fld
+SL_VERSION,ifd_id,ifd_ver,ifd_seg_id,ifd_fld_id,ifd_fld_descr,ifd_fld_ordr,ifd_fld_tag,eo_id,eo_ver,eo_seg_id,eo_fld_id,evt_id,evt_arg_id,eo_fld_grp_func,ifd_fld_sql_ordr,ifd_fld_class_cd,data_typ_cd,fld_alg_id,kw_id,pre_alg_bnd_var_id,fld_val,sql_expr,default_expr,change_expr,fld_jus_cd,fld_fmt,fld_trm_cd,pad_char,trm_char,ifd_fld_len,ifd_fld_attr_cd,create_only_flg,ol_fld_tag,ol_grp_func,validation_cmnt,required_flg,default_val_cmnt,ifd_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN-MGM','9.0','SHIPMENT','EARLY_SHPDTE','Early loading time','60','','LC-BE03-OTM-TRANSPORT-PLAN','9.0','SHIPMENT','EARLY_SHP_DT','','','','','EO','D','CONVERT_EARLY_SHP_DT_TO_UTC','','','1','','','','N','YYYYMMDDHH24MISS','N','','','19','','F','','','','F','',''
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_ifd_fld
+SL_VERSION,ifd_id,ifd_ver,ifd_seg_id,ifd_fld_id,ifd_fld_descr,ifd_fld_ordr,ifd_fld_tag,eo_id,eo_ver,eo_seg_id,eo_fld_id,evt_id,evt_arg_id,eo_fld_grp_func,ifd_fld_sql_ordr,ifd_fld_class_cd,data_typ_cd,fld_alg_id,kw_id,pre_alg_bnd_var_id,fld_val,sql_expr,default_expr,change_expr,fld_jus_cd,fld_fmt,fld_trm_cd,pad_char,trm_char,ifd_fld_len,ifd_fld_attr_cd,create_only_flg,ol_fld_tag,ol_grp_func,validation_cmnt,required_flg,default_val_cmnt,ifd_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN-MGM','9.0','SHIPMENT','HOST_CLIENT_ID','Client ID','30','','LC-BE03-OTM-TRANSPORT-PLAN','9.0','SHIPMENT','HOST_CLIENT_ID','','','','','EO','C','','','','','','','','N','','N','','','128','','F','','','','F','','32'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_ifd_fld
+SL_VERSION,ifd_id,ifd_ver,ifd_seg_id,ifd_fld_id,ifd_fld_descr,ifd_fld_ordr,ifd_fld_tag,eo_id,eo_ver,eo_seg_id,eo_fld_id,evt_id,evt_arg_id,eo_fld_grp_func,ifd_fld_sql_ordr,ifd_fld_class_cd,data_typ_cd,fld_alg_id,kw_id,pre_alg_bnd_var_id,fld_val,sql_expr,default_expr,change_expr,fld_jus_cd,fld_fmt,fld_trm_cd,pad_char,trm_char,ifd_fld_len,ifd_fld_attr_cd,create_only_flg,ol_fld_tag,ol_grp_func,validation_cmnt,required_flg,default_val_cmnt,ifd_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN-MGM','9.0','SHIPMENT','LATE_DLVDTE','Late delivery date','110','','LC-BE03-OTM-TRANSPORT-PLAN','9.0','SHIPMENT','LATE_DEV_DT','','','','','EO','D','CONVERT_LATE_DEV_DT_TO_UTC','','','','','','','N','YYYYMMDDHH24MISS','N','','','19','','F','','','','F','',''
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_ifd_fld
+SL_VERSION,ifd_id,ifd_ver,ifd_seg_id,ifd_fld_id,ifd_fld_descr,ifd_fld_ordr,ifd_fld_tag,eo_id,eo_ver,eo_seg_id,eo_fld_id,evt_id,evt_arg_id,eo_fld_grp_func,ifd_fld_sql_ordr,ifd_fld_class_cd,data_typ_cd,fld_alg_id,kw_id,pre_alg_bnd_var_id,fld_val,sql_expr,default_expr,change_expr,fld_jus_cd,fld_fmt,fld_trm_cd,pad_char,trm_char,ifd_fld_len,ifd_fld_attr_cd,create_only_flg,ol_fld_tag,ol_grp_func,validation_cmnt,required_flg,default_val_cmnt,ifd_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN-MGM','9.0','SHIPMENT','LATE_SHPDTE','Late shipping date','70','','LC-BE03-OTM-TRANSPORT-PLAN','9.0','SHIPMENT','LATE_SHP_DT','','','','','EO','D','CONVERT_LATE_SHP_DT_TO_UTC','','','','','','','N','YYYYMMDDHH24MISS','N','','','19','','F','','','','F','',''
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_ifd_fld
+SL_VERSION,ifd_id,ifd_ver,ifd_seg_id,ifd_fld_id,ifd_fld_descr,ifd_fld_ordr,ifd_fld_tag,eo_id,eo_ver,eo_seg_id,eo_fld_id,evt_id,evt_arg_id,eo_fld_grp_func,ifd_fld_sql_ordr,ifd_fld_class_cd,data_typ_cd,fld_alg_id,kw_id,pre_alg_bnd_var_id,fld_val,sql_expr,default_expr,change_expr,fld_jus_cd,fld_fmt,fld_trm_cd,pad_char,trm_char,ifd_fld_len,ifd_fld_attr_cd,create_only_flg,ol_fld_tag,ol_grp_func,validation_cmnt,required_flg,default_val_cmnt,ifd_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN-MGM','9.0','SHIPMENT','SRVLVL','Service Level','150','','LC-BE03-OTM-TRANSPORT-PLAN','9.0','SHIPMENT','SRVLVL','','','','','EO','C','','','','','','','','N','','N','','','40','','F','','','Currently, no English translation is available.','F','Currently, no English translation is available.','10'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_ifd_fld
+SL_VERSION,ifd_id,ifd_ver,ifd_seg_id,ifd_fld_id,ifd_fld_descr,ifd_fld_ordr,ifd_fld_tag,eo_id,eo_ver,eo_seg_id,eo_fld_id,evt_id,evt_arg_id,eo_fld_grp_func,ifd_fld_sql_ordr,ifd_fld_class_cd,data_typ_cd,fld_alg_id,kw_id,pre_alg_bnd_var_id,fld_val,sql_expr,default_expr,change_expr,fld_jus_cd,fld_fmt,fld_trm_cd,pad_char,trm_char,ifd_fld_len,ifd_fld_attr_cd,create_only_flg,ol_fld_tag,ol_grp_func,validation_cmnt,required_flg,default_val_cmnt,ifd_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN-MGM','9.0','SHIPMENT','WH_ID','warehouse ID','130','','LC-BE03-OTM-TRANSPORT-PLAN','9.0','SHIPMENT','WH_ID','','','','','EO','C','','','','','','','','N','','N','','','128','','F','','','','F','','32'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_ifd_fld
+SL_VERSION,ifd_id,ifd_ver,ifd_seg_id,ifd_fld_id,ifd_fld_descr,ifd_fld_ordr,ifd_fld_tag,eo_id,eo_ver,eo_seg_id,eo_fld_id,evt_id,evt_arg_id,eo_fld_grp_func,ifd_fld_sql_ordr,ifd_fld_class_cd,data_typ_cd,fld_alg_id,kw_id,pre_alg_bnd_var_id,fld_val,sql_expr,default_expr,change_expr,fld_jus_cd,fld_fmt,fld_trm_cd,pad_char,trm_char,ifd_fld_len,ifd_fld_attr_cd,create_only_flg,ol_fld_tag,ol_grp_func,validation_cmnt,required_flg,default_val_cmnt,ifd_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN-MGM','9.0','ORDER_ASSIGN','ACTUAL_DELIVERY_DTE','actual delivery date','160','','LC-BE03-OTM-TRANSPORT-PLAN','9.0','SHIPMENT','ACTUAL_DELIVERY_DTE','','','','','EO','D','','','','','','','','N','YYYYMMDDHH24MISS','N','','','14','','F','','','','F','',''
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_ifd_fld
+SL_VERSION,ifd_id,ifd_ver,ifd_seg_id,ifd_fld_id,ifd_fld_descr,ifd_fld_ordr,ifd_fld_tag,eo_id,eo_ver,eo_seg_id,eo_fld_id,evt_id,evt_arg_id,eo_fld_grp_func,ifd_fld_sql_ordr,ifd_fld_class_cd,data_typ_cd,fld_alg_id,kw_id,pre_alg_bnd_var_id,fld_val,sql_expr,default_expr,change_expr,fld_jus_cd,fld_fmt,fld_trm_cd,pad_char,trm_char,ifd_fld_len,ifd_fld_attr_cd,create_only_flg,ol_fld_tag,ol_grp_func,validation_cmnt,required_flg,default_val_cmnt,ifd_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN-MGM','9.0','ORDER_ASSIGN','CARCOD','Carrier code','170','','LC-BE03-OTM-TRANSPORT-PLAN','9.0','SHIPMENT','CARCOD','','','','','EO','C','','','','','','','','N','','N','','','52','','F','','','','F','','10'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_ifd_fld
+SL_VERSION,ifd_id,ifd_ver,ifd_seg_id,ifd_fld_id,ifd_fld_descr,ifd_fld_ordr,ifd_fld_tag,eo_id,eo_ver,eo_seg_id,eo_fld_id,evt_id,evt_arg_id,eo_fld_grp_func,ifd_fld_sql_ordr,ifd_fld_class_cd,data_typ_cd,fld_alg_id,kw_id,pre_alg_bnd_var_id,fld_val,sql_expr,default_expr,change_expr,fld_jus_cd,fld_fmt,fld_trm_cd,pad_char,trm_char,ifd_fld_len,ifd_fld_attr_cd,create_only_flg,ol_fld_tag,ol_grp_func,validation_cmnt,required_flg,default_val_cmnt,ifd_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN-MGM','9.0','ORDER_ASSIGN','CAR_MOVE_ID','Carrier ID','180','','LC-BE03-OTM-TRANSPORT-PLAN','9.0','SHIPMENT','CAR_MOVE_ID','','','','','EO','C','','','','','','','','N','','N','','','40','','F','','','Currently, no English translation is available.','F','Currently, no English translation is available.','10'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_ifd_fld
+SL_VERSION,ifd_id,ifd_ver,ifd_seg_id,ifd_fld_id,ifd_fld_descr,ifd_fld_ordr,ifd_fld_tag,eo_id,eo_ver,eo_seg_id,eo_fld_id,evt_id,evt_arg_id,eo_fld_grp_func,ifd_fld_sql_ordr,ifd_fld_class_cd,data_typ_cd,fld_alg_id,kw_id,pre_alg_bnd_var_id,fld_val,sql_expr,default_expr,change_expr,fld_jus_cd,fld_fmt,fld_trm_cd,pad_char,trm_char,ifd_fld_len,ifd_fld_attr_cd,create_only_flg,ol_fld_tag,ol_grp_func,validation_cmnt,required_flg,default_val_cmnt,ifd_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN-MGM','9.0','ORDER_ASSIGN','CONS_SHIP','Consolidated Ship_ID','200','','LC-BE03-OTM-TRANSPORT-PLAN','9.0','SHIPMENT','CONS_SHIP','','','','','EO','C','','','','','','','','N','','N','','','','','F','','','Currently, no English translation is available.','F','Currently, no English translation is available.',''
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_ifd_fld
+SL_VERSION,ifd_id,ifd_ver,ifd_seg_id,ifd_fld_id,ifd_fld_descr,ifd_fld_ordr,ifd_fld_tag,eo_id,eo_ver,eo_seg_id,eo_fld_id,evt_id,evt_arg_id,eo_fld_grp_func,ifd_fld_sql_ordr,ifd_fld_class_cd,data_typ_cd,fld_alg_id,kw_id,pre_alg_bnd_var_id,fld_val,sql_expr,default_expr,change_expr,fld_jus_cd,fld_fmt,fld_trm_cd,pad_char,trm_char,ifd_fld_len,ifd_fld_attr_cd,create_only_flg,ol_fld_tag,ol_grp_func,validation_cmnt,required_flg,default_val_cmnt,ifd_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN-MGM','9.0','ORDER_ASSIGN','CST_NUM','CSTNUM- Alternate identifier for the customer''s name information','110','','LC-BE03-OTM-TRANSPORT-PLAN','9.0','SHIPMENT','CST_NUM','','','','','EO','C','','','','','','','','N','','N','','','160','','F','','','','F','','40'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_ifd_fld
+SL_VERSION,ifd_id,ifd_ver,ifd_seg_id,ifd_fld_id,ifd_fld_descr,ifd_fld_ordr,ifd_fld_tag,eo_id,eo_ver,eo_seg_id,eo_fld_id,evt_id,evt_arg_id,eo_fld_grp_func,ifd_fld_sql_ordr,ifd_fld_class_cd,data_typ_cd,fld_alg_id,kw_id,pre_alg_bnd_var_id,fld_val,sql_expr,default_expr,change_expr,fld_jus_cd,fld_fmt,fld_trm_cd,pad_char,trm_char,ifd_fld_len,ifd_fld_attr_cd,create_only_flg,ol_fld_tag,ol_grp_func,validation_cmnt,required_flg,default_val_cmnt,ifd_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN-MGM','9.0','ORDER_ASSIGN','CUSTOMS_BROKER_ADR_ID','Customs broker address ID','60','','LC-BE03-OTM-TRANSPORT-PLAN','9.0','ORDER_ASSIGN','CUSTOMS_BROKER_ADR_ID','','','','','EO','C','','','','','','','','N','','N','','','160','','F','','','','F','','40'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_ifd_fld
+SL_VERSION,ifd_id,ifd_ver,ifd_seg_id,ifd_fld_id,ifd_fld_descr,ifd_fld_ordr,ifd_fld_tag,eo_id,eo_ver,eo_seg_id,eo_fld_id,evt_id,evt_arg_id,eo_fld_grp_func,ifd_fld_sql_ordr,ifd_fld_class_cd,data_typ_cd,fld_alg_id,kw_id,pre_alg_bnd_var_id,fld_val,sql_expr,default_expr,change_expr,fld_jus_cd,fld_fmt,fld_trm_cd,pad_char,trm_char,ifd_fld_len,ifd_fld_attr_cd,create_only_flg,ol_fld_tag,ol_grp_func,validation_cmnt,required_flg,default_val_cmnt,ifd_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN-MGM','9.0','ORDER_ASSIGN','DELIVERY_INSTR','Delivery instruction','50','','LC-BE03-OTM-TRANSPORT-PLAN','9.0','ORDER_ASSIGN','DELIVERY_INSTR','','','','','EO','C','','','','','','','','N','','N','','','1024','','F','','','','F','','256'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_ifd_fld
+SL_VERSION,ifd_id,ifd_ver,ifd_seg_id,ifd_fld_id,ifd_fld_descr,ifd_fld_ordr,ifd_fld_tag,eo_id,eo_ver,eo_seg_id,eo_fld_id,evt_id,evt_arg_id,eo_fld_grp_func,ifd_fld_sql_ordr,ifd_fld_class_cd,data_typ_cd,fld_alg_id,kw_id,pre_alg_bnd_var_id,fld_val,sql_expr,default_expr,change_expr,fld_jus_cd,fld_fmt,fld_trm_cd,pad_char,trm_char,ifd_fld_len,ifd_fld_attr_cd,create_only_flg,ol_fld_tag,ol_grp_func,validation_cmnt,required_flg,default_val_cmnt,ifd_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN-MGM','9.0','ORDER_ASSIGN','DELIVERY_REFERENCE','delivery reference','20','','LC-BE03-OTM-TRANSPORT-PLAN','9.0','ORDER_ASSIGN','DELIVERY_REFERENCE','','','','','EO','C','','','','','','','','N','','N','','','1024','','F','','','','F','','40'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_ifd_fld
+SL_VERSION,ifd_id,ifd_ver,ifd_seg_id,ifd_fld_id,ifd_fld_descr,ifd_fld_ordr,ifd_fld_tag,eo_id,eo_ver,eo_seg_id,eo_fld_id,evt_id,evt_arg_id,eo_fld_grp_func,ifd_fld_sql_ordr,ifd_fld_class_cd,data_typ_cd,fld_alg_id,kw_id,pre_alg_bnd_var_id,fld_val,sql_expr,default_expr,change_expr,fld_jus_cd,fld_fmt,fld_trm_cd,pad_char,trm_char,ifd_fld_len,ifd_fld_attr_cd,create_only_flg,ol_fld_tag,ol_grp_func,validation_cmnt,required_flg,default_val_cmnt,ifd_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN-MGM','9.0','ORDER_ASSIGN','EARLY_DLVDTE','early delivery date','120','','LC-BE03-OTM-TRANSPORT-PLAN','9.0','SHIPMENT','EARLY_DEV_DT','','','','','EO','D','','','','','','','','N','','N','','','19','','F','','','','F','',''
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_ifd_fld
+SL_VERSION,ifd_id,ifd_ver,ifd_seg_id,ifd_fld_id,ifd_fld_descr,ifd_fld_ordr,ifd_fld_tag,eo_id,eo_ver,eo_seg_id,eo_fld_id,evt_id,evt_arg_id,eo_fld_grp_func,ifd_fld_sql_ordr,ifd_fld_class_cd,data_typ_cd,fld_alg_id,kw_id,pre_alg_bnd_var_id,fld_val,sql_expr,default_expr,change_expr,fld_jus_cd,fld_fmt,fld_trm_cd,pad_char,trm_char,ifd_fld_len,ifd_fld_attr_cd,create_only_flg,ol_fld_tag,ol_grp_func,validation_cmnt,required_flg,default_val_cmnt,ifd_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN-MGM','9.0','ORDER_ASSIGN','EARLY_SHPDTE','Early shipping date','130','','LC-BE03-OTM-TRANSPORT-PLAN','9.0','SHIPMENT','EARLY_SHP_DT','','','','','EO','D','','','','','','','','N','','N','','','19','','F','','','','F','',''
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_ifd_fld
+SL_VERSION,ifd_id,ifd_ver,ifd_seg_id,ifd_fld_id,ifd_fld_descr,ifd_fld_ordr,ifd_fld_tag,eo_id,eo_ver,eo_seg_id,eo_fld_id,evt_id,evt_arg_id,eo_fld_grp_func,ifd_fld_sql_ordr,ifd_fld_class_cd,data_typ_cd,fld_alg_id,kw_id,pre_alg_bnd_var_id,fld_val,sql_expr,default_expr,change_expr,fld_jus_cd,fld_fmt,fld_trm_cd,pad_char,trm_char,ifd_fld_len,ifd_fld_attr_cd,create_only_flg,ol_fld_tag,ol_grp_func,validation_cmnt,required_flg,default_val_cmnt,ifd_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN-MGM','9.0','ORDER_ASSIGN','HOST_CLIENT_ID','Client ID','80','','LC-BE03-OTM-TRANSPORT-PLAN','9.0','ORDER_ASSIGN','HOST_CLIENT_ID','','','','','EO','C','','','','','','','','N','','N','','','128','','F','','','','F','','32'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_ifd_fld
+SL_VERSION,ifd_id,ifd_ver,ifd_seg_id,ifd_fld_id,ifd_fld_descr,ifd_fld_ordr,ifd_fld_tag,eo_id,eo_ver,eo_seg_id,eo_fld_id,evt_id,evt_arg_id,eo_fld_grp_func,ifd_fld_sql_ordr,ifd_fld_class_cd,data_typ_cd,fld_alg_id,kw_id,pre_alg_bnd_var_id,fld_val,sql_expr,default_expr,change_expr,fld_jus_cd,fld_fmt,fld_trm_cd,pad_char,trm_char,ifd_fld_len,ifd_fld_attr_cd,create_only_flg,ol_fld_tag,ol_grp_func,validation_cmnt,required_flg,default_val_cmnt,ifd_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN-MGM','9.0','ORDER_ASSIGN','HOST_SHIP_ID','shipment ID','70','','LC-BE03-OTM-TRANSPORT-PLAN','9.0','ORDER_ASSIGN','HOST_SHIP_ID','','','','','EO','C','','','','','','','','N','','N','','','160','','F','','','','F','','40'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_ifd_fld
+SL_VERSION,ifd_id,ifd_ver,ifd_seg_id,ifd_fld_id,ifd_fld_descr,ifd_fld_ordr,ifd_fld_tag,eo_id,eo_ver,eo_seg_id,eo_fld_id,evt_id,evt_arg_id,eo_fld_grp_func,ifd_fld_sql_ordr,ifd_fld_class_cd,data_typ_cd,fld_alg_id,kw_id,pre_alg_bnd_var_id,fld_val,sql_expr,default_expr,change_expr,fld_jus_cd,fld_fmt,fld_trm_cd,pad_char,trm_char,ifd_fld_len,ifd_fld_attr_cd,create_only_flg,ol_fld_tag,ol_grp_func,validation_cmnt,required_flg,default_val_cmnt,ifd_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN-MGM','9.0','ORDER_ASSIGN','LATE_DLVDTE','Late delivery date','140','','LC-BE03-OTM-TRANSPORT-PLAN','9.0','SHIPMENT','LATE_DEV_DT','','','','','EO','D','','','','','','','','N','','N','','','19','','F','','','','F','',''
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_ifd_fld
+SL_VERSION,ifd_id,ifd_ver,ifd_seg_id,ifd_fld_id,ifd_fld_descr,ifd_fld_ordr,ifd_fld_tag,eo_id,eo_ver,eo_seg_id,eo_fld_id,evt_id,evt_arg_id,eo_fld_grp_func,ifd_fld_sql_ordr,ifd_fld_class_cd,data_typ_cd,fld_alg_id,kw_id,pre_alg_bnd_var_id,fld_val,sql_expr,default_expr,change_expr,fld_jus_cd,fld_fmt,fld_trm_cd,pad_char,trm_char,ifd_fld_len,ifd_fld_attr_cd,create_only_flg,ol_fld_tag,ol_grp_func,validation_cmnt,required_flg,default_val_cmnt,ifd_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN-MGM','9.0','ORDER_ASSIGN','LATE_SHPDTE','Late shipping date','150','','LC-BE03-OTM-TRANSPORT-PLAN','9.0','SHIPMENT','LATE_SHP_DT','','','','','EO','D','','','','','','','','N','','N','','','19','','F','','','','F','',''
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_ifd_fld
+SL_VERSION,ifd_id,ifd_ver,ifd_seg_id,ifd_fld_id,ifd_fld_descr,ifd_fld_ordr,ifd_fld_tag,eo_id,eo_ver,eo_seg_id,eo_fld_id,evt_id,evt_arg_id,eo_fld_grp_func,ifd_fld_sql_ordr,ifd_fld_class_cd,data_typ_cd,fld_alg_id,kw_id,pre_alg_bnd_var_id,fld_val,sql_expr,default_expr,change_expr,fld_jus_cd,fld_fmt,fld_trm_cd,pad_char,trm_char,ifd_fld_len,ifd_fld_attr_cd,create_only_flg,ol_fld_tag,ol_grp_func,validation_cmnt,required_flg,default_val_cmnt,ifd_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN-MGM','9.0','ORDER_ASSIGN','ORDNUM','Ordnum','10','','LC-BE03-OTM-TRANSPORT-PLAN','9.0','ORDER_ASSIGN','ORDNUM','','','','','EO','C','','','','','','','','N','','N','','','140','','F','','','','F','','35'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_ifd_fld
+SL_VERSION,ifd_id,ifd_ver,ifd_seg_id,ifd_fld_id,ifd_fld_descr,ifd_fld_ordr,ifd_fld_tag,eo_id,eo_ver,eo_seg_id,eo_fld_id,evt_id,evt_arg_id,eo_fld_grp_func,ifd_fld_sql_ordr,ifd_fld_class_cd,data_typ_cd,fld_alg_id,kw_id,pre_alg_bnd_var_id,fld_val,sql_expr,default_expr,change_expr,fld_jus_cd,fld_fmt,fld_trm_cd,pad_char,trm_char,ifd_fld_len,ifd_fld_attr_cd,create_only_flg,ol_fld_tag,ol_grp_func,validation_cmnt,required_flg,default_val_cmnt,ifd_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN-MGM','9.0','ORDER_ASSIGN','SRVLVL','Service level','190','','LC-BE03-OTM-TRANSPORT-PLAN','9.0','SHIPMENT','SRVLVL','','','','','EO','C','','','','','','','','N','','N','','','','','F','','','Currently, no English translation is available.','F','Currently, no English translation is available.',''
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_ifd_fld
+SL_VERSION,ifd_id,ifd_ver,ifd_seg_id,ifd_fld_id,ifd_fld_descr,ifd_fld_ordr,ifd_fld_tag,eo_id,eo_ver,eo_seg_id,eo_fld_id,evt_id,evt_arg_id,eo_fld_grp_func,ifd_fld_sql_ordr,ifd_fld_class_cd,data_typ_cd,fld_alg_id,kw_id,pre_alg_bnd_var_id,fld_val,sql_expr,default_expr,change_expr,fld_jus_cd,fld_fmt,fld_trm_cd,pad_char,trm_char,ifd_fld_len,ifd_fld_attr_cd,create_only_flg,ol_fld_tag,ol_grp_func,validation_cmnt,required_flg,default_val_cmnt,ifd_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN-MGM','9.0','ORDER_ASSIGN','WH_ID','warehouse ID','100','','LC-BE03-OTM-TRANSPORT-PLAN','9.0','ORDER_ASSIGN','WH_ID','','','','','EO','C','','','','','','','','N','','N','','','128','','F','','','','F','','32'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_ifd_fld
+SL_VERSION,ifd_id,ifd_ver,ifd_seg_id,ifd_fld_id,ifd_fld_descr,ifd_fld_ordr,ifd_fld_tag,eo_id,eo_ver,eo_seg_id,eo_fld_id,evt_id,evt_arg_id,eo_fld_grp_func,ifd_fld_sql_ordr,ifd_fld_class_cd,data_typ_cd,fld_alg_id,kw_id,pre_alg_bnd_var_id,fld_val,sql_expr,default_expr,change_expr,fld_jus_cd,fld_fmt,fld_trm_cd,pad_char,trm_char,ifd_fld_len,ifd_fld_attr_cd,create_only_flg,ol_fld_tag,ol_grp_func,validation_cmnt,required_flg,default_val_cmnt,ifd_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN-MGM','9.0','SERVICE_ATTRIBUTE','CARCOD','carcod','50','','LC-BE03-OTM-TRANSPORT-PLAN','9.0','SHIPMENT','CARCOD','','','','','EO','C','','','','','','','','N','','N','','','40','','F','','','Currently, no English translation is available.','F','Currently, no English translation is available.','10'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_ifd_fld
+SL_VERSION,ifd_id,ifd_ver,ifd_seg_id,ifd_fld_id,ifd_fld_descr,ifd_fld_ordr,ifd_fld_tag,eo_id,eo_ver,eo_seg_id,eo_fld_id,evt_id,evt_arg_id,eo_fld_grp_func,ifd_fld_sql_ordr,ifd_fld_class_cd,data_typ_cd,fld_alg_id,kw_id,pre_alg_bnd_var_id,fld_val,sql_expr,default_expr,change_expr,fld_jus_cd,fld_fmt,fld_trm_cd,pad_char,trm_char,ifd_fld_len,ifd_fld_attr_cd,create_only_flg,ol_fld_tag,ol_grp_func,validation_cmnt,required_flg,default_val_cmnt,ifd_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN-MGM','9.0','SERVICE_ATTRIBUTE','CLIENT_ID','client_it','60','','LC-BE03-OTM-TRANSPORT-PLAN','9.0','SHIPMENT','HOST_CLIENT_ID','','','','','EO','C','','','','','','','','N','','N','','','128','','F','','','Currently, no English translation is available.','F','Currently, no English translation is available.','32'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_ifd_fld
+SL_VERSION,ifd_id,ifd_ver,ifd_seg_id,ifd_fld_id,ifd_fld_descr,ifd_fld_ordr,ifd_fld_tag,eo_id,eo_ver,eo_seg_id,eo_fld_id,evt_id,evt_arg_id,eo_fld_grp_func,ifd_fld_sql_ordr,ifd_fld_class_cd,data_typ_cd,fld_alg_id,kw_id,pre_alg_bnd_var_id,fld_val,sql_expr,default_expr,change_expr,fld_jus_cd,fld_fmt,fld_trm_cd,pad_char,trm_char,ifd_fld_len,ifd_fld_attr_cd,create_only_flg,ol_fld_tag,ol_grp_func,validation_cmnt,required_flg,default_val_cmnt,ifd_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN-MGM','9.0','SERVICE_ATTRIBUTE','ORDNUM','ordnum','20','','LC-BE03-OTM-TRANSPORT-PLAN','9.0','ORDER_ASSIGN','ORDNUM','','','','','EO','C','','','','','','','','N','','N','','','140','','F','','','Currently, no English translation is available.','F','Currently, no English translation is available.','35'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_ifd_fld
+SL_VERSION,ifd_id,ifd_ver,ifd_seg_id,ifd_fld_id,ifd_fld_descr,ifd_fld_ordr,ifd_fld_tag,eo_id,eo_ver,eo_seg_id,eo_fld_id,evt_id,evt_arg_id,eo_fld_grp_func,ifd_fld_sql_ordr,ifd_fld_class_cd,data_typ_cd,fld_alg_id,kw_id,pre_alg_bnd_var_id,fld_val,sql_expr,default_expr,change_expr,fld_jus_cd,fld_fmt,fld_trm_cd,pad_char,trm_char,ifd_fld_len,ifd_fld_attr_cd,create_only_flg,ol_fld_tag,ol_grp_func,validation_cmnt,required_flg,default_val_cmnt,ifd_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN-MGM','9.0','SERVICE_ATTRIBUTE','SRVLVL','srvlvl','40','','LC-BE03-OTM-TRANSPORT-PLAN','9.0','SHIPMENT','SRVLVL','','','','','EO','C','','','','','','','','N','','N','','','40','','F','','','Currently, no English translation is available.','F','Currently, no English translation is available.','10'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_ifd_fld
+SL_VERSION,ifd_id,ifd_ver,ifd_seg_id,ifd_fld_id,ifd_fld_descr,ifd_fld_ordr,ifd_fld_tag,eo_id,eo_ver,eo_seg_id,eo_fld_id,evt_id,evt_arg_id,eo_fld_grp_func,ifd_fld_sql_ordr,ifd_fld_class_cd,data_typ_cd,fld_alg_id,kw_id,pre_alg_bnd_var_id,fld_val,sql_expr,default_expr,change_expr,fld_jus_cd,fld_fmt,fld_trm_cd,pad_char,trm_char,ifd_fld_len,ifd_fld_attr_cd,create_only_flg,ol_fld_tag,ol_grp_func,validation_cmnt,required_flg,default_val_cmnt,ifd_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN-MGM','9.0','SERVICE_ATTRIBUTE','VALUE','value','60','','LC-BE03-OTM-TRANSPORT-PLAN','9.0','SERVICE_ATTRIBUTE','VALUE','','','','','EO','C','','','','','','','','N','','N','','','140','','F','','','Currently, no English translation is available.','F','Currently, no English translation is available.','35'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_ifd_fld
+SL_VERSION,ifd_id,ifd_ver,ifd_seg_id,ifd_fld_id,ifd_fld_descr,ifd_fld_ordr,ifd_fld_tag,eo_id,eo_ver,eo_seg_id,eo_fld_id,evt_id,evt_arg_id,eo_fld_grp_func,ifd_fld_sql_ordr,ifd_fld_class_cd,data_typ_cd,fld_alg_id,kw_id,pre_alg_bnd_var_id,fld_val,sql_expr,default_expr,change_expr,fld_jus_cd,fld_fmt,fld_trm_cd,pad_char,trm_char,ifd_fld_len,ifd_fld_attr_cd,create_only_flg,ol_fld_tag,ol_grp_func,validation_cmnt,required_flg,default_val_cmnt,ifd_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN-MGM','9.0','SERVICE_ATTRIBUTE','WH_ID','wh_id','30','','LC-BE03-OTM-TRANSPORT-PLAN','9.0','SHIPMENT','WH_ID','','','','','EO','C','','','','','','','','N','','N','','','128','','F','','','Currently, no English translation is available.','F','Currently, no English translation is available.','32'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_ifd_fld
+SL_VERSION,ifd_id,ifd_ver,ifd_seg_id,ifd_fld_id,ifd_fld_descr,ifd_fld_ordr,ifd_fld_tag,eo_id,eo_ver,eo_seg_id,eo_fld_id,evt_id,evt_arg_id,eo_fld_grp_func,ifd_fld_sql_ordr,ifd_fld_class_cd,data_typ_cd,fld_alg_id,kw_id,pre_alg_bnd_var_id,fld_val,sql_expr,default_expr,change_expr,fld_jus_cd,fld_fmt,fld_trm_cd,pad_char,trm_char,ifd_fld_len,ifd_fld_attr_cd,create_only_flg,ol_fld_tag,ol_grp_func,validation_cmnt,required_flg,default_val_cmnt,ifd_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN-MGM','9.0','PARAM_VALUE','CARCOD','Carrier Code','70','CARCOD','LC-BE03-OTM-TRANSPORT-PLAN','9.0','SHIPMENT','CARCOD','','','','','EO','C','','','','','','','','N','','N','','','40','','F','','','Currently, no English translation is available.','F','Currently, no English translation is available.','40'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_ifd_fld
+SL_VERSION,ifd_id,ifd_ver,ifd_seg_id,ifd_fld_id,ifd_fld_descr,ifd_fld_ordr,ifd_fld_tag,eo_id,eo_ver,eo_seg_id,eo_fld_id,evt_id,evt_arg_id,eo_fld_grp_func,ifd_fld_sql_ordr,ifd_fld_class_cd,data_typ_cd,fld_alg_id,kw_id,pre_alg_bnd_var_id,fld_val,sql_expr,default_expr,change_expr,fld_jus_cd,fld_fmt,fld_trm_cd,pad_char,trm_char,ifd_fld_len,ifd_fld_attr_cd,create_only_flg,ol_fld_tag,ol_grp_func,validation_cmnt,required_flg,default_val_cmnt,ifd_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN-MGM','9.0','PARAM_VALUE','CLIENT_ID','Client ID','20','CLIENT_ID','LC-BE03-OTM-TRANSPORT-PLAN','9.0','SHIPMENT','HOST_CLIENT_ID','','','','','EO','C','','','','','','','','N','','N','','','32','','F','','','Currently, no English translation is available.','F','Currently, no English translation is available.','32'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_ifd_fld
+SL_VERSION,ifd_id,ifd_ver,ifd_seg_id,ifd_fld_id,ifd_fld_descr,ifd_fld_ordr,ifd_fld_tag,eo_id,eo_ver,eo_seg_id,eo_fld_id,evt_id,evt_arg_id,eo_fld_grp_func,ifd_fld_sql_ordr,ifd_fld_class_cd,data_typ_cd,fld_alg_id,kw_id,pre_alg_bnd_var_id,fld_val,sql_expr,default_expr,change_expr,fld_jus_cd,fld_fmt,fld_trm_cd,pad_char,trm_char,ifd_fld_len,ifd_fld_attr_cd,create_only_flg,ol_fld_tag,ol_grp_func,validation_cmnt,required_flg,default_val_cmnt,ifd_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN-MGM','9.0','PARAM_VALUE','NAME','Paramater Name from OTM','50','NAME','LC-BE03-OTM-TRANSPORT-PLAN','9.0','PARAM_VALUE','NAME','','','','','EO','C','','','','','','','','N','','N','','','100','','F','','','Currently, no English translation is available.','F','Currently, no English translation is available.','100'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_ifd_fld
+SL_VERSION,ifd_id,ifd_ver,ifd_seg_id,ifd_fld_id,ifd_fld_descr,ifd_fld_ordr,ifd_fld_tag,eo_id,eo_ver,eo_seg_id,eo_fld_id,evt_id,evt_arg_id,eo_fld_grp_func,ifd_fld_sql_ordr,ifd_fld_class_cd,data_typ_cd,fld_alg_id,kw_id,pre_alg_bnd_var_id,fld_val,sql_expr,default_expr,change_expr,fld_jus_cd,fld_fmt,fld_trm_cd,pad_char,trm_char,ifd_fld_len,ifd_fld_attr_cd,create_only_flg,ol_fld_tag,ol_grp_func,validation_cmnt,required_flg,default_val_cmnt,ifd_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN-MGM','9.0','PARAM_VALUE','OPT_ID','Optoin ID','40','OPT_ID','LC-BE03-OTM-TRANSPORT-PLAN','9.0','SERVICE_ATTRIBUTE','VALUE','','','','','EO','C','','','','','','','','N','','N','','','40','','F','','','Currently, no English translation is available.','F','Currently, no English translation is available.','40'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_ifd_fld
+SL_VERSION,ifd_id,ifd_ver,ifd_seg_id,ifd_fld_id,ifd_fld_descr,ifd_fld_ordr,ifd_fld_tag,eo_id,eo_ver,eo_seg_id,eo_fld_id,evt_id,evt_arg_id,eo_fld_grp_func,ifd_fld_sql_ordr,ifd_fld_class_cd,data_typ_cd,fld_alg_id,kw_id,pre_alg_bnd_var_id,fld_val,sql_expr,default_expr,change_expr,fld_jus_cd,fld_fmt,fld_trm_cd,pad_char,trm_char,ifd_fld_len,ifd_fld_attr_cd,create_only_flg,ol_fld_tag,ol_grp_func,validation_cmnt,required_flg,default_val_cmnt,ifd_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN-MGM','9.0','PARAM_VALUE','ORDNUM','Order Number','30','ORDNUM','LC-BE03-OTM-TRANSPORT-PLAN','9.0','ORDER_ASSIGN','ORDNUM','','','','','EO','C','','','','','','','','N','','N','','','35','','F','','','Currently, no English translation is available.','F','Currently, no English translation is available.','35'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_ifd_fld
+SL_VERSION,ifd_id,ifd_ver,ifd_seg_id,ifd_fld_id,ifd_fld_descr,ifd_fld_ordr,ifd_fld_tag,eo_id,eo_ver,eo_seg_id,eo_fld_id,evt_id,evt_arg_id,eo_fld_grp_func,ifd_fld_sql_ordr,ifd_fld_class_cd,data_typ_cd,fld_alg_id,kw_id,pre_alg_bnd_var_id,fld_val,sql_expr,default_expr,change_expr,fld_jus_cd,fld_fmt,fld_trm_cd,pad_char,trm_char,ifd_fld_len,ifd_fld_attr_cd,create_only_flg,ol_fld_tag,ol_grp_func,validation_cmnt,required_flg,default_val_cmnt,ifd_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN-MGM','9.0','PARAM_VALUE','SRVLVL','Carrier Service Level','80','SRVLVL','LC-BE03-OTM-TRANSPORT-PLAN','9.0','SHIPMENT','SRVLVL','','','','','EO','C','','','','','','','','N','','N','','','40','','F','','','Currently, no English translation is available.','F','Currently, no English translation is available.','40'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_ifd_fld
+SL_VERSION,ifd_id,ifd_ver,ifd_seg_id,ifd_fld_id,ifd_fld_descr,ifd_fld_ordr,ifd_fld_tag,eo_id,eo_ver,eo_seg_id,eo_fld_id,evt_id,evt_arg_id,eo_fld_grp_func,ifd_fld_sql_ordr,ifd_fld_class_cd,data_typ_cd,fld_alg_id,kw_id,pre_alg_bnd_var_id,fld_val,sql_expr,default_expr,change_expr,fld_jus_cd,fld_fmt,fld_trm_cd,pad_char,trm_char,ifd_fld_len,ifd_fld_attr_cd,create_only_flg,ol_fld_tag,ol_grp_func,validation_cmnt,required_flg,default_val_cmnt,ifd_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN-MGM','9.0','PARAM_VALUE','VALUE','Paramater Value from OTM','60','VALUE','LC-BE03-OTM-TRANSPORT-PLAN','9.0','PARAM_VALUE','VALUE','','','','','EO','C','','','','','','','','N','','N','','','250','','F','','','Currently, no English translation is available.','F','Currently, no English translation is available.','250'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_ifd_fld
+SL_VERSION,ifd_id,ifd_ver,ifd_seg_id,ifd_fld_id,ifd_fld_descr,ifd_fld_ordr,ifd_fld_tag,eo_id,eo_ver,eo_seg_id,eo_fld_id,evt_id,evt_arg_id,eo_fld_grp_func,ifd_fld_sql_ordr,ifd_fld_class_cd,data_typ_cd,fld_alg_id,kw_id,pre_alg_bnd_var_id,fld_val,sql_expr,default_expr,change_expr,fld_jus_cd,fld_fmt,fld_trm_cd,pad_char,trm_char,ifd_fld_len,ifd_fld_attr_cd,create_only_flg,ol_fld_tag,ol_grp_func,validation_cmnt,required_flg,default_val_cmnt,ifd_fld_max_chars
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN-MGM','9.0','PARAM_VALUE','WH_ID','Warehouse ID','10','WH_ID','LC-BE03-OTM-TRANSPORT-PLAN','9.0','SHIPMENT','WH_ID','','','','','EO','C','','','','','','','','N','','N','','','32','','F','','','Currently, no English translation is available.','F','Currently, no English translation is available.','32'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_i_sys_ifd_id
+SL_VERSION,sys_id,ifd_id,ifd_ver,id_seg_alg_id,ord_ind,ena_flg
+2019.1,'OTM_FAST','LC-BE03-OTM-TRANSPORT-PLAN','9.0','','100','T'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_i_ifd_evt_map
+SL_VERSION,ifd_id,ifd_ver,ifd_action,sys_id,ifd_action_alg_id,evt_id,ena_flg
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN','9.0','[ALL]','OTM_FAST','','LC-BE03-OTM-TRANSPORT-PLAN','T'
+
+CSV__TAG__KLUDGE___TABLE_NAME sl_o_ifd_sys_map
+SL_VERSION,ifd_id,ifd_ver,sys_id,blk_alg_id,blk_alg_eval_cd,comm_mode_cd,comm_mthd_id,persist_eo_flg,persist_ifd_flg,ena_flg,grp_ordr,snd_ordr,head_evt_id,tail_evt_id,succ_evt_id,fail_evt_id
+2019.1,'LC-BE03-OTM-TRANSPORT-PLAN-MGM','9.0','DCS','','','SYNCD','','T','T','T','','','','','',''
+
+CSV__TAG__KLUDGE___COMMIT
