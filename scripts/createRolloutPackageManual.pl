@@ -805,10 +805,16 @@ sub package_rollout{
 	#validate $msqlhighdir exist
 	if (-e "$hmsqldir")
 	{
-		find(\&writehighmsql, \&preprocess, $hmsqldir);
-		sub preprocess
-		{ 
-			sort { uc $a cmp uc $b } @_ ;
+		#find(\&writehighmsql, \&preprocess, $hmsqldir);
+		find({preprocess => \&before, wanted => \&writehighmsql}, $hmsqldir);
+		#sub preprocess
+		#{ 
+		#	sort { uc $a cmp uc $b } @_ ;
+		#}
+		sub before
+		{
+		  print "Sorting files ";
+		  sort @_
 		}
 		
 		sub writehighmsql
@@ -1021,10 +1027,16 @@ sub package_rollout{
 	#validate $msqldir exist
 	if (-e "$lmsqldir")
 	{
-		find(\&writemsql, \&preprocess, $lmsqldir);
-		sub preprocess
-		{ 
-			sort { uc $a cmp uc $b } @_ ;
+		#find(\&writemsql, \&preprocess, $lmsqldir);
+		find({preprocess => \&before, wanted => \&writemsql}, $lmsqldir);
+		#sub preprocess
+		#{ 
+		#	sort { uc $a cmp uc $b } @_ ;
+		#}
+		sub before
+		{
+		  print "Sorting files ";
+		  sort @_
 		}
 		
 		sub writemsql
