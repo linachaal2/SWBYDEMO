@@ -1,0 +1,138 @@
+Creating Rollout Directory 
+
+Current Time: Time::tm=ARRAY(0x800077180)
+
+Options
+Rollout Directory = /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1
+logfile = RLTEST1.log
+
+Environment:
+LESDIR = /y/Docker/MY-GIT/SWBYDEMO
+Log directory=/y/Docker/MY-GIT/SWBYDEMOog
+Rollout Name = RLTEST1
+
+Reading file inputFile.txt to get options for creating rollout directory
+
+Calling pull_files function with: -c DDL -d afterrun -f "90_Rollout_install_insert.msql" -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l RLTEST1.log -o 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+pull_files: Pulling Components
+
+RLTEST1 folder does not exist - creating it
+DDL
+Pulling DDL file: 90_Rollout_install_insert.msql
+Create RO directory - /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/pkg/db/ddl/afterrun
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Calling pull_files function with: -c DDL -d afterrun -f "80_integrator_sys_comm.msql" -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l RLTEST1.log -o 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+pull_files: Pulling Components
+
+DDL
+Pulling DDL file: 80_integrator_sys_comm.msql
+Create RO directory - /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/pkg/db/ddl/afterrun
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Calling pull_files function with: -c DDL -d prerun -f "20_delete_data.msql" -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l RLTEST1.log -o 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+pull_files: Pulling Components
+
+DDL
+Pulling DDL file: 20_delete_data.msql
+Create RO directory - /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/pkg/db/ddl/prerun
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Finished calls to pull_files.  Read in and processed 3 lines. 
+
+Calling package_rollout function with: -d rollout/RLTEST1 -l RLTEST1.log -o  -p -m 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Building Rollout Package 
+
+Current Time: Time::tm=ARRAY(0x800571190)
+
+Options
+RO_DIR = rollout/RLTEST1
+logfile = RLTEST1.log
+
+Environment:
+LESDIR = /y/Docker/MY-GIT/SWBYDEMO
+Log directory=/y/Docker/MY-GIT/SWBYDEMOog
+Rollout Name = RLTEST1
+
+Copying rollout.pl - from /y/Docker/MY-GIT/SWBYDEMO/scripts/rollout.pl   to /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/rollout.pl
+
+Checking for existing text from rollout script (file copy, directory creation, etc.)
+No existing rollout script text found...Continuing
+
+Checking for High Priority MSQL (database changes) files
+Found Priority MSQL: 
+	file = 20_delete_data.msql
+	directory = prerun
+Writing REPLACE and RUNSQL lines to rollout script for 20_delete_data.msql 
+	REPLACE pkg/db/ddl/prerun/20_delete_data.msql $LESDIR/db/ddl/prerun
+	runsql $LESDIR/db/ddl/prerun/20_delete_data.msql
+
+Checking for MLOADS
+No MLOADS found...Continuing
+
+Checking for Integrator Loads
+No Integrator Loads found...Continuing
+
+Checking for MOCA commands
+No MOCA commands found...Continuing
+
+Checking for Labels
+No labels commands found...Continuing
+
+Checking for reports
+No reports commands found...Continuing
+
+Checking for Low Priority MSQL (database changes) files
+Found Low Priority MSQL: 
+	file = 80_integrator_sys_comm.msql
+	directory = afterrun
+Writing REPLACE and RUNSQL lines to rollout script for 80_integrator_sys_comm.msql 
+	REPLACE pkg/db/ddl/afterrun/80_integrator_sys_comm.msql $LESDIR/db/ddl/afterrun
+	runsql $LESDIR/db/ddl/afterrun/80_integrator_sys_comm.msql
+
+Found Low Priority MSQL: 
+	file = 90_Rollout_install_insert.msql
+	directory = afterrun
+Writing REPLACE and RUNSQL lines to rollout script for 90_Rollout_install_insert.msql 
+	REPLACE pkg/db/ddl/afterrun/90_Rollout_install_insert.msql $LESDIR/db/ddl/afterrun
+	runsql $LESDIR/db/ddl/afterrun/90_Rollout_install_insert.msql
+
+Checking for MTF files
+No MTF files found...Continuing
+
+Removing any previous creations of readme file
+
+Creating README file
+
+Created README file in /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1 
+
+Removing any previous creations of rollout script RLTEST1
+
+Creating rollout script RLTEST1
+
+Created Rollout file RLTEST1 in /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1 
+
+Removing any previous creations of tar file RLTEST1.tar
+
+Tarring directory <rollout/RLTEST1> to RLTEST1.tar
+
+Created Tar file RLTEST1.tar in /y/Docker/MY-GIT/SWBYDEMO/rollout 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+

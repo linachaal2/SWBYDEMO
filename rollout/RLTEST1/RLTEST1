@@ -1,0 +1,32 @@
+# Extension RLTEST1
+#
+# This script has been built specifically to deploy patch RLTEST1
+
+# Removing files removed by extension.
+
+# Run any High Priority SQL, MSQL and other scripts
+RUNSQL $LESDIR/db/ddl/prerun/20_delete_data.msql
+
+# Replacing files affected by extension.
+REPLACE pkg/db/ddl/prerun/20_delete_data.msql $LESDIR/db/ddl/prerun
+REPLACE pkg/db/ddl/afterrun/80_integrator_sys_comm.msql $LESDIR/db/ddl/afterrun
+REPLACE pkg/db/ddl/afterrun/90_Rollout_install_insert.msql $LESDIR/db/ddl/afterrun
+
+
+# Load any data affected.  NOTE the assumption is that
+# the control file will be in the db/data/load directory.
+
+# Import any Integrator data affected
+
+# Run any Low Priority SQL, MSQL and other scripts
+RUNSQL $LESDIR/db/ddl/afterrun/80_integrator_sys_comm.msql
+RUNSQL $LESDIR/db/ddl/afterrun/90_Rollout_install_insert.msql
+
+# Perform any environment rebuilds if necessary.
+
+# Perform any environment rebuilds if necessary
+
+# Run any High Priority SQL, MSQL and other scripts
+RUNSQL $LESDIR/db/ddl/prerun/20_delete_data.msql
+
+#END OF SCRIPT
