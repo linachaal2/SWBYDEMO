@@ -1,0 +1,85 @@
+{ "SW_BYWMS_CODE_REVIEW": {
+    "SCRIPT_SETTINGS": { 
+            "ENABLED": 1,   
+            "VERSION_ID": "0.4",   
+            "SEARCH_PATH": "/Users/randy/Dropbox (Personal)/Powershell/CODE-REVIEW/Code-Review-Prototype/Test-Suite/CSV", 
+            "COLOR_SETTINGS": { 
+                "SCRIPT_LINES": "Yellow",        
+                "HEADER_LINES": "Yellow",
+                "CODE_LINES": "White",  
+                "CHECKTTYPE_LINES": "Black", 
+                "INFORMATION_LINES": "Blue", 
+                "WARNING_LINES": "Magenta",      
+                "ERROR_LINES": "Red" }},
+    "IGNORE_SETTINGS": { 
+            "IGNORE_FOLDERS": "TEMP,TEST,IGNORES/POF",
+            "IGNORE_FILES": "*.log",
+            "OPEN_BRACKETS_CHECK_ONLY_FOR": ".ctl,.sql,.msql,.mcmd",
+            "OPEN_SQUARE_BRACKETS_CHECK_ONLY_FOR": ".ctl,.sql,.msql,.mcmd",
+            "EMPTY_FILE_CHECK_ONLY_FOR": "*",
+            "UNEVEN_SINGLE_QUOTES_CHECK_ONLY_FOR": ".csv",
+            "UNEVEN_DOUBLE_QUOTES_CHECK_ONLY_FOR": ".csv"},
+    "FILE_TYPES": { 
+            "FILE": { 
+                "ENABLED": 1,
+                "SCRIPT_NAME": "code_review_base_prototype_FILE.ps1"},
+            "ACTION": { 
+                "ENABLED": 1 },
+            "CMD":  { 
+                "ENABLED": 1 },
+            "CSV":  { 
+                "ENABLED": 1 ,
+                "CHECK_FIELD_AMOUNT": 0,
+                "LES_OPT_ATH": {
+                    "ENABLED": 1,
+                    "OTHER_USERS_THEN_SUPER": 1
+                },
+                "SCRIPT_NAME": "code_review_base_prototype_CSV.ps1" },
+            "JSON":  { 
+                "ENABLED": 1,
+                "SYNTAX_CHECK": 1,
+                "SCRIPT_NAME": "code_review_base_prototype_JSON.ps1" },
+            "POF":  { 
+                "ENABLED": 1,
+                "SCRIPT_NAME": "code_review_base_prototype_POF.ps1"},
+            "RESOURCE":  { 
+                "ENABLED": 1 },
+            "RPX":  { 
+                "ENABLED": 1 },
+            "SQL":  { 
+                "ENABLED": 1,
+                "SCRIPT_NAME": "code_review_base_prototype_SQL.ps1",
+                "LEFT_JOIN_USAGE_WARNING": 1,
+                "ANSI_JOIN_WARNING": 1,
+                "UNUSED_TABLE_USAGE_WARNING": 1,
+                "UNUSED_TABLE_USAGE_ERROR": 0},
+            "SLEXP":  { 
+                "ENABLED": 1 },
+            "XML": {
+                "ENABLED": 1,
+                "SYNTAX_CHECK": 1,
+                "VERIFY_AS_XML": ".mcmd,.mtrg,.jrxml,.rpx,.action,.resource,.xml",
+                "SCRIPT_NAME": "code_review_base_prototype_XML.ps1"}},
+    "JOINS_NEEDED": {
+            "table-aremst": "wh_id,bldg_id",
+            "table-adrmst": "client_id,adr_id",
+            "table-dscmst": "locale_id,colnam",
+            "table-invlod": "wh_id,stoloc",
+            "table-invsub": "lodnum",
+            "table-les_mls_cat": "locale_id,mls_id",
+            "table-locmst": "stoloc,wh_id",
+            "table-ord": "wh_id,client_id",
+            "table-ord_note": "wh_id,client_id,ordnum",
+            "table-ord_line": "ordnum,wh_id,client_id",
+            "table-ord_line_note": "wh_id,client_id,ordnum,ordlin,ordsln",
+            "table-poldat_view": "wh_id_tmpl,polcod,polvar,polval,srtseq",
+            "table-prtdsc": "colval,prtnum,prt_client_id,wh_id_tmpl,locale_id",
+            "table-prtftp": "prtnum,ftpcod,prt_client_id,wh_id",
+            "table-prtftp_dtl": "prtnum,prt_client_id,wh_id,ftpcod",
+            "table-prtmst": "prtnum,prt_client_id,wh_id_tmpl",
+            "table-shipment": "wh_id,client_id",
+            "table-shipment_line": "wh_id,client_id,ordnum,ordlin,ordsln",
+            "table-var_ord": "wh_id,client_id"
+            }
+    }
+}
