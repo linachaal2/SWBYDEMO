@@ -10,6 +10,17 @@ jobs:
         id: ps-validation
         shell: pwsh
         run: |
-          ./scripts/code_review_base_prototype.ps1 ${{ github.workspace }}/rollout -ExitCode
+          ./scripts/code_review_base_prototype.ps1 ${{ github.workspace }}/rollout > validation.log
+     
+      - name: Upload validation file
+        uses: actions/upload-artifact@v4
+        with:
+          name: validation-log-file
+          path: validation.log 
+      
+      - name: Get Final Validation result
+        run: |
+          value=`cat validation.log`
+          echo The result is $value    
      # - name: Get Powershell Validation Results
      #   run:  echo "Pwsh output: ${{ steps.ps-validation.outputs.outputContent }}" 
