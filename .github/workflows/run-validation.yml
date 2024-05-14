@@ -1,0 +1,12 @@
+name: run-validation
+'on': workflow_dispatch
+jobs:
+ validate-rollout-files:
+    name: Run Powersheel script
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build
+        shell: pwsh
+        run: |
+          ./scripts/code_review_base_prototype.ps1 ${{ github.workspace }}/rollout
