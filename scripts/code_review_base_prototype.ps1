@@ -1238,7 +1238,7 @@ else {
     Write-Output " Script is disabled. "
     Write-Output " "
 }
-if($global:totalErrorCount -ne 1) {
+if($global:totalErrorCount -gt 0) {
 return 0}
 else
 {
