@@ -61,7 +61,8 @@ jobs:
       - name: Build
         shell: pwsh
         run: |
-         .\Get-Planet.Tests.ps1 
+          .\code_review_base_prototype.ps1 ${{ github.workspace }}/rollout
+       #  .\Get-Planet.Tests.ps1 
       - name: Test with Pester
         shell: pwsh
         run: Invoke-Pester Get-Planet.Tests.ps1 -Passthru > pesterOutput.log
