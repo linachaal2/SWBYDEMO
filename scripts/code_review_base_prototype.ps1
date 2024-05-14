@@ -1239,7 +1239,4 @@ else {
     Write-Output " "
 }
 if($global:totalErrorCount -gt 0) {
-return 0}
-else
-{
-return 1}
+Exit  $global:totalErrorCount}
