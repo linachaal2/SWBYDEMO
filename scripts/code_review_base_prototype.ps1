@@ -31,6 +31,7 @@ $global:currentFileErrorCount = 0
 $global:currentFileWarningCount = 0
 $global:characterPosition = 0
 $global:currentFileIsEmptyOrIgnored = 0
+$global:totalErrorCount = 0
 
 
 
@@ -119,6 +120,7 @@ function fileErrorFound([string]$errorFound) {
     showError $errorFound
     $global:fileErrorCount +=1
     $global:currentFileErrorCount +=1
+	$global:totalErrorCount +=1
 }
 
 
@@ -126,23 +128,27 @@ function csvErrorFound([string]$errorFound) {
     showError $errorFound 
     $global:csvErrorCount +=1
     $global:currentFileErrorCount +=1
+	$global:totalErrorCount +=1
 }
 
 function csvErrorFoundWithRow([string]$errorFound) {
     showErrorWithRow $global:lineCount $global:currentRowString $errorFound 
     $global:csvErrorCount +=1
     $global:currentFileErrorCount +=1
+	$global:totalErrorCount +=1
 }
 function csvWarningFoundWithRow([string]$errorFound) {
     showWarningWithRow $global:lineCount $errorFound
     $global:csvErrorCount +=1
     $global:currentFileErrorCount +=1
+	$global:totalErrorCount +=1
 }
 
 function csvErrorFoundWithColumn([string]$errorFound) {
     showErrorWithColumn $global:lineCount $global:characterPosition $global:currentRowString $errorFound
     $global:csvErrorCount +=1
     $global:currentFileErrorCount +=1
+	$global:totalErrorCount +=1
 }
 function csvWarningFound([string]$errorFound) {
     showWarning $errorFound
@@ -159,11 +165,13 @@ function sqlErrorFound([string]$errorFound) {
     showError $errorFound
     $global:sqlErrorCount +=1
     $global:currentFileErrorCount +=1
+	$global:totalErrorCount +=1
 }
 function sqlErrorFoundWithColumn([string]$errorFound) {
     showErrorWithColumn $global:lineCount $global:characterPosition $global:currentRowString $errorFound
     $global:sqlErrorCount +=1
     $global:currentFileErrorCount +=1
+	$global:totalErrorCount +=1
 }
 function sqlWarningFound([string]$errorFound) {
     showWarning $errorFound
@@ -180,12 +188,14 @@ function xmlErrorFound([string]$errorFound) {
     showError $errorFound
     $global:xmlErrorCount +=1
     $global:currentFileErrorCount +=1
+	$global:totalErrorCount +=1
 }
 
 function jsonErrorFound([string]$errorFound) {
     showError $errorFound
     $global:jsonErrorCount +=1
     $global:currentFileErrorCount +=1
+	$global:totalErrorCount +=1
 }
 function pofWarningFound([string]$warningFound) {
     showWarning $warningFound
@@ -202,11 +212,13 @@ function pofErrorFound([string]$errorFound) {
     showError $errorFound
     $global:pofErrorCount +=1
     $global:currentFileErrorCount +=1
+	$global:totalErrorCount +=1
 } 
 function pofErrorFoundWithColumn([string]$errorFound) {
     showErrorWithColumn $global:lineCount $global:characterPosition $global:currentRowString $errorFound
     $global:pofErrorCount +=1
     $global:currentFileErrorCount +=1
+	$global:totalErrorCount +=1
 }
 
 function showHeader() {
@@ -1226,3 +1238,8 @@ else {
     Write-Output " Script is disabled. "
     Write-Output " "
 }
+if($global:totalErrorCount -ne 1) {
+return 0}
+else
+{
+return 1}
