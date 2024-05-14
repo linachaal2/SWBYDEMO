@@ -1242,4 +1242,6 @@ else {
 }
 Write-Output "   > TOTAL Errors found: $($global:totalErrorCount) " 
 if($global:totalErrorCount -gt 0) {
-Exit  $global:totalErrorCount}
+return  $global:totalErrorCount}
+else
+{return 0}
