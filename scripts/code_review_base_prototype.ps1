@@ -261,8 +261,10 @@ function showEndAnalysis() {
     Write-Output "  CSV Files checked: $($global:csvFileCount)" | scriptLineColour
     if ($global:csvFileCount -gt 0) { Write-Output "   - Warnings found: $($global:csvFileCount)" | warningLineColour }
     else {                              Write-Output "   - Warnings found: 0 " | scriptLineColour }
-    if ($global:csvFileCount -gt 0) { Write-Output "   - Errors found: $($global:csvFileCount)" | errorLineColour }
-    else {                              Write-Output "   - Errors found: 0 " | scriptLineColour }
+    if ($global:csvFileCount -gt 0) { Write-Output "   - Errors found: $($global:csvFileCount)" | errorLineColour 
+	$global:totalErrorCount +=1}
+    else {                              Write-Output "   - Errors found: 0 " | scriptLineColour 
+	}
     
     Write-Output " "
     Write-Output "  SQL Files checked: $($global:sqlFileCount)" | scriptLineColour
