@@ -6,7 +6,10 @@ jobs:
     runs-on: self-hosted
     steps:
       - uses: actions/checkout@v4
-      - name: Build
+      - name: Run Powershell Validation
+        id: ps-validation
         shell: pwsh
         run: |
-          ./scripts/code_review_base_prototype.ps1 ${{ github.workspace }}/rollout
+          ./scripts/code_review_base_prototype.ps1 ${{ github.workspace }}/rollout -ExitCode
+     # - name: Get Powershell Validation Results
+     #   run:  echo "Pwsh output: ${{ steps.ps-validation.outputs.outputContent }}" 
