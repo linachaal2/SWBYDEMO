@@ -1240,7 +1240,7 @@ else {
     Write-Output " Script is disabled. "
     Write-Output " "
 }
-Write-Output "   > TOTAL Errors found: $($global:totalErrorCount) " 
+Write-Output "   > TOTAL Errors found: $($global:totalErrorCount) \n" 
 if($global:totalErrorCount -gt 0) {
 return  $global:totalErrorCount}
 else
