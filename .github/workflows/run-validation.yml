@@ -2,7 +2,7 @@ name: run-validation
 'on': workflow_dispatch
 jobs:
  validate-rollout-files:
-    name: Run Powersheel script
+    name: Run Powershell script
     runs-on: self-hosted
     steps:
       - uses: actions/checkout@v4
