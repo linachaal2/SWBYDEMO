@@ -23,7 +23,7 @@ jobs:
           if ${{ vars.CUSTOMER_NAME != '' }}; then
             echo "CUSTOMER_NAME=${{ vars.CUSTOMER_NAME }}"  >> $GITHUB_OUTPUT
           else
-            echo "CUSTOMER_NAME=${{ github.events.inputs.customer_name }}"  >> $GITHUB_OUTPUT
+            echo "CUSTOMER_NAME=${{ github.event.inputs.customer_name }}"  >> $GITHUB_OUTPUT
           fi
       - name: Print Customer Var
         run: |        
