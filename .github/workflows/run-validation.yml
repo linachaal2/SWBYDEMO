@@ -8,6 +8,7 @@ on:
         required: true
         type: string
         default: 'RFH' 
+        
 jobs:
  validate-rollout-files:
     name: Run Powershell script
@@ -16,13 +17,21 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
-      - name: Get Reporsitory Var
-        id: customer-name
+      - name: Get Customer Var
+        id: get_customer-name
+        shell: bash
         run: |
-         echo "CUSTOMER_NAME=${{ vars.CUSTOMER_NAME || fromJSON('{"RFH"}') }}" >> $GITHUB_OUTPUT 
-      - name: Print Env Var
+          if ${{ vars.CUSTOMER_NAME != '' }}; then
+            echo "CUSTOMER_NAME=${{ vars.CUSTOMER_NAME }}"  >> $GITHUB_OUTPUT
+          else
+            echo "CUSTOMER_NAME=${{ github.events.inputs.customer_name }}"  >> $GITHUB_OUTPUT
+          fi
+      - name: Print Customer Var
         run: |        
-         echo "${{ steps.customer-name.outputs.CUSTOMER_NAME }}"
+         echo "${{ steps.get_customer-name.outputs.CUSTOMER_NAME }}"
+
+
+         
       - name: Run Powershell Validation
         id: ps-validation
         shell: pwsh
