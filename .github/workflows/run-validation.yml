@@ -10,7 +10,7 @@ jobs:
       
       - name: Get Env Var
         run: |
-         echo "${{ vars.CUSTOMER_NAME || "RFH" }}" 
+         echo "${{ vars.CUSTOMER_NAME || fromJSON('{"error": "some_variable does not exists"}') }}" 
         
       
       - name: Run Powershell Validation
