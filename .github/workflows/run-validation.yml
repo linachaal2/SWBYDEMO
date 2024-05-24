@@ -4,6 +4,7 @@ jobs:
  validate-rollout-files:
     name: Run Powershell script
     runs-on: ubuntu-latest #self-hosted
+    environment: RFH
     steps:
       - uses: actions/checkout@v4
       
