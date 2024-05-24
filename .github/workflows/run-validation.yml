@@ -4,14 +4,14 @@ jobs:
  validate-rollout-files:
     name: Run Powershell script
     runs-on: ubuntu-latest #self-hosted
-    environment: RFH
+    
     steps:
       - uses: actions/checkout@v4
       
       - name: Get Env Var
         run: |
          echo ${{ vars.CUSTOMER_NAME }} 
-         echo ${{ vars.CUST_NAME }} 
+        
       
       - name: Run Powershell Validation
         id: ps-validation
