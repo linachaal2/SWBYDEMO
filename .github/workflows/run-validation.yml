@@ -10,7 +10,7 @@ jobs:
       
       - name: Get Env Var
         run: |
-         echo ${{ vars.CUSTOMER_NAME }} 
+         echo "${{ vars.CUSTOMER_NAME || "RFH" }}" 
         
       
       - name: Run Powershell Validation
