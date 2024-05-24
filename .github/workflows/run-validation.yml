@@ -9,8 +9,9 @@ jobs:
       - uses: actions/checkout@v4
       
       - name: Get Env Var
+        id: customer-name
         run: |
-         echo "${{ vars.CUSTOMER_NAME || fromJSON('{"error": "some_variable does not exists"}') }}" 
+         echo "${{ vars.CUSTOMER_NAME || fromJSON('{"RFH"}') }}">> $GITHUB_OUTPUT 
         
       
       - name: Run Powershell Validation
