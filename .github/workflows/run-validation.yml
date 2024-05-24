@@ -3,7 +3,7 @@ name: run-validation
 jobs:
  validate-rollout-files:
     name: Run Powershell script
-    runs-on: self-hosted
+    runs-on: ubuntu-latest #self-hosted
     steps:
       - uses: actions/checkout@v4
       
