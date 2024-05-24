@@ -8,13 +8,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
-      - name: Get Env Var
+      - name: Get Reporsitory Var
         id: customer-name
         run: |
-         echo "CUSTOMER_NAME=${{ vars.CUSTOMER_NAME || fromJSON('{"RFH"}') }}" >> $GITHUB_OUTPUT 
-          
-        
-      
+         echo "CUSTOMER_NAME=${{ vars.CUSTOMER_NAM || fromJSON('{"RFH"}') }}" >> $GITHUB_OUTPUT 
+      - name: Print Env Var
+        run: |        
+         echo "${{ steps.customer-name.outputs.CUSTOMER_NAME }}"
       - name: Run Powershell Validation
         id: ps-validation
         shell: pwsh
