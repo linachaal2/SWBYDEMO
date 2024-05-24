@@ -1,5 +1,13 @@
 name: run-validation
-'on': workflow_dispatch
+on: 
+ #workflow_dispatch:
+ workflow_call:
+    inputs:
+      customer_name:
+        description: 'Customer Name'
+        required: true
+        type: string
+        default: 'RFH' 
 jobs:
  validate-rollout-files:
     name: Run Powershell script
