@@ -11,6 +11,7 @@ jobs:
       - name: Get Env Var
         run: |
          echo ${{ vars.CUSTOMER_NAME }} 
+         echo ${{ vars.CUST_NAME }} 
       
       - name: Run Powershell Validation
         id: ps-validation
