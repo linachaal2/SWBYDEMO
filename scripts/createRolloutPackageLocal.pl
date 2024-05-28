@@ -942,13 +942,24 @@ sub package_rollout{
 		if(!-d $File::Find::name)
 		{
 			my $mocafile = $_;
-			my $mocadir = basename($File::Find::dir);
-			
-			if($detailed_output){printf("Found MOCA: \n\tfile = $mocafile\n\tdirectory = $mocadir\nWriting REPLACE and MBUILD lines to rollout script for $mocafile\n\n");}
-			$log = $log . "Found MOCA: \n\tfile = $mocafile\n\tdirectory = $mocadir\nWriting REPLACE and MBUILD lines to rollout script for $mocafile\n\n";
-			$replacetext = $replacetext . "REPLACE pkg/$MOCAPATH/$mocadir/$mocafile \$LESDIR/$MOCAPATH/$mocadir\n";
-			$mocaexist = 1;
-			$component_text = $component_text . "\t$MOCAPATH/$mocadir/$mocafile\n";
+			my $pointPos = rindex($mocafile, "."); 			
+			my $fileExt = substr($mocafile,$pointPos+1); 
+			if ($fileExt eq "mcmd" || $fileExt eq "mtrg") {
+				my $mocadir = basename($File::Find::dir);
+				
+				if($detailed_output){printf("Found MOCA: \n\tfile = $mocafile\n\tdirectory = $mocadir\nWriting REPLACE and MBUILD lines to rollout script for $mocafile\n\n");}
+				$log = $log . "Found MOCA: \n\tfile = $mocafile\n\tdirectory = $mocadir\nWriting REPLACE and MBUILD lines to rollout script for $mocafile\n\n";
+				$replacetext = $replacetext . "REPLACE pkg/$MOCAPATH/$mocadir/$mocafile \$LESDIR/$MOCAPATH/$mocadir\n";
+				$mocaexist = 1;
+				$component_text = $component_text . "\t$MOCAPATH/$mocadir/$mocafile\n";
+			}
+			elsif ($fileExt eq "mlvl"){
+				if($detailed_output){printf("Found MOCA: \n\tfile = $mocafile\n\tdirectory = $MOCAPATH\nWriting REPLACE and MBUILD lines to rollout script for $mocafile\n\n");}
+				$log = $log . "Found MOCA: \n\tfile = $mocafile\n\tdirectory = $MOCAPATH\nWriting REPLACE and MBUILD lines to rollout script for $mocafile\n\n";
+				$replacetext = $replacetext . "REPLACE pkg/$MOCAPATH/$mocafile \$LESDIR/$MOCAPATH\n";
+				$mocaexist = 1;
+				$component_text = $component_text . "\t$MOCAPATH/$mocafile\n";
+			}
 		}
 	}
 
