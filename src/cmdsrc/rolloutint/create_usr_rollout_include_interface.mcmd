@@ -1,0 +1,63 @@
+<command>
+    <name>create usr rollout include interface</name>
+    <description>Add interface data to the rollout</description>
+    <type>Local Syntax</type>
+    <local-syntax><![CDATA[
+        /* Check if we have all the required parameters */
+        if ((@evt_id = '' and (@ifd_id = '' or @ifd_ver = '')) or @trg_sys_id = '' or @dest_sys_id = '' or @name = '')
+        {
+            set return status
+             where status = 999
+               and message = 'type slimp missing argument.'
+        }
+        |
+        /* Check if we either have an inbound ifd or an outbound event, not both as it will probably give no data or unexpected results */
+        if (@evt_id and @ifd_id and @ifd_ver)
+        {
+            set return status
+             where status = 999
+               and message = 'type slimp inbound ifd and event id given, please specify either and not both.'
+        }
+        |
+        [select replace(@name, ' ', '_') || '.slexp' as filename_slimp
+           from dual]
+        |
+        if (@evt_id)
+        {
+            publish data
+             where evt_list = "'" || @evt_id || "'"
+        }
+        |
+        if (@ifd_id and @ifd_ver)
+        {
+            publish data
+             where ifd_list = "'" || @ifd_id || "|" || @ifd_ver || "'"
+        }
+        |
+        /* Hide the stack variables which apparently affect the export. */
+        hide stack variable
+         where name = 'evt_id'
+        |
+        hide stack variable
+         where name = 'ifd_id'
+        |
+        hide stack variable
+         where name = 'ifd_ver'
+        |
+        /* Export the interface. */
+        sl_list dependencies
+         where evt_list = @evt_list
+           and ifd_list = @ifd_list
+           and trg_sys_id = @trg_sys_id
+           and dest_sys_id = @dest_sys_id
+           and unload_filename = @dir_db_upgrade || @filename_slimp
+    ]]></local-syntax>
+    <argument name="evt_id" required="yes" datatype="string">evt_id</argument>
+    <argument name="ifd_id" required="yes" datatype="string">ifd_id</argument>
+    <argument name="ifd_ver" required="yes" datatype="string">ifd_ver</argument>
+    <argument name="trg_sys_id" required="yes" datatype="string">trg_sys_id</argument>
+    <argument name="dest_sys_id" required="yes" datatype="string">dest_sys_id</argument>
+    <argument name="name" required="yes" datatype="string">name</argument>
+    <argument name="dir_db_upgrade" required="yes" datatype="string">dir_db_upgrade</argument>
+    <argument name="filename_slimp" required="yes" datatype="string">filename_slimp</argument>
+</command>

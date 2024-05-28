@@ -265,6 +265,39 @@ sub get_load_directory
 	}
 	return $loaddir;
 }#get_load_directory
+
+#####################################################################
+# get_file_load_directory($file)
+#	$file - file name
+#
+# this will take a file as a parameter and determine if the load directory should be 
+# safetoload or bootstraponly and return that value
+#####################################################################
+sub get_file_load_directory
+{
+    my ($file) = @_;
+	my $loaddir;
+    
+	printf( "get_file_load_directory for $file \n\n");
+	if($LESDIR . "/$CSVPATH/safetoload/$file")
+	{
+		$loaddir = 'safetoload';
+	}
+	elsif($LESDIR . "/$CSVPATH/bootstraponly/$file")
+	{
+		$loaddir = 'bootstraponly';
+	}
+	else
+	{
+		if($detailed_output){printf( "This $file will not be included\n\n");}
+		$log = $log .  "This $file will not be included\n\n";
+		$warning_text = $warning_text .  "- This $file will not be included!\n";
+		$warnings_exist = 1;
+	}
+	printf( "$file in $loaddir\n\n");
+	return $loaddir;
+}#get_file_load_directory
+
 #####################################################################
 # pull_files($cmd_string)
 #	$cmd_string - command line parameters from the ro input file
@@ -350,7 +383,7 @@ sub pull_files{
 	if(uc($data_type) eq "SQL")
 	{
 		printf "--------------------Handling a CSV FILE----------------------\n\n\n"; 
-		$component_dir =get_load_directory($table);
+		$component_dir = get_load_directory($table);
 		#if(uc($table) eq "POLDAT"){$component_dir = "bootstraponly";}
 		if($detailed_output){printf( "CSV\nPulling CSV file: $file\n");}
 		$log = $log . "CSV\nPulling CSV file: $file\n";
@@ -359,6 +392,20 @@ sub pull_files{
 		copy_ctl_ro_file($LESDIR . "/$CSVPATH/$component_dir",$table.".ctl",$ro_dir.$ro_name . "/pkg/$CSVPATH/$component_dir");
 	}
 
+	#####################################################################
+	# CTL
+	#####################################################################
+	# if this is for an CTL file, copy file
+	elsif(uc($data_type) eq "CTL")
+	{
+		$component_dir = get_file_load_directory($file);
+		
+		if($detailed_output){printf( "CTL\nPulling CTL file: $file\n");}
+		$log = $log . "CTL\nPulling CTL file: $file\n";
+		create_ro_dir($ro_dir.$ro_name . "/pkg/$CSVPATH/$component_dir");
+		copy_ro_file($LESDIR . "/$CSVPATH/$component_dir",$file,$ro_dir.$ro_name . "/pkg/$CSVPATH/$component_dir");
+	}
+	
 	#####################################################################
 	# MOCA
 	#####################################################################
@@ -371,6 +418,19 @@ sub pull_files{
 		$log = $log . "MOCA\nPulling Moca file: $file\n";
 		create_ro_dir($ro_dir.$ro_name . "/pkg/$MOCAPATH/$component_dir");
 		copy_ro_file($LESDIR . "/$MOCAPATH/$component_dir",$file,$ro_dir.$ro_name . "/pkg/$MOCAPATH/$component_dir");
+	}
+
+	#####################################################################
+	# MLVL
+	#####################################################################
+	# if this is for an mlvl file, copy file
+	elsif(uc($data_type) eq "MLVL")
+	{
+		
+		if($detailed_output){printf( "MLVL\nPulling MLVL file: $file\n");}
+		$log = $log . "MLVL\nPulling MLVL file: $file\n";
+		create_ro_dir($ro_dir.$ro_name . "/pkg/$MOCAPATH");
+		copy_ro_file($LESDIR . "/$MOCAPATH",$file,$ro_dir.$ro_name . "/pkg/$MOCAPATH");
 	}
 
 	#####################################################################
@@ -751,6 +811,46 @@ sub package_rollout{
 	}
 	
 	#####################################################################
+	# Replace for Control File
+	#####################################################################
+	if($detailed_output){printf( "Checking for Control files\n");}
+	$log = $log . "Checking for Control files\n";
+	my $ctrlexist;
+	my $ctldir = "$LESDIR/$ro_dir/pkg/$CSVPATH";
+	
+	#validate $ctldir exist
+	if (-e "$ctldir")
+	{
+		find(\&writectrl, $ctldir);
+	
+		sub writectrl
+		{
+			if(!-d $File::Find::name)
+			{
+				my $ctrlfile = $_;
+				my $pointPos = rindex($ctrlfile, "."); 			
+			    my $fileExt = substr($ctrlfile,$pointPos+1); 
+				if ($fileExt eq "ctl") {
+					my $ctrldir = basename($File::Find::dir);
+				
+					if($detailed_output){printf("Found Control File: \n\tfile = $ctrlfile\n\tdirectory = $ctrldir\nWriting REPLACE to rollout script for $ctrlfile\n\n");}
+					$log = $log . "Found Control File: \n\tfile = $ctrlfile\n\tdirectory = $ctrldir\nWriting REPLACE to rollout script for $ctrlfile \n\tREPLACE pkg/$CSVPATH/$ctrldir/$ctrlfile \$LESDIR/$CSVPATH/$ctrldir\n\n";
+					$replacetext = $replacetext . "REPLACE pkg/$CSVPATH/$ctrldir/$ctrlfile \$LESDIR/$CSVPATH/$ctrldir\n";
+					$ctrlexist = 1;
+					$component_text = $component_text . "\t$CSVPATH/$ctrldir/$ctrlfile\n";
+				}
+				
+			}
+		}
+	}
+	if(!$ctrlexist)
+	{
+		if($detailed_output){printf("No Priority CTRLs found...Continuing\n\n");}
+		$log = $log . "No CTRLs found...Continuing\n\n";
+	}
+	
+	
+	#####################################################################
 	# MLOADS
 	#####################################################################
 	if($detailed_output){printf( "Checking for MLOADS\n");}
@@ -768,20 +868,24 @@ sub package_rollout{
 		if(!-d $File::Find::name)
 		{
 			my $mloadfile = $_;
-			my $mloadtable = basename($File::Find::dir);
-			my $mloaddir = basename(dirname($File::Find::dir));
-			
-			if($detailed_output){printf("Found MLOAD: \n\tfile = $mloadfile\n\ttable = $mloadtable\n\tload directory = $mloaddir\nWriting REPLACE and LOADDATA lines to rollout script for $mloadfile\n\n");}
-			$log = $log . "Found MLOAD: \n\tfile = $mloadfile\n\ttable = $mloadtable\n\tload directory = $mloaddir\nWriting lines to rollout script \n\tREPLACE pkg/$CSVPATH/$mloaddir/$mloadtable/$mloadfile \$LESDIR/$CSVPATH/$mloaddir/$mloadtable\n\tLOADDATA \$LESDIR/$CSVPATH/$mloaddir/$mloadtable.ctl $mloadfile\n\n";
-			#$replacetext = $replacetext . "REPLACE pkg/db/data/load/base/$mloaddir/$mloadtable/$mloadfile \$LESDIR/db/data/load/base/$mloaddir/$mloadtable\n";
-			# check if mloadfile is a control file or CSV one, if it is a CSV one we need to include LOADDATA command 
-			my $pointPos = rindex($mloadfile, ".");
+			my $pointPos = rindex($mloadfile, "."); 			
 			my $fileExt = substr($mloadfile,$pointPos+1); 
-			if ($fileExt eq "csv"){
-				$loaddatatext = $loaddatatext . "LOADDATA \$LESDIR/$CSVPATH/$mloaddir/$mloadtable.ctl $mloadfile\n";
+			if ($fileExt eq "csv") {
+				my $mloadtable = basename($File::Find::dir);
+				my $mloaddir = basename(dirname($File::Find::dir));
+				
+				if($detailed_output){printf("Found MLOAD: \n\tfile = $mloadfile\n\ttable = $mloadtable\n\tload directory = $mloaddir\nWriting REPLACE and LOADDATA lines to rollout script for $mloadfile\n\n");}
+				$log = $log . "Found MLOAD: \n\tfile = $mloadfile\n\ttable = $mloadtable\n\tload directory = $mloaddir\nWriting lines to rollout script \n\tREPLACE pkg/$CSVPATH/$mloaddir/$mloadtable/$mloadfile \$LESDIR/$CSVPATH/$mloaddir/$mloadtable\n\tLOADDATA \$LESDIR/$CSVPATH/$mloaddir/$mloadtable.ctl $mloadfile\n\n";
+				$replacetext = $replacetext . "REPLACE pkg/db/data/load/base/$mloaddir/$mloadtable/$mloadfile \$LESDIR/db/data/load/base/$mloaddir/$mloadtable\n";
+				# check if mloadfile is a control file or CSV one, if it is a CSV one we need to include LOADDATA command 
+				my $pointPos = rindex($mloadfile, ".");
+				my $fileExt = substr($mloadfile,$pointPos+1); 
+				if ($fileExt eq "csv"){
+					$loaddatatext = $loaddatatext . "LOADDATA \$LESDIR/$CSVPATH/$mloaddir/$mloadtable.ctl $mloadfile\n";
+				}
+				$loadexist = 1;
+				$component_text = $component_text . "\t$CSVPATH/$mloaddir/$mloadtable/$mloadfile\n";
 			}
-			$loadexist = 1;
-			$component_text = $component_text . "\t$CSVPATH/$mloaddir/$mloadtable/$mloadfile\n";
 		}
 	}
 
@@ -955,7 +1059,7 @@ sub package_rollout{
 			{
 				my $msqlfile = $_;
 				my $msqldir = basename($File::Find::dir);
-			
+				
 				if($detailed_output){printf("Found Low Priority MSQL: \n\tfile = $msqlfile\n\tdirectory = $msqldir\nWriting REPLACE and RUNSQL lines to rollout script for $msqlfile\n\n");}
 				$log = $log . "Found Low Priority MSQL: \n\tfile = $msqlfile\n\tdirectory = $msqldir\nWriting REPLACE and RUNSQL lines to rollout script for $msqlfile \n\tREPLACE pkg/$MSQLPATH/$msqldir/$msqlfile \$LESDIR/$MSQLPATH/$msqldir\n\trunsql \$LESDIR/$MSQLPATH/$msqldir/$msqlfile\n\n";
 				$replacetext = $replacetext . "REPLACE pkg/$MSQLPATH/$msqldir/$msqlfile \$LESDIR/$MSQLPATH/$msqldir\n";
@@ -1060,7 +1164,7 @@ sub package_rollout{
 	if($detailed_output){printf("Creating rollout script $ro_name\n\n");}
 	$log = $log . "Creating rollout script $ro_name\n\n";
 	open(OUTF, ">>$LESDIR/$ro_dir/$ro_name");
-	print OUTF $ro_script . "\n" . $remove_ro_text . "\n" . $runhighsqltext . "\n" .  $replacetext . "\n". $rotext . "\n" . $loaddatatext . "\n" . $importsldatatext . "\n" . $runlowsqltext . "\n" . $rebuildpretext . "\n" . $rebuildtext . "\n" . $mbuildtext . "\n" . $runhighsqltext . "\n"  ."#END OF SCRIPT";
+	print OUTF $ro_script . "\n" . $remove_ro_text . "\n" . $runhighsqltext . "\n" .  $replacetext . "\n". $rotext . "\n" . $loaddatatext . "\n" . $importsldatatext . "\n" . $runlowsqltext . "\n" . $rebuildpretext . "\n" . $rebuildtext . "\n" . $mbuildtext . "\n" ."#END OF SCRIPT";
 	close(OUTF);
 	
 	$log = $log . "Created Rollout file $ro_name in $LESDIR/$ro_dir \n\n";
@@ -1365,14 +1469,23 @@ if (!-e  $ro_dir.$ro)
 				print "File extension: *$fileExt*\n"; 
 				# Map MOCA and triggers files 
 				if ($fileExt eq "mcmd" || $fileExt eq "mtrg") {
+					my $mlvl_dir = substr(substr($file,0,$slashPos),rindex(substr($file,0,$slashPos), "/")+1);
+					print "mlvl_dir: $mlvl_dir\n";
 					#MOCA -d usrint -f "list_usr_1234.mcmd"
-					my $fullFileSyntax = "MOCA -d usrint -f \"".$fileFullName."\"";
+					my $fullFileSyntax = "MOCA -d ".$mlvl_dir." -f \"".$fileFullName."\"";
+					print "File syntax: $fullFileSyntax\n"; 		
+					print {$vInputFile} $fullFileSyntax . "\n";
+				}
+				# Map MLVL files 
+				elsif ($fileExt eq "mlvl" ){
+					#MLVL -f UcTest1.mlvl
+					my $fullFileSyntax = "MLVL -f \"".$fileFullName."\"";
 					print "File syntax: $fullFileSyntax\n"; 		
 					print {$vInputFile} $fullFileSyntax . "\n";
 				}
 				# Map CSV files 
 				elsif ($fileExt eq "csv"){
-					##SQL -t poldat  -s "select * from poldat where polcod = 'UC_1234'"
+					#SQL -t poldat  -f "UC_1234.csv"
 					my $table_name = substr(substr($file,0,$slashPos),rindex(substr($file,0,$slashPos), "/")+1);
 					#print "table_name: $table_name\n";
 					my $fullFileSyntax = "SQL -t ".$table_name." -f \"".$fileFullName."\"";
@@ -1380,6 +1493,13 @@ if (!-e  $ro_dir.$ro)
 					
 					print {$vInputFile} $fullFileSyntax . "\n";
 					
+				}
+				# Map CTL files 
+				elsif ($fileExt eq "ctl" ){
+					#CTL -f UcTest1.ctl
+					my $fullFileSyntax = "CTL -f \"".$fileFullName."\"";
+					print "File syntax: $fullFileSyntax\n"; 		
+					print {$vInputFile} $fullFileSyntax . "\n";
 				}
 				# Map MSQL files 
 				elsif ($fileExt eq "msql"){
@@ -1390,7 +1510,7 @@ if (!-e  $ro_dir.$ro)
 					print "File syntax: $fullFileSyntax\n"; 
 					
 					print {$vInputFile} $fullFileSyntax . "\n";
-				}
+				}		
 				# Map POF files 
 				elsif ($fileExt eq "POF"){
 					#LABEL -d z140xiII -f UC_1234.POF

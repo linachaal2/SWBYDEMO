@@ -26,7 +26,4 @@ RUNSQL $LESDIR/db/ddl/afterrun/90_Rollout_install_insert.msql
 
 # Perform any environment rebuilds if necessary
 
-# Run any High Priority SQL, MSQL and other scripts
-RUNSQL $LESDIR/db/ddl/prerun/20_delete_data.msql
-
 #END OF SCRIPT
