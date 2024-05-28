@@ -1,6 +1,6 @@
 <component-level>
 <name>ROLLOUTint</name>
-<description>Rollout Intrinsic Server  Functions</description>
+<description>Rollout Intrinsic Server   Functions</description>
 <library>USRint</library>
 <sort-sequence>10000</sort-sequence>
 <editable>true</editable>
