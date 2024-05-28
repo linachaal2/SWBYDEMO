@@ -1,3 +1,0 @@
-DDL -d afterrun -f "90_Rollout_install_insert.msql"
-DDL -d prerun -f "20_delete_data.msql"
-DDL -d afterrun -f "80_integrator_sys_comm.msql"
