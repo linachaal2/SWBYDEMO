@@ -1,11 +1,36 @@
 name: run-validation
-'on': workflow_dispatch
+on: 
+ workflow_dispatch:
+    inputs:
+      customer_name:
+        description: 'Customer Name'
+        required: true
+        type: string
+        default: 'RFH' 
+        
 jobs:
  validate-rollout-files:
     name: Run Powershell script
-    runs-on: self-hosted
+    runs-on: ubuntu-latest #self-hosted
+    
     steps:
       - uses: actions/checkout@v4
+      
+      - name: Get Customer Var
+        id: get_customer-name
+        shell: bash
+        run: |
+          if ${{ vars.CUSTOMER_NAME != '' }}; then
+            echo "CUSTOMER_NAME=${{ vars.CUSTOMER_NAME }}"  >> $GITHUB_OUTPUT
+          else
+            echo "CUSTOMER_NAME=${{ github.event.inputs.customer_name }}"  >> $GITHUB_OUTPUT
+          fi
+      - name: Print Customer Var
+        run: |        
+         echo "${{ steps.get_customer-name.outputs.CUSTOMER_NAME }}"
+
+
+         
       - name: Run Powershell Validation
         id: ps-validation
         shell: pwsh
