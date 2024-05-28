@@ -2653,3 +2653,140 @@ Created Tar file RLTEST1.tar in /y/Docker/MY-GIT/SWBYDEMO/rollout
 
 Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
 
+Creating Rollout Directory 
+
+Current Time: Time::tm=ARRAY(0x8000770f0)
+
+Options
+Rollout Directory = /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1
+logfile = RLTEST1.log
+
+Environment:
+LESDIR = /y/Docker/MY-GIT/SWBYDEMO
+Log directory=/y/Docker/MY-GIT/SWBYDEMOog
+Rollout Name = RLTEST1
+
+Reading file inputFile.txt to get options for creating rollout directory
+
+Calling pull_files function with: -c MLVL -f "rolloutint.mlvl" -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l RLTEST1.log -o 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+pull_files: Pulling Components
+
+RLTEST1 folder does not exist - creating it
+MLVL
+Pulling MLVL file: rolloutint.mlvl
+Create RO directory - /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/pkg/src/cmdsrc
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Calling pull_files function with: -c MOCA -d rolloutint -f "combine_usr_file_paths.mcmd" -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l RLTEST1.log -o 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+pull_files: Pulling Components
+
+MOCA
+Pulling Moca file: combine_usr_file_paths.mcmd
+Create RO directory - /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/pkg/src/cmdsrc/rolloutint
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Calling pull_files function with: -c MOCA -d usrint -f "remove_load-remove_usr_inventory_asset.mtrg" -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l RLTEST1.log -o 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+pull_files: Pulling Components
+
+MOCA
+Pulling Moca file: remove_load-remove_usr_inventory_asset.mtrg
+Create RO directory - /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/pkg/src/cmdsrc/usrint
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Finished calls to pull_files.  Read in and processed 3 lines. 
+
+Calling package_rollout function with: -d rollout/RLTEST1 -l RLTEST1.log -o  -p -m 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Building Rollout Package 
+
+Current Time: Time::tm=ARRAY(0x80057ebb8)
+
+Options
+RO_DIR = rollout/RLTEST1
+logfile = RLTEST1.log
+
+Environment:
+LESDIR = /y/Docker/MY-GIT/SWBYDEMO
+Log directory=/y/Docker/MY-GIT/SWBYDEMOog
+Rollout Name = RLTEST1
+
+Copying rollout.pl - from /y/Docker/MY-GIT/SWBYDEMO/scripts/rollout.pl   to /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/rollout.pl
+
+Checking for existing text from rollout script (file copy, directory creation, etc.)
+No existing rollout script text found...Continuing
+
+Checking for High Priority MSQL (database changes) files
+No Priority MSQLs found...Continuing
+
+Checking for Control files
+No CTRLs found...Continuing
+
+Checking for MLOADS
+No MLOADS found...Continuing
+
+Checking for Integrator Loads
+No Integrator Loads found...Continuing
+
+Checking for MOCA commands
+Found MOCA: 
+	file = rolloutint.mlvl
+	directory = src/cmdsrc
+Writing REPLACE and MBUILD lines to rollout script for rolloutint.mlvl
+
+Found MOCA: 
+	file = combine_usr_file_paths.mcmd
+	directory = rolloutint
+Writing REPLACE and MBUILD lines to rollout script for combine_usr_file_paths.mcmd
+
+Found MOCA: 
+	file = remove_load-remove_usr_inventory_asset.mtrg
+	directory = usrint
+Writing REPLACE and MBUILD lines to rollout script for remove_load-remove_usr_inventory_asset.mtrg
+
+Checking for Labels
+No labels commands found...Continuing
+
+Checking for reports
+No reports commands found...Continuing
+
+Checking for Low Priority MSQL (database changes) files
+No Low Priority MSQLs found...Continuing
+
+Checking for MTF files
+No MTF files found...Continuing
+
+Removing any previous creations of readme file
+
+Creating README file
+
+Created README file in /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1 
+
+Removing any previous creations of rollout script RLTEST1
+
+Creating rollout script RLTEST1
+
+Created Rollout file RLTEST1 in /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1 
+
+Removing any previous creations of tar file RLTEST1.tar
+
+Tarring directory <rollout/RLTEST1> to RLTEST1.tar
+
+Created Tar file RLTEST1.tar in /y/Docker/MY-GIT/SWBYDEMO/rollout 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
