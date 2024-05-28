@@ -136,3 +136,2520 @@ Created Tar file RLTEST1.tar in /y/Docker/MY-GIT/SWBYDEMO/rollout
 
 Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
 
+Creating Rollout Directory 
+
+Current Time: Time::tm=ARRAY(0x8000771f0)
+
+Options
+Rollout Directory = /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1
+logfile = RLTEST1.log
+
+Environment:
+LESDIR = /y/Docker/MY-GIT/SWBYDEMO
+Log directory=/y/Docker/MY-GIT/SWBYDEMOog
+Rollout Name = RLTEST1
+
+Reading file inputFile.txt to get options for creating rollout directory
+
+Calling pull_files function with: -c LABEL -d z140xiII -f "USR-RFH002.POF" -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l RLTEST1.log -o 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+pull_files: Pulling Components
+
+RLTEST1 folder does not exist - creating it
+LABEL
+Pulling Label file: USR-RFH002.POF
+Create RO directory - /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/pkg/labels/usrint/z140xiII
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Calling pull_files function with: -c INT -f "LC-BE03-OTM-TRANSPORT-PLAN.slexp" -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l RLTEST1.log -o 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+pull_files: Pulling Components
+
+INT
+Pulling Integration file: LC-BE03-OTM-TRANSPORT-PLAN.slexp
+Create RO directory - /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/pkg/db/data/integrator
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Calling pull_files function with: -c SQL -t client -f "client.csv" -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l RLTEST1.log -o 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+pull_files: Pulling Components
+
+CSV
+Pulling CSV file: client.csv
+Create RO directory - /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/pkg/db/data/load/base/bootstraponly/client
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Calling pull_files function with: -c MTF -f "UsrAssetIdentify.java" -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l RLTEST1.log -o 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+pull_files: Pulling Components
+
+MTF
+Pulling MTF File: UsrAssetIdentify.java
+Create RO directory - /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/pkg/mtfclient/src/java/com/redprairie/les/formlogic
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Calling pull_files function with: -c MTF -f "UsrAssetIdentify.properties" -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l RLTEST1.log -o 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+pull_files: Pulling Components
+
+MTF
+Pulling MTF File: UsrAssetIdentify.properties
+Create RO directory - /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/pkg/mtfclient/src/java/com/redprairie/les/formlogic
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Calling pull_files function with: -c FILE -d javalib -f "barcode4j-2.2.jar" -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l RLTEST1.log -o 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+pull_files: Pulling Components
+
+FILE
+Pulling File: barcode4j-2.2.jar
+Create RO directory - /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/pkg/javalib
+Creating line for rollout script for adding file
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Calling pull_files function with: -c REPORT -d usrint -f "usr-rfh001-v0110-ffdeliverynote.jrxml" -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l RLTEST1.log -o 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+pull_files: Pulling Components
+
+REPORT
+Pulling Report file: usr-rfh001-v0110-ffdeliverynote.jrxml
+Create RO directory - /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/pkg/reports/usrint
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Calling pull_files function with: -c DDL -d afterrun -f "90_Rollout_install_insert.msql" -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l RLTEST1.log -o 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+pull_files: Pulling Components
+
+DDL
+Pulling DDL file: 90_Rollout_install_insert.msql
+Create RO directory - /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/pkg/db/ddl/afterrun
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Calling pull_files function with: -c DDL -d prerun -f "20_delete_data.msql" -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l RLTEST1.log -o 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+pull_files: Pulling Components
+
+DDL
+Pulling DDL file: 20_delete_data.msql
+Create RO directory - /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/pkg/db/ddl/prerun
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Calling pull_files function with: -c DDL -d afterrun -f "80_integrator_sys_comm.msql" -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l RLTEST1.log -o 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+pull_files: Pulling Components
+
+DDL
+Pulling DDL file: 80_integrator_sys_comm.msql
+Create RO directory - /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/pkg/db/ddl/afterrun
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Calling pull_files function with: -c REMOVE -d usrint -f "remove_load-remove_usr_inventory_asset.mtrg" -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l RLTEST1.log -o 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+pull_files: Pulling Components
+
+REMOVE
+Writing line to remove file: remove_load-remove_usr_inventory_asset.mtrg
+Creating line for rollout script for removing file
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Finished calls to pull_files.  Read in and processed 11 lines. 
+
+Calling package_rollout function with: -d rollout/RLTEST1 -l RLTEST1.log -o  -p -m 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Building Rollout Package 
+
+Current Time: Time::tm=ARRAY(0x80064ff80)
+
+Options
+RO_DIR = rollout/RLTEST1
+logfile = RLTEST1.log
+
+Environment:
+LESDIR = /y/Docker/MY-GIT/SWBYDEMO
+Log directory=/y/Docker/MY-GIT/SWBYDEMOog
+Rollout Name = RLTEST1
+
+Copying rollout.pl - from /y/Docker/MY-GIT/SWBYDEMO/scripts/rollout.pl   to /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/rollout.pl
+
+Checking for existing text from rollout script (file copy, directory creation, etc.)
+Found rollout Text:REPLACE pkg/javalib/barcode4j-2.2.jar $LESDIR/javalib
+Checking for High Priority MSQL (database changes) files
+Found Priority MSQL: 
+	file = 20_delete_data.msql
+	directory = prerun
+Writing REPLACE and RUNSQL lines to rollout script for 20_delete_data.msql 
+	REPLACE pkg/db/ddl/prerun/20_delete_data.msql $LESDIR/db/ddl/prerun
+	runsql $LESDIR/db/ddl/prerun/20_delete_data.msql
+
+Checking for MLOADS
+Found MLOAD: 
+	file = client.ctl
+	table = bootstraponly
+	load directory = base
+Writing lines to rollout script 
+	REPLACE pkg/db/data/load/base/base/bootstraponly/client.ctl $LESDIR/db/data/load/base/base/bootstraponly
+	LOADDATA $LESDIR/db/data/load/base/base/bootstraponly.ctl client.ctl
+
+Found MLOAD: 
+	file = client.csv
+	table = client
+	load directory = bootstraponly
+Writing lines to rollout script 
+	REPLACE pkg/db/data/load/base/bootstraponly/client/client.csv $LESDIR/db/data/load/base/bootstraponly/client
+	LOADDATA $LESDIR/db/data/load/base/bootstraponly/client.ctl client.csv
+
+Checking for Integrator Loads
+Found Integraotr Load: 
+	file = LC-BE03-OTM-TRANSPORT-PLAN.slexp
+	directory = /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/pkg/db/data/integrator
+Writing REPLACE and IMPORTSLDATA lines to rollout script for LC-BE03-OTM-TRANSPORT-PLAN.slexp 
+	REPLACE pkg//y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/pkg/db/data/integrator/LC-BE03-OTM-TRANSPORT-PLAN.slexp $LESDIR//y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/pkg/db/data/integrator
+	UPDATESLDATA $LESDIR//y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/pkg/db/data/integrator/LC-BE03-OTM-TRANSPORT-PLAN.slexp
+
+Checking for MOCA commands
+No MOCA commands found...Continuing
+
+Checking for Labels
+Found Label: 
+	file = USR-RFH002.POF
+	directory = z140xiII
+Writing REPLACE line to rollout script for USR-RFH002.POF 
+	REEPLACE pkg/labels/usrint/z140xiII/USR-RFH002.POF $LESDIR/labels/usrint/z140xiII
+
+Checking for reports
+Found report: 
+	file = usr-rfh001-v0110-ffdeliverynote.jrxml
+	directory = usrint
+Writing REPLACE line to rollout script for usr-rfh001-v0110-ffdeliverynote.jrxml 
+	REEPLACE pkg/reports/usrint/usr-rfh001-v0110-ffdeliverynote.jrxml $LESDIR/reports/usrint
+
+Checking for Low Priority MSQL (database changes) files
+Found Low Priority MSQL: 
+	file = 80_integrator_sys_comm.msql
+	directory = afterrun
+Writing REPLACE and RUNSQL lines to rollout script for 80_integrator_sys_comm.msql 
+	REPLACE pkg/db/ddl/afterrun/80_integrator_sys_comm.msql $LESDIR/db/ddl/afterrun
+	runsql $LESDIR/db/ddl/afterrun/80_integrator_sys_comm.msql
+
+Found Low Priority MSQL: 
+	file = 90_Rollout_install_insert.msql
+	directory = afterrun
+Writing REPLACE and RUNSQL lines to rollout script for 90_Rollout_install_insert.msql 
+	REPLACE pkg/db/ddl/afterrun/90_Rollout_install_insert.msql $LESDIR/db/ddl/afterrun
+	runsql $LESDIR/db/ddl/afterrun/90_Rollout_install_insert.msql
+
+Checking for MTF files
+Found MTF File: 
+	file = UsrAssetIdentify.properties
+Writing REPLACE and REBUILD LES lines to rollout script for UsrAssetIdentify.properties
+
+Found MTF File: 
+	file = UsrAssetIdentify.java
+Writing REPLACE and REBUILD LES lines to rollout script for UsrAssetIdentify.java
+
+Removing any previous creations of readme file
+
+Creating README file
+
+Created README file in /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1 
+
+Removing any previous creations of rollout script RLTEST1
+
+Creating rollout script RLTEST1
+
+Created Rollout file RLTEST1 in /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1 
+
+Removing any previous creations of tar file RLTEST1.tar
+
+Tarring directory <rollout/RLTEST1> to RLTEST1.tar
+
+Created Tar file RLTEST1.tar in /y/Docker/MY-GIT/SWBYDEMO/rollout 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Creating Rollout Directory 
+
+Current Time: Time::tm=ARRAY(0x800077200)
+
+Options
+Rollout Directory = /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1
+logfile = RLTEST1.log
+
+Environment:
+LESDIR = /y/Docker/MY-GIT/SWBYDEMO
+Log directory=/y/Docker/MY-GIT/SWBYDEMOog
+Rollout Name = RLTEST1
+
+Reading file inputFile.txt to get options for creating rollout directory
+
+Calling pull_files function with: -c LABEL -d z140xiII -f "USR-RFH002.POF" -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l RLTEST1.log -o 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+pull_files: Pulling Components
+
+RLTEST1 folder does not exist - creating it
+LABEL
+Pulling Label file: USR-RFH002.POF
+Create RO directory - /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/pkg/labels/usrint/z140xiII
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Calling pull_files function with: -c INT -f "LC-BE03-OTM-TRANSPORT-PLAN.slexp" -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l RLTEST1.log -o 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+pull_files: Pulling Components
+
+INT
+Pulling Integration file: LC-BE03-OTM-TRANSPORT-PLAN.slexp
+Create RO directory - /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/pkg/db/data/integrator
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Calling pull_files function with: -c SQL -t client -f "client.csv" -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l RLTEST1.log -o 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+pull_files: Pulling Components
+
+CSV
+Pulling CSV file: client.csv
+Create RO directory - /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/pkg/db/data/load/base/bootstraponly/client
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Calling pull_files function with: -c MTF -f "UsrAssetIdentify.java" -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l RLTEST1.log -o 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+pull_files: Pulling Components
+
+MTF
+Pulling MTF File: UsrAssetIdentify.java
+Create RO directory - /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/pkg/mtfclient/src/java/com/redprairie/les/formlogic
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Calling pull_files function with: -c MTF -f "UsrAssetIdentify.properties" -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l RLTEST1.log -o 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+pull_files: Pulling Components
+
+MTF
+Pulling MTF File: UsrAssetIdentify.properties
+Create RO directory - /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/pkg/mtfclient/src/java/com/redprairie/les/formlogic
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Calling pull_files function with: -c FILE -d javalib -f "barcode4j-2.2.jar" -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l RLTEST1.log -o 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+pull_files: Pulling Components
+
+FILE
+Pulling File: barcode4j-2.2.jar
+Create RO directory - /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/pkg/javalib
+Creating line for rollout script for adding file
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Calling pull_files function with: -c REPORT -d usrint -f "usr-rfh001-v0110-ffdeliverynote.jrxml" -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l RLTEST1.log -o 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+pull_files: Pulling Components
+
+REPORT
+Pulling Report file: usr-rfh001-v0110-ffdeliverynote.jrxml
+Create RO directory - /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/pkg/reports/usrint
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Calling pull_files function with: -c DDL -d afterrun -f "90_Rollout_install_insert.msql" -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l RLTEST1.log -o 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+pull_files: Pulling Components
+
+DDL
+Pulling DDL file: 90_Rollout_install_insert.msql
+Create RO directory - /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/pkg/db/ddl/afterrun
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Calling pull_files function with: -c DDL -d prerun -f "20_delete_data.msql" -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l RLTEST1.log -o 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+pull_files: Pulling Components
+
+DDL
+Pulling DDL file: 20_delete_data.msql
+Create RO directory - /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/pkg/db/ddl/prerun
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Calling pull_files function with: -c DDL -d afterrun -f "80_integrator_sys_comm.msql" -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l RLTEST1.log -o 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+pull_files: Pulling Components
+
+DDL
+Pulling DDL file: 80_integrator_sys_comm.msql
+Create RO directory - /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/pkg/db/ddl/afterrun
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Calling pull_files function with: -c REMOVE -d usrint -f "remove_load-remove_usr_inventory_asset.mtrg" -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l RLTEST1.log -o 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+pull_files: Pulling Components
+
+REMOVE
+Writing line to remove file: remove_load-remove_usr_inventory_asset.mtrg
+Creating line for rollout script for removing file
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Finished calls to pull_files.  Read in and processed 11 lines. 
+
+Calling package_rollout function with: -d rollout/RLTEST1 -l RLTEST1.log -o  -p -m 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Building Rollout Package 
+
+Current Time: Time::tm=ARRAY(0x80064f1a0)
+
+Options
+RO_DIR = rollout/RLTEST1
+logfile = RLTEST1.log
+
+Environment:
+LESDIR = /y/Docker/MY-GIT/SWBYDEMO
+Log directory=/y/Docker/MY-GIT/SWBYDEMOog
+Rollout Name = RLTEST1
+
+Copying rollout.pl - from /y/Docker/MY-GIT/SWBYDEMO/scripts/rollout.pl   to /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/rollout.pl
+
+Checking for existing text from rollout script (file copy, directory creation, etc.)
+Found rollout Text:REPLACE pkg/javalib/barcode4j-2.2.jar $LESDIR/javalib
+Checking for High Priority MSQL (database changes) files
+Found Priority MSQL: 
+	file = 20_delete_data.msql
+	directory = prerun
+Writing REPLACE and RUNSQL lines to rollout script for 20_delete_data.msql 
+	REPLACE pkg/db/ddl/prerun/20_delete_data.msql $LESDIR/db/ddl/prerun
+	runsql $LESDIR/db/ddl/prerun/20_delete_data.msql
+
+Checking for MLOADS
+Found MLOAD: 
+	file = client.ctl
+	table = bootstraponly
+	load directory = base
+Writing lines to rollout script 
+	REPLACE pkg/db/data/load/base/base/bootstraponly/client.ctl $LESDIR/db/data/load/base/base/bootstraponly
+	LOADDATA $LESDIR/db/data/load/base/base/bootstraponly.ctl client.ctl
+
+Found MLOAD: 
+	file = client.csv
+	table = client
+	load directory = bootstraponly
+Writing lines to rollout script 
+	REPLACE pkg/db/data/load/base/bootstraponly/client/client.csv $LESDIR/db/data/load/base/bootstraponly/client
+	LOADDATA $LESDIR/db/data/load/base/bootstraponly/client.ctl client.csv
+
+Checking for Integrator Loads
+Found Integraotr Load: 
+	file = LC-BE03-OTM-TRANSPORT-PLAN.slexp
+	directory = /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/pkg/db/data/integrator
+Writing REPLACE and IMPORTSLDATA lines to rollout script for LC-BE03-OTM-TRANSPORT-PLAN.slexp 
+	REPLACE pkg//y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/pkg/db/data/integrator/LC-BE03-OTM-TRANSPORT-PLAN.slexp $LESDIR//y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/pkg/db/data/integrator
+	UPDATESLDATA $LESDIR//y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/pkg/db/data/integrator/LC-BE03-OTM-TRANSPORT-PLAN.slexp
+
+Checking for MOCA commands
+No MOCA commands found...Continuing
+
+Checking for Labels
+Found Label: 
+	file = USR-RFH002.POF
+	directory = z140xiII
+Writing REPLACE line to rollout script for USR-RFH002.POF 
+	REEPLACE pkg/labels/usrint/z140xiII/USR-RFH002.POF $LESDIR/labels/usrint/z140xiII
+
+Checking for reports
+Found report: 
+	file = usr-rfh001-v0110-ffdeliverynote.jrxml
+	directory = usrint
+Writing REPLACE line to rollout script for usr-rfh001-v0110-ffdeliverynote.jrxml 
+	REEPLACE pkg/reports/usrint/usr-rfh001-v0110-ffdeliverynote.jrxml $LESDIR/reports/usrint
+
+Checking for Low Priority MSQL (database changes) files
+Found Low Priority MSQL: 
+	file = 80_integrator_sys_comm.msql
+	directory = afterrun
+Writing REPLACE and RUNSQL lines to rollout script for 80_integrator_sys_comm.msql 
+	REPLACE pkg/db/ddl/afterrun/80_integrator_sys_comm.msql $LESDIR/db/ddl/afterrun
+	runsql $LESDIR/db/ddl/afterrun/80_integrator_sys_comm.msql
+
+Found Low Priority MSQL: 
+	file = 90_Rollout_install_insert.msql
+	directory = afterrun
+Writing REPLACE and RUNSQL lines to rollout script for 90_Rollout_install_insert.msql 
+	REPLACE pkg/db/ddl/afterrun/90_Rollout_install_insert.msql $LESDIR/db/ddl/afterrun
+	runsql $LESDIR/db/ddl/afterrun/90_Rollout_install_insert.msql
+
+Checking for MTF files
+Found MTF File: 
+	file = UsrAssetIdentify.properties
+Writing REPLACE and REBUILD LES lines to rollout script for UsrAssetIdentify.properties
+
+Found MTF File: 
+	file = UsrAssetIdentify.java
+Writing REPLACE and REBUILD LES lines to rollout script for UsrAssetIdentify.java
+
+Removing any previous creations of readme file
+
+Creating README file
+
+Created README file in /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1 
+
+Removing any previous creations of rollout script RLTEST1
+
+Creating rollout script RLTEST1
+
+Created Rollout file RLTEST1 in /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1 
+
+Removing any previous creations of tar file RLTEST1.tar
+
+Tarring directory <rollout/RLTEST1> to RLTEST1.tar
+
+Created Tar file RLTEST1.tar in /y/Docker/MY-GIT/SWBYDEMO/rollout 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Creating Rollout Directory 
+
+Current Time: Time::tm=ARRAY(0x800077100)
+
+Options
+Rollout Directory = /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1
+logfile = RLTEST1.log
+
+Environment:
+LESDIR = /y/Docker/MY-GIT/SWBYDEMO
+Log directory=/y/Docker/MY-GIT/SWBYDEMOog
+Rollout Name = RLTEST1
+
+Reading file inputFile.txt to get options for creating rollout directory
+
+Calling pull_files function with: -c MOCA -d usrint -f "remove_load-remove_usr_inventory_asset.mtrg" -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l RLTEST1.log -o 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+pull_files: Pulling Components
+
+RLTEST1 folder does not exist - creating it
+MOCA
+Pulling Moca file: remove_load-remove_usr_inventory_asset.mtrg
+Create RO directory - /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/pkg/src/cmdsrc/usrint
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Finished calls to pull_files.  Read in and processed 1 lines. 
+
+Calling package_rollout function with: -d rollout/RLTEST1 -l RLTEST1.log -o  -p -m 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Building Rollout Package 
+
+Current Time: Time::tm=ARRAY(0x80063da90)
+
+Options
+RO_DIR = rollout/RLTEST1
+logfile = RLTEST1.log
+
+Environment:
+LESDIR = /y/Docker/MY-GIT/SWBYDEMO
+Log directory=/y/Docker/MY-GIT/SWBYDEMOog
+Rollout Name = RLTEST1
+
+Copying rollout.pl - from /y/Docker/MY-GIT/SWBYDEMO/scripts/rollout.pl   to /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/rollout.pl
+
+Checking for existing text from rollout script (file copy, directory creation, etc.)
+No existing rollout script text found...Continuing
+
+Checking for High Priority MSQL (database changes) files
+No Priority MSQLs found...Continuing
+
+Checking for MLOADS
+No MLOADS found...Continuing
+
+Checking for Integrator Loads
+No Integrator Loads found...Continuing
+
+Checking for MOCA commands
+Found MOCA: 
+	file = remove_load-remove_usr_inventory_asset.mtrg
+	directory = usrint
+Writing REPLACE and MBUILD lines to rollout script for remove_load-remove_usr_inventory_asset.mtrg
+
+Checking for Labels
+No labels commands found...Continuing
+
+Checking for reports
+No reports commands found...Continuing
+
+Checking for Low Priority MSQL (database changes) files
+No Low Priority MSQLs found...Continuing
+
+Checking for MTF files
+No MTF files found...Continuing
+
+Removing any previous creations of readme file
+
+Creating README file
+
+Created README file in /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1 
+
+Removing any previous creations of rollout script RLTEST1
+
+Creating rollout script RLTEST1
+
+Created Rollout file RLTEST1 in /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1 
+
+Removing any previous creations of tar file RLTEST1.tar
+
+Tarring directory <rollout/RLTEST1> to RLTEST1.tar
+
+Created Tar file RLTEST1.tar in /y/Docker/MY-GIT/SWBYDEMO/rollout 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Creating Rollout Directory 
+
+Current Time: Time::tm=ARRAY(0x800077190)
+
+Options
+Rollout Directory = /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1
+logfile = RLTEST1.log
+
+Environment:
+LESDIR = /y/Docker/MY-GIT/SWBYDEMO
+Log directory=/y/Docker/MY-GIT/SWBYDEMOog
+Rollout Name = RLTEST1
+
+Reading file inputFile.txt to get options for creating rollout directory
+
+Calling pull_files function with: -c MOCA -d rolloutint -f "combine_usr_file_paths.mcmd" -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l RLTEST1.log -o 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+pull_files: Pulling Components
+
+RLTEST1 folder does not exist - creating it
+MOCA
+Pulling Moca file: combine_usr_file_paths.mcmd
+Create RO directory - /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/pkg/src/cmdsrc/rolloutint
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Calling pull_files function with: -c MOCA -d usrint -f "remove_load-remove_usr_inventory_asset.mtrg" -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l RLTEST1.log -o 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+pull_files: Pulling Components
+
+MOCA
+Pulling Moca file: remove_load-remove_usr_inventory_asset.mtrg
+Create RO directory - /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/pkg/src/cmdsrc/usrint
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Finished calls to pull_files.  Read in and processed 2 lines. 
+
+Calling package_rollout function with: -d rollout/RLTEST1 -l RLTEST1.log -o  -p -m 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Building Rollout Package 
+
+Current Time: Time::tm=ARRAY(0x800571168)
+
+Options
+RO_DIR = rollout/RLTEST1
+logfile = RLTEST1.log
+
+Environment:
+LESDIR = /y/Docker/MY-GIT/SWBYDEMO
+Log directory=/y/Docker/MY-GIT/SWBYDEMOog
+Rollout Name = RLTEST1
+
+Copying rollout.pl - from /y/Docker/MY-GIT/SWBYDEMO/scripts/rollout.pl   to /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/rollout.pl
+
+Checking for existing text from rollout script (file copy, directory creation, etc.)
+No existing rollout script text found...Continuing
+
+Checking for High Priority MSQL (database changes) files
+No Priority MSQLs found...Continuing
+
+Checking for MLOADS
+No MLOADS found...Continuing
+
+Checking for Integrator Loads
+No Integrator Loads found...Continuing
+
+Checking for MOCA commands
+Found MOCA: 
+	file = combine_usr_file_paths.mcmd
+	directory = rolloutint
+Writing REPLACE and MBUILD lines to rollout script for combine_usr_file_paths.mcmd
+
+Found MOCA: 
+	file = remove_load-remove_usr_inventory_asset.mtrg
+	directory = usrint
+Writing REPLACE and MBUILD lines to rollout script for remove_load-remove_usr_inventory_asset.mtrg
+
+Checking for Labels
+No labels commands found...Continuing
+
+Checking for reports
+No reports commands found...Continuing
+
+Checking for Low Priority MSQL (database changes) files
+No Low Priority MSQLs found...Continuing
+
+Checking for MTF files
+No MTF files found...Continuing
+
+Removing any previous creations of readme file
+
+Creating README file
+
+Created README file in /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1 
+
+Removing any previous creations of rollout script RLTEST1
+
+Creating rollout script RLTEST1
+
+Created Rollout file RLTEST1 in /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1 
+
+Removing any previous creations of tar file RLTEST1.tar
+
+Tarring directory <rollout/RLTEST1> to RLTEST1.tar
+
+Created Tar file RLTEST1.tar in /y/Docker/MY-GIT/SWBYDEMO/rollout 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Creating Rollout Directory 
+
+Current Time: Time::tm=ARRAY(0x8000771b0)
+
+Options
+Rollout Directory = /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1
+logfile = RLTEST1.log
+
+Environment:
+LESDIR = /y/Docker/MY-GIT/SWBYDEMO
+Log directory=/y/Docker/MY-GIT/SWBYDEMOog
+Rollout Name = RLTEST1
+
+Reading file inputFile.txt to get options for creating rollout directory
+
+Calling pull_files function with: -c MOCA -d rolloutint -f "combine_usr_file_paths.mcmd" -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l RLTEST1.log -o 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+pull_files: Pulling Components
+
+RLTEST1 folder does not exist - creating it
+MOCA
+Pulling Moca file: combine_usr_file_paths.mcmd
+Create RO directory - /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/pkg/src/cmdsrc/rolloutint
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Calling pull_files function with: -c MOCA -d usrint -f "remove_load-remove_usr_inventory_asset.mtrg" -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l RLTEST1.log -o 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+pull_files: Pulling Components
+
+MOCA
+Pulling Moca file: remove_load-remove_usr_inventory_asset.mtrg
+Create RO directory - /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/pkg/src/cmdsrc/usrint
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Finished calls to pull_files.  Read in and processed 2 lines. 
+
+Calling package_rollout function with: -d rollout/RLTEST1 -l RLTEST1.log -o  -p -m 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Building Rollout Package 
+
+Current Time: Time::tm=ARRAY(0x800578ea0)
+
+Options
+RO_DIR = rollout/RLTEST1
+logfile = RLTEST1.log
+
+Environment:
+LESDIR = /y/Docker/MY-GIT/SWBYDEMO
+Log directory=/y/Docker/MY-GIT/SWBYDEMOog
+Rollout Name = RLTEST1
+
+Copying rollout.pl - from /y/Docker/MY-GIT/SWBYDEMO/scripts/rollout.pl   to /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/rollout.pl
+
+Checking for existing text from rollout script (file copy, directory creation, etc.)
+No existing rollout script text found...Continuing
+
+Checking for High Priority MSQL (database changes) files
+No Priority MSQLs found...Continuing
+
+Checking for MLOADS
+No MLOADS found...Continuing
+
+Checking for Integrator Loads
+No Integrator Loads found...Continuing
+
+Checking for MOCA commands
+Found MOCA: 
+	file = combine_usr_file_paths.mcmd
+	directory = rolloutint
+Writing REPLACE and MBUILD lines to rollout script for combine_usr_file_paths.mcmd
+
+Found MOCA: 
+	file = remove_load-remove_usr_inventory_asset.mtrg
+	directory = usrint
+Writing REPLACE and MBUILD lines to rollout script for remove_load-remove_usr_inventory_asset.mtrg
+
+Checking for Labels
+No labels commands found...Continuing
+
+Checking for reports
+No reports commands found...Continuing
+
+Checking for Low Priority MSQL (database changes) files
+No Low Priority MSQLs found...Continuing
+
+Checking for MTF files
+No MTF files found...Continuing
+
+Removing any previous creations of readme file
+
+Creating README file
+
+Created README file in /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1 
+
+Removing any previous creations of rollout script RLTEST1
+
+Creating rollout script RLTEST1
+
+Created Rollout file RLTEST1 in /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1 
+
+Removing any previous creations of tar file RLTEST1.tar
+
+Tarring directory <rollout/RLTEST1> to RLTEST1.tar
+
+Created Tar file RLTEST1.tar in /y/Docker/MY-GIT/SWBYDEMO/rollout 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Creating Rollout Directory 
+
+Current Time: Time::tm=ARRAY(0x8000770d0)
+
+Options
+Rollout Directory = /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1
+logfile = RLTEST1.log
+
+Environment:
+LESDIR = /y/Docker/MY-GIT/SWBYDEMO
+Log directory=/y/Docker/MY-GIT/SWBYDEMOog
+Rollout Name = RLTEST1
+
+Reading file inputFile.txt to get options for creating rollout directory
+
+Calling pull_files function with: -c MLVL -f "rolloutint.mlvl" -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l RLTEST1.log -o 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+pull_files: Pulling Components
+
+RLTEST1 folder does not exist - creating it
+MLVL
+Pulling Moca file: rolloutint.mlvl
+Create RO directory - /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/pkg/src/cmdsrc
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Calling pull_files function with: -c MOCA -d rolloutint -f "combine_usr_file_paths.mcmd" -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l RLTEST1.log -o 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+pull_files: Pulling Components
+
+MOCA
+Pulling Moca file: combine_usr_file_paths.mcmd
+Create RO directory - /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/pkg/src/cmdsrc/rolloutint
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Calling pull_files function with: -c MOCA -d usrint -f "remove_load-remove_usr_inventory_asset.mtrg" -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l RLTEST1.log -o 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+pull_files: Pulling Components
+
+MOCA
+Pulling Moca file: remove_load-remove_usr_inventory_asset.mtrg
+Create RO directory - /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/pkg/src/cmdsrc/usrint
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Finished calls to pull_files.  Read in and processed 3 lines. 
+
+Calling package_rollout function with: -d rollout/RLTEST1 -l RLTEST1.log -o  -p -m 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Building Rollout Package 
+
+Current Time: Time::tm=ARRAY(0x800578ed0)
+
+Options
+RO_DIR = rollout/RLTEST1
+logfile = RLTEST1.log
+
+Environment:
+LESDIR = /y/Docker/MY-GIT/SWBYDEMO
+Log directory=/y/Docker/MY-GIT/SWBYDEMOog
+Rollout Name = RLTEST1
+
+Copying rollout.pl - from /y/Docker/MY-GIT/SWBYDEMO/scripts/rollout.pl   to /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/rollout.pl
+
+Checking for existing text from rollout script (file copy, directory creation, etc.)
+No existing rollout script text found...Continuing
+
+Checking for High Priority MSQL (database changes) files
+No Priority MSQLs found...Continuing
+
+Checking for MLOADS
+No MLOADS found...Continuing
+
+Checking for Integrator Loads
+No Integrator Loads found...Continuing
+
+Checking for MOCA commands
+Found MOCA: 
+	file = rolloutint.mlvl
+	directory = cmdsrc
+Writing REPLACE and MBUILD lines to rollout script for rolloutint.mlvl
+
+Found MOCA: 
+	file = combine_usr_file_paths.mcmd
+	directory = rolloutint
+Writing REPLACE and MBUILD lines to rollout script for combine_usr_file_paths.mcmd
+
+Found MOCA: 
+	file = remove_load-remove_usr_inventory_asset.mtrg
+	directory = usrint
+Writing REPLACE and MBUILD lines to rollout script for remove_load-remove_usr_inventory_asset.mtrg
+
+Checking for Labels
+No labels commands found...Continuing
+
+Checking for reports
+No reports commands found...Continuing
+
+Checking for Low Priority MSQL (database changes) files
+No Low Priority MSQLs found...Continuing
+
+Checking for MTF files
+No MTF files found...Continuing
+
+Removing any previous creations of readme file
+
+Creating README file
+
+Created README file in /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1 
+
+Removing any previous creations of rollout script RLTEST1
+
+Creating rollout script RLTEST1
+
+Created Rollout file RLTEST1 in /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1 
+
+Removing any previous creations of tar file RLTEST1.tar
+
+Tarring directory <rollout/RLTEST1> to RLTEST1.tar
+
+Created Tar file RLTEST1.tar in /y/Docker/MY-GIT/SWBYDEMO/rollout 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Creating Rollout Directory 
+
+Current Time: Time::tm=ARRAY(0x800077160)
+
+Options
+Rollout Directory = /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1
+logfile = RLTEST1.log
+
+Environment:
+LESDIR = /y/Docker/MY-GIT/SWBYDEMO
+Log directory=/y/Docker/MY-GIT/SWBYDEMOog
+Rollout Name = RLTEST1
+
+Reading file inputFile.txt to get options for creating rollout directory
+
+Calling pull_files function with: -c MLVL -f "rolloutint.mlvl" -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l RLTEST1.log -o 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+pull_files: Pulling Components
+
+RLTEST1 folder does not exist - creating it
+MLVL
+Pulling MLVL file: rolloutint.mlvl
+Create RO directory - /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/pkg/src/cmdsrc
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Calling pull_files function with: -c MOCA -d rolloutint -f "combine_usr_file_paths.mcmd" -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l RLTEST1.log -o 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+pull_files: Pulling Components
+
+MOCA
+Pulling Moca file: combine_usr_file_paths.mcmd
+Create RO directory - /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/pkg/src/cmdsrc/rolloutint
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Calling pull_files function with: -c MOCA -d usrint -f "remove_load-remove_usr_inventory_asset.mtrg" -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l RLTEST1.log -o 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+pull_files: Pulling Components
+
+MOCA
+Pulling Moca file: remove_load-remove_usr_inventory_asset.mtrg
+Create RO directory - /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/pkg/src/cmdsrc/usrint
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Finished calls to pull_files.  Read in and processed 3 lines. 
+
+Calling package_rollout function with: -d rollout/RLTEST1 -l RLTEST1.log -o  -p -m 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Building Rollout Package 
+
+Current Time: Time::tm=ARRAY(0x80057f208)
+
+Options
+RO_DIR = rollout/RLTEST1
+logfile = RLTEST1.log
+
+Environment:
+LESDIR = /y/Docker/MY-GIT/SWBYDEMO
+Log directory=/y/Docker/MY-GIT/SWBYDEMOog
+Rollout Name = RLTEST1
+
+Copying rollout.pl - from /y/Docker/MY-GIT/SWBYDEMO/scripts/rollout.pl   to /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/rollout.pl
+
+Checking for existing text from rollout script (file copy, directory creation, etc.)
+No existing rollout script text found...Continuing
+
+Checking for High Priority MSQL (database changes) files
+No Priority MSQLs found...Continuing
+
+Checking for MLOADS
+No MLOADS found...Continuing
+
+Checking for Integrator Loads
+No Integrator Loads found...Continuing
+
+Checking for MOCA commands
+Found MOCA: 
+	file = rolloutint.mlvl
+	directory = cmdsrc
+Writing REPLACE and MBUILD lines to rollout script for rolloutint.mlvl
+
+Found MOCA: 
+	file = combine_usr_file_paths.mcmd
+	directory = rolloutint
+Writing REPLACE and MBUILD lines to rollout script for combine_usr_file_paths.mcmd
+
+Found MOCA: 
+	file = remove_load-remove_usr_inventory_asset.mtrg
+	directory = usrint
+Writing REPLACE and MBUILD lines to rollout script for remove_load-remove_usr_inventory_asset.mtrg
+
+Checking for Labels
+No labels commands found...Continuing
+
+Checking for reports
+No reports commands found...Continuing
+
+Checking for Low Priority MSQL (database changes) files
+No Low Priority MSQLs found...Continuing
+
+Checking for MTF files
+No MTF files found...Continuing
+
+Removing any previous creations of readme file
+
+Creating README file
+
+Created README file in /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1 
+
+Removing any previous creations of rollout script RLTEST1
+
+Creating rollout script RLTEST1
+
+Created Rollout file RLTEST1 in /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1 
+
+Removing any previous creations of tar file RLTEST1.tar
+
+Tarring directory <rollout/RLTEST1> to RLTEST1.tar
+
+Created Tar file RLTEST1.tar in /y/Docker/MY-GIT/SWBYDEMO/rollout 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Creating Rollout Directory 
+
+Current Time: Time::tm=ARRAY(0x8000771a0)
+
+Options
+Rollout Directory = /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1
+logfile = RLTEST1.log
+
+Environment:
+LESDIR = /y/Docker/MY-GIT/SWBYDEMO
+Log directory=/y/Docker/MY-GIT/SWBYDEMOog
+Rollout Name = RLTEST1
+
+Reading file inputFile.txt to get options for creating rollout directory
+
+Calling pull_files function with: -c CTL -f "adr_fmt_fld.ctl" -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l RLTEST1.log -o 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+pull_files: Pulling Components
+
+RLTEST1 folder does not exist - creating it
+This adr_fmt_fld.ctl will not be included
+
+CTL
+Pulling CTL file: adr_fmt_fld.ctl
+Create RO directory - /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/pkg/db/data/load/base/
+Cannot find file
+	/y/Docker/MY-GIT/SWBYDEMO/db/data/load/base//adr_fmt_fld.ctl
+  File will not be copied 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Calling pull_files function with: -c MLVL -f "rolloutint.mlvl" -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l RLTEST1.log -o 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+pull_files: Pulling Components
+
+MLVL
+Pulling MLVL file: rolloutint.mlvl
+Create RO directory - /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/pkg/src/cmdsrc
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Calling pull_files function with: -c MOCA -d rolloutint -f "combine_usr_file_paths.mcmd" -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l RLTEST1.log -o 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+pull_files: Pulling Components
+
+MOCA
+Pulling Moca file: combine_usr_file_paths.mcmd
+Create RO directory - /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/pkg/src/cmdsrc/rolloutint
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Calling pull_files function with: -c MOCA -d usrint -f "remove_load-remove_usr_inventory_asset.mtrg" -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l RLTEST1.log -o 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+pull_files: Pulling Components
+
+MOCA
+Pulling Moca file: remove_load-remove_usr_inventory_asset.mtrg
+Create RO directory - /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/pkg/src/cmdsrc/usrint
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Finished calls to pull_files.  Read in and processed 4 lines. 
+
+Calling package_rollout function with: -d rollout/RLTEST1 -l RLTEST1.log -o  -p -m 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Building Rollout Package 
+
+Current Time: Time::tm=ARRAY(0x80057e498)
+
+Options
+RO_DIR = rollout/RLTEST1
+logfile = RLTEST1.log
+
+Environment:
+LESDIR = /y/Docker/MY-GIT/SWBYDEMO
+Log directory=/y/Docker/MY-GIT/SWBYDEMOog
+Rollout Name = RLTEST1
+
+Copying rollout.pl - from /y/Docker/MY-GIT/SWBYDEMO/scripts/rollout.pl   to /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/rollout.pl
+
+Checking for existing text from rollout script (file copy, directory creation, etc.)
+No existing rollout script text found...Continuing
+
+Checking for High Priority MSQL (database changes) files
+No Priority MSQLs found...Continuing
+
+Checking for MLOADS
+No MLOADS found...Continuing
+
+Checking for Integrator Loads
+No Integrator Loads found...Continuing
+
+Checking for MOCA commands
+Found MOCA: 
+	file = rolloutint.mlvl
+	directory = cmdsrc
+Writing REPLACE and MBUILD lines to rollout script for rolloutint.mlvl
+
+Found MOCA: 
+	file = combine_usr_file_paths.mcmd
+	directory = rolloutint
+Writing REPLACE and MBUILD lines to rollout script for combine_usr_file_paths.mcmd
+
+Found MOCA: 
+	file = remove_load-remove_usr_inventory_asset.mtrg
+	directory = usrint
+Writing REPLACE and MBUILD lines to rollout script for remove_load-remove_usr_inventory_asset.mtrg
+
+Checking for Labels
+No labels commands found...Continuing
+
+Checking for reports
+No reports commands found...Continuing
+
+Checking for Low Priority MSQL (database changes) files
+No Low Priority MSQLs found...Continuing
+
+Checking for MTF files
+No MTF files found...Continuing
+
+Removing any previous creations of readme file
+
+Creating README file
+
+Created README file in /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1 
+
+Removing any previous creations of rollout script RLTEST1
+
+Creating rollout script RLTEST1
+
+Created Rollout file RLTEST1 in /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1 
+
+Removing any previous creations of tar file RLTEST1.tar
+
+Tarring directory <rollout/RLTEST1> to RLTEST1.tar
+
+Created Tar file RLTEST1.tar in /y/Docker/MY-GIT/SWBYDEMO/rollout 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Creating Rollout Directory 
+
+Current Time: Time::tm=ARRAY(0x8000771b0)
+
+Options
+Rollout Directory = /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1
+logfile = RLTEST1.log
+
+Environment:
+LESDIR = /y/Docker/MY-GIT/SWBYDEMO
+Log directory=/y/Docker/MY-GIT/SWBYDEMOog
+Rollout Name = RLTEST1
+
+Reading file inputFile.txt to get options for creating rollout directory
+
+Calling pull_files function with: -c CTL -f "adr_fmt_fld.ctl" -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l RLTEST1.log -o 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+pull_files: Pulling Components
+
+RLTEST1 folder does not exist - creating it
+This adr_fmt_fld.ctl will not be included
+
+CTL
+Pulling CTL file: adr_fmt_fld.ctl
+Create RO directory - /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/pkg/db/data/load/base/
+Cannot find file
+	/y/Docker/MY-GIT/SWBYDEMO/db/data/load/base//adr_fmt_fld.ctl
+  File will not be copied 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Finished calls to pull_files.  Read in and processed 1 lines. 
+
+Calling package_rollout function with: -d rollout/RLTEST1 -l RLTEST1.log -o  -p -m 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Building Rollout Package 
+
+Current Time: Time::tm=ARRAY(0x80057ec60)
+
+Options
+RO_DIR = rollout/RLTEST1
+logfile = RLTEST1.log
+
+Environment:
+LESDIR = /y/Docker/MY-GIT/SWBYDEMO
+Log directory=/y/Docker/MY-GIT/SWBYDEMOog
+Rollout Name = RLTEST1
+
+Copying rollout.pl - from /y/Docker/MY-GIT/SWBYDEMO/scripts/rollout.pl   to /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/rollout.pl
+
+Checking for existing text from rollout script (file copy, directory creation, etc.)
+No existing rollout script text found...Continuing
+
+Checking for High Priority MSQL (database changes) files
+No Priority MSQLs found...Continuing
+
+Checking for MLOADS
+No MLOADS found...Continuing
+
+Checking for Integrator Loads
+No Integrator Loads found...Continuing
+
+Checking for MOCA commands
+No MOCA commands found...Continuing
+
+Checking for Labels
+No labels commands found...Continuing
+
+Checking for reports
+No reports commands found...Continuing
+
+Checking for Low Priority MSQL (database changes) files
+No Low Priority MSQLs found...Continuing
+
+Checking for MTF files
+No MTF files found...Continuing
+
+Removing any previous creations of readme file
+
+Creating README file
+
+Created README file in /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1 
+
+Removing any previous creations of rollout script RLTEST1
+
+Creating rollout script RLTEST1
+
+Created Rollout file RLTEST1 in /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1 
+
+Removing any previous creations of tar file RLTEST1.tar
+
+Tarring directory <rollout/RLTEST1> to RLTEST1.tar
+
+Created Tar file RLTEST1.tar in /y/Docker/MY-GIT/SWBYDEMO/rollout 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Creating Rollout Directory 
+
+Current Time: Time::tm=ARRAY(0x800077170)
+
+Options
+Rollout Directory = /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1
+logfile = RLTEST1.log
+
+Environment:
+LESDIR = /y/Docker/MY-GIT/SWBYDEMO
+Log directory=/y/Docker/MY-GIT/SWBYDEMOog
+Rollout Name = RLTEST1
+
+Reading file inputFile.txt to get options for creating rollout directory
+
+Calling pull_files function with: -c CTL -f "adr_fmt_fld.ctl" -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l RLTEST1.log -o 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+pull_files: Pulling Components
+
+RLTEST1 folder does not exist - creating it
+CTL
+Pulling CTL file: adr_fmt_fld.ctl
+Create RO directory - /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/pkg/db/data/load/base/safetoload
+Cannot find file
+	/y/Docker/MY-GIT/SWBYDEMO/db/data/load/base/safetoload/adr_fmt_fld.ctl
+  File will not be copied 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Finished calls to pull_files.  Read in and processed 1 lines. 
+
+Calling package_rollout function with: -d rollout/RLTEST1 -l RLTEST1.log -o  -p -m 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Building Rollout Package 
+
+Current Time: Time::tm=ARRAY(0x800643878)
+
+Options
+RO_DIR = rollout/RLTEST1
+logfile = RLTEST1.log
+
+Environment:
+LESDIR = /y/Docker/MY-GIT/SWBYDEMO
+Log directory=/y/Docker/MY-GIT/SWBYDEMOog
+Rollout Name = RLTEST1
+
+Copying rollout.pl - from /y/Docker/MY-GIT/SWBYDEMO/scripts/rollout.pl   to /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/rollout.pl
+
+Checking for existing text from rollout script (file copy, directory creation, etc.)
+No existing rollout script text found...Continuing
+
+Checking for High Priority MSQL (database changes) files
+No Priority MSQLs found...Continuing
+
+Checking for MLOADS
+No MLOADS found...Continuing
+
+Checking for Integrator Loads
+No Integrator Loads found...Continuing
+
+Checking for MOCA commands
+No MOCA commands found...Continuing
+
+Checking for Labels
+No labels commands found...Continuing
+
+Checking for reports
+No reports commands found...Continuing
+
+Checking for Low Priority MSQL (database changes) files
+No Low Priority MSQLs found...Continuing
+
+Checking for MTF files
+No MTF files found...Continuing
+
+Removing any previous creations of readme file
+
+Creating README file
+
+Created README file in /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1 
+
+Removing any previous creations of rollout script RLTEST1
+
+Creating rollout script RLTEST1
+
+Created Rollout file RLTEST1 in /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1 
+
+Removing any previous creations of tar file RLTEST1.tar
+
+Tarring directory <rollout/RLTEST1> to RLTEST1.tar
+
+Created Tar file RLTEST1.tar in /y/Docker/MY-GIT/SWBYDEMO/rollout 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Creating Rollout Directory 
+
+Current Time: Time::tm=ARRAY(0x800077130)
+
+Options
+Rollout Directory = /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1
+logfile = RLTEST1.log
+
+Environment:
+LESDIR = /y/Docker/MY-GIT/SWBYDEMO
+Log directory=/y/Docker/MY-GIT/SWBYDEMOog
+Rollout Name = RLTEST1
+
+Reading file inputFile.txt to get options for creating rollout directory
+
+Calling pull_files function with: -c CTL -f "btn_config.ctl" -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l RLTEST1.log -o 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+pull_files: Pulling Components
+
+RLTEST1 folder does not exist - creating it
+CTL
+Pulling CTL file: btn_config.ctl
+Create RO directory - /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/pkg/db/data/load/base/safetoload
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Finished calls to pull_files.  Read in and processed 1 lines. 
+
+Calling package_rollout function with: -d rollout/RLTEST1 -l RLTEST1.log -o  -p -m 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Building Rollout Package 
+
+Current Time: Time::tm=ARRAY(0x800599ee0)
+
+Options
+RO_DIR = rollout/RLTEST1
+logfile = RLTEST1.log
+
+Environment:
+LESDIR = /y/Docker/MY-GIT/SWBYDEMO
+Log directory=/y/Docker/MY-GIT/SWBYDEMOog
+Rollout Name = RLTEST1
+
+Copying rollout.pl - from /y/Docker/MY-GIT/SWBYDEMO/scripts/rollout.pl   to /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/rollout.pl
+
+Checking for existing text from rollout script (file copy, directory creation, etc.)
+No existing rollout script text found...Continuing
+
+Checking for High Priority MSQL (database changes) files
+No Priority MSQLs found...Continuing
+
+Checking for MLOADS
+Found MLOAD: 
+	file = btn_config.ctl
+	table = safetoload
+	load directory = base
+Writing lines to rollout script 
+	REPLACE pkg/db/data/load/base/base/safetoload/btn_config.ctl $LESDIR/db/data/load/base/base/safetoload
+	LOADDATA $LESDIR/db/data/load/base/base/safetoload.ctl btn_config.ctl
+
+Checking for Integrator Loads
+No Integrator Loads found...Continuing
+
+Checking for MOCA commands
+No MOCA commands found...Continuing
+
+Checking for Labels
+No labels commands found...Continuing
+
+Checking for reports
+No reports commands found...Continuing
+
+Checking for Low Priority MSQL (database changes) files
+No Low Priority MSQLs found...Continuing
+
+Checking for MTF files
+No MTF files found...Continuing
+
+Removing any previous creations of readme file
+
+Creating README file
+
+Created README file in /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1 
+
+Removing any previous creations of rollout script RLTEST1
+
+Creating rollout script RLTEST1
+
+Created Rollout file RLTEST1 in /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1 
+
+Removing any previous creations of tar file RLTEST1.tar
+
+Tarring directory <rollout/RLTEST1> to RLTEST1.tar
+
+Created Tar file RLTEST1.tar in /y/Docker/MY-GIT/SWBYDEMO/rollout 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Creating Rollout Directory 
+
+Current Time: Time::tm=ARRAY(0x800077200)
+
+Options
+Rollout Directory = /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1
+logfile = RLTEST1.log
+
+Environment:
+LESDIR = /y/Docker/MY-GIT/SWBYDEMO
+Log directory=/y/Docker/MY-GIT/SWBYDEMOog
+Rollout Name = RLTEST1
+
+Reading file inputFile.txt to get options for creating rollout directory
+
+Calling pull_files function with: -c CTL -f "btn_config.ctl" -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l RLTEST1.log -o 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+pull_files: Pulling Components
+
+RLTEST1 folder does not exist - creating it
+CTL
+Pulling CTL file: btn_config.ctl
+Create RO directory - /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/pkg/db/data/load/base/safetoload
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Finished calls to pull_files.  Read in and processed 1 lines. 
+
+Calling package_rollout function with: -d rollout/RLTEST1 -l RLTEST1.log -o  -p -m 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Building Rollout Package 
+
+Current Time: Time::tm=ARRAY(0x800599e40)
+
+Options
+RO_DIR = rollout/RLTEST1
+logfile = RLTEST1.log
+
+Environment:
+LESDIR = /y/Docker/MY-GIT/SWBYDEMO
+Log directory=/y/Docker/MY-GIT/SWBYDEMOog
+Rollout Name = RLTEST1
+
+Copying rollout.pl - from /y/Docker/MY-GIT/SWBYDEMO/scripts/rollout.pl   to /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/rollout.pl
+
+Checking for existing text from rollout script (file copy, directory creation, etc.)
+No existing rollout script text found...Continuing
+
+Checking for High Priority MSQL (database changes) files
+No Priority MSQLs found...Continuing
+
+Checking for MLOADS
+Found MLOAD: 
+	file = btn_config.ctl
+	table = safetoload
+	load directory = base
+Writing lines to rollout script 
+	REPLACE pkg/db/data/load/base/base/safetoload/btn_config.ctl $LESDIR/db/data/load/base/base/safetoload
+	LOADDATA $LESDIR/db/data/load/base/base/safetoload.ctl btn_config.ctl
+
+Checking for Integrator Loads
+No Integrator Loads found...Continuing
+
+Checking for MOCA commands
+No MOCA commands found...Continuing
+
+Checking for Labels
+No labels commands found...Continuing
+
+Checking for reports
+No reports commands found...Continuing
+
+Checking for Low Priority MSQL (database changes) files
+No Low Priority MSQLs found...Continuing
+
+Checking for MTF files
+No MTF files found...Continuing
+
+Removing any previous creations of readme file
+
+Creating README file
+
+Created README file in /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1 
+
+Removing any previous creations of rollout script RLTEST1
+
+Creating rollout script RLTEST1
+
+Created Rollout file RLTEST1 in /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1 
+
+Removing any previous creations of tar file RLTEST1.tar
+
+Tarring directory <rollout/RLTEST1> to RLTEST1.tar
+
+Created Tar file RLTEST1.tar in /y/Docker/MY-GIT/SWBYDEMO/rollout 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Creating Rollout Directory 
+
+Current Time: Time::tm=ARRAY(0x800077200)
+
+Options
+Rollout Directory = /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1
+logfile = RLTEST1.log
+
+Environment:
+LESDIR = /y/Docker/MY-GIT/SWBYDEMO
+Log directory=/y/Docker/MY-GIT/SWBYDEMOog
+Rollout Name = RLTEST1
+
+Reading file inputFile.txt to get options for creating rollout directory
+
+Calling pull_files function with: -c CTL -f "btn_config.ctl" -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l RLTEST1.log -o 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+pull_files: Pulling Components
+
+RLTEST1 folder does not exist - creating it
+CTL
+Pulling CTL file: btn_config.ctl
+Create RO directory - /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/pkg/db/data/load/base/safetoload
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Calling pull_files function with: -c SQL -t client -f "client.csv" -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l RLTEST1.log -o 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+pull_files: Pulling Components
+
+CSV
+Pulling CSV file: client.csv
+Create RO directory - /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/pkg/db/data/load/base/bootstraponly/client
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Finished calls to pull_files.  Read in and processed 2 lines. 
+
+Calling package_rollout function with: -d rollout/RLTEST1 -l RLTEST1.log -o  -p -m 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Building Rollout Package 
+
+Current Time: Time::tm=ARRAY(0x80059a3f8)
+
+Options
+RO_DIR = rollout/RLTEST1
+logfile = RLTEST1.log
+
+Environment:
+LESDIR = /y/Docker/MY-GIT/SWBYDEMO
+Log directory=/y/Docker/MY-GIT/SWBYDEMOog
+Rollout Name = RLTEST1
+
+Copying rollout.pl - from /y/Docker/MY-GIT/SWBYDEMO/scripts/rollout.pl   to /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/rollout.pl
+
+Checking for existing text from rollout script (file copy, directory creation, etc.)
+No existing rollout script text found...Continuing
+
+Checking for High Priority MSQL (database changes) files
+No Priority MSQLs found...Continuing
+
+Checking for MLOADS
+Found MLOAD: 
+	file = btn_config.ctl
+	table = safetoload
+	load directory = base
+Writing lines to rollout script 
+	REPLACE pkg/db/data/load/base/base/safetoload/btn_config.ctl $LESDIR/db/data/load/base/base/safetoload
+	LOADDATA $LESDIR/db/data/load/base/base/safetoload.ctl btn_config.ctl
+
+Found MLOAD: 
+	file = client.ctl
+	table = bootstraponly
+	load directory = base
+Writing lines to rollout script 
+	REPLACE pkg/db/data/load/base/base/bootstraponly/client.ctl $LESDIR/db/data/load/base/base/bootstraponly
+	LOADDATA $LESDIR/db/data/load/base/base/bootstraponly.ctl client.ctl
+
+Found MLOAD: 
+	file = client.csv
+	table = client
+	load directory = bootstraponly
+Writing lines to rollout script 
+	REPLACE pkg/db/data/load/base/bootstraponly/client/client.csv $LESDIR/db/data/load/base/bootstraponly/client
+	LOADDATA $LESDIR/db/data/load/base/bootstraponly/client.ctl client.csv
+
+Checking for Integrator Loads
+No Integrator Loads found...Continuing
+
+Checking for MOCA commands
+No MOCA commands found...Continuing
+
+Checking for Labels
+No labels commands found...Continuing
+
+Checking for reports
+No reports commands found...Continuing
+
+Checking for Low Priority MSQL (database changes) files
+No Low Priority MSQLs found...Continuing
+
+Checking for MTF files
+No MTF files found...Continuing
+
+Removing any previous creations of readme file
+
+Creating README file
+
+Created README file in /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1 
+
+Removing any previous creations of rollout script RLTEST1
+
+Creating rollout script RLTEST1
+
+Created Rollout file RLTEST1 in /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1 
+
+Removing any previous creations of tar file RLTEST1.tar
+
+Tarring directory <rollout/RLTEST1> to RLTEST1.tar
+
+Created Tar file RLTEST1.tar in /y/Docker/MY-GIT/SWBYDEMO/rollout 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Creating Rollout Directory 
+
+Current Time: Time::tm=ARRAY(0x800077180)
+
+Options
+Rollout Directory = /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1
+logfile = RLTEST1.log
+
+Environment:
+LESDIR = /y/Docker/MY-GIT/SWBYDEMO
+Log directory=/y/Docker/MY-GIT/SWBYDEMOog
+Rollout Name = RLTEST1
+
+Reading file inputFile.txt to get options for creating rollout directory
+
+Calling pull_files function with: -c CTL -f "btn_config.ctl" -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l RLTEST1.log -o 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+pull_files: Pulling Components
+
+RLTEST1 folder does not exist - creating it
+CTL
+Pulling CTL file: btn_config.ctl
+Create RO directory - /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/pkg/db/data/load/base/safetoload
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Calling pull_files function with: -c SQL -t client -f "client.csv" -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l RLTEST1.log -o 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+pull_files: Pulling Components
+
+CSV
+Pulling CSV file: client.csv
+Create RO directory - /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/pkg/db/data/load/base/bootstraponly/client
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Finished calls to pull_files.  Read in and processed 2 lines. 
+
+Calling package_rollout function with: -d rollout/RLTEST1 -l RLTEST1.log -o  -p -m 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Building Rollout Package 
+
+Current Time: Time::tm=ARRAY(0x8006660d0)
+
+Options
+RO_DIR = rollout/RLTEST1
+logfile = RLTEST1.log
+
+Environment:
+LESDIR = /y/Docker/MY-GIT/SWBYDEMO
+Log directory=/y/Docker/MY-GIT/SWBYDEMOog
+Rollout Name = RLTEST1
+
+Copying rollout.pl - from /y/Docker/MY-GIT/SWBYDEMO/scripts/rollout.pl   to /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/rollout.pl
+
+Checking for existing text from rollout script (file copy, directory creation, etc.)
+No existing rollout script text found...Continuing
+
+Checking for High Priority MSQL (database changes) files
+No Priority MSQLs found...Continuing
+
+Checking for Control files
+Found Control File: 
+	file = btn_config.ctl
+	directory = safetoload
+Writing REPLACE to rollout script for btn_config.ctl 
+	REPLACE pkg/db/data/load/base/safetoload/btn_config.ctl $LESDIR/db/data/load/base/safetoload
+
+Found Control File: 
+	file = client.ctl
+	directory = bootstraponly
+Writing REPLACE to rollout script for client.ctl 
+	REPLACE pkg/db/data/load/base/bootstraponly/client.ctl $LESDIR/db/data/load/base/bootstraponly
+
+Found Control File: 
+	file = client.csv
+	directory = client
+Writing REPLACE to rollout script for client.csv 
+	REPLACE pkg/db/data/load/base/client/client.csv $LESDIR/db/data/load/base/client
+
+Checking for MLOADS
+Found MLOAD: 
+	file = btn_config.ctl
+	table = safetoload
+	load directory = base
+Writing lines to rollout script 
+	REPLACE pkg/db/data/load/base/base/safetoload/btn_config.ctl $LESDIR/db/data/load/base/base/safetoload
+	LOADDATA $LESDIR/db/data/load/base/base/safetoload.ctl btn_config.ctl
+
+Found MLOAD: 
+	file = client.ctl
+	table = bootstraponly
+	load directory = base
+Writing lines to rollout script 
+	REPLACE pkg/db/data/load/base/base/bootstraponly/client.ctl $LESDIR/db/data/load/base/base/bootstraponly
+	LOADDATA $LESDIR/db/data/load/base/base/bootstraponly.ctl client.ctl
+
+Found MLOAD: 
+	file = client.csv
+	table = client
+	load directory = bootstraponly
+Writing lines to rollout script 
+	REPLACE pkg/db/data/load/base/bootstraponly/client/client.csv $LESDIR/db/data/load/base/bootstraponly/client
+	LOADDATA $LESDIR/db/data/load/base/bootstraponly/client.ctl client.csv
+
+Checking for Integrator Loads
+No Integrator Loads found...Continuing
+
+Checking for MOCA commands
+No MOCA commands found...Continuing
+
+Checking for Labels
+No labels commands found...Continuing
+
+Checking for reports
+No reports commands found...Continuing
+
+Checking for Low Priority MSQL (database changes) files
+No Low Priority MSQLs found...Continuing
+
+Checking for MTF files
+No MTF files found...Continuing
+
+Removing any previous creations of readme file
+
+Creating README file
+
+Created README file in /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1 
+
+Removing any previous creations of rollout script RLTEST1
+
+Creating rollout script RLTEST1
+
+Created Rollout file RLTEST1 in /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1 
+
+Removing any previous creations of tar file RLTEST1.tar
+
+Tarring directory <rollout/RLTEST1> to RLTEST1.tar
+
+Created Tar file RLTEST1.tar in /y/Docker/MY-GIT/SWBYDEMO/rollout 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Creating Rollout Directory 
+
+Current Time: Time::tm=ARRAY(0x800077190)
+
+Options
+Rollout Directory = /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1
+logfile = RLTEST1.log
+
+Environment:
+LESDIR = /y/Docker/MY-GIT/SWBYDEMO
+Log directory=/y/Docker/MY-GIT/SWBYDEMOog
+Rollout Name = RLTEST1
+
+Reading file inputFile.txt to get options for creating rollout directory
+
+Calling pull_files function with: -c CTL -f "btn_config.ctl" -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l RLTEST1.log -o 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+pull_files: Pulling Components
+
+RLTEST1 folder does not exist - creating it
+CTL
+Pulling CTL file: btn_config.ctl
+Create RO directory - /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/pkg/db/data/load/base/safetoload
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Calling pull_files function with: -c SQL -t client -f "client.csv" -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l RLTEST1.log -o 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+pull_files: Pulling Components
+
+CSV
+Pulling CSV file: client.csv
+Create RO directory - /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/pkg/db/data/load/base/bootstraponly/client
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Finished calls to pull_files.  Read in and processed 2 lines. 
+
+Calling package_rollout function with: -d rollout/RLTEST1 -l RLTEST1.log -o  -p -m 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Building Rollout Package 
+
+Current Time: Time::tm=ARRAY(0x800666290)
+
+Options
+RO_DIR = rollout/RLTEST1
+logfile = RLTEST1.log
+
+Environment:
+LESDIR = /y/Docker/MY-GIT/SWBYDEMO
+Log directory=/y/Docker/MY-GIT/SWBYDEMOog
+Rollout Name = RLTEST1
+
+Copying rollout.pl - from /y/Docker/MY-GIT/SWBYDEMO/scripts/rollout.pl   to /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/rollout.pl
+
+Checking for existing text from rollout script (file copy, directory creation, etc.)
+No existing rollout script text found...Continuing
+
+Checking for High Priority MSQL (database changes) files
+No Priority MSQLs found...Continuing
+
+Checking for Control files
+Found Control File: 
+	file = btn_config.ctl
+	directory = safetoload
+Writing REPLACE to rollout script for btn_config.ctl 
+	REPLACE pkg/db/data/load/base/safetoload/btn_config.ctl $LESDIR/db/data/load/base/safetoload
+
+Found Control File: 
+	file = client.ctl
+	directory = bootstraponly
+Writing REPLACE to rollout script for client.ctl 
+	REPLACE pkg/db/data/load/base/bootstraponly/client.ctl $LESDIR/db/data/load/base/bootstraponly
+
+Checking for MLOADS
+Found MLOAD: 
+	file = client.csv
+	table = client
+	load directory = bootstraponly
+Writing lines to rollout script 
+	REPLACE pkg/db/data/load/base/bootstraponly/client/client.csv $LESDIR/db/data/load/base/bootstraponly/client
+	LOADDATA $LESDIR/db/data/load/base/bootstraponly/client.ctl client.csv
+
+Checking for Integrator Loads
+No Integrator Loads found...Continuing
+
+Checking for MOCA commands
+No MOCA commands found...Continuing
+
+Checking for Labels
+No labels commands found...Continuing
+
+Checking for reports
+No reports commands found...Continuing
+
+Checking for Low Priority MSQL (database changes) files
+No Low Priority MSQLs found...Continuing
+
+Checking for MTF files
+No MTF files found...Continuing
+
+Removing any previous creations of readme file
+
+Creating README file
+
+Created README file in /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1 
+
+Removing any previous creations of rollout script RLTEST1
+
+Creating rollout script RLTEST1
+
+Created Rollout file RLTEST1 in /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1 
+
+Removing any previous creations of tar file RLTEST1.tar
+
+Tarring directory <rollout/RLTEST1> to RLTEST1.tar
+
+Created Tar file RLTEST1.tar in /y/Docker/MY-GIT/SWBYDEMO/rollout 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Creating Rollout Directory 
+
+Current Time: Time::tm=ARRAY(0x8000770e0)
+
+Options
+Rollout Directory = /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1
+logfile = RLTEST1.log
+
+Environment:
+LESDIR = /y/Docker/MY-GIT/SWBYDEMO
+Log directory=/y/Docker/MY-GIT/SWBYDEMOog
+Rollout Name = RLTEST1
+
+Reading file inputFile.txt to get options for creating rollout directory
+
+Calling pull_files function with: -c CTL -f "btn_config.ctl" -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l RLTEST1.log -o 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+pull_files: Pulling Components
+
+RLTEST1 folder does not exist - creating it
+CTL
+Pulling CTL file: btn_config.ctl
+Create RO directory - /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/pkg/db/data/load/base/safetoload
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Calling pull_files function with: -c SQL -t client -f "client.csv" -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l RLTEST1.log -o 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+pull_files: Pulling Components
+
+CSV
+Pulling CSV file: client.csv
+Create RO directory - /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/pkg/db/data/load/base/bootstraponly/client
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Finished calls to pull_files.  Read in and processed 2 lines. 
+
+Calling package_rollout function with: -d rollout/RLTEST1 -l RLTEST1.log -o  -p -m 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Building Rollout Package 
+
+Current Time: Time::tm=ARRAY(0x800666a70)
+
+Options
+RO_DIR = rollout/RLTEST1
+logfile = RLTEST1.log
+
+Environment:
+LESDIR = /y/Docker/MY-GIT/SWBYDEMO
+Log directory=/y/Docker/MY-GIT/SWBYDEMOog
+Rollout Name = RLTEST1
+
+Copying rollout.pl - from /y/Docker/MY-GIT/SWBYDEMO/scripts/rollout.pl   to /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/rollout.pl
+
+Checking for existing text from rollout script (file copy, directory creation, etc.)
+No existing rollout script text found...Continuing
+
+Checking for High Priority MSQL (database changes) files
+No Priority MSQLs found...Continuing
+
+Checking for Control files
+Found Control File: 
+	file = btn_config.ctl
+	directory = safetoload
+Writing REPLACE to rollout script for btn_config.ctl 
+	REPLACE pkg/db/data/load/base/safetoload/btn_config.ctl $LESDIR/db/data/load/base/safetoload
+
+Found Control File: 
+	file = client.ctl
+	directory = bootstraponly
+Writing REPLACE to rollout script for client.ctl 
+	REPLACE pkg/db/data/load/base/bootstraponly/client.ctl $LESDIR/db/data/load/base/bootstraponly
+
+Checking for MLOADS
+Found MLOAD: 
+	file = client.csv
+	table = client
+	load directory = bootstraponly
+Writing lines to rollout script 
+	REPLACE pkg/db/data/load/base/bootstraponly/client/client.csv $LESDIR/db/data/load/base/bootstraponly/client
+	LOADDATA $LESDIR/db/data/load/base/bootstraponly/client.ctl client.csv
+
+Checking for Integrator Loads
+No Integrator Loads found...Continuing
+
+Checking for MOCA commands
+No MOCA commands found...Continuing
+
+Checking for Labels
+No labels commands found...Continuing
+
+Checking for reports
+No reports commands found...Continuing
+
+Checking for Low Priority MSQL (database changes) files
+No Low Priority MSQLs found...Continuing
+
+Checking for MTF files
+No MTF files found...Continuing
+
+Removing any previous creations of readme file
+
+Creating README file
+
+Created README file in /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1 
+
+Removing any previous creations of rollout script RLTEST1
+
+Creating rollout script RLTEST1
+
+Created Rollout file RLTEST1 in /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1 
+
+Removing any previous creations of tar file RLTEST1.tar
+
+Tarring directory <rollout/RLTEST1> to RLTEST1.tar
+
+Created Tar file RLTEST1.tar in /y/Docker/MY-GIT/SWBYDEMO/rollout 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Creating Rollout Directory 
+
+Current Time: Time::tm=ARRAY(0x800077240)
+
+Options
+Rollout Directory = /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1
+logfile = RLTEST1.log
+
+Environment:
+LESDIR = /y/Docker/MY-GIT/SWBYDEMO
+Log directory=/y/Docker/MY-GIT/SWBYDEMOog
+Rollout Name = RLTEST1
+
+Reading file inputFile.txt to get options for creating rollout directory
+
+Calling pull_files function with: -c DDL -d afterrun -f "90_Rollout_install_insert.msql" -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l RLTEST1.log -o 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+pull_files: Pulling Components
+
+RLTEST1 folder does not exist - creating it
+DDL
+Pulling DDL file: 90_Rollout_install_insert.msql
+Create RO directory - /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/pkg/db/ddl/afterrun
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Calling pull_files function with: -c DDL -d prerun -f "20_delete_data.msql" -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l RLTEST1.log -o 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+pull_files: Pulling Components
+
+DDL
+Pulling DDL file: 20_delete_data.msql
+Create RO directory - /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/pkg/db/ddl/prerun
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Calling pull_files function with: -c DDL -d afterrun -f "80_integrator_sys_comm.msql" -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l RLTEST1.log -o 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+pull_files: Pulling Components
+
+DDL
+Pulling DDL file: 80_integrator_sys_comm.msql
+Create RO directory - /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/pkg/db/ddl/afterrun
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Finished calls to pull_files.  Read in and processed 3 lines. 
+
+Calling package_rollout function with: -d rollout/RLTEST1 -l RLTEST1.log -o  -p -m 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Building Rollout Package 
+
+Current Time: Time::tm=ARRAY(0x80058aa60)
+
+Options
+RO_DIR = rollout/RLTEST1
+logfile = RLTEST1.log
+
+Environment:
+LESDIR = /y/Docker/MY-GIT/SWBYDEMO
+Log directory=/y/Docker/MY-GIT/SWBYDEMOog
+Rollout Name = RLTEST1
+
+Copying rollout.pl - from /y/Docker/MY-GIT/SWBYDEMO/scripts/rollout.pl   to /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/rollout.pl
+
+Checking for existing text from rollout script (file copy, directory creation, etc.)
+No existing rollout script text found...Continuing
+
+Checking for High Priority MSQL (database changes) files
+Found Priority MSQL: 
+	file = 20_delete_data.msql
+	directory = prerun
+Writing REPLACE and RUNSQL lines to rollout script for 20_delete_data.msql 
+	REPLACE pkg/db/ddl/prerun/20_delete_data.msql $LESDIR/db/ddl/prerun
+	runsql $LESDIR/db/ddl/prerun/20_delete_data.msql
+
+Checking for Control files
+No CTRLs found...Continuing
+
+Checking for MLOADS
+No MLOADS found...Continuing
+
+Checking for Integrator Loads
+No Integrator Loads found...Continuing
+
+Checking for MOCA commands
+No MOCA commands found...Continuing
+
+Checking for Labels
+No labels commands found...Continuing
+
+Checking for reports
+No reports commands found...Continuing
+
+Checking for Low Priority MSQL (database changes) files
+Found Low Priority MSQL: 
+	file = 80_integrator_sys_comm.msql
+	directory = afterrun
+Writing REPLACE and RUNSQL lines to rollout script for 80_integrator_sys_comm.msql 
+	REPLACE pkg/db/ddl/afterrun/80_integrator_sys_comm.msql $LESDIR/db/ddl/afterrun
+	runsql $LESDIR/db/ddl/afterrun/80_integrator_sys_comm.msql
+
+Found Low Priority MSQL: 
+	file = 90_Rollout_install_insert.msql
+	directory = afterrun
+Writing REPLACE and RUNSQL lines to rollout script for 90_Rollout_install_insert.msql 
+	REPLACE pkg/db/ddl/afterrun/90_Rollout_install_insert.msql $LESDIR/db/ddl/afterrun
+	runsql $LESDIR/db/ddl/afterrun/90_Rollout_install_insert.msql
+
+Checking for MTF files
+No MTF files found...Continuing
+
+Removing any previous creations of readme file
+
+Creating README file
+
+Created README file in /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1 
+
+Removing any previous creations of rollout script RLTEST1
+
+Creating rollout script RLTEST1
+
+Created Rollout file RLTEST1 in /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1 
+
+Removing any previous creations of tar file RLTEST1.tar
+
+Tarring directory <rollout/RLTEST1> to RLTEST1.tar
+
+Created Tar file RLTEST1.tar in /y/Docker/MY-GIT/SWBYDEMO/rollout 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Creating Rollout Directory 
+
+Current Time: Time::tm=ARRAY(0x800077210)
+
+Options
+Rollout Directory = /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1
+logfile = RLTEST1.log
+
+Environment:
+LESDIR = /y/Docker/MY-GIT/SWBYDEMO
+Log directory=/y/Docker/MY-GIT/SWBYDEMOog
+Rollout Name = RLTEST1
+
+Reading file inputFile.txt to get options for creating rollout directory
+
+Calling pull_files function with: -c DDL -d afterrun -f "90_Rollout_install_insert.msql" -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l RLTEST1.log -o 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+pull_files: Pulling Components
+
+RLTEST1 folder does not exist - creating it
+DDL
+Pulling DDL file: 90_Rollout_install_insert.msql
+Create RO directory - /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/pkg/db/ddl/afterrun
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Calling pull_files function with: -c DDL -d prerun -f "20_delete_data.msql" -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l RLTEST1.log -o 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+pull_files: Pulling Components
+
+DDL
+Pulling DDL file: 20_delete_data.msql
+Create RO directory - /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/pkg/db/ddl/prerun
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Calling pull_files function with: -c DDL -d afterrun -f "80_integrator_sys_comm.msql" -r RLTEST1  -p /y/Docker/MY-GIT/SWBYDEMO/rollout/ -l RLTEST1.log -o 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+pull_files: Pulling Components
+
+DDL
+Pulling DDL file: 80_integrator_sys_comm.msql
+Create RO directory - /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/pkg/db/ddl/afterrun
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Finished calls to pull_files.  Read in and processed 3 lines. 
+
+Calling package_rollout function with: -d rollout/RLTEST1 -l RLTEST1.log -o  -p -m 
+ 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+
+Building Rollout Package 
+
+Current Time: Time::tm=ARRAY(0x80058ae20)
+
+Options
+RO_DIR = rollout/RLTEST1
+logfile = RLTEST1.log
+
+Environment:
+LESDIR = /y/Docker/MY-GIT/SWBYDEMO
+Log directory=/y/Docker/MY-GIT/SWBYDEMOog
+Rollout Name = RLTEST1
+
+Copying rollout.pl - from /y/Docker/MY-GIT/SWBYDEMO/scripts/rollout.pl   to /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1/rollout.pl
+
+Checking for existing text from rollout script (file copy, directory creation, etc.)
+No existing rollout script text found...Continuing
+
+Checking for High Priority MSQL (database changes) files
+Found Priority MSQL: 
+	file = 20_delete_data.msql
+	directory = prerun
+Writing REPLACE and RUNSQL lines to rollout script for 20_delete_data.msql 
+	REPLACE pkg/db/ddl/prerun/20_delete_data.msql $LESDIR/db/ddl/prerun
+	runsql $LESDIR/db/ddl/prerun/20_delete_data.msql
+
+Checking for Control files
+No CTRLs found...Continuing
+
+Checking for MLOADS
+No MLOADS found...Continuing
+
+Checking for Integrator Loads
+No Integrator Loads found...Continuing
+
+Checking for MOCA commands
+No MOCA commands found...Continuing
+
+Checking for Labels
+No labels commands found...Continuing
+
+Checking for reports
+No reports commands found...Continuing
+
+Checking for Low Priority MSQL (database changes) files
+Found Low Priority MSQL: 
+	file = 80_integrator_sys_comm.msql
+	directory = afterrun
+Writing REPLACE and RUNSQL lines to rollout script for 80_integrator_sys_comm.msql 
+	REPLACE pkg/db/ddl/afterrun/80_integrator_sys_comm.msql $LESDIR/db/ddl/afterrun
+	runsql $LESDIR/db/ddl/afterrun/80_integrator_sys_comm.msql
+
+Found Low Priority MSQL: 
+	file = 90_Rollout_install_insert.msql
+	directory = afterrun
+Writing REPLACE and RUNSQL lines to rollout script for 90_Rollout_install_insert.msql 
+	REPLACE pkg/db/ddl/afterrun/90_Rollout_install_insert.msql $LESDIR/db/ddl/afterrun
+	runsql $LESDIR/db/ddl/afterrun/90_Rollout_install_insert.msql
+
+Checking for MTF files
+No MTF files found...Continuing
+
+Removing any previous creations of readme file
+
+Creating README file
+
+Created README file in /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1 
+
+Removing any previous creations of rollout script RLTEST1
+
+Creating rollout script RLTEST1
+
+Created Rollout file RLTEST1 in /y/Docker/MY-GIT/SWBYDEMO/rollout/RLTEST1 
+
+Removing any previous creations of tar file RLTEST1.tar
+
+Tarring directory <rollout/RLTEST1> to RLTEST1.tar
+
+Created Tar file RLTEST1.tar in /y/Docker/MY-GIT/SWBYDEMO/rollout 
+
+Writing to log file /y/Docker/MY-GIT/SWBYDEMO/log/RLTEST1.log
+

@@ -1,0 +1,104 @@
+<command>
+<name>write usr csv file</name>
+<description>Write an output file.</description>
+<type>Local Syntax</type>
+<argument name="filnam" alias="filename" required="yes" datatype="string">
+</argument>
+<argument name="path" datatype="string" required="yes">
+</argument>
+<argument name="resData" alias="res" datatype="results">
+</argument>
+<argument name="conv_int_flg" alias="convert_int_flg" datatype="flag" default="True">
+If is True, then convert the integer column value to number
+even if the value is NULL (it would be converted to 0).
+If is False, then convert the value to string type.
+</argument>
+<local-syntax>
+<![CDATA[
+check argument where name = 'conv_int_flg' and alias = 'convert_int_flg' and default = True
+|
+publish data where path_i = @path and filnam_i = @filnam
+|
+get command columns where res=@resData >> resCol
+|
+{
+	convert column results to string 
+		where resultset = @resCol
+		  and colnam = 'var_nam'
+		  and separator = ','
+	|
+	publish data where header_str = @result_string
+}
+|
+{
+	 {publish data combination where res = @resCol
+	  |
+	  if (@var_typ = 'I' and @conv_int_flg = True)
+	  {
+		 publish data where var_typ = '%ld'
+	  }
+	  else
+	  {
+		 publish data where var_typ = '"%s"'
+	  }
+	 } >> resFormat
+	|
+	convert column results to string 
+		where resultset = @resFormat
+		  and colnam = 'var_typ'
+		  and separator = ','
+	|
+	publish data where format_str = @result_string
+}
+|
+get file where filnam = @path_i || @filnam_i catch(2)
+|
+if (@? != 0)
+{
+   write output file where path=@path_i and filnam=@filnam_i
+                    and data=@header_str
+                    and mode = 'W'
+                    and newline='Y'
+}
+|
+{ 
+  if (rowcount(@resData) > 0)
+  {
+	  {publish data combination where res=@resData
+		|
+		sprintf data where format= @format_str and args = @header_str
+		|
+		write output file where path=@path_i and filnam=@filnam_i
+						and data=@list
+						and mode = 'A'
+						and newline='Y'
+	  };
+  }
+};
+set return status where status = 0
+]]>
+</local-syntax>
+<documentation>
+<remarks>
+<![CDATA[
+ This command writes the given data to the given file.  
+ <br/>
+ The pathname argument can be used to specify the directory to write the 
+ file to.  
+ If the newline argument is 'Y', a newline character is appended after the data.
+ The mode argument should match the mode argument to the fopen(3) system call.
+ <br/>
+ NOTE: data_ptr and data_len are only used when data argument is not passed.
+ <br/>
+ NOTE: data_ptr and data_len are both required when data argument is not specfied.
+]]>
+</remarks>
+<retrows>One</retrows>
+<retcol name="filnam" type="string">Filename that was written.</retcol>
+<exception value="eOK">The command completed successfully.</exception>
+<exception value="eINVALID_ARGS">One or more invalid arguments were passed to the command.</exception>
+<exception value="eFILE_OPENING_ERROR">The given file could not be opened.</exception>
+<seealso cref="read file">
+</seealso>
+</documentation>
+</command>

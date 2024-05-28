@@ -1,0 +1,66 @@
+<command>
+    <name>create usr rollout include mload</name>
+    <description>Export mload data and include file in the rollout</description>
+    <type>Local Syntax</type>
+    <local-syntax><![CDATA[
+        /* Check if we have all the required parameters */
+        if (@table = '' or @query = '' or (@mload_wh_id = '' and @ignore_mload_wh_id != 1))
+        {
+            set return status
+             where status = 999
+               and message = 'type mload missing argument.'
+        }
+        |
+        /* Get the directory name based on the table 
+           publish data
+           where dir_rollout_mload_table = @dir_rollout_mload || @table || '/'
+           |
+         */
+        if (@outputname = '') {
+          publish data 
+            where outputname = @table
+        }
+        |
+        /* Get the filename based on the command name */
+        [select replace(@outputname, ' ', '_') as outputname
+           from dual]
+        |
+        /* Get the filename based on the command name 
+           publish data
+           where filename_ctl = @table || '.ctl'
+           |
+         */
+        /* Get the data to export based on the query given. */
+        execute server command
+         where cmd = @query catch(-1403) >> res_mload
+        |
+        if (rowcount(@res_mload) > 0)
+        {
+            /* Create the csv directory in the rollout directory. */
+            unload usr data for rollout
+             where res = @res_mload
+               and path = @dir_db_upgrade
+               and outputname = @outputname
+               and table_name = @table
+               and mload_wh_id = @mload_wh_id
+        }
+        else if (rowcount(@res_mload) = 0 and @ignore_mload_nodata != 1)
+        {
+            /* If no data is found give an error, except when @ignore_mload_nodata is set. */
+            set return status
+             where code = 999
+               and message = 'No data found for mload. (name=' || @outputname || ')'
+        }
+    ]]></local-syntax>
+    <argument name="table" required="yes" datatype="string">table</argument>
+    <argument name="query" required="yes" datatype="string">query</argument>
+    <argument name="mload_wh_id" required="yes" datatype="string">mload_wh_id</argument>
+    <argument name="ignore_mload_wh_id" required="yes" datatype="flag">ignore_mload_wh_id</argument>
+    <argument name="outputname" required="yes" datatype="string">outputname</argument>
+    <argument name="dir_rollout_mload" required="yes" datatype="string">dir_rollout_mload</argument>
+    <argument name="dir_db_upgrade" required="yes" datatype="string">dir_db_upgrade</argument>
+    <argument name="dir_rollout" required="yes" datatype="string">dir_rollout</argument>
+    <argument name="rollout_name" required="yes" datatype="string">rollout_name</argument>
+    <argument name="ignore_mload_nodata" required="yes" datatype="flag">ignore_mload_nodata</argument>
+
+</command>

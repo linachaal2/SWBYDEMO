@@ -1,0 +1,26 @@
+<command>
+  <name>combine usr file paths</name>
+  <description>combine usr file paths</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* combine usr file paths
+ * Combines two paths.
+ * Version history:
+ *  2018-08-20  Salem Hamze  Initial version.
+ */
+validate stack variable not null
+ where name = 'path1'
+|
+validate stack variable not null
+ where name = 'path2'
+|
+[[
+    File file = new File(path1, path2);
+    file.getPath();
+]]
+]]>
+</local-syntax>
+  <argument name="path1" required="yes" datatype="string">Path 1</argument>
+  <argument name="path2" required="yes" datatype="string">Path 2</argument>
+</command>

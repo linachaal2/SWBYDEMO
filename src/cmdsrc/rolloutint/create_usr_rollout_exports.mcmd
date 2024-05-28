@@ -1,0 +1,117 @@
+<command>
+  <name>create usr rollout exports</name>
+  <description>create usr rollout exports</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* create usr rollout exports
+ * Creates an export of interfaces and tables for rollouts.
+ * Based on the items indicated in the result set res_rollout.
+ * Version history:
+ *  2024-02-07      Jasper Ringoir		Initial version based on RFH rollout logic
+*/
+ /* Validations */
+validate stack variable not null
+ where name = 'res_rollout'
+|
+/* Get basic directories and paths */
+list usr rollout settings
+ where setting_node_name = 'paths' catch(-1403)
+|
+[select version as les_version
+   from les_dbversion] catch(@?)
+|
+if (@les_version = '')
+{
+	[select version as les_version
+	   from moca_dbversion]
+}
+|
+[SELECT SUBSTRING(@les_version, 1, CHARINDEX('.', @les_version, CHARINDEX('.', @les_version, CHARINDEX('.', @les_version) + 1) + 1)) || 'x' as sub_les_version]
+|
+publish data
+ where dir_db_upgrade = @dir_db_upgrade || '/' || @sub_les_version
+|
+create directory
+ where directory = @dir_db_upgrade
+|
+/* data preparations */
+if (@ignore_mload_wh_id != 1)
+{
+	validate stack variable not null
+	 where name = 'res_wh'
+	|
+	{
+		publish data combination
+		 where res = @res_rollout
+		|
+		filter data
+		 where moca_filter_level = 1
+		   and query_wh_id = nvl(@mload_wh_id, @query_wh_id)
+	} >> res_rollout
+	|
+	{
+		merge result sets with data
+		 where resultset = @res_rollout
+		   and additionalresultset = @res_wh
+		   and keycolumns = 'query_wh_id'
+		|
+		filter data
+		 where moca_filter_level = 1
+		   and query = @db_prefix || @query
+	} >> res_rollout
+}
+/* fallback to moca_dbversion and create folder version with x as alst digit */
+|
+/* Start rollout creation */
+{
+	if (@remove_data_dir_if_exists = 1)
+	{
+		/* add some remove actions */
+		publish data
+		 where x = 'test'
+	}
+	|
+	/* Publish the rows which we want to generate. */
+	publish data combination
+	 where res = @res_rollout
+	|
+	if (@type = 'slimp')
+	{
+		/* Add interface files to the rollout */
+		create usr rollout include interface
+		 where evt_id = @evt_id
+		   and ifd_id = @ifd_id
+		   and ifd_ver = @ifd_ver
+		   and trg_sys_id = @trg_sys_id
+		   and dest_sys_id = @dest_sys_id
+		   and name = @name
+		/* todo add version to path */
+		   and dir_db_upgrade = @dir_db_upgrade
+		   and filename_slimp = @filename_slimp
+	}
+	else if (@type = 'mload')
+	{
+		/* Add mload files to the rollout */
+		create usr rollout include mload
+		 where table = @table
+		   and query = @query
+		   and mload_wh_id = @mload_wh_id
+		   and ignore_mload_wh_id = @ignore_mload_wh_id
+		   and outputname = @outputname
+		/* todo add version to path */
+		   and dir_db_upgrade = @dir_db_upgrade
+		   and ignore_mload_nodata = @ignore_mload_nodata
+		   and optional_user_initials = @optional_user_initials
+	};
+	noop
+}
+]]>
+</local-syntax>
+  <argument name="res_rollout" required="yes" datatype="results">res_rollout</argument>
+  <argument name="res_wh" datatype="flag">res_wh</argument>
+  <argument name="ignore_mload_nodata" datatype="flag">ignore_mload_nodata</argument>
+  <argument name="ignore_mload_wh_id" datatype="flag">ignore_mload_wh_id</argument>
+  <argument name="remove_data_dir_if_exists" datatype="flag">remove_data_dir_if_exists</argument>
+  <argument name="optional_user_initials" datatype="string">optional_user_initials</argument>
+</command>
