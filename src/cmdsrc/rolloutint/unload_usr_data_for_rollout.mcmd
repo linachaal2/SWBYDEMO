@@ -1,0 +1,190 @@
+<command>
+  <name>unload usr data for rollout</name>
+  <description>unload usr data for rollout</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* unload usr data for rollout
+ * Creates a csv file and generates a control file for a warehouse specific rollout, this will only mload data if the warehouse exists in the instance.
+ * Version history:
+ *  2018-08-20  Salem Hamze   Initial version.
+ *  2018-10-12  Salem Hamze   Added conv_int_flg = 0 to write csv file, otherwise null number values are written as 0..
+ *  2022-07-28  John Luiten   Changed name parameter to outputname to prevent issues with previous rows filling in the now optional name variable
+ *                            Made outputname optional, if not set will take table_name as outputname
+ *                            Made mload_wh_id optional and added logic to handle this.
+ *  2024-04-11  Cyril Pingen  Added Mload file creation    
+ */
+/* Check if we have all the required parameters. */
+    /* validate stack variable not null
+     where name = 'name'
+    | */
+    validate stack variable not null
+     where name = 'table_name'
+    |
+    if(@outputname = '') {
+      publish data where outputname=@table_name
+    }
+    |
+    if(@optional_user_initials != '') {
+      publish data where outputname = @outputname || '_' || @optional_user_initials
+    }
+    |
+    /* validate stack variable not null
+     where name = 'mload_wh_id'
+    | */
+    validate stack variable not null
+     where name = 'path'
+    |
+    validate stack variable not null
+     where name = 'res'
+|
+/* Check if the resultset contains any data. */
+if (rowcount(@res) = 0)
+{
+    set return status
+     where status = 999
+       and message = 'Result set does not contain any data.'
+}
+|
+/* Add a column mload_wh_id to the result set. */
+{
+  if (@ignore_mload_wh_id != 1) {
+    publish data combination
+      where res = @res
+        and mload_wh_id = @mload_wh_id
+      |
+      reorder columns
+      where order = 'mload_wh_id'
+  } else {
+    publish data combination
+      where res = @res
+  }
+} >> res_unload
+|
+/* Export the result set to a csv file. */
+{
+    /* Get/combine the directory name. */
+    combine usr file paths
+     where path1 = @path
+       and path2 = @table_name
+    |
+    publish data
+     where csv_path = @result
+    |
+    if (@ignore_mload_wh_id != 1) {
+      publish data
+      where csv_filename = @mload_wh_id || '_' || @outputname || '.csv'
+    } else {
+      publish data
+      where csv_filename = @outputname || '.csv'
+    }
+    |
+    combine usr file paths
+     where path1 = @csv_path
+       and path2 = @csv_filename
+    |
+    publish data
+     where csv_filepath = @result
+    |
+    /* Check if the file already exists. */
+    /* get file info
+     where filnam = @csv_filepath
+    |
+    if (@created != '')
+    {
+        set return status
+         where status = 999
+           and message = 'mload file already exists: ' || @csv_filepath
+    }
+    | */
+    /* Create the csv directory. */
+    create directory
+     where directory = @csv_path
+    |
+    /* Export the data. Set the conv_int_flg=0 otherwise null number values are written as 0. */
+    write usr csv file
+     where resdata = @res_unload
+       and path = @csv_path
+       and filnam = @csv_filename
+       and conv_int_flg = 0
+    |
+    publish data
+     where csv_path = @csv_path
+       and csv_filename = @csv_filename
+       and csv_filepath = @csv_filepath
+}
+|
+/* Generate a control file which only loads data if the mload_wh_id exists in the instance in which it is loaded. */
+{
+    /* Get/combine the directory name. */
+    publish data
+     where ctl_path = @path
+    |
+    publish data
+     where ctl_filename = @table_name || '.ctl'
+    |
+    combine usr file paths
+     where path1 = @ctl_path
+       and path2 = @ctl_filename
+    |
+    publish data
+     where ctl_filepath = @result
+    |
+    /* Generate the control file. */
+    dump data
+     where file_name = @ctl_filepath
+       and dump_command = "format usr control file for rollout where table_name='" || @table_name || "' and ignore_mload_wh_id = " || @ignore_mload_wh_id catch(@?)
+    |
+    publish data
+     where ctl_path = @ctl_path
+       and ctl_filename = @ctl_filename
+       and ctl_filepath = @ctl_filepath
+}
+|
+/* Generate a mload file which only loads data if the mload_wh_id exists in the instance in which it is loaded. */
+{
+    /* Get/combine the directory name. */
+    publish data
+     where mload_path = @path
+    |
+    publish data
+     where mload_filename = @table_name || '.mload'
+    |
+    combine usr file paths
+     where path1 = @mload_path
+       and path2 = @mload_filename
+    |
+    publish data
+     where mload_filepath = @result
+    |
+    /* Generate the mload file. */
+    dump data
+     where file_name = @mload_filepath
+       and dump_command = "format usr mload file for rollout where table_name='" || @table_name || "' and ignore_mload_wh_id = " || @ignore_mload_wh_id catch(@?) 
+    |
+    publish data
+     where mload_path = @mload_path
+       and mload_filename = @mload_filename
+       and mload_filepath = @mload_filepath
+}
+|
+/* Publish the paths of the csv, ctl and mload file we generated. */
+publish data
+ where csv_path = @csv_path
+   and csv_filename = @csv_filename
+   and csv_filepath = @csv_filepath
+   and ctl_path = @ctl_path
+   and ctl_filename = @ctl_filename
+   and ctl_filepath = @ctl_filepath
+   and mload_path = @mload_path
+   and mload_filename = @mload_filename
+   and mload_filepath = @mload_filepath
+]]>
+</local-syntax>
+  <argument name="outputname" required="no" datatype="string">Name used for the csv file.</argument>
+  <argument name="table_name" required="yes" datatype="string">Table name of the table for which to generate a control file.</argument>
+  <argument name="mload_wh_id" required="no" datatype="string">Warehouse id for which the csv file should be loaded, specify ---- (4 dashes) for all warehouses in the instance.</argument>
+  <argument name="path" required="yes" datatype="string">Path where the csv and ctl file needs to be written to.</argument>
+  <argument name="res" required="yes" datatype="results">Result set containing the data which needs to be exported to csv for mloading.</argument>
+  <argument name="optional_user_initials" datatype="string">optional_user_initials</argument>
+</command>

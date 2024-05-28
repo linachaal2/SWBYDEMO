@@ -1,0 +1,22 @@
+<command>
+  <name>list usr rollout settings</name>
+  <description>list usr rollout settings</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* Reads the rollout settings xml file and returns the results
+ * for the selected node name
+ * Version history:
+ *  2022-09-01  John Luiten  Initial version.
+ */
+  parse xml where filename=@@LESDIR || '/scripts/rollout_gen/generic/rollout_settings.xml'
+  |
+  get xml elements by tagname where mxml_ctxt = @mxml_ctxt and mxml_tag=@setting_node_name catch(@?)
+  |
+  if (@mxml_node) {
+    get xml node values where mxml_ctxt = @mxml_ctxt and mxml_node = @mxml_node
+  }
+]]>
+</local-syntax>
+  <argument name="setting_node_name" required="yes" datatype="string">Setting Node Name</argument>
+</command>

@@ -1,0 +1,35 @@
+<command>
+  <name>format usr mload file for rollout cpi</name>
+  <description>format usr mload file for rollout cpi</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+<![CDATA[
+/* format usr control file for rollout
+ * Generates a control file for a warehouse specific rollout, this will only mload data if the warehouse exists in the instance.
+ * Version history:
+ *  2018-08-20  Salem Hamze   Initial version.
+ *  2018-10-16  Salem Hamze   Changed logic for '----' so it also works when no wh is setup (i.e. EMS).
+ *  2022-07-28  John Luiten   Added logic for making the mload_wh_id optional.
+ *  2024-04-11  Cyril Pingen  Created new mcmd for creating mload file
+ */
+/* Check the required parametes. */
+validate stack variable not null
+ where name = 'table_name'
+|
+/* Generate the control file and add some logic around it for warehouse specific mloads (mload_wh_id). */
+if (@ignore_mload_wh_id = 1) {
+  publish data
+  where rowtype = 'DATA'
+    and formated_data = "-H" &
+  publish data
+  where rowtype = 'DATA'
+    and formated_data = "-D=" || @table_name  &
+  publish data
+  where rowtype = 'DATA'
+    and formated_data = "-c="||@table_name ||".ctl"
+}
+]]>
+</local-syntax>
+  <argument name="table_name" required="yes" datatype="string" />
+  <argument name="ignore_mload_wh_id" required="yes" datatype="flag">ignore_mload_wh_id</argument>
+</command>
