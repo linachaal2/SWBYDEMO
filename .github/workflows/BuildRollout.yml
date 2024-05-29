@@ -107,6 +107,7 @@ jobs:
              -n "${{ github.head_ref }}-${{ steps.taggerDryRun.outputs.new_tag }}" \
              -d rollout \
              -z rollout_gen \
+             -b "${{ github.head_ref }}" \
              -r inputFile.txt \
              -f \
              -l ${{ github.head_ref }}.log \
