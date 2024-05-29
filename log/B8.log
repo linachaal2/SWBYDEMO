@@ -188,3 +188,193 @@ Created Tar file B8-v1.1.13.tar in /home/runner/work/SWBYDEMO/SWBYDEMO/rollout
 Create RO directory - /home/runner/work/SWBYDEMO/SWBYDEMO/rollout_gen/B8-v1.1.13
 Writing to log file /home/runner/work/SWBYDEMO/SWBYDEMO/log/B8.log
 
+Creating Rollout Directory 
+
+Current Time: Time::tm=ARRAY(0x55aa2f4e2f40)
+
+Options
+Rollout Directory = /home/runner/work/SWBYDEMO/SWBYDEMO/rollout/B8-v1.1.14
+logfile = B8.log
+
+Environment:
+LESDIR = /home/runner/work/SWBYDEMO/SWBYDEMO
+Log directory=/home/runner/work/SWBYDEMO/SWBYDEMOog
+Rollout Name = B8-v1.1.14
+
+Reading file inputFile.txt to get options for creating rollout directory
+
+Calling pull_files function with: -c CTL -f "les_dataset.ctl" -r B8-v1.1.14  -p /home/runner/work/SWBYDEMO/SWBYDEMO/rollout/ -l B8.log -o 
+ 
+
+Writing to log file /home/runner/work/SWBYDEMO/SWBYDEMO/log/B8.log
+
+pull_files: Pulling Components
+
+B8-v1.1.14 folder does not exist - creating it
+CTL
+Pulling CTL file: les_dataset.ctl
+Create RO directory - /home/runner/work/SWBYDEMO/SWBYDEMO/rollout/B8-v1.1.14/pkg/db/data/load/base/safetoload
+Writing to log file /home/runner/work/SWBYDEMO/SWBYDEMO/log/B8.log
+
+Calling pull_files function with: -c SQL -t les_dataset -f "les_dataset.csv" -r B8-v1.1.14  -p /home/runner/work/SWBYDEMO/SWBYDEMO/rollout/ -l B8.log -o 
+ 
+
+Writing to log file /home/runner/work/SWBYDEMO/SWBYDEMO/log/B8.log
+
+pull_files: Pulling Components
+
+CSV
+Pulling CSV file: les_dataset.csv
+Create RO directory - /home/runner/work/SWBYDEMO/SWBYDEMO/rollout/B8-v1.1.14/pkg/db/data/load/base/safetoload/les_dataset
+Writing to log file /home/runner/work/SWBYDEMO/SWBYDEMO/log/B8.log
+
+Calling pull_files function with: -c CTL -f "les_dbversion.ctl" -r B8-v1.1.14  -p /home/runner/work/SWBYDEMO/SWBYDEMO/rollout/ -l B8.log -o 
+ 
+
+Writing to log file /home/runner/work/SWBYDEMO/SWBYDEMO/log/B8.log
+
+pull_files: Pulling Components
+
+CTL
+Pulling CTL file: les_dbversion.ctl
+Create RO directory - /home/runner/work/SWBYDEMO/SWBYDEMO/rollout/B8-v1.1.14/pkg/db/data/load/base/safetoload
+Writing to log file /home/runner/work/SWBYDEMO/SWBYDEMO/log/B8.log
+
+Calling pull_files function with: -c MLVL -f "rolloutint.mlvl" -r B8-v1.1.14  -p /home/runner/work/SWBYDEMO/SWBYDEMO/rollout/ -l B8.log -o 
+ 
+
+Writing to log file /home/runner/work/SWBYDEMO/SWBYDEMO/log/B8.log
+
+pull_files: Pulling Components
+
+MLVL
+Pulling MLVL file: rolloutint.mlvl
+Create RO directory - /home/runner/work/SWBYDEMO/SWBYDEMO/rollout/B8-v1.1.14/pkg/src/cmdsrc
+Writing to log file /home/runner/work/SWBYDEMO/SWBYDEMO/log/B8.log
+
+Calling pull_files function with: -c MOCA -d rolloutint -f "combine_usr_file_paths.mcmd" -r B8-v1.1.14  -p /home/runner/work/SWBYDEMO/SWBYDEMO/rollout/ -l B8.log -o 
+ 
+
+Writing to log file /home/runner/work/SWBYDEMO/SWBYDEMO/log/B8.log
+
+pull_files: Pulling Components
+
+MOCA
+Pulling Moca file: combine_usr_file_paths.mcmd
+Create RO directory - /home/runner/work/SWBYDEMO/SWBYDEMO/rollout/B8-v1.1.14/pkg/src/cmdsrc/rolloutint
+Writing to log file /home/runner/work/SWBYDEMO/SWBYDEMO/log/B8.log
+
+Calling pull_files function with: -c MOCA -d usrint -f "add_lc_file_to_xml.mcmd" -r B8-v1.1.14  -p /home/runner/work/SWBYDEMO/SWBYDEMO/rollout/ -l B8.log -o 
+ 
+
+Writing to log file /home/runner/work/SWBYDEMO/SWBYDEMO/log/B8.log
+
+pull_files: Pulling Components
+
+MOCA
+Pulling Moca file: add_lc_file_to_xml.mcmd
+Create RO directory - /home/runner/work/SWBYDEMO/SWBYDEMO/rollout/B8-v1.1.14/pkg/src/cmdsrc/usrint
+Writing to log file /home/runner/work/SWBYDEMO/SWBYDEMO/log/B8.log
+
+Finished calls to pull_files.  Read in and processed 6 lines. 
+
+Calling package_rollout function with: -d rollout/B8-v1.1.14 -l B8.log -o  -p -m 
+ 
+
+Writing to log file /home/runner/work/SWBYDEMO/SWBYDEMO/log/B8.log
+
+Building Rollout Package 
+
+Current Time: Time::tm=ARRAY(0x55aa2fa0fbd8)
+
+Options
+RO_DIR = rollout/B8-v1.1.14
+logfile = B8.log
+
+Environment:
+LESDIR = /home/runner/work/SWBYDEMO/SWBYDEMO
+Log directory=/home/runner/work/SWBYDEMO/SWBYDEMOog
+Rollout Name = B8-v1.1.14
+
+Copying rollout.pl - from /home/runner/work/SWBYDEMO/SWBYDEMO/scripts/rollout.pl   to /home/runner/work/SWBYDEMO/SWBYDEMO/rollout/B8-v1.1.14/rollout.pl
+
+Checking for existing text from rollout script (file copy, directory creation, etc.)
+No existing rollout script text found...Continuing
+
+Checking for High Priority MSQL (database changes) files
+No Priority MSQLs found...Continuing
+
+Checking for Control files
+Found Control File: 
+	file = les_dataset.ctl
+	directory = safetoload
+Writing REPLACE to rollout script for les_dataset.ctl 
+	REPLACE pkg/db/data/load/base/safetoload/les_dataset.ctl $LESDIR/db/data/load/base/safetoload
+
+Found Control File: 
+	file = les_dbversion.ctl
+	directory = safetoload
+Writing REPLACE to rollout script for les_dbversion.ctl 
+	REPLACE pkg/db/data/load/base/safetoload/les_dbversion.ctl $LESDIR/db/data/load/base/safetoload
+
+Checking for MLOADS
+Found MLOAD: 
+	file = les_dataset.csv
+	table = les_dataset
+	load directory = safetoload
+Writing lines to rollout script 
+	REPLACE pkg/db/data/load/base/safetoload/les_dataset/les_dataset.csv $LESDIR/db/data/load/base/safetoload/les_dataset
+	LOADDATA $LESDIR/db/data/load/base/safetoload/les_dataset.ctl les_dataset.csv
+
+Checking for Integrator Loads
+No Integrator Loads found...Continuing
+
+Checking for MOCA commands
+Found MOCA: 
+	file = rolloutint.mlvl
+	directory = src/cmdsrc
+Writing REPLACE and MBUILD lines to rollout script for rolloutint.mlvl
+
+Found MOCA: 
+	file = combine_usr_file_paths.mcmd
+	directory = rolloutint
+Writing REPLACE and MBUILD lines to rollout script for combine_usr_file_paths.mcmd
+
+Found MOCA: 
+	file = add_lc_file_to_xml.mcmd
+	directory = usrint
+Writing REPLACE and MBUILD lines to rollout script for add_lc_file_to_xml.mcmd
+
+Checking for Labels
+No labels commands found...Continuing
+
+Checking for reports
+No reports commands found...Continuing
+
+Checking for Low Priority MSQL (database changes) files
+No Low Priority MSQLs found...Continuing
+
+Checking for MTF files
+No MTF files found...Continuing
+
+Removing any previous creations of readme file
+
+Creating README file
+
+Created README file in /home/runner/work/SWBYDEMO/SWBYDEMO/rollout/B8-v1.1.14 
+
+Removing any previous creations of rollout script B8-v1.1.14
+
+Creating rollout script B8-v1.1.14
+
+Created Rollout file B8-v1.1.14 in /home/runner/work/SWBYDEMO/SWBYDEMO/rollout/B8-v1.1.14 
+
+Removing any previous creations of tar file B8-v1.1.14.tar
+
+Tarring directory <rollout/B8-v1.1.14> to B8-v1.1.14.tar
+
+Created Tar file B8-v1.1.14.tar in /home/runner/work/SWBYDEMO/SWBYDEMO/rollout 
+
+Create RO directory - /home/runner/work/SWBYDEMO/SWBYDEMO/rollout_gen/B8
+Writing to log file /home/runner/work/SWBYDEMO/SWBYDEMO/log/B8.log
+
