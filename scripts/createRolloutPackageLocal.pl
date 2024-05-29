@@ -38,6 +38,7 @@ my $mocaexist=0;
 my $intexist=0;
 my $ro_dir;
 my $ro_tar_dir;
+my $git_branch_name;
 my $ro;
 my $s;
 my $rotext="";
@@ -80,9 +81,10 @@ sub show_usage {
         . "\t-d <Rollout Directory - path from \$LESDIR where the rollout package will be created>\n"
         . "\t-r <Rollout Input File>\n"
 		. "\t-z <Rollout Tar Final Directory>\n"
+		. "\t-b <Git Branch Name>\n"
         . "\t-f <Force delete of package if it already exists>\n"
         . "\t-p <create the rollout script and package this to a tar file after pulling all components>\n"
-        . "\t-b <create the rollout script>\n"
+        . "\t-u <create the rollout script>\n"
         . "\t-m <create a readme file>\n"
         . "\t-l <Log File - file will be written to LESDIR/log directory>\n"
         . "\t-o show detailed output\n"
@@ -1206,9 +1208,13 @@ sub package_rollout{
 		$log = $log . "Created Tar file $ro_name.tar in $LESDIR/$rodirup \n\n";
 		printf("Created Tar file $ro_name.tar in $LESDIR/$rodirup \n\n");
 	
-		my $finaldir = $ro_tar_dir.$ro_name;
-		printf("Move Tar file to its final directory into $finaldir\n\n");
+		my $finaldir = $ro_tar_dir.$git_branch_name;
+		
 		create_ro_dir($finaldir);
+		# delete old tar files 
+		printf("Delete old TAR files from $finaldir\n\n");
+		system("rm $finaldir/*.tar");
+		printf("Move Tar file to its final directory into $finaldir\n\n");
 		system("mv $ro_name.tar $finaldir");
 		
 		#Cleaning the working directory 
@@ -1235,7 +1241,7 @@ sub package_rollout{
 #####################################################################
 
 #get options
-getopts('g:t:c:d:z:r:l:ohn:fpbm', \%opts);
+getopts('g:t:c:d:z:b:r:l:ohn:fpum', \%opts);
 #perl createRolloutPackage.pl -g  "M javalib/barcode4j-2.2.jar M src/cmdsrc/usrint/remove_load-remove_usr_inventory_asset.mtrg A reports/usrint/usr-rfh001-v0110-ffdeliverynote.jrxml M db/ddl/afterrun/90_Rollout_install_insert.msql A db/ddl/prerun/20_delete_data.msql A db/ddl/afterrun/80_integrator_sys_comm.msql" -t "/y/Docker/MY-GIT/SWBYDEMO" -n RLTEST1 -d rollout -r inputFile.txt -f -l RLTEST1.log -p -o -m
 
 # get the arguments
@@ -1245,12 +1251,13 @@ $customer = $opts{c} if defined($opts{c}); #customer name matches the file name 
 $ro = $opts{r} if defined($opts{r}); #-r - required - rollout input file
 $ro_dir = $opts{d} if defined($opts{d}); #-d - required - directory where the rollout input file is located
 $ro_tar_dir = $opts{z} if defined($opts{z});#-z - required - directory where the tar rollout file will be located
+$git_branch_name = $opts{b} if defined($opts{b});#-b - required - branch name
 $logfile = $opts{l} if defined($opts{l});
 $detailed_output = $opts{o} if defined($opts{o});
 $ro_name = $opts{n} if defined($opts{n}); #-n - required - Rollout name
 $force_delete = $opts{f} if defined($opts{f});
 $pack = $opts{p} if defined($opts{p});
-$build_script = $opts{b} if defined($opts{b});
+$build_script = $opts{u} if defined($opts{u});
 $build_readme = $opts{m} if defined($opts{m});
 $SrcInputFile = $ro ;
 my $help = $opts{h} if defined($opts{h});
