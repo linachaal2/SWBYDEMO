@@ -126,11 +126,12 @@ jobs:
           path: ${{ github.workspace }}/rollout_gen/${{ github.head_ref }}-${{ steps.taggerDryRun.outputs.new_tag }}.tar
       
       - name: Commit and push changes
-        uses: devops-infra/action-commit-push@master
+        uses: devops-infra/action-commit-push@master 
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           commit_message: "Create package ${{ github.head_ref }}-${{ steps.taggerDryRun.outputs.new_tag }}.tar "
           target_branch: ${{ github.head_ref }}
+          force: true
       # Push and Commit the TAR file into the GIT repository
       #- name: Push and Commit the TAR file into the GIT repository
       #  uses: GuillaumeFalourd/copy-push-files@v1
