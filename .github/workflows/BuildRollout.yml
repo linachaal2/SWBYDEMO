@@ -130,7 +130,7 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           commit_message: "Create package ${{ github.head_ref }}-${{ steps.taggerDryRun.outputs.new_tag }}.tar "
-          
+          target_branch: ${{ github.head_ref }}
       # Push and Commit the TAR file into the GIT repository
       #- name: Push and Commit the TAR file into the GIT repository
       #  uses: GuillaumeFalourd/copy-push-files@v1
