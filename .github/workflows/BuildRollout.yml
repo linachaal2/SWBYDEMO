@@ -123,20 +123,26 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: output-tar-file
-          path: ${{ github.workspace }}/rollout/${{ github.head_ref }}-${{ steps.taggerDryRun.outputs.new_tag }}.tar
+          path: ${{ github.workspace }}/rollout_gen/${{ github.head_ref }}-${{ steps.taggerDryRun.outputs.new_tag }}.tar
       
-      # Push and Commit the TAR file into the GIT repository
-      - name: Push and Commit the TAR file into the GIT repository
-        uses: GuillaumeFalourd/copy-push-files@v1
+      - name: Commit and push changes
+        uses: devops-infra/action-commit-push@master
         with:
-          email: ${{ github.actor }}[bot]@users.noreply.github.com
-          name: ${{ github.actor }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           commit_message: "Create package ${{ github.head_ref }}-${{ steps.taggerDryRun.outputs.new_tag }}.tar "
-          target_branch: ${{ github.head_ref }}
-          source_files: ${{ github.workspace }}/rollout/${{ github.head_ref }}-${{ steps.taggerDryRun.outputs.new_tag }}.tar
-          target_dir: ./rollouts/${{ github.head_ref }}
-          remote_repository: https://github.com/${{ github.repository_owner }}/${{ github.event.repository.name }} 
-          access_token: ${{ github.token }}    
+          
+      # Push and Commit the TAR file into the GIT repository
+      #- name: Push and Commit the TAR file into the GIT repository
+      #  uses: GuillaumeFalourd/copy-push-files@v1
+      #  with:
+      #    email: ${{ github.actor }}[bot]@users.noreply.github.com
+      #    name: ${{ github.actor }}
+      #    commit_message: "Create package ${{ github.head_ref }}-${{ steps.taggerDryRun.outputs.new_tag }}.tar "
+      #    target_branch: ${{ github.head_ref }}
+      #   source_files: ${{ github.workspace }}/rollout/${{ github.head_ref }}-${{ steps.taggerDryRun.outputs.new_tag }}.tar
+      #    target_dir: ./rollouts/${{ github.head_ref }}
+      #   remote_repository: https://github.com/${{ github.repository_owner }}/${{ github.event.repository.name }} 
+      #    access_token: ${{ github.token }}    
 
       # Tag the branch with the bump versioning passed in the commit message or Patch by default    
       - name: Tag branch
@@ -157,7 +163,7 @@ jobs:
       - name: Create a new release and upload the asset
         uses: ncipollo/release-action@v1
         with:
-         artifacts:  ${{ github.workspace }}/rollout/${{ github.head_ref }}-${{ steps.taggerDryRun.outputs.new_tag }}.tar
+         artifacts:  ${{ github.workspace }}/rollout_gen/${{ github.head_ref }}-${{ steps.taggerDryRun.outputs.new_tag }}.tar
          tag: ${{ steps.taggerFinal.outputs.new_tag }}
       
   
