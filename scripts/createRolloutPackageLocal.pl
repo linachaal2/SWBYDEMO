@@ -7,7 +7,8 @@ use Getopt::Std;
 use lib "./scripts";
 use Cwd;
 use File::Path;
-use File::Path qw(make_path);
+#use File::Path qw(make_path);
+use File::Path qw(make_path remove_tree);
 use File::Spec::Functions;
 use Text::ParseWords;
 use IPC::Open2;
@@ -36,6 +37,7 @@ my $loadexist=0;
 my $mocaexist=0;
 my $intexist=0;
 my $ro_dir;
+my $ro_tar_dir;
 my $ro;
 my $s;
 my $rotext="";
@@ -77,6 +79,7 @@ sub show_usage {
         . "\t-n <Rollout Name>\n"
         . "\t-d <Rollout Directory - path from \$LESDIR where the rollout package will be created>\n"
         . "\t-r <Rollout Input File>\n"
+		. "\t-z <Rollout Tar Final Directory>\n"
         . "\t-f <Force delete of package if it already exists>\n"
         . "\t-p <create the rollout script and package this to a tar file after pulling all components>\n"
         . "\t-b <create the rollout script>\n"
@@ -1202,6 +1205,16 @@ sub package_rollout{
 		
 		$log = $log . "Created Tar file $ro_name.tar in $LESDIR/$rodirup \n\n";
 		printf("Created Tar file $ro_name.tar in $LESDIR/$rodirup \n\n");
+	
+		my $finaldir = $ro_tar_dir.$ro_name;
+		printf("Move Tar file to its final directory into $finaldir\n\n");
+		create_ro_dir($finaldir);
+		system("mv $ro_name.tar $finaldir");
+		
+		#Cleaning the working directory 
+		chdir("$LESDIR/$rodirup");
+		system("rm -r $LESDIR/$ro_dir");
+		system("rm $LESDIR/$rodirup/$SrcInputFile");
 	}
 	
 	if($logfile)
@@ -1222,7 +1235,7 @@ sub package_rollout{
 #####################################################################
 
 #get options
-getopts('g:t:c:d:r:l:ohn:fpbm', \%opts);
+getopts('g:t:c:d:z:r:l:ohn:fpbm', \%opts);
 #perl createRolloutPackage.pl -g  "M javalib/barcode4j-2.2.jar M src/cmdsrc/usrint/remove_load-remove_usr_inventory_asset.mtrg A reports/usrint/usr-rfh001-v0110-ffdeliverynote.jrxml M db/ddl/afterrun/90_Rollout_install_insert.msql A db/ddl/prerun/20_delete_data.msql A db/ddl/afterrun/80_integrator_sys_comm.msql" -t "/y/Docker/MY-GIT/SWBYDEMO" -n RLTEST1 -d rollout -r inputFile.txt -f -l RLTEST1.log -p -o -m
 
 # get the arguments
@@ -1231,6 +1244,7 @@ $LESDIR = $opts{t} if defined($opts{t}); #LESDIR
 $customer = $opts{c} if defined($opts{c}); #customer name matches the file name where we store some env variables 
 $ro = $opts{r} if defined($opts{r}); #-r - required - rollout input file
 $ro_dir = $opts{d} if defined($opts{d}); #-d - required - directory where the rollout input file is located
+$ro_tar_dir = $opts{z} if defined($opts{z});#-z - required - directory where the tar rollout file will be located
 $logfile = $opts{l} if defined($opts{l});
 $detailed_output = $opts{o} if defined($opts{o});
 $ro_name = $opts{n} if defined($opts{n}); #-n - required - Rollout name
@@ -1307,6 +1321,16 @@ else
 		$orig_dir = "rollout";
 		$ro_dir = $LESDIR . "/rollout/";
 	}
+}
+
+# rollout TAR directory
+if($ro_tar_dir)
+{
+	$ro_tar_dir = $LESDIR . "/" . $ro_tar_dir . "/";
+}
+else
+{
+	$ro_tar_dir = $LESDIR . "/rollout_gen/";
 }
 
 # rollout directory parameter -  to be passed to pull_files
@@ -1494,6 +1518,7 @@ if (!-e  $ro_dir.$ro)
 					print "File syntax: $fullFileSyntax\n"; 		
 					print {$vInputFile} $fullFileSyntax . "\n";
 				}
+				##### tbl tdoc sql db upgrade 
 				# Map CSV files 
 				elsif ($fileExt eq "csv"){
 					#SQL -t poldat  -f "UC_1234.csv"
