@@ -1,6 +1,9 @@
 name: 'Call Remote Workflow'
 on:
-  workflow_dispatch:
+    workflow_run:
+        workflows: [Centralized_workflow] # Name of GitHub workflow to trigger in target repository
+        types:
+        - completed
 jobs:
   # -------------------------------------------------------------
   # A workflow to be triggered from another repo
