@@ -13,6 +13,7 @@ jobs:
      # if: github.event.workflow_run.conclusion == 'success' # Run only when workflow run has succeeded, i.e. all jobs have succeeded
     runs-on: ubuntu-latest
     steps:
+     # to call another workflow by dispatching work only
       - uses: benc-uk/workflow-dispatch@v1
         with:
          workflow: Centralized_workflow.yml
