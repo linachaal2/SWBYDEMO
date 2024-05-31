@@ -43,7 +43,7 @@ jobs:
          workflow_file_name: CreateBYrolloutPackage.yml
          trigger_workflow: true
          wait_workflow: true 
-         client_payload: '{"customer_name": "RFH"}'
+      #   client_payload: '{"customer_name": "RFH"}'
         #ref: release-branch
         #wait_interval: 10
         #client_payload: '{}'
