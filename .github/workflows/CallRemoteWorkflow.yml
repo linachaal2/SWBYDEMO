@@ -20,6 +20,21 @@ jobs:
          repo: linachaal2/SWCTREPO
          token: "${{ secrets.ACTIONS_KEY }}"
        #inputs: '{ "message": "blah blah", "something": false }'
+       
+      - uses: convictional/trigger-workflow-and-wait@v1.6.1
+        with:
+         owner: ${{ github.author }}
+         repo: linachaal2/SWCTREPO
+         github_token: ${{ secrets.ACTIONS_KEY }}
+         github_user: ${{ github.author }}
+         workflow_file_name: Centralized_workflow.yml
+         trigger_workflow: true
+         wait_workflow: true 
+        #ref: release-branch
+        #wait_interval: 10
+        #client_payload: '{}'
+        #propagate_failure: false
+    
     # Required when using the `repo` option. Either a PAT or a token generated from the GitHub app or CLI
    # token: "${{ secrets.MY_TOKEN }}"
    #  - uses: passeidireto/trigger-external-workflow-action@main
