@@ -13,14 +13,22 @@ jobs:
      # if: github.event.workflow_run.conclusion == 'success' # Run only when workflow run has succeeded, i.e. all jobs have succeeded
     runs-on: ubuntu-latest
     steps:
-     - uses: passeidireto/trigger-external-workflow-action@main
-       env:
-        PAYLOAD_AUTHOR: ${{ github.author }}
-        PAYLOAD_REVISION: "3"
-       with:
-        repository: linachaal2/SWCTREPO
-        event: doc_update
-        github_pat: ${{ secrets.ACTIONS_KEY }}
+      - uses: benc-uk/workflow-dispatch@v1
+        with:
+         workflow: Centralized_workflow.yml
+         repo: linachaal2/SWCTREPO
+         token: "${{ secrets.ACTIONS_KEY }}"
+       #inputs: '{ "message": "blah blah", "something": false }'
+    # Required when using the `repo` option. Either a PAT or a token generated from the GitHub app or CLI
+   # token: "${{ secrets.MY_TOKEN }}"
+   #  - uses: passeidireto/trigger-external-workflow-action@main
+   #    env:
+   #     PAYLOAD_AUTHOR: ${{ github.author }}
+   #     PAYLOAD_REVISION: "3"
+   #    with:
+    #    repository: linachaal2/SWCTREPO
+    #    event: doc_update
+     #   github_pat: ${{ secrets.ACTIONS_KEY }}
       #  - uses: actions/github-script@v6
       #    with:
       #      github-token: ${{ secrets.ACTIONS_KEY }} # Fine-grained GitHub PAT that was saved as repository secret
