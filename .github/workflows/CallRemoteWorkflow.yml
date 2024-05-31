@@ -1,0 +1,22 @@
+name: 'Call Remote Workflow'
+on:
+  workflow_dispatch:
+jobs:
+  # -------------------------------------------------------------
+  # A workflow to be triggered from another repo
+  # --------------------------------------------------------------
+  trigger-repob-workflow:
+         
+      if: github.event.workflow_run.conclusion == 'success' # Run only when workflow run has succeeded, i.e. all jobs have succeeded
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/github-script@v6
+          with:
+            github-token: ${{ secrets.ACTIONS_KEY }} # Fine-grained GitHub PAT that was saved as repository secret
+            script: |
+             await github.rest.actions.createworkflowDispatch({
+                owner: ${{ github.repository_owner }},
+                repo: 'SWCTREPO',
+                workflow_id: 'Centralized_workflow.yml',
+                ref: 'main'
+             })  
