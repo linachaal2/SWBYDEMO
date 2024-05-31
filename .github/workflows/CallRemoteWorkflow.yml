@@ -18,11 +18,11 @@ jobs:
           echo ${{ github.repository_owner }} 
           echo ${{ github.author }}
      # to call another workflow by dispatching work only
-      - uses: benc-uk/workflow-dispatch@v1
-        with:
-         workflow: Centralized_workflow.yml
-         repo: linachaal2/SWCTREPO
-         token: "${{ secrets.ACTIONS_KEY }}"
+     # - uses: benc-uk/workflow-dispatch@v1
+     #   with:
+     #   workflow: Centralized_workflow.yml
+     #    repo: linachaal2/SWCTREPO
+     #    token: "${{ secrets.ACTIONS_KEY }}"
        #inputs: '{ "message": "blah blah", "something": false }'
        
       - uses: convictional/trigger-workflow-and-wait@v1.6.1
