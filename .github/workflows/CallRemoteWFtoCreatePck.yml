@@ -1,0 +1,64 @@
+name: 'Call Remote Workflow'
+on: [push, workflow_dispatch]
+#workflow_run:
+#        workflows: [Centralized_workflow] # Name of GitHub workflow to trigger in target repository
+#        types:
+#        - completed
+jobs:
+  # -------------------------------------------------------------
+  # A workflow to be triggered from another repo
+  # --------------------------------------------------------------
+  trigger-repob-workflow:
+         
+     # if: github.event.workflow_run.conclusion == 'success' # Run only when workflow run has succeeded, i.e. all jobs have succeeded
+    runs-on: ubuntu-latest
+    steps:
+      - name: my-repo-info
+        run: |
+          echo ${{ github.repository_owner }} 
+          echo ${{ github.author }}
+     # to call another workflow by dispatching work only
+     # - uses: benc-uk/workflow-dispatch@v1
+     #   with:
+     #   workflow: Centralized_workflow.yml
+     #    repo: linachaal2/SWCTREPO
+     #    token: "${{ secrets.ACTIONS_KEY }}"
+       #inputs: '{ "message": "blah blah", "something": false }'
+       
+      - uses: convictional/trigger-workflow-and-wait@v1.6.1
+        with:
+         owner: ${{ github.repository_owner }}
+         repo: SWCTREPO
+         github_token: ${{ secrets.ACTIONS_KEY }}
+         github_user: ${{ github.repository_owner }}
+         workflow_file_name: Centralized_workflow.yml
+         trigger_workflow: true
+         wait_workflow: true 
+         client_payload: '{"customer_name": "RFH"}'
+        #ref: release-branch
+        #wait_interval: 10
+        #client_payload: '{}'
+        #propagate_failure: false
+    
+    # Required when using the `repo` option. Either a PAT or a token generated from the GitHub app or CLI
+   # token: "${{ secrets.MY_TOKEN }}"
+   #  - uses: passeidireto/trigger-external-workflow-action@main
+   #    env:
+   #     PAYLOAD_AUTHOR: ${{ github.author }}
+   #     PAYLOAD_REVISION: "3"
+   #    with:
+    #    repository: linachaal2/SWCTREPO
+    #    event: doc_update
+     #   github_pat: ${{ secrets.ACTIONS_KEY }}
+      #  - uses: actions/github-script@v6
+      #    with:
+      #      github-token: ${{ secrets.ACTIONS_KEY }} # Fine-grained GitHub PAT that was saved as repository secret
+      #      script: |
+      #       await github.rest.actions.createworkflowDispatch({
+      #          owner: ${{ github.repository_owner }},
+      #          repo: 'SWCTREPO',
+      #          workflow_id: 'Centralized_workflow.yml',
+      #          ref: 'main'
+      #       })  
+
+   
