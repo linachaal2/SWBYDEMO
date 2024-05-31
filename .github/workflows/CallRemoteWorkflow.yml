@@ -28,7 +28,7 @@ jobs:
       - uses: convictional/trigger-workflow-and-wait@v1.6.1
         with:
          owner: ${{ github.repository_owner }}
-         repo: linachaal2/SWCTREPO
+         repo: SWCTREPO
          github_token: ${{ secrets.ACTIONS_KEY }}
          github_user: ${{ github.repository_owner }}
          workflow_file_name: Centralized_workflow.yml
