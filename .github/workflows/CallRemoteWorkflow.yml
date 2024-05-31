@@ -13,6 +13,10 @@ jobs:
      # if: github.event.workflow_run.conclusion == 'success' # Run only when workflow run has succeeded, i.e. all jobs have succeeded
     runs-on: ubuntu-latest
     steps:
+      - name: my-repo-info
+        run: |
+          echo ${{ github.repository_owner }} 
+          echo ${{ github.author }}
      # to call another workflow by dispatching work only
       - uses: benc-uk/workflow-dispatch@v1
         with:
@@ -23,10 +27,10 @@ jobs:
        
       - uses: convictional/trigger-workflow-and-wait@v1.6.1
         with:
-         owner: ${{ github.author }}
+         owner: ${{ github.repository_owner }}
          repo: linachaal2/SWCTREPO
          github_token: ${{ secrets.ACTIONS_KEY }}
-         github_user: ${{ github.author }}
+         github_user: ${{ github.repository_owner }}
          workflow_file_name: Centralized_workflow.yml
          trigger_workflow: true
          wait_workflow: true 
