@@ -14,7 +14,12 @@ jobs:
       cancel-in-progress: true  
     
     steps:
-  # Validate the rollout number for current branch
+    - uses: actions/checkout@v4
+      with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0 
+          
+     # Validate the rollout number for current branch
     - name: Parse BranchRolloutNumber XML
       id: getxml
       uses: mavrosxristoforos/get-xml-info@1.0
