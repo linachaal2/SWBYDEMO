@@ -31,7 +31,9 @@ jobs:
       shell: bash
       run: |   
          echo "Branch Rollout Number: ${{ steps.getxml.outputs.info }}"
-         proxy_tag="${${{ steps.getxml.outputs.info }}%%$'\n'*}"   
+         tmp = ${{ steps.getxml.outputs.info }}
+         echo "$tmp"
+         proxy_tag="${$tmp#\n}"   
          echo "--------------------------------------"
          echo "$proxy_tag"
          echo "--------------------------------------"
