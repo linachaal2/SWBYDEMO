@@ -30,11 +30,12 @@ jobs:
       id: newValue
       shell: bash
       run: |   
-         echo "Branch Rollout Number: |${{ steps.getxml.outputs.info }}|"
+         echo "Branch Rollout Number: ${{ steps.getxml.outputs.info }}"
+         proxy_tag="${${{ steps.getxml.outputs.info }}%%$'\n'*}"   
          echo "--------------------------------------"
-         echo "|${{ steps.getxml.outputs.info }}|"
+         echo "$proxy_tag"
          echo "--------------------------------------"
-       #  REGEX==^\n+|\s+?$
+       #  REGEX=^\n+|\s+?$
        #  echo "$REGEX"
        #  LATEST=$(${{ steps.getxml.outputs.info }} | grep -E $REGEX | tail -n1)
        #  echo $LATEST
