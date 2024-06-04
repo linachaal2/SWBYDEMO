@@ -1,0 +1,39 @@
+name: Parsing XML
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest #ubuntu-22.04
+
+    permissions:
+      pull-requests: write
+      contents: write
+      
+    concurrency:
+      group: '${{ github.workflow }} @ ${{ github.event.pull_request.head.label || github.head_ref || github.ref }}'
+      cancel-in-progress: true  
+    
+    steps:
+  # Validate the rollout number for current branch
+    - name: Parse BranchRolloutNumber XML
+      id: getxml
+      uses: mavrosxristoforos/get-xml-info@1.0
+      with:
+        xml-file: 'scripts/rollout_gen/generic/BranchRolloutNumber.xml'
+        xpath: '//branch_rollout_number'
+    - name: Get Branch Rollout Number
+      run: |     
+         echo "Branch Rollout Number: ${{ steps.getxml.outputs.info }}"
+    - name: Get the highest rollout number 
+      id: newRolloutNumber
+      shell: bash
+      run: |
+        if ${{ steps.getxml.outputs.info != 'X' }}; then
+          echo "ROLLOUT_NUMBER_VALUE=${{ steps.regex-match.outputs.match }}"  >> $GITHUB_OUTPUT
+        else
+          echo "Need to get the highest rollout number"
+          echo "ROLLOUT_NUMBER_VALUE='X'"  >> $GITHUB_OUTPUT
+        fi   
