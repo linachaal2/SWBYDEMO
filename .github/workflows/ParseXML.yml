@@ -31,10 +31,13 @@ jobs:
       shell: bash
       run: |   
          echo "Branch Rollout Number: ${{ steps.getxml.outputs.info }}"
-         echo "VERSION=${${{ steps.getxml.outputs.info }}:1}"  
-         echo "$VERSION"
+         REPO=${{ steps.getxml.outputs.info }}
+         New_VALUE="${REPO//-/_}"
+         echo $New_VALUE
+        # echo "VERSION=${${{ steps.getxml.outputs.info }}:1}"  
+        # echo "$VERSION"
         
-         echo "--------------------------------------"
+        # echo "--------------------------------------"
        #  REGEX=^\n+|\s+?$
        #  echo "$REGEX"
        #  LATEST=$(${{ steps.getxml.outputs.info }} | grep -E $REGEX | tail -n1)
