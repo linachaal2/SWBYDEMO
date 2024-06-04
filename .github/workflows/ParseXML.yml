@@ -29,7 +29,7 @@ jobs:
     - name: Get Branch Rollout Number
       id: newValue
       run: |   
-         echo "New_VALUE=${{ steps.regex-match.outputs.match }}| grep ‘/[^\n+|\s+]/g’"  >> $GITHUB_OUTPUT
+         echo "New_VALUE=${{ steps.getxml.outputs.info }}| grep ‘/[^\n+|\s+]/g’"  >> $GITHUB_OUTPUT
        
          echo "Branch Rollout Number: ${{ steps.getxml.outputs.info }}"
          echo "New_VALUE=$New_VALUE"  
