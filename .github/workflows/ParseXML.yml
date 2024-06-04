@@ -30,8 +30,12 @@ jobs:
       id: newValue
       run: |   
          echo "Branch Rollout Number: ${{ steps.getxml.outputs.info }}"
-         echo "New_VALUE=${{ steps.getxml.outputs.info }}| grep ‘/[^\n+|\s+]/g’"  >> $GITHUB_OUTPUT
-       
+         #echo "New_VALUE=${{ steps.getxml.outputs.info }}| grep ‘/[^\n+|\s+]/g’"  >> $GITHUB_OUTPUT
+
+          REGEX==^\n+|\s+?$
+          echo "$REGEX"
+          LATEST=$(${{ steps.getxml.outputs.info }} | grep -E $REGEX | tail -n1)
+          echo $LATEST
          
          
     - name: New_VALUE
