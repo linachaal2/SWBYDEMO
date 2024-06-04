@@ -28,11 +28,12 @@ jobs:
         xpath: '//branch_rollout_number'
     - name: Get Branch Rollout Number
       id: newValue
+      shell: bash
       run: |   
-         echo "Branch Rollout Number: ${{ steps.getxml.outputs.info }}"
+         echo "Branch Rollout Number: |${{ steps.getxml.outputs.info }}|"
          echo "--------------------------------------"
-         echo "|"${{ steps.getxml.outputs.info }}"|"
-          echo "--------------------------------------"
+         echo "|${{ steps.getxml.outputs.info }}|"
+         echo "--------------------------------------"
        #  REGEX==^\n+|\s+?$
        #  echo "$REGEX"
        #  LATEST=$(${{ steps.getxml.outputs.info }} | grep -E $REGEX | tail -n1)
