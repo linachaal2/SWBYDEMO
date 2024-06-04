@@ -29,10 +29,16 @@ jobs:
     - name: Get Branch Rollout Number
       id: newValue
       run: |   
+         echo "Branch Rollout Number: ${{ steps.getxml.outputs.info }}"
          echo "New_VALUE=${{ steps.getxml.outputs.info }}| grep ‘/[^\n+|\s+]/g’"  >> $GITHUB_OUTPUT
        
-         echo "Branch Rollout Number: ${{ steps.getxml.outputs.info }}"
-         echo "New_VALUE=$New_VALUE"  
+         
+         
+    - name: New_VALUE
+      
+      run: |   
+         echo "New_VALUE=${{ steps.newValue.outputs.New_VALUE }}"
+         
     - name: Get the highest rollout number 
       id: newRolloutNumber
       shell: bash
