@@ -1,0 +1,19 @@
+[select wh_id,
+        stoloc,
+        lvl_typ_id
+   from locmst
+  where wh_id = 'test']
+|
+{
+	validate location
+	 where wh_id = @wh_id
+	   and stoloc = @stoloc
+	|
+	if (@action)
+	{
+		execute server command
+		 where cmd = @action catch(@?)
+	}
+}commit;
+/
+exit

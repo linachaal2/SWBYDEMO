@@ -1,0 +1,22 @@
+#include <usrddl.h>
+#include <usrcolwid.h>
+#include <usrtbldef.h>
+#include <dcsddl.h>
+#include <dcscolwid.h>
+#include <dcstbldef.h>
+#include <sqlDataTypes.h>
+
+mset command on
+[
+CREATE_TABLE(les_dataset)
+(
+    ds_name STRING_TY(DS_NAME_LEN) not null,  /* PK */ 
+    ds_desc STRING_TY(DS_DESC_LEN) not null,
+    ds_dir  STRING_TY(DS_DIR_LEN) not null,
+    ds_seq  INTEGER_TY not null
+)
+CREATE_TABLE_TABLESPACE(LES_DATASET_TBL_TBLSPC, LES_DATASET_TBL_STORAGE)
+] catch(ERR_TABLE_ALREADY_EXISTS)
+RUN_DDL
+
+mset command off

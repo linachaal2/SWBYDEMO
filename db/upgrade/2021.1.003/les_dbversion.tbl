@@ -1,0 +1,19 @@
+#include <../../../include/dcsddl.h>
+#include <usrddl.h>
+#include <usrcolwid.h>
+#include <usrtbldef.h>
+#include <dcsddl.h>
+#include <dcscolwid.h>
+#include <dcstbldef.h>
+#include <sqlDataTypes.h>
+
+mset command on
+[
+CREATE_TABLE(les_dbversion)
+(
+    version STRING_TY(DBVERSION_LEN) not null,
+    is_purged FLAG_TY default 0 not null
+)
+] catch(ERR_TABLE_ALREADY_EXISTS)
+RUN_DDL
+
