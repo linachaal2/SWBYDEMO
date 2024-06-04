@@ -31,11 +31,9 @@ jobs:
       shell: bash
       run: |   
          echo "Branch Rollout Number: ${{ steps.getxml.outputs.info }}"
-         tmp = ${{ steps.getxml.outputs.info }}
-         echo "$tmp"
-         proxy_tag="${$tmp#\n}"   
-         echo "--------------------------------------"
-         echo "$proxy_tag"
+         echo "VERSION=${${{ steps.getxml.outputs.info }}:1}"  
+         echo "$VERSION"
+        
          echo "--------------------------------------"
        #  REGEX=^\n+|\s+?$
        #  echo "$REGEX"
