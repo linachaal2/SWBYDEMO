@@ -1,6 +1,5 @@
 name: Parsing XML
-on:
- 'on': workflow_dispatch
+on: workflow_dispatch
 
 jobs:
   build:
