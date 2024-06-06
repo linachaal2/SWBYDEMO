@@ -83,7 +83,8 @@ jobs:
     - name: Parse Rollout Settings XML to get the New Rollout Number
       run: |  
          perl ${{ github.workspace }}/scripts/parseXMLfile.pl \
-             -b "${{ steps.saveBranchName.outputs.BRANCH_NAME }}" \
+             -b "NEWBRANCH" \
              -f "${{ github.workspace }}/scripts/rollout_gen/generic/rollout_settings.xml"
+      #-b "${{ steps.saveBranchName.outputs.BRANCH_NAME }}" \
    
      
