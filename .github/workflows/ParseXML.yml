@@ -58,8 +58,12 @@ jobs:
           echo "ROLLOUT_NUMBER_VALUE='X'" 
         fi 
 
-
-
+           
+    - name: Setup Perl environment
+      uses: shogo82148/actions-setup-perl@v1.29.0
+      with:
+          perl-version: ${{ matrix.perl }}
+   
     - name: Show Perl Version
       run: |
         perl -v
