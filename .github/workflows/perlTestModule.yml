@@ -13,7 +13,7 @@ jobs:
       - id: action
         uses: perl-actions/perl-versions@v1
         with:
-          since-perl: v5.34
+          since-perl: v5.36
           with-devel: true
 
   perl_tester:
@@ -32,7 +32,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: uses install-with-cpanm
         uses: perl-actions/install-with-cpanm@stable
-        with:
-         install: "Simple::Accessor"
+        run: sudo cpanm "Simple::Accessor"
+
       - run: perl Makefile.PL
       - run: make test
