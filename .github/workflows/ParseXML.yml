@@ -65,11 +65,23 @@ jobs:
         # Required, custom GitHub access token with the 'public_repo' and 'workflow' scopes
    #     token: ${{ secrets.ACTIONS_KEY }}
    #     formula: libxml2
+    - name: perl info
+      run: |
+          perl --version
+    - name: setup locallib
+      run: |
+          PERL_LOCAL_LIB_ROOT="$HOME/perl5"
+          >>"$GITHUB_ENV" echo "PERL_LOCAL_LIB_ROOT=$PERL_LOCAL_LIB_ROOT"
+          >>"$GITHUB_ENV" echo "PERL5LIB=$PERL_LOCAL_LIB_ROOT/lib/perl5"
+          >>"$GITHUB_ENV" echo "PERL_MB_OPT=--install_base \"$PERL_LOCAL_LIB_ROOT/\""
+          >>"$GITHUB_ENV" echo "PERL_MM_OPT=INSTALL_BASE=$PERL_LOCAL_LIB_ROOT"
+          >>"$GITHUB_ENV" echo "PATH=$PERL_LOCAL_LIB_ROOT/bin:$PATH"
+    - name: install cpanm
+      run: cpan App::cpanminus
+    - name: test cpanm
+      run: cpanm -v XML::LibXML
     - name: Parse Rollout Settings XML to get the New Rollout Number
-      shell: bash
       run: |  
-         perl -MCPAN -e shell
-         install XML::LibXML
          perl ${{ github.workspace }}/scripts/parseXMLfile.pl \
              -b "${{ steps.saveBranchName.outputs.BRANCH_NAME }}"     
    
