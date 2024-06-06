@@ -19,45 +19,44 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0 
           
-     # Validate the rollout number for current branch
+    # Save Branch Name, branch name will be used later if we switch to main branch       
+    - name:  Save Branch Name 
+      id: saveBranchName
+      shell: bash
+      run: |  
+          echo "BRANCH_NAME=${{ github.head_ref }}"  >> $GITHUB_OUTPUT
+    - name:  Print Branch Name 
+      shell: bash
+      run: |  
+          echo "BRANCH_NAME=${{ steps.saveBranchName.outputs.BRANCH_NAME }}"    
+          
+    # Validate the rollout number for current branch
     - name: Parse BranchRolloutNumber XML
-      id: getxml
+      id: getCurrentBranchRolloutNumber
       uses: mavrosxristoforos/get-xml-info@1.0
       with:
         xml-file: 'scripts/rollout_gen/generic/BranchRolloutNumber.xml'
         xpath: '//branch_rollout_number'
-    - name: Get Branch Rollout Number
-      id: newValue
+    - name: Print Current Branch Rollout Number
+      id: CurrentBranchRolloutNumber
       shell: bash
       run: |   
-         echo "Branch Rollout Number: ${{ steps.getxml.outputs.info }}"
-         REPO=${{ steps.getxml.outputs.info }}
-         New_VALUE="${REPO//-/_}"
-         echo $New_VALUE
-        # echo "VERSION=${${{ steps.getxml.outputs.info }}:1}"  
-        # echo "$VERSION"
-        
-        # echo "--------------------------------------"
-       #  REGEX=^\n+|\s+?$
-       #  echo "$REGEX"
-       #  LATEST=$(${{ steps.getxml.outputs.info }} | grep -E $REGEX | tail -n1)
-       #  echo $LATEST
-#echo "New_VALUE=${{ steps.getxml.outputs.info }}| grep ‘/[^\n+|\s+]/g’"  >> $GITHUB_OUTPUT
-
-         
-         
-    - name: New_VALUE
-      
-      run: |   
-         echo "New_VALUE=${{ steps.newValue.outputs.New_VALUE }}"
-         
+         echo "Current Branch Rollout Number: ${{ steps.getCurrentBranchRolloutNumber.outputs.info }}"
+         echo "CURRENT_BRANCH_ROLLOUT_NUMBER = ${{ steps.getCurrentBranchRolloutNumber.outputs.info }}"  >> $GITHUB_OUTPUT
+    
     - name: Get the highest rollout number 
-      id: newRolloutNumber
       shell: bash
       run: |
-        if ${{ steps.getxml.outputs.info != 'X' }}; then
-          echo "ROLLOUT_NUMBER_VALUE=${{ steps.regex-match.outputs.match }}"  >> $GITHUB_OUTPUT
+        if ${{ steps.CurrentBranchRolloutNumber.outputs.CURRENT_BRANCH_ROLLOUT_NUMBER != 'X' }}; then
+          echo "ROLLOUT_NUMBER_VALUE=${{ steps.regex-match.outputs.match }}"  
         else
           echo "Need to get the highest rollout number"
-          echo "ROLLOUT_NUMBER_VALUE='X'"  >> $GITHUB_OUTPUT
-        fi   
+          echo "ROLLOUT_NUMBER_VALUE='X'" 
+        fi 
+
+    - name: Parse Rollout Settings XML to get the New Rollout Number
+      run: |
+         perl ${{ github.workspace }}/scripts/parseXMLfile.pl \
+             -b "${{ steps.saveBranchName.outputs.BRANCH_NAME }}"     
+   
+     
