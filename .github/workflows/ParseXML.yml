@@ -81,10 +81,14 @@ jobs:
     - name: test cpanm
       run: cpanm -v XML::LibXML
     - name: Parse Rollout Settings XML to get the New Rollout Number
+      id: NewRolloutNumber
       run: |  
          perl ${{ github.workspace }}/scripts/parseXMLfile.pl \
              -b "NEWBRANCH" \
-             -f "${{ github.workspace }}/scripts/rollout_gen/generic/rollout_settings.xml"
+             -f "${{ github.workspace }}/scripts/rollout_gen/generic/rollout_settings.xml"  >> $GITHUB_OUTPUT
       #-b "${{ steps.saveBranchName.outputs.BRANCH_NAME }}" \
-   
+    - name:  Print New Rollout Number
+      shell: bash
+      run: |  
+          echo "New Rollout Number = ${{ steps.NewRolloutNumber.outputs.out }}" 
      
