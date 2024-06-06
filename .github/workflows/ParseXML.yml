@@ -63,7 +63,7 @@ jobs:
     
     - name: Install dependencies
       run: |
-          cpanm --notest Module::Install
+          cpanm --notest XML::LibXML
           cpanm --installdeps --notest .         
     
     - name: Parse Rollout Settings XML to get the New Rollout Number
