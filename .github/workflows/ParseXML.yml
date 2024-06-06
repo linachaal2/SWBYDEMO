@@ -3,7 +3,7 @@ on: workflow_dispatch
 
 jobs:
   build:
-    runs-on: ubuntu-latest #ubuntu-22.04
+    runs-on: macos-latest #ubuntu-latest #ubuntu-22.04
     strategy:
       fail-fast: false
       matrix:
@@ -59,14 +59,15 @@ jobs:
         fi 
 
     #brew install libxml2
-    - name: Update Homebrew formula
-      uses: dawidd6/action-homebrew-bump-formula@v3
-      with:
+   # - name: Update Homebrew formula
+   #   uses: dawidd6/action-homebrew-bump-formula@v3
+   #   with:
         # Required, custom GitHub access token with the 'public_repo' and 'workflow' scopes
-        token: ${{ secrets.ACTIONS_KEY }}
-        formula: libxml2
+   #     token: ${{ secrets.ACTIONS_KEY }}
+   #     formula: libxml2
     - name: Parse Rollout Settings XML to get the New Rollout Number
-      run: |        
+      run: |   
+         brew install libxml2
          perl ${{ github.workspace }}/scripts/parseXMLfile.pl \
              -b "${{ steps.saveBranchName.outputs.BRANCH_NAME }}"     
    
