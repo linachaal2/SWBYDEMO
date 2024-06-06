@@ -83,7 +83,10 @@ jobs:
     - name: Parse Rollout Settings XML to get the New Rollout Number
       id: NewRolloutNumber
       run: |  
-       echo "$( perl ${{ github.workspace }}/scripts/parseXMLfile.pl  -b "NEWBRANCH"  -f "${{ github.workspace }}/scripts/rollout_gen/generic/rollout_settings.xml"  $ROLNB)" >> "$GITHUB_OUTPUT"
+         ROLNB="$(perl ${{ github.workspace }}/scripts/parseXMLfile.pl  -b "NEWBRANCH"  -f "${{ github.workspace }}/scripts/rollout_gen/generic/rollout_settings.xml")"
+         echo "ROLNB : $ROLNB"
+         echo "ROLNB=$ROLNB" >> "$GITHUB_OUTPUT"
+      # echo "$(   $ROLNB)" >> "$GITHUB_OUTPUT"
         #perl ${{ github.workspace }}/scripts/parseXMLfile.pl \
         #     -b "NEWBRANCH" \
          #    -f "${{ github.workspace }}/scripts/rollout_gen/generic/rollout_settings.xml"  >> $GITHUB_OUTPUT
