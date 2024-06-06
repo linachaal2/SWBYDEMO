@@ -84,6 +84,6 @@ jobs:
       run: |  
          perl ${{ github.workspace }}/scripts/parseXMLfile.pl \
              -b "${{ steps.saveBranchName.outputs.BRANCH_NAME }}" \
-             -f "./rollout_gen/generic/rollout_settings.xml"
+             -f "${{ github.workspace }}/scripts/rollout_gen/generic/rollout_settings.xml"
    
      
