@@ -58,23 +58,41 @@ jobs:
           echo "ROLLOUT_NUMBER_VALUE='X'" 
         fi 
 
-        
-    - name: Setup Perl environment
-      uses: shogo82148/actions-setup-perl@v1.29.0
-      with:
-          perl-version: ${{ matrix.perl }}
-    - name: Install dependencies
+
+
+    - name: Show Perl Version
       run: |
-          cpanm --notest XML::LibXML
-          cpanm --installdeps --notest .         
-    - name: Show content of log files on Linux
-      if: ${{ failure() && startsWith( matrix.runner, 'ubuntu-' )  }}
-      run: cat /home/runner/.cpanm/work/*/build.log     
-    - name: Regular Tests
+        perl -v
+ 
+    - name: cpanm version number
       run: |
-          perl Makefile.PL
-          make
-          make test  
+        cpanm -v
+ 
+    - name: Install developer Dependencies
+      run: |
+        cpanm File::ShareDir::Install Test::CheckManifest Test::CPAN::Meta::JSON Test::CPAN::Meta Test::Pod
+        cpanm XML::LibXML
+ 
+    - name: Install Dependencies
+      run: |
+        cpanm --installdeps .
+ 
+    - name: Run tests
+      run: |
+        perl Makefile.PL
+        make
+        make test
+ 
+    - name: Show Errors on Ubuntu
+      if:  ${{ failure() && startsWith( matrix.runner, 'ubuntu-')}}
+      run: |
+         cat /home/runner/.cpanm/work/*/build.log
+ 
+    - name: Show Errors on OSX
+      if:  ${{ failure() && startsWith( matrix.runner, 'macos-')}}
+      run: |
+         cat  /Users/runner/.cpanm/work/*/build.log
+
       
     - name: Parse Rollout Settings XML to get the New Rollout Number
       run: |
