@@ -36,18 +36,19 @@ my %opts = ();
 
 #get options
 
-getopts('b:ohpm', \%opts);
-#perl parseXMLfile.pl  -b GITBRANCH 
+getopts('b:f:ohpm', \%opts);
+#perl parseXMLfile.pl  -b GITBRANCH -f rollout_settings.xml
 
 # get the arguments
 $git_branch_name = $opts{b} if defined($opts{b});#-b - required - GIT branch name
+$rolloutSettingsFile = $opts{f} if defined($opts{f});#-b - required - GIT branch name
 
 print $git_branch_name;
 
 print "Parsing XML \n";
 
 #my $filename = 'BranchRolloutNumber.xml';
-$rolloutSettingsFile = 'rollout_settings.xml';
+#$rolloutSettingsFile = 'rollout_settings.xml';
 
 my $dom = XML::LibXML->load_xml(location => $rolloutSettingsFile);
 
