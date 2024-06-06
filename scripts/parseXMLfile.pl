@@ -37,7 +37,7 @@ my %opts = ();
 #get options
 
 getopts('b:f:ohpm', \%opts);
-#perl parseXMLfile.pl  -b GITBRANCH -f rollout_settings.xml
+#perl parseXMLfile.pl  -b GITBRANCH -f ./rollout_gen/generic/rollout_settings.xml
 
 # get the arguments
 $git_branch_name = $opts{b} if defined($opts{b});#-b - required - GIT branch name
