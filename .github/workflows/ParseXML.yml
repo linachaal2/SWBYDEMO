@@ -66,8 +66,10 @@ jobs:
    #     token: ${{ secrets.ACTIONS_KEY }}
    #     formula: libxml2
     - name: Parse Rollout Settings XML to get the New Rollout Number
-      run: |   
-         brew install libxml2
+      shell: bash
+      run: |  
+         perl -MCPAN -e shell
+         install XML::LibXML
          perl ${{ github.workspace }}/scripts/parseXMLfile.pl \
              -b "${{ steps.saveBranchName.outputs.BRANCH_NAME }}"     
    
