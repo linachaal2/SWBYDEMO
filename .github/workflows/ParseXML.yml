@@ -63,11 +63,8 @@ jobs:
       with:
           perl-version: ${{ matrix.perl }}
           
-    - name: Install dependencies
-      run: |
-          cpanm --notest XML::LibXML
-          cpanm --installdeps --notest .         
-    
+  
+      
     - name: Parse Rollout Settings XML to get the New Rollout Number
       run: |
          perl ${{ github.workspace }}/scripts/parseXMLfile.pl \
