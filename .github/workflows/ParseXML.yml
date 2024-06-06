@@ -57,13 +57,24 @@ jobs:
           echo "Need to get the highest rollout number"
           echo "ROLLOUT_NUMBER_VALUE='X'" 
         fi 
+
         
     - name: Setup Perl environment
       uses: shogo82148/actions-setup-perl@v1.29.0
       with:
           perl-version: ${{ matrix.perl }}
-          
-  
+    - name: Install dependencies
+      run: |
+          cpanm --notest XML::LibXML
+          cpanm --installdeps --notest .         
+    - name: Show content of log files on Linux
+      if: ${{ failure() && startsWith( matrix.runner, 'ubuntu-' )  }}
+      run: cat /home/runner/.cpanm/work/*/build.log     
+    - name: Regular Tests
+      run: |
+          perl Makefile.PL
+          make
+          make test  
       
     - name: Parse Rollout Settings XML to get the New Rollout Number
       run: |
