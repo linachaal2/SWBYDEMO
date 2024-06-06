@@ -1,6 +1,7 @@
 
 # .github/workflows/testsuite.yml
-on: work-di
+name: Install Perl Module
+on: workflow_dispatch
 jobs:
 
   perl-versions:
