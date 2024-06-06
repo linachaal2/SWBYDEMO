@@ -17,10 +17,10 @@ use File::Copy;
 use File::Find;
 use Time::localtime;
 #use Text::Trim;
-use XML::Parser;
+#use XML::Parser;
 
-use XML::Simple;
-use XML::DOM;
+#use XML::Simple;
+#use XML::DOM;
 use XML::LibXML;
 #use Meta::Math::Pad;
 
