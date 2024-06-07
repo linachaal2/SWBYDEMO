@@ -29,6 +29,7 @@ jobs:
     if: always() && !cancelled() && contains(needs.*.result, 'success')
     steps:
       - run: echo "C"
+      - run: echo ${{needs.a.outputs.run_job_b}}
   GetBranchRolloutNumber:
     name: GetBranchRolloutNumber
     runs-on: macos-latest #ubuntu-latest #ubuntu-22.04
