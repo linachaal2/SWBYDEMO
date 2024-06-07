@@ -3,6 +3,7 @@ on: workflow_dispatch
 
 jobs:
   GetBranchRolloutNumber:
+    name: GetBranchRolloutNumber
     runs-on: macos-latest #ubuntu-latest #ubuntu-22.04
     strategy:
       fail-fast: false
@@ -62,6 +63,7 @@ jobs:
      # BRANCH_NAME: ${{ steps.CurrentBranchName.outputs.BRANCH_NAME }}
       
   GettingANewRolloutNumberJob:
+    name: GettingANewRolloutNumberJob
     needs: GetBranchRolloutNumber 
     if: needs.GetBranchRolloutNumber.outputs.CURRENT_BRANCH_ROLLOUT_NUMBER == 'X'
     runs-on: macos-latest
@@ -115,6 +117,7 @@ jobs:
       NEW_BRANCH_ROLLOUT_NUMBER: ${{ steps.NewRolloutNumber.outputs.NEW_BRANCH_ROLLOUT_NUMBER }} 
    
   CreatingRolloutPackageJob:
+    name: CreatingRolloutPackageJob
     needs:  
       - GetBranchRolloutNumber
       - GettingANewRolloutNumberJob
