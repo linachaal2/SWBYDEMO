@@ -9,8 +9,8 @@ jobs:
       - run: echo "A"
       - id: set
         run: |
-         echo "NEW_BRANCH_ROLLOUT_NUMBER : 'X'"
-         echo "NEW_BRANCH_ROLLOUT_NUMBER=$NEW_BRANCH_ROLLOUT_NUMBER" >> "$GITHUB_OUTPUT"
+         echo "NEW_BRANCH_ROLLOUT_NUMBER='X'" >> "$GITHUB_OUTPUT"
+         echo "NEW_BRANCH_ROLLOUT_NUMBER : $NEW_BRANCH_ROLLOUT_NUMBER"
         #  echo "run_job_b='hello world'" >> $GITHUB_OUTPUT
     outputs:
       run_job_b: ${{ steps.set.outputs.NEW_BRANCH_ROLLOUT_NUMBER }}
