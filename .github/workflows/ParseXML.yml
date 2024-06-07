@@ -24,8 +24,8 @@ jobs:
           fetch-depth: 0 
           
     # Save Branch Name, branch name will be used later if we switch to main branch       
-    - name:  Save Branch Name 
-      id: saveBranchName
+    - name:  Current Branch Name 
+      id: CurrentBranchName
       shell: bash
       run: |  
           echo "BRANCH_NAME=${{ github.head_ref }}"  >> $GITHUB_OUTPUT
@@ -58,23 +58,19 @@ jobs:
           echo "ROLLOUT_NUMBER_VALUE='X'" 
         fi 
     outputs:
-      ROLLOUT_NUMBER_VALUE: ${{ steps.CurrentBranchRolloutNumber.outputs.ROLLOUT_NUMBER_VALUE }}  
+      CURRENT_BRANCH_ROLLOUT_NUMBER: ${{ steps.CurrentBranchRolloutNumber.outputs.CURRENT_BRANCH_ROLLOUT_NUMBER }}
+      BRANCH_NAME: ${{ steps.CurrentBranchName.outputs.BRANCH_NAME }}
       
   GettingANewRolloutNumberJob:
     needs: GetBranchRolloutNumber 
-    if: needs.GetBranchRolloutNumber.outputs.ROLLOUT_NUMBER_VALUE == 'X'
+    if: needs.GetBranchRolloutNumber.outputs.CURRENT_BRANCH_ROLLOUT_NUMBER == 'X'
     runs-on: macos-latest
     steps:
       - name: Check out the repository to the runner
         uses: actions/checkout@v4
-      - name: Execute Perl script
-        run: |
-          perl ${{ github.workspace }}/scripts/helloStarware.pl > output.log
-      - name: Upload output file
-        uses: actions/upload-artifact@v4
-        with:
-          name: output-log-file
-          path: output.log
+      - run: echo  ${{needs.GetBranchRolloutNumber.outputs.CURRENT_BRANCH_ROLLOUT_NUMBER}}
+     # checkout main branch 
+      
     #brew install libxml2
    # - name: Update Homebrew formula
    #   uses: dawidd6/action-homebrew-bump-formula@v3
@@ -100,9 +96,9 @@ jobs:
       - name: Parse Rollout Settings XML to get the New Rollout Number
         id: NewRolloutNumber
         run: |  
-         ROLNB="$(perl ${{ github.workspace }}/scripts/parseXMLfile.pl  -b "NEWBRANCH"  -f "${{ github.workspace }}/scripts/rollout_gen/generic/rollout_settings.xml")"
-         echo "ROLNB : $ROLNB"
-         echo "ROLNB=$ROLNB" >> "$GITHUB_OUTPUT"
+         NEW_BRANCH_ROLLOUT_NUMBER="$(perl ${{ github.workspace }}/scripts/parseXMLfile.pl  -b "NEWBRANCH"  -f "${{ github.workspace }}/scripts/rollout_gen/generic/rollout_settings.xml")"
+         echo "NEW_BRANCH_ROLLOUT_NUMBER : $NEW_BRANCH_ROLLOUT_NUMBER"
+         echo "NEW_BRANCH_ROLLOUT_NUMBER=$NEW_BRANCH_ROLLOUT_NUMBER" >> "$GITHUB_OUTPUT"
       # echo "$(   $ROLNB)" >> "$GITHUB_OUTPUT"
         #perl ${{ github.workspace }}/scripts/parseXMLfile.pl \
         #     -b "NEWBRANCH" \
@@ -112,4 +108,21 @@ jobs:
         shell: bash
         run: |  
           echo "New Rollout Number = ${{ steps.NewRolloutNumber.outputs.ROLNB }}" 
+      # commit changes to main branch and switch to branch 
+    outputs:
+      NEW_BRANCH_ROLLOUT_NUMBER: ${{ steps.NewRolloutNumber.outputs.NEW_BRANCH_ROLLOUT_NUMBER }} 
+   
+  CreatingRolloutPackageJob:
+    needs:  
+      - GetBranchRolloutNumber
+      - GettingANewRolloutNumberJob
+    if: needs.GettingANewRolloutNumberJob.result == 'success' || needs.GettingANewRolloutNumberJob.result == 'skipped'
+   
+    runs-on: macos-latest
+    steps:
+      - name: Check out the repository to the runner
+        uses: actions/checkout@v4
+      - run: echo  ${{needs.GetBranchRolloutNumber.outputs.CURRENT_BRANCH_ROLLOUT_NUMBER}}
+        
+      
      
