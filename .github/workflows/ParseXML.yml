@@ -59,6 +59,7 @@ jobs:
         fi 
         
   GettingANewRolloutNumberJob:
+    needs: GetBranchRolloutNumber
     if: ${{ steps.CurrentBranchRolloutNumber.outputs.CURRENT_BRANCH_ROLLOUT_NUMBER }} == 'X'
     runs-on: ubuntu-latest
     steps:
