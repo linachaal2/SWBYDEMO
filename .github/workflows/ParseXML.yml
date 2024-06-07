@@ -2,7 +2,7 @@ name: Parsing XML
 on: workflow_dispatch
 
 jobs:
-  build:
+  GetBranchRolloutNumber:
     runs-on: macos-latest #ubuntu-latest #ubuntu-22.04
     strategy:
       fail-fast: false
@@ -57,7 +57,21 @@ jobs:
           echo "Need to get the highest rollout number"
           echo "ROLLOUT_NUMBER_VALUE='X'" 
         fi 
-
+        
+  GettingANewRolloutNumberJob:
+    if: ${{ steps.CurrentBranchRolloutNumber.outputs.CURRENT_BRANCH_ROLLOUT_NUMBER }} == 'X'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repository to the runner
+        uses: actions/checkout@v4
+      - name: Execute Perl script
+        run: |
+          perl ${{ github.workspace }}/scripts/helloStarware.pl > output.log
+      - name: Upload output file
+        uses: actions/upload-artifact@v4
+        with:
+          name: output-log-file
+          path: output.log
     #brew install libxml2
    # - name: Update Homebrew formula
    #   uses: dawidd6/action-homebrew-bump-formula@v3
@@ -65,24 +79,24 @@ jobs:
         # Required, custom GitHub access token with the 'public_repo' and 'workflow' scopes
    #     token: ${{ secrets.ACTIONS_KEY }}
    #     formula: libxml2
-    - name: perl info
-      run: |
+      - name: perl info
+        run: |
           perl --version
-    - name: setup locallib
-      run: |
+      - name: setup locallib
+        run: |
           PERL_LOCAL_LIB_ROOT="$HOME/perl5"
           >>"$GITHUB_ENV" echo "PERL_LOCAL_LIB_ROOT=$PERL_LOCAL_LIB_ROOT"
           >>"$GITHUB_ENV" echo "PERL5LIB=$PERL_LOCAL_LIB_ROOT/lib/perl5"
           >>"$GITHUB_ENV" echo "PERL_MB_OPT=--install_base \"$PERL_LOCAL_LIB_ROOT/\""
           >>"$GITHUB_ENV" echo "PERL_MM_OPT=INSTALL_BASE=$PERL_LOCAL_LIB_ROOT"
           >>"$GITHUB_ENV" echo "PATH=$PERL_LOCAL_LIB_ROOT/bin:$PATH"
-    - name: install cpanm
-      run: cpan App::cpanminus
-    - name: test cpanm
-      run: cpanm -v XML::LibXML
-    - name: Parse Rollout Settings XML to get the New Rollout Number
-      id: NewRolloutNumber
-      run: |  
+      - name: install cpanm
+        run: cpan App::cpanminus
+      - name: test cpanm
+        run: cpanm -v XML::LibXML
+      - name: Parse Rollout Settings XML to get the New Rollout Number
+        id: NewRolloutNumber
+        run: |  
          ROLNB="$(perl ${{ github.workspace }}/scripts/parseXMLfile.pl  -b "NEWBRANCH"  -f "${{ github.workspace }}/scripts/rollout_gen/generic/rollout_settings.xml")"
          echo "ROLNB : $ROLNB"
          echo "ROLNB=$ROLNB" >> "$GITHUB_OUTPUT"
@@ -91,8 +105,8 @@ jobs:
         #     -b "NEWBRANCH" \
          #    -f "${{ github.workspace }}/scripts/rollout_gen/generic/rollout_settings.xml"  >> $GITHUB_OUTPUT
       #-b "${{ steps.saveBranchName.outputs.BRANCH_NAME }}" \
-    - name:  Print New Rollout Number
-      shell: bash
-      run: |  
+      - name:  Print New Rollout Number
+        shell: bash
+        run: |  
           echo "New Rollout Number = ${{ steps.NewRolloutNumber.outputs.ROLNB }}" 
      
