@@ -143,11 +143,8 @@ jobs:
    
   CreatingRolloutPackageJob:
     name: CreatingRolloutPackageJob
-    needs:  
-      - GetBranchRolloutNumber
-      - GettingANewRolloutNumberJob
-    if: needs.GettingANewRolloutNumberJob.result == 'success' || needs.GettingANewRolloutNumberJob.result == 'skipped'
-   
+    needs: [GetBranchRolloutNumber,GettingANewRolloutNumberJob]
+    if: always() && !cancelled() && contains(needs.*.result, 'success')
     runs-on: macos-latest
     steps:
       - run: echo  ${{needs.GetBranchRolloutNumber.outputs.CURRENT_BRANCH_ROLLOUT_NUMBER}}
