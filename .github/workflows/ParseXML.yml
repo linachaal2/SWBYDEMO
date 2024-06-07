@@ -2,6 +2,33 @@ name: Parsing XML
 on: workflow_dispatch
 
 jobs:
+  a:
+    name: a
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "A"
+      - id: set
+        run: |
+          echo "::set-output name=run_job_b::yes"
+    outputs:
+      run_job_b: ${{ steps.set.outputs.run_job_b }}
+  b:
+    name: b
+    runs-on: ubuntu-latest
+    needs:
+      - a
+    if: needs.a.outputs.run_job_b == 'yes'
+    steps:
+      - run: echo "B"
+  c:
+    name: c
+    runs-on: ubuntu-latest
+    needs:
+      - a
+      - b
+    if: needs.b.result == 'success' || needs.b.result == 'skipped'
+    steps:
+      - run: echo "C"
   GetBranchRolloutNumber:
     name: GetBranchRolloutNumber
     runs-on: macos-latest #ubuntu-latest #ubuntu-22.04
