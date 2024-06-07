@@ -9,14 +9,15 @@ jobs:
       - run: echo "A"
       - id: set
         run: |
-          echo "run_job_b='hello world'" >> $GITHUB_OUTPUT
+         echo "NEW_BRANCH_ROLLOUT_NUMBER : 'X'"
+         echo "NEW_BRANCH_ROLLOUT_NUMBER=$NEW_BRANCH_ROLLOUT_NUMBER" >> "$GITHUB_OUTPUT"
+        #  echo "run_job_b='hello world'" >> $GITHUB_OUTPUT
     outputs:
-      run_job_b: ${{ steps.set.outputs.run_job_b }}
+      run_job_b: ${{ steps.set.outputs.NEW_BRANCH_ROLLOUT_NUMBER }}
   b:
     name: b
     runs-on: ubuntu-latest
-    needs:
-      - a
+    needs: a
     if: needs.a.outputs.run_job_b == 'hello world'
     steps:
       - run: echo "B"
