@@ -57,10 +57,12 @@ jobs:
           echo "Need to get the highest rollout number"
           echo "ROLLOUT_NUMBER_VALUE='X'" 
         fi 
-        
+    outputs:
+      ROLLOUT_NUMBER_VALUE: ${{ steps.CurrentBranchRolloutNumber.outputs.ROLLOUT_NUMBER_VALUE }}  
+      
   GettingANewRolloutNumberJob:
-    needs: GetBranchRolloutNumber
-    if: ${{ steps.CurrentBranchRolloutNumber.outputs.CURRENT_BRANCH_ROLLOUT_NUMBER }} == 'X'
+    needs: GetBranchRolloutNumber 
+    if: needs.GetBranchRolloutNumber.outputs.ROLLOUT_NUMBER_VALUE == 'X'
     runs-on: macos-latest
     steps:
       - name: Check out the repository to the runner
