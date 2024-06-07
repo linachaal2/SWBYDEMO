@@ -19,7 +19,7 @@ jobs:
     name: b
     runs-on: ubuntu-latest
     needs: a
-    if: needs.a.outputs.run_job_b == 'hello world'
+    if: needs.a.outputs.run_job_b == 'X'
     steps:
       - run: echo "B"
   c:
