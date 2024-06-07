@@ -64,7 +64,7 @@ jobs:
       
   GettingANewRolloutNumberJob:
     name: GettingANewRolloutNumberJob
-    needs: GetBranchRolloutNumber 
+    needs: [GetBranchRolloutNumber] 
     if: needs.GetBranchRolloutNumber.outputs.CURRENT_BRANCH_ROLLOUT_NUMBER == 'X'
     runs-on: macos-latest
     steps:
