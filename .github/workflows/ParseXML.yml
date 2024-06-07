@@ -92,8 +92,8 @@ jobs:
       
   GettingANewRolloutNumberJob:
     name: GettingANewRolloutNumberJob
-    needs: [GetBranchRolloutNumber] 
-    if: needs.GetBranchRolloutNumber.outputs.CURRENT_BRANCH_ROLLOUT_NUMBER == 'X'
+    needs: GetBranchRolloutNumber
+    if: contains(needs.GetBranchRolloutNumber.outputs.CURRENT_BRANCH_ROLLOUT_NUMBER,'X')
     runs-on: macos-latest
     steps:
       - name: Check out the repository to the runner
