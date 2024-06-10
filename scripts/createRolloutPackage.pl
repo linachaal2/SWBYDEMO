@@ -17,8 +17,8 @@ use File::Find;
 use Time::localtime;
 
 my %opts = ();
-#my $lesdir =  "/home/runner/work/SWBYDEMO/SWBYDEMO";
-my $lesdir =  "";
+#my $LESDIR =  "/home/runner/work/SWBYDEMO/SWBYDEMO";
+my $LESDIR =  "";
 my $loaddatatext= "# Load any data affected.  NOTE the assumption is that\n# the control file will be in the db/data/load directory.\n";
 my $replacetext = "# Replacing files affected by extension.\n";
 my $loadexist=0;
@@ -60,7 +60,7 @@ sub show_usage {
   die "Correct usage for $0 is as follows:\n"   
         . "$0\n"
         . "\t-n <Rollout Name>\n"
-        . "\t-d <Rollout Directory - path from \$lesdir where the rollout package will be created>\n"
+        . "\t-d <Rollout Directory - path from \$LESDIR where the rollout package will be created>\n"
         . "\t-r <Rollout Input File>\n"
         . "\t-f <Force delete of package if it already exists>\n"
         . "\t-p <create the rollout script and package this to a tar file after pulling all components>\n"
@@ -79,10 +79,10 @@ sub show_usage {
 sub write_log{
 	if($logfile)
 	{
-		if($detailed_output){printf("Writing to log file $lesdir/log/$logfile\n\n");}
-		$log = $log . "Writing to log file $lesdir/log/$logfile\n\n";
+		if($detailed_output){printf("Writing to log file $LESDIR/log/$logfile\n\n");}
+		$log = $log . "Writing to log file $LESDIR/log/$logfile\n\n";
 
-		open(OUTLOG, ">>$lesdir/log/$logfile");
+		open(OUTLOG, ">>$LESDIR/log/$logfile");
 		print OUTLOG $log;
 		close(OUTLOG);
 		$log = "";
@@ -225,11 +225,11 @@ sub get_load_directory
     my ($table) = @_;
 	my $loaddir;
     
-	if(-d $lesdir . "/db/data/load/base/safetoload/$table")
+	if(-d $LESDIR . "/db/data/load/base/safetoload/$table")
 	{
 		$loaddir = 'safetoload';
 	}
-	elsif(-d $lesdir . "/db/data/load/base/bootstraponly/$table")
+	elsif(-d $LESDIR . "/db/data/load/base/bootstraponly/$table")
 	{
 		$loaddir = 'bootstraponly';
 	}
@@ -331,8 +331,8 @@ sub pull_files{
 		if($detailed_output){printf( "CSV\nPulling CSV file: $file\n");}
 		$log = $log . "CSV\nPulling CSV file: $file\n";
 		create_ro_dir($ro_dir.$ro_name . "/pkg/db/data/load/base/$component_dir/$table");
-		copy_ro_file($lesdir . "/db/data/load/base/$component_dir/$table",$file,$ro_dir.$ro_name . "/pkg/db/data/load/base/$component_dir/$table");
-		copy_ctl_ro_file($lesdir . "/db/data/load/base/$component_dir",$table.".ctl",$ro_dir.$ro_name . "/pkg/db/data/load/base/$component_dir");
+		copy_ro_file($LESDIR . "/db/data/load/base/$component_dir/$table",$file,$ro_dir.$ro_name . "/pkg/db/data/load/base/$component_dir/$table");
+		copy_ctl_ro_file($LESDIR . "/db/data/load/base/$component_dir",$table.".ctl",$ro_dir.$ro_name . "/pkg/db/data/load/base/$component_dir");
 	}
 
 	#####################################################################
@@ -346,7 +346,7 @@ sub pull_files{
 		if($detailed_output){printf( "MOCA\nPulling Moca file: $file\n");}
 		$log = $log . "MOCA\nPulling Moca file: $file\n";
 		create_ro_dir($ro_dir.$ro_name . "/pkg/src/cmdsrc/$component_dir");
-		copy_ro_file($lesdir . "/src/cmdsrc/$component_dir",$file,$ro_dir.$ro_name . "/pkg/src/cmdsrc/$component_dir");
+		copy_ro_file($LESDIR . "/src/cmdsrc/$component_dir",$file,$ro_dir.$ro_name . "/pkg/src/cmdsrc/$component_dir");
 	}
 
 	#####################################################################
@@ -358,7 +358,7 @@ sub pull_files{
 		if($detailed_output){printf( "REPORT\nPulling Report file: $file\n");}
 		$log = $log . "REPORT\nPulling Report file: $file\n";
 		create_ro_dir($ro_dir.$ro_name . "/pkg/reports/$component_dir");
-		copy_ro_file($lesdir . "/reports/$component_dir",$file,$ro_dir.$ro_name . "/pkg/reports/$component_dir");
+		copy_ro_file($LESDIR . "/reports/$component_dir",$file,$ro_dir.$ro_name . "/pkg/reports/$component_dir");
 	}
 
 	#####################################################################
@@ -370,7 +370,7 @@ sub pull_files{
 		if($detailed_output){printf( "LABEL\nPulling Label file: $file\n");}
 		$log = $log . "LABEL\nPulling Label file: $file\n";
 		create_ro_dir($ro_dir.$ro_name . "/pkg/labels/$component_dir");
-		copy_ro_file($lesdir . "/labels/$component_dir",$file,$ro_dir.$ro_name . "/pkg/labels/$component_dir");
+		copy_ro_file($LESDIR . "/labels/$component_dir",$file,$ro_dir.$ro_name . "/pkg/labels/$component_dir");
 	}
 
 	#####################################################################
@@ -382,7 +382,7 @@ sub pull_files{
 		if($detailed_output){printf( "DDL\nPulling DDL file: $file\n");}
 		$log = $log . "DDL\nPulling DDL file: $file\n";
 		create_ro_dir($ro_dir.$ro_name . "/pkg/db/ddl/$component_dir");
-		copy_ro_file($lesdir . "/db/ddl/$component_dir",$file,$ro_dir.$ro_name . "/pkg/db/ddl/$component_dir");
+		copy_ro_file($LESDIR . "/db/ddl/$component_dir",$file,$ro_dir.$ro_name . "/pkg/db/ddl/$component_dir");
 	}
 
 	#####################################################################
@@ -394,7 +394,7 @@ sub pull_files{
 		if($detailed_output){printf( "INT\nPulling Integration file: $file\n");}
 		$log = $log . "INT\nPulling Integration file: $file\n";
 		create_ro_dir($ro_dir.$ro_name . "/pkg/db/data/integrator");
-		copy_ro_file($lesdir . "/db/data/integrator",$file,$ro_dir.$ro_name . "/pkg/db/data/integrator");
+		copy_ro_file($LESDIR . "/db/data/integrator",$file,$ro_dir.$ro_name . "/pkg/db/data/integrator");
 	}
 
 	#####################################################################
@@ -419,14 +419,14 @@ sub pull_files{
 		if($detailed_output){printf( "FILE\nPulling File: $file\n");}
 		$log = $log . "FILE\nPulling File: $file\n";
 		create_ro_dir($ro_dir.$ro_name . "/pkg/$component_dir");
-		copy_ro_file($lesdir . "/$component_dir",$file,$ro_dir.$ro_name . "/pkg/$component_dir");
+		copy_ro_file($LESDIR . "/$component_dir",$file,$ro_dir.$ro_name . "/pkg/$component_dir");
 		
 		
 		#write rollout script
 		if($detailed_output){printf("Creating line for rollout script for adding file\n");}
 		$log = $log . "Creating line for rollout script for adding file\n";
 
-		$replacetextp = $replacetextp . "REPLACE pkg/$component_dir/$file \$lesdir/$component_dir\n";
+		$replacetextp = $replacetextp . "REPLACE pkg/$component_dir/$file \$LESDIR/$component_dir\n";
 		
 		$component_text = $component_text . "\t$component_dir/$file\n";
 
@@ -445,7 +445,7 @@ sub pull_files{
 		if($detailed_output){printf("Creating line for rollout script for removing file\n");}
 		$log = $log . "Creating line for rollout script for removing file\n";
 
-		$remove_ro_text = $remove_ro_text . "REMOVE \$lesdir/$component_dir/$file\n";
+		$remove_ro_text = $remove_ro_text . "REMOVE \$LESDIR/$component_dir/$file\n";
 		
 		$remove_text = $remove_text . "\t$component_dir/$file\n";
 
@@ -461,7 +461,7 @@ sub pull_files{
 		if($detailed_output){printf( "MTF\nPulling MTF File: $file\n");}
 		$log = $log . "MTF\nPulling MTF File: $file\n";
 		create_ro_dir($ro_dir.$ro_name . "/pkg/$component_dir");
-		copy_ro_file($lesdir . "/$component_dir",$file,$ro_dir.$ro_name . "/pkg/$component_dir");
+		copy_ro_file($LESDIR . "/$component_dir",$file,$ro_dir.$ro_name . "/pkg/$component_dir");
 		
 	}
 
@@ -508,7 +508,7 @@ sub pull_files{
 		if($detailed_output){printf("Creating line for rollout script for adding directory\n");}
 		$log = $log . "Creating line for rollout script for directory file\n";
 
-		$replacetextp = $replacetextp . "CREATEDIR \$lesdir/$component_dir\n";
+		$replacetextp = $replacetextp . "CREATEDIR \$LESDIR/$component_dir\n";
 
 	}
 
@@ -558,7 +558,7 @@ sub pull_files{
 				if($detailed_output){printf( "Unloading to file: $file\n");}
 				$log = $log . "Unloading to file: $file\n";
 			}
-			my $full_path = $lesdir . "/db/data/integrator/". $file;
+			my $full_path = $LESDIR . "/db/data/integrator/". $file;
 			
 			if(-e $full_path)
 			{
@@ -594,7 +594,7 @@ sub pull_files{
 				$log = $log . "Succesfully unloaded integrator transaction(s)\n\tIFD List $ifd_list\n\tEvent List: $event_list\n";
 				
 				create_ro_dir($ro_dir.$ro_name . "/pkg/db/data/integrator");
-				copy_ro_file($lesdir . "/db/data/integrator",$file,$ro_dir.$ro_name . "/pkg/db/data/integrator");
+				copy_ro_file($LESDIR . "/db/data/integrator",$file,$ro_dir.$ro_name . "/pkg/db/data/integrator");
 			
 			}
 
@@ -680,7 +680,7 @@ my $ro_script = "# Extension $ro_name\n#\n# This script has been built specifica
 		$log = "ERROR! -d rollout directory option must be defined!\n\n";
 		if($logfile)
 		{
-			open(OUTF, ">>$lesdir/log/$logfile");
+			open(OUTF, ">>$LESDIR/log/$logfile");
 			print OUTF $log;
 		}
 		show_usage();
@@ -689,13 +689,13 @@ my $ro_script = "# Extension $ro_name\n#\n# This script has been built specifica
 	}
 
 	#validate ro directory is a valid directory
-	if (!-d "$lesdir/$ro_dir")
+	if (!-d "$LESDIR/$ro_dir")
 	{
 		printf("ERROR! rollout directory ($ro_dir) does not exist\n\n");
 		$log = "ERROR! rollout directory ($ro_dir) does not exist\n\n";
 		if($logfile)
 		{
-			open(OUTF, ">>$lesdir/log/$logfile");
+			open(OUTF, ">>$LESDIR/log/$logfile");
 			print OUTF $log;
 		}
 		show_usage();
@@ -708,13 +708,13 @@ my $ro_script = "# Extension $ro_name\n#\n# This script has been built specifica
 
 	#printf("Building Rollout Package \n");
 
-	if($detailed_output){printf( "Building Rollout Package \n\nCurrent Time: " . localtime() . "\n\nOptions\nRO_DIR = $ro_dir\nlogfile = $logfile\n\nEnvironment:\nLESDIR = $lesdir\nLog directory=$lesdir\log\nRollout Name = $ro_name\n\n");}
-	$log = "Building Rollout Package \n\nCurrent Time: " . localtime() . "\n\nOptions\nRO_DIR = $ro_dir\nlogfile = $logfile\n\nEnvironment:\nLESDIR = $lesdir\nLog directory=$lesdir\log\nRollout Name = $ro_name\n\n";
+	if($detailed_output){printf( "Building Rollout Package \n\nCurrent Time: " . localtime() . "\n\nOptions\nRO_DIR = $ro_dir\nlogfile = $logfile\n\nEnvironment:\nLESDIR = $LESDIR\nLog directory=$LESDIR\log\nRollout Name = $ro_name\n\n");}
+	$log = "Building Rollout Package \n\nCurrent Time: " . localtime() . "\n\nOptions\nRO_DIR = $ro_dir\nlogfile = $logfile\n\nEnvironment:\nLESDIR = $LESDIR\nLog directory=$LESDIR\log\nRollout Name = $ro_name\n\n";
 
 	#copy rollout script to directory
-	copy("$lesdir/scripts/rollout.pl","$lesdir/$ro_dir/rollout.pl");
-	if($detailed_output){printf("Copying rollout.pl - from $lesdir/scripts/rollout.pl   to $lesdir/$ro_dir/rollout.pl\n\n");}
-	$log = $log . "Copying rollout.pl - from $lesdir/scripts/rollout.pl   to $lesdir/$ro_dir/rollout.pl\n\n";
+	copy("$LESDIR/scripts/rollout.pl","$LESDIR/$ro_dir/rollout.pl");
+	if($detailed_output){printf("Copying rollout.pl - from $LESDIR/scripts/rollout.pl   to $LESDIR/$ro_dir/rollout.pl\n\n");}
+	$log = $log . "Copying rollout.pl - from $LESDIR/scripts/rollout.pl   to $LESDIR/$ro_dir/rollout.pl\n\n";
 
 	#####################################################################
 	# Current rollout script
@@ -725,7 +725,7 @@ my $ro_script = "# Extension $ro_name\n#\n# This script has been built specifica
 	# and write to script later
     if($detailed_output){printf( "Checking for existing text from rollout script (file copy, directory creation, etc.)\n");}
 	$log = $log . "Checking for existing text from rollout script (file copy, directory creation, etc.)\n";
-	open (ROFILE,"$lesdir/$ro_dir/$ro_name");
+	open (ROFILE,"$LESDIR/$ro_dir/$ro_name");
 	my $dontinclude;
     my $roexist;
 	while (<ROFILE>)
@@ -762,7 +762,7 @@ my $ro_script = "# Extension $ro_name\n#\n# This script has been built specifica
 	if($detailed_output){printf( "Checking for High Priority MSQL (database changes) files\n");}
 	$log = $log . "Checking for High Priority MSQL (database changes) files\n";
 	my $msqlexist;
-	my $msqlhighdir = "$lesdir/$ro_dir/pkg/db/ddl/prerun";
+	my $msqlhighdir = "$LESDIR/$ro_dir/pkg/db/ddl/prerun";
 	#find({ wanted => \&writehighmsql, preprocess => \&preprocess, no_chdir} => \&nochdir, $msqlhighdir);
 	find(\&writehighmsql, \&preprocess, $msqlhighdir);
     sub preprocess
@@ -803,7 +803,7 @@ my $ro_script = "# Extension $ro_name\n#\n# This script has been built specifica
 	if($detailed_output){printf( "Checking for MLOADS\n");}
 	$log = $log . "Checking for MLOADS\n";
 	
-	my $mloaddir = "$lesdir/$ro_dir/pkg/db/data/load/base";
+	my $mloaddir = "$LESDIR/$ro_dir/pkg/db/data/load/base";
 	#find({ wanted => \&writemload, no_chdir} => \&nochdir, $mloaddir);
 	find(\&writemload, $mloaddir);
 	sub writemload
@@ -819,13 +819,13 @@ my $ro_script = "# Extension $ro_name\n#\n# This script has been built specifica
 			my $mloaddir = basename(dirname($File::Find::dir));
 			
 			if($detailed_output){printf("Found MLOAD: \n\tfile = $mloadfile\n\ttable = $mloadtable\n\tload directory = $mloaddir\nWriting REPLACE and LOADDATA lines to rollout script for $mloadfile\n\n");}
-			$log = $log . "Found MLOAD: \n\tfile = $mloadfile\n\ttable = $mloadtable\n\tload directory = $mloaddir\nWriting lines to rollout script \n\tREPLACE pkg/db/data/load/base/$mloaddir/$mloadtable/$mloadfile \$lesdir/db/data/load/base/$mloaddir/$mloadtable\n\tLOADDATA \$lesdir/db/data/load/base/$mloaddir/$mloadtable.ctl $mloadfile\n\n";
-			#$replacetext = $replacetext . "REPLACE pkg/db/data/load/base/$mloaddir/$mloadtable/$mloadfile \$lesdir/db/data/load/base/$mloaddir/$mloadtable\n";
+			$log = $log . "Found MLOAD: \n\tfile = $mloadfile\n\ttable = $mloadtable\n\tload directory = $mloaddir\nWriting lines to rollout script \n\tREPLACE pkg/db/data/load/base/$mloaddir/$mloadtable/$mloadfile \$LESDIR/db/data/load/base/$mloaddir/$mloadtable\n\tLOADDATA \$LESDIR/db/data/load/base/$mloaddir/$mloadtable.ctl $mloadfile\n\n";
+			#$replacetext = $replacetext . "REPLACE pkg/db/data/load/base/$mloaddir/$mloadtable/$mloadfile \$LESDIR/db/data/load/base/$mloaddir/$mloadtable\n";
 			# check if mloadfile is a control file or CSV one, if it is a CSV one we need to include LOADDATA command 
 			my $pointPos = rindex($mloadfile, ".");
 			my $fileExt = substr($mloadfile,$pointPos+1); 
 			if ($fileExt eq "csv"){
-				$loaddatatext = $loaddatatext . "LOADDATA \$lesdir/db/data/load/base/$mloaddir/$mloadtable.ctl $mloadfile\n";
+				$loaddatatext = $loaddatatext . "LOADDATA \$LESDIR/db/data/load/base/$mloaddir/$mloadtable.ctl $mloadfile\n";
 			}
 			$loadexist = 1;
 			$component_text = $component_text . "\tdb/data/load/base/$mloaddir/$mloadtable/$mloadfile\n";
@@ -844,7 +844,7 @@ my $ro_script = "# Extension $ro_name\n#\n# This script has been built specifica
 	if($detailed_output){printf( "Checking for MOCA commands\n");}
 	$log = $log . "Checking for MOCA commands\n";
 	
-	my $mocadir = "$lesdir/$ro_dir/pkg/src/cmdsrc";
+	my $mocadir = "$LESDIR/$ro_dir/pkg/src/cmdsrc";
 	#find({ wanted => \&writemoca, no_chdir} => \&nochdir, $mocadir);
 	find(\&writemoca, $mocadir);
 	sub writemoca
@@ -878,7 +878,7 @@ my $ro_script = "# Extension $ro_name\n#\n# This script has been built specifica
 	if($detailed_output){printf( "Checking for Labels\n");}
 	$log = $log . "Checking for Labels\n";
 	my $labelexist;
-	my $labeldir = "$lesdir/$ro_dir/pkg/labels";
+	my $labeldir = "$LESDIR/$ro_dir/pkg/labels";
 	#find({ wanted => \&writelabel, no_chdir} => \&nochdir, $labeldir);
 	find(\&writelabel, $labeldir);
 	sub writelabel
@@ -909,7 +909,7 @@ my $ro_script = "# Extension $ro_name\n#\n# This script has been built specifica
 	if($detailed_output){printf( "Checking for reports\n");}
 	$log = $log . "Checking for reports\n";
 	my $reportexist;
-	my $reportdir = "$lesdir/$ro_dir/pkg/reports";
+	my $reportdir = "$LESDIR/$ro_dir/pkg/reports";
 	#find({ wanted => \&writereport, no_chdir} => \&nochdir, $reportdir);
 	find(\&writereport, $reportdir);
 	sub writereport
@@ -942,7 +942,7 @@ my $ro_script = "# Extension $ro_name\n#\n# This script has been built specifica
 	if($detailed_output){printf( "Checking for Low Priority MSQL (database changes) files\n");}
 	$log = $log . "Checking for Low Priority MSQL (database changes) files\n";
 	my $msqlexist;
-	my $msqldir = "$lesdir/$ro_dir/pkg/db/ddl/afterrun";
+	my $msqldir = "$LESDIR/$ro_dir/pkg/db/ddl/afterrun";
 	#find({ wanted => \&writemsql, preprocess => \&preprocess, no_chdir} => \&nochdir, $msqldir);
 	find(\&writemsql, \&preprocess, $msqldir);
     sub preprocess
@@ -986,7 +986,7 @@ my $ro_script = "# Extension $ro_name\n#\n# This script has been built specifica
 		#remove any previous creations of readme file
 		if($detailed_output){printf("Removing any previous creations of readme file\n\n");}
 		$log = $log . "Removing any previous creations of readme file\n\n";
-		unlink("$lesdir/$ro_dir/README.txt");
+		unlink("$LESDIR/$ro_dir/README.txt");
 
 		#write rollout script
 		if($detailed_output){printf("Creating README file\n\n");}
@@ -1000,12 +1000,12 @@ my $ro_script = "# Extension $ro_name\n#\n# This script has been built specifica
 		$next_line = $next_line . $curdate;
 		$readme_text = $readme_text . $next_line . "\n================================================================================\n";
 		$readme_text = $readme_text . "\n" . $issue_text . "\n\n" . $component_text . "\n\n" . $remove_text . "\n\n" . $notes_text . "\n\n";
-		$readme_text = $readme_text . "================================================================================\n               W I N D O W S   I N S T A L L A T I O N   N O T E S             \n================================================================================\n\n    1.  Start a Windows command prompt as an Administrator user\n\n    2.  Set Visual C++ environment variables.\n\n        You will first have to change to the Visual C++ bin directory if it \n       isn't in your search path.\n\n        vcvars32.bat\n\n    3.  Set RedPrairie environment variables.\n\n        cd %LESDIR%\\data\n        ..\\moca\\bin\\servicemgr /env=<environment name> /dump\n        env.bat\n\n        Note: If you know your env.bat file is current you can omit this step,\n              if you are not sure then rebuild one.\n\n    4.  Shutdown the RedPrairie instance:  \n\n        NON-CLUSTERED Environment\n\n        *** IMPORTANT ***\n        If you are on a production system, make sure the development system \n        whose drive has been mapped to the system being modified has also been \n        shutdown to avoid sharing violations.\n\n        net stop moca.<environment name>\n\n        (Or use the Windows Services snap-in to stop the RedPrairie service.\n\n        CLUSTERED Environment\n       \n        If you are running under a Windows Server Cluster, you must use the\n        Microsoft Cluster Administrator to stop the RedPrairie Service.\n\n    5.  Copy the rollout distribution file into the environment's rollout \n        directory.\n\n        cd -d %LESDIR%\\rollouts\n        copy <SOURCE_DIR>\\".$ro_name.".zip .\n\n    6.  Uncompress the distribution file using your preferred unzip utility  \n\n        Make sure you extract all the files to a folder called ".$ro_name.".\n\n    7.  Install the rollout.\n\n        perl -S rollout.pl ".$ro_name."\n\n    8.  Start up the RedPrairie instance:\n\n        NON-CLUSTERED Environment\n       \n        net start moca.<environment name>\n\n        (Or use the Windows Services snap-in to restart the RedPrairie service.\n\n        CLUSTERED Environment\n\n        If you are running under a Windows Server Cluster, you must use the\n        Microsoft Cluster Administrator to start the RedPrairie Service.\n\n\n================================================================================\n                 U N I X   I N S T A L L A T I O N   N O T E S             \n================================================================================\n\n    1.  Login as the Logistics Suite environment's administrator.\n\n        ssh <user>@<hostname>\n\n    2.  Shutdown the RedPrairie instance:\n\n        rp stop\n  \n    3.  Copy the rollout distribution file into the environment's rollout \n        directory.\n\n        cd $lesdir/rollouts\n        cp <SOURCE_DIR>//".$ro_name.".tar .\n\n    4.  Untar the rollout archive file using tar.\n\n        tar -xvfz ".$ro_name.".tar \n\n    5.  Install the rollout.\n\n        perl -S rollout.pl ".$ro_name."\n\n    6.  Start up the RedPrairie instance:\n\n        rp start\n\n================================================================================\n";
-		open(OUTF, ">>$lesdir/$ro_dir/README.txt");
+		$readme_text = $readme_text . "================================================================================\n               W I N D O W S   I N S T A L L A T I O N   N O T E S             \n================================================================================\n\n    1.  Start a Windows command prompt as an Administrator user\n\n    2.  Set Visual C++ environment variables.\n\n        You will first have to change to the Visual C++ bin directory if it \n       isn't in your search path.\n\n        vcvars32.bat\n\n    3.  Set RedPrairie environment variables.\n\n        cd %LESDIR%\\data\n        ..\\moca\\bin\\servicemgr /env=<environment name> /dump\n        env.bat\n\n        Note: If you know your env.bat file is current you can omit this step,\n              if you are not sure then rebuild one.\n\n    4.  Shutdown the RedPrairie instance:  \n\n        NON-CLUSTERED Environment\n\n        *** IMPORTANT ***\n        If you are on a production system, make sure the development system \n        whose drive has been mapped to the system being modified has also been \n        shutdown to avoid sharing violations.\n\n        net stop moca.<environment name>\n\n        (Or use the Windows Services snap-in to stop the RedPrairie service.\n\n        CLUSTERED Environment\n       \n        If you are running under a Windows Server Cluster, you must use the\n        Microsoft Cluster Administrator to stop the RedPrairie Service.\n\n    5.  Copy the rollout distribution file into the environment's rollout \n        directory.\n\n        cd -d %LESDIR%\\rollouts\n        copy <SOURCE_DIR>\\".$ro_name.".zip .\n\n    6.  Uncompress the distribution file using your preferred unzip utility  \n\n        Make sure you extract all the files to a folder called ".$ro_name.".\n\n    7.  Install the rollout.\n\n        perl -S rollout.pl ".$ro_name."\n\n    8.  Start up the RedPrairie instance:\n\n        NON-CLUSTERED Environment\n       \n        net start moca.<environment name>\n\n        (Or use the Windows Services snap-in to restart the RedPrairie service.\n\n        CLUSTERED Environment\n\n        If you are running under a Windows Server Cluster, you must use the\n        Microsoft Cluster Administrator to start the RedPrairie Service.\n\n\n================================================================================\n                 U N I X   I N S T A L L A T I O N   N O T E S             \n================================================================================\n\n    1.  Login as the Logistics Suite environment's administrator.\n\n        ssh <user>@<hostname>\n\n    2.  Shutdown the RedPrairie instance:\n\n        rp stop\n  \n    3.  Copy the rollout distribution file into the environment's rollout \n        directory.\n\n        cd $LESDIR/rollouts\n        cp <SOURCE_DIR>//".$ro_name.".tar .\n\n    4.  Untar the rollout archive file using tar.\n\n        tar -xvfz ".$ro_name.".tar \n\n    5.  Install the rollout.\n\n        perl -S rollout.pl ".$ro_name."\n\n    6.  Start up the RedPrairie instance:\n\n        rp start\n\n================================================================================\n";
+		open(OUTF, ">>$LESDIR/$ro_dir/README.txt");
 		print OUTF $readme_text;
 		close(OUTF);
-		$log = $log . "Created README file in $lesdir/$ro_dir \n\n";
-		printf("Created README file in $lesdir/$ro_dir \n\n");
+		$log = $log . "Created README file in $LESDIR/$ro_dir \n\n";
+		printf("Created README file in $LESDIR/$ro_dir \n\n");
 	}
     
     
@@ -1022,17 +1022,17 @@ my $ro_script = "# Extension $ro_name\n#\n# This script has been built specifica
 	#remove any previous creations of rollout script
 	if($detailed_output){printf("Removing any previous creations of rollout script $ro_name\n\n");}
 	$log = $log . "Removing any previous creations of rollout script $ro_name\n\n";
-	unlink("$lesdir/$ro_dir/$ro_name");
+	unlink("$LESDIR/$ro_dir/$ro_name");
 
 	#write rollout script
 	if($detailed_output){printf("Creating rollout script $ro_name\n\n");}
 	$log = $log . "Creating rollout script $ro_name\n\n";
-	open(OUTF, ">>$lesdir/$ro_dir/$ro_name");
+	open(OUTF, ">>$LESDIR/$ro_dir/$ro_name");
 	print OUTF $ro_script . "\n" . $replacetext . "\n". $rotext . "\n"  . $remove_ro_text . "\n" . $runhighsqltext . "\n" . $loaddatatext . "\n" . $importsldatatext . "\n" . $runlowsqltext . "\n" . $rebuildpretext . "\n" . $rebuildtext . "\n" . $mbuildtext . "\n" . "#END OF SCRIPT";
 	close(OUTF);
 	
-	$log = $log . "Created Rollout file $ro_name in $lesdir/$ro_dir \n\n";
-	printf("Created Rollout file $ro_name in $lesdir/$ro_dir \n\n");
+	$log = $log . "Created Rollout file $ro_name in $LESDIR/$ro_dir \n\n";
+	printf("Created Rollout file $ro_name in $LESDIR/$ro_dir \n\n");
 
 	#####################################################################
 	# Tar up directory - if -p parameter passed in
@@ -1044,25 +1044,25 @@ my $ro_script = "# Extension $ro_name\n#\n# This script has been built specifica
 
 		if($detailed_output){printf("Removing any previous creations of tar file $ro_name.tar\n\n");}
 		$log = $log . "Removing any previous creations of tar file $ro_name.tar\n\n";
-		unlink("$lesdir/$rodirup/$ro_name.tar");
+		unlink("$LESDIR/$rodirup/$ro_name.tar");
 					
 		if($detailed_output){printf("Tarring directory <$ro_dir> to $ro_name.tar\n\n");}
 		$log = $log . "Tarring directory <$ro_dir> to $ro_name.tar\n\n";
 
-		chdir("$lesdir/$rodirup");
+		chdir("$LESDIR/$rodirup");
 		system("tar -cvf $ro_name.tar $ro_name>>tmp.txt");
 		unlink("tmp.txt");
 		
-		$log = $log . "Created Tar file $ro_name.tar in $lesdir/$rodirup \n\n";
-		printf("Created Tar file $ro_name.tar in $lesdir/$rodirup \n\n");
+		$log = $log . "Created Tar file $ro_name.tar in $LESDIR/$rodirup \n\n";
+		printf("Created Tar file $ro_name.tar in $LESDIR/$rodirup \n\n");
 	}
 	
 	if($logfile)
 	{
-		if($detailed_output){printf("Writing to log file $lesdir/log/$logfile\n\n");}
-		$log = $log . "Writing to log file $lesdir/log/$logfile\n\n";
+		if($detailed_output){printf("Writing to log file $LESDIR/log/$logfile\n\n");}
+		$log = $log . "Writing to log file $LESDIR/log/$logfile\n\n";
 
-		open(OUTLOG, ">>$lesdir/log/$logfile");
+		open(OUTLOG, ">>$LESDIR/log/$logfile");
 		print OUTLOG $log;
 		close(OUTLOG);
 	}
@@ -1080,7 +1080,7 @@ getopts('g:t:d:r:l:ohn:fpbm', \%opts);
 
 # get the arguments
 $s = $opts{g} if defined($opts{g}); #list of modified files
-$lesdir = $opts{t} if defined($opts{t}); #LESDIR
+$LESDIR = $opts{t} if defined($opts{t}); #LESDIR
 $ro = $opts{r} if defined($opts{r}); #-r - required - rollout input file
 $ro_dir = $opts{d} if defined($opts{d}); #-d - required - directory where the rollout input file is located
 $logfile = $opts{l} if defined($opts{l});
@@ -1129,7 +1129,7 @@ if(!$ro)
 		$log = "ERROR! -r rollout file must be defined!\n\n";
 		if($logfile)
 		{
-			open(OUTF, ">>$lesdir/log/$logfile");
+			open(OUTF, ">>$LESDIR/log/$logfile");
 			print OUTF $log;
 		}
 		show_usage();
@@ -1145,19 +1145,19 @@ if(!$ro)
 if($ro_dir)
 {
 	$orig_dir = $ro_dir;
-	$ro_dir = $lesdir . "/" . $ro_dir . "/";
+	$ro_dir = $LESDIR . "/" . $ro_dir . "/";
 }
 else
 {
-	if(!-d $lesdir . "/" . "rollout")
+	if(!-d $LESDIR . "/" . "rollout")
 	{
 		$orig_dir = "rollouts";
-		$ro_dir = $lesdir . "/rollouts/";
+		$ro_dir = $LESDIR . "/rollouts/";
 	}
 	else
 	{
 		$orig_dir = "rollout";
-		$ro_dir = $lesdir . "/rollout/";
+		$ro_dir = $LESDIR . "/rollout/";
 	}
 }
 
@@ -1199,7 +1199,7 @@ if(!$ro_name)
 		$log = "ERROR! -n rollout name must be defined!\n\n";
 		if($logfile)
 		{
-			open(OUTF, ">>$lesdir/log/$logfile");
+			open(OUTF, ">>$LESDIR/log/$logfile");
 			print OUTF $log;
 		}
 		show_usage();
@@ -1208,11 +1208,11 @@ if(!$ro_name)
 }
 
 # logging
-if($detailed_output){printf( "Creating Rollout Directory \n\nCurrent Time: " . localtime() . "\n\nOptions\nRollout Directory = $ro_dir$ro_name\nlogfile = $logfile\n\nEnvironment:\nLESDIR = $lesdir\nLog directory=$lesdir\log\nRollout Name = $ro_name\n\n");}
-$log = $log . "Creating Rollout Directory \n\nCurrent Time: " . localtime() . "\n\nOptions\nRollout Directory = $ro_dir$ro_name\nlogfile = $logfile\n\nEnvironment:\nLESDIR = $lesdir\nLog directory=$lesdir\log\nRollout Name = $ro_name\n\n";
+if($detailed_output){printf( "Creating Rollout Directory \n\nCurrent Time: " . localtime() . "\n\nOptions\nRollout Directory = $ro_dir$ro_name\nlogfile = $logfile\n\nEnvironment:\nLESDIR = $LESDIR\nLog directory=$LESDIR\log\nRollout Name = $ro_name\n\n");}
+$log = $log . "Creating Rollout Directory \n\nCurrent Time: " . localtime() . "\n\nOptions\nRollout Directory = $ro_dir$ro_name\nlogfile = $logfile\n\nEnvironment:\nLESDIR = $LESDIR\nLog directory=$LESDIR\log\nRollout Name = $ro_name\n\n";
 
 create_ro_dir($ro_dir);
-#move("$lesdir/$SrcInputFile", "$ro_dir") or die "Move failed: $!";
+#move("$LESDIR/$SrcInputFile", "$ro_dir") or die "Move failed: $!";
 
 printf("Check if Input File   $ro_dir.$ro Exists");
 # Check if the Input File exists
@@ -1308,13 +1308,13 @@ if (!-e  $ro_dir.$ro)
 		}
 	} 
 	close($vInputFile); 
-        printf("Moving $lesdir/$SrcInputFile into $ro_dir\n");
+        printf("Moving $LESDIR/$SrcInputFile into $ro_dir\n");
 	#eval { make_path($ro_dir,{mode => 0777}) };
 	#if ($@) {
 	#  print "Couldn't create $ro_dir: $@";
 	#}
         unless( -e $ro_dir ) {  print "Path $ro_dir doesn't exist"; };
-	move("$lesdir/$SrcInputFile", "$ro_dir") or die "Move failed: $!";
+	move("$LESDIR/$SrcInputFile", "$ro_dir") or die "Move failed: $!";
         printf("$SrcInputFile moved\n");
 } # done creating input file
 printf("Validating $SrcInputFile\n");
@@ -1325,7 +1325,7 @@ if (!-e "$ro_dir$ro")
 	$log = "ERROR! rollout file ($ro_dir$ro) does not exist\n\n";
 	if($logfile)
 	{
-		open(OUTF, ">>$lesdir/log/$logfile");
+		open(OUTF, ">>$LESDIR/log/$logfile");
 		print OUTF $log;
 	}
 	show_usage();
@@ -1344,7 +1344,7 @@ if(-d $ro_dir . $ro_name && !$force_delete)
 	$errors_exist = 1;
 	if($logfile)
 	{
-		open(OUTF, ">>$lesdir/log/$logfile");
+		open(OUTF, ">>$LESDIR/log/$logfile");
 		print OUTF $log;
 	}
 	exit 0;
