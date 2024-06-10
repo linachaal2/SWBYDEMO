@@ -42,7 +42,7 @@ jobs:
           echo "ROLLOUT_NUMBER_VALUE=${{needs.b.outputs.NEW_BRANCH_ROLLOUT_NUMBER}}"  
          else
           echo "Current ROLLOUT_NUMBER_VALUE"
-          echo "ROLLOUT_NUMBER_VALUE=${{needs.a.outputs.CURRENT_BRANCH_ROLLOUT_NUMBER}}
+          echo "ROLLOUT_NUMBER_VALUE=${{needs.a.outputs.CURRENT_BRANCH_ROLLOUT_NUMBER}}"
          fi 
     # - run: echo ${{needs.a.outputs.CURRENT_BRANCH_ROLLOUT_NUMBER}}
     #  - run: echo ${{needs.b.outputs.NEW_BRANCH_ROLLOUT_NUMBER}}
