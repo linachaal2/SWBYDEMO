@@ -116,28 +116,40 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: echo "A"
-      - id: set
+      - id: CurRolloutNumberEX
         run: |
-         NEW_BRANCH_ROLLOUT_NUMBER="X"
-         echo "NEW_BRANCH_ROLLOUT_NUMBER='X'" >> "$GITHUB_OUTPUT"
-         echo "NEW_BRANCH_ROLLOUT_NUMBER : $NEW_BRANCH_ROLLOUT_NUMBER"
+         CURRENT_BRANCH_ROLLOUT_NUMBER="X"
+         echo "CURRENT_BRANCH_ROLLOUT_NUMBER='X'" >> "$GITHUB_OUTPUT"
+         echo "CURRENT_BRANCH_ROLLOUT_NUMBER : $CURRENT_BRANCH_ROLLOUT_NUMBER"
         #  echo "run_job_b='hello world'" >> $GITHUB_OUTPUT
     outputs:
-      run_job_b: ${{ steps.set.outputs.NEW_BRANCH_ROLLOUT_NUMBER }}
+      CURRENT_BRANCH_ROLLOUT_NUMBER: ${{ steps.CurRolloutNumberEX.outputs.CURRENT_BRANCH_ROLLOUT_NUMBER }}
   b:
     name: b
     runs-on: ubuntu-latest
     needs: a
-    if: contains(needs.a.outputs.run_job_b, 'X')
+    if: contains(needs.a.outputs.CURRENT_BRANCH_ROLLOUT_NUMBER, 'X')
     steps:
-      - run: echo "B"
+      - id: NewRolloutNumberEX
+        run: |
+         echo "B"
+         NEW_BRANCH_ROLLOUT_NUMBER="100"
+         echo "NEW_BRANCH_ROLLOUT_NUMBER='100'" >> "$GITHUB_OUTPUT"
+         echo "NEW_BRANCH_ROLLOUT_NUMBER : $NEW_BRANCH_ROLLOUT_NUMBER"
+    outputs:
+      NEW_BRANCH_ROLLOUT_NUMBER: ${{ steps.NewRolloutNumberEX.outputs.NEW_BRANCH_ROLLOUT_NUMBER }}    
   c:
     name: c
     runs-on: ubuntu-latest
     needs: [a,b]
     if: always() && !cancelled() && contains(needs.*.result, 'success')
     steps:
-      - run: echo "C"
-      - run: echo ${{needs.a.outputs.run_job_b}}
-    
-   
+      - run: |
+         echo "C"
+         if ${{ needs.b.outputs.NEW_BRANCH_ROLLOUT_NUMBER != '' }}; then
+          echo "NEW ROLLOUT_NUMBER_VALUE is created"
+          echo "ROLLOUT_NUMBER_VALUE=${{needs.b.outputs.NEW_BRANCH_ROLLOUT_NUMBER}}"  
+         else
+          echo "Current ROLLOUT_NUMBER_VALUE"
+          echo "ROLLOUT_NUMBER_VALUE=${{needs.a.outputs.CURRENT_BRANCH_ROLLOUT_NUMBER}}"
+         fi 
