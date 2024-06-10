@@ -49,8 +49,8 @@ jobs:
         #  echo "run_job_b='hello world'" >> $GITHUB_OUTPUT
     outputs:
       CURRENT_BRANCH_ROLLOUT_NUMBER: ${{ steps.CurRolloutNumberEX.outputs.CURRENT_BRANCH_ROLLOUT_NUMBER }}
-  b:
-    name: b
+  GettingANewRolloutNumberJob:
+    name: GettingANewRolloutNumberJob
     runs-on: macos-latest
     needs: GetBranchRolloutNumberJob
     if: contains(needs.GetBranchRolloutNumberJob.outputs.CURRENT_BRANCH_ROLLOUT_NUMBER, 'X')
@@ -76,7 +76,7 @@ jobs:
         run: cpanm -v XML::LibXML
       - id: NewRolloutNumber
         run: |
-         echo "B"
+         echo "GettingANewRolloutNumberJob"
          NEW_BRANCH_ROLLOUT_NUMBER="$(perl ${{ github.workspace }}/scripts/parseXMLfile.pl  -b "NEWBRANCH"  -f "${{ github.workspace }}/scripts/rollout_gen/generic/rollout_settings.xml")"
          echo "NEW_BRANCH_ROLLOUT_NUMBER : $NEW_BRANCH_ROLLOUT_NUMBER"
          echo "NEW_BRANCH_ROLLOUT_NUMBER=$NEW_BRANCH_ROLLOUT_NUMBER" >> "$GITHUB_OUTPUT"
@@ -91,14 +91,14 @@ jobs:
   c:
     name: c
     runs-on: macos-latest
-    needs: [GetBranchRolloutNumberJob,b]
+    needs: [GetBranchRolloutNumberJob,GettingANewRolloutNumberJob]
     if: always() && !cancelled() && contains(needs.*.result, 'success')
     steps:
       - run: |
          echo "C"
-         if ${{ needs.b.outputs.NEW_BRANCH_ROLLOUT_NUMBER != '' }}; then
+         if ${{ needs.GettingANewRolloutNumberJob.outputs.NEW_BRANCH_ROLLOUT_NUMBER != '' }}; then
           echo "NEW ROLLOUT_NUMBER_VALUE is created"
-          echo "ROLLOUT_NUMBER_VALUE=${{needs.b.outputs.NEW_BRANCH_ROLLOUT_NUMBER}}"  
+          echo "ROLLOUT_NUMBER_VALUE=${{needs.GettingANewRolloutNumberJob.outputs.NEW_BRANCH_ROLLOUT_NUMBER}}"  
          else
           echo "Current ROLLOUT_NUMBER_VALUE"
           echo "ROLLOUT_NUMBER_VALUE=${{needs.GetBranchRolloutNumberJob.outputs.CURRENT_BRANCH_ROLLOUT_NUMBER}}"
