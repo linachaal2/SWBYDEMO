@@ -10,7 +10,7 @@ jobs:
       - id: CurRolloutNumberEX
         run: |
          CURRENT_BRANCH_ROLLOUT_NUMBER="X"
-         echo "CURRENT_BRANCH_ROLLOUT_NUMBER='400'" >> "$GITHUB_OUTPUT"
+         echo "CURRENT_BRANCH_ROLLOUT_NUMBER='X'" >> "$GITHUB_OUTPUT"
          echo "CURRENT_BRANCH_ROLLOUT_NUMBER : $CURRENT_BRANCH_ROLLOUT_NUMBER"
         #  echo "run_job_b='hello world'" >> $GITHUB_OUTPUT
     outputs:
