@@ -171,16 +171,20 @@ jobs:
     needs: [GetBranchRolloutNumberJob,GettingANewRolloutNumberJob]
     if: always() && !cancelled() && contains(needs.*.result, 'success')
     steps:
-      - run: |
+      - id: UseRolloutNumber
+        run: |
          echo "Call =========> CreatingRolloutPackageJob"
          if ${{ needs.GettingANewRolloutNumberJob.outputs.NEW_BRANCH_ROLLOUT_NUMBER != '' }}; then
           echo "NEW ROLLOUT_NUMBER_VALUE is created"
-          echo "NEW_BRANCH_ROLLOUT_NUMBER=${{needs.GettingANewRolloutNumberJob.outputs.NEW_BRANCH_ROLLOUT_NUMBER}}"  
+          echo "USE_ROLLOUT_NUMBER=${{needs.GettingANewRolloutNumberJob.outputs.NEW_BRANCH_ROLLOUT_NUMBER}}" >> "$GITHUB_OUTPUT"
          else
           echo "Current ROLLOUT_NUMBER_VALUE"
-          echo "CURRENT_BRANCH_ROLLOUT_NUMBER=${{needs.GetBranchRolloutNumberJob.outputs.CURRENT_BRANCH_ROLLOUT_NUMBER}}"
-          echo "NEW_TAG=${{needs.GetBranchRolloutNumberJob.outputs.NEW_TAG}}"
-          echo "HASH_BUMP_VALUE=${{needs.GetBranchRolloutNumberJob.outputs.HASH_BUMP_VALUE}}"
-          echo "BRANCH_NAME=${{needs.GetBranchRolloutNumberJob.outputs.BRANCH_NAME}}"
-          echo "CUSTOMER_NAME=${{needs.GetBranchRolloutNumberJob.outputs.CUSTOMER_NAME}}"
+          echo "USE_ROLLOUT_NUMBER=${{needs.GetBranchRolloutNumberJob.outputs.CURRENT_BRANCH_ROLLOUT_NUMBER}}" >> "$GITHUB_OUTPUT"
          fi 
+      - name:  Print Parameters
+        run: |    
+         echo "NEW_TAG=${{needs.GetBranchRolloutNumberJob.outputs.NEW_TAG}}"
+         echo "HASH_BUMP_VALUE=${{needs.GetBranchRolloutNumberJob.outputs.HASH_BUMP_VALUE}}"
+         echo "BRANCH_NAME=${{needs.GetBranchRolloutNumberJob.outputs.BRANCH_NAME}}"
+         echo "CUSTOMER_NAME=${{needs.GetBranchRolloutNumberJob.outputs.CUSTOMER_NAME}}"
+         echo "USE_ROLLOUT_NUMBER= ${{ steps.UseRolloutNumber.outputs.USE_ROLLOUT_NUMBER }} "
