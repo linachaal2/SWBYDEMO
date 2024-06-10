@@ -192,8 +192,8 @@ jobs:
           echo "NEW ROLLOUT_NUMBER_VALUE is created"
           echo "ROLLOUT_NUMBER_VALUE=${{needs.GettingANewRolloutNumberJob.outputs.NEW_BRANCH_ROLLOUT_NUMBER}}"  
          else
-          echo "Current ROLLOUT_NUMBER_VALUE"
-          echo "ROLLOUT_NUMBER_VALUE=${{ needs.GetBranchRolloutNumberJob.outputs.CURRENT_BRANCH_ROLLOUT_NUMBER }}"
+          echo "Using Current ROLLOUT_NUMBER_VALUE"
+          echo "ROLLOUT_NUMBER_VALUE=${{needs.GetBranchRolloutNumberJob.outputs.CURRENT_BRANCH_ROLLOUT_NUMBER}}"
          fi 
     
         
