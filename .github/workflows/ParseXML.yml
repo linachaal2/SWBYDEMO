@@ -97,19 +97,11 @@ jobs:
       run: |   
          echo "Current Branch Rollout Number: ${{ steps.getCurrentBranchRolloutNumber.outputs.info }}"
          echo "CURRENT_BRANCH_ROLLOUT_NUMBER = ${{ steps.getCurrentBranchRolloutNumber.outputs.info }}"  >> $GITHUB_OUTPUT
-    
-   # - name: Get the highest rollout number 
-   #   shell: bash
-   #   run: |
-   #     if ${{ steps.CurrentBranchRolloutNumber.outputs.CURRENT_BRANCH_ROLLOUT_NUMBER != 'X' }}; then
-    #      echo "ROLLOUT_NUMBER_VALUE=${{ steps.CurrentBranchRolloutNumber.outputs.CURRENT_BRANCH_ROLLOUT_NUMBER }}"  
-    #    else
-    #      echo "Need to get the highest rollout number"
-    #      echo "ROLLOUT_NUMBER_VALUE='X'" 
-    #    fi 
+         echo "CURRENT_BRANCH_ROLLOUT_NUMBER : $CURRENT_BRANCH_ROLLOUT_NUMBER"
     outputs:
       CURRENT_BRANCH_ROLLOUT_NUMBER: ${{ steps.CurrentBranchRolloutNumber.outputs.CURRENT_BRANCH_ROLLOUT_NUMBER }}
      # BRANCH_NAME: ${{ steps.CurrentBranchName.outputs.BRANCH_NAME }}
+     
 
 #########################################################################################
 #                      GettingANewRolloutNumberJob                                      #
