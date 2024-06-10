@@ -98,7 +98,7 @@ jobs:
       - name:  Print Branch Name 
         shell: bash
         run: |  
-          echo "BRANCH_NAME=${{ steps.saveBranchName.outputs.BRANCH_NAME }}"      
+          echo "BRANCH_NAME=${{ steps.CurrentBranchName.outputs.BRANCH_NAME }}"      
       # Validate the rollout number for current branch
       - name: Parse BranchRolloutNumber XML
         id: getCurrentBranchRolloutNumberEX
@@ -124,7 +124,7 @@ jobs:
       CURRENT_BRANCH_ROLLOUT_NUMBER: ${{ steps.CurRolloutNumberEX.outputs.CURRENT_BRANCH_ROLLOUT_NUMBER }}
       NEW_TAG: ${{ steps.taggerDryRun.outputs.new_tag }}
       HASH_BUMP_VALUE: ${{ steps.get_release_bump_type.outputs.HASH_BUMP_VALUE }}
-      BRANCH_NAME: ${{ steps.saveBranchName.outputs.BRANCH_NAME }}
+      BRANCH_NAME: ${{ github.head_ref }}
       CUSTOMER_NAME: ${{ steps.get_customer-name.outputs.CUSTOMER_NAME }}
   GettingANewRolloutNumberJob:
     name: GettingANewRolloutNumberJob
