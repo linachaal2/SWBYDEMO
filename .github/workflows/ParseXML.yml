@@ -111,7 +111,15 @@ jobs:
          echo "CURRENT_BRANCH_ROLLOUT_NUMBER : $CURRENT_BRANCH_ROLLOUT_NUMBER"
     outputs:
       CURRENT_BRANCH_ROLLOUT_NUMBER: ${{ steps.CurrentBranchRolloutNumber.outputs.CURRENT_BRANCH_ROLLOUT_NUMBER }}
-     
+
+  CreatingRolloutPackageJobS:
+    name: CreatingRolloutPackageJobS
+    runs-on: macos-latest
+    needs: [GetBranchRolloutNumberJob]
+    if: always() && !cancelled() && contains(needs.*.result, 'success')
+   
+    steps:
+      - run: echo ${{needs.GetBranchRolloutNumberJob.outputs.CURRENT_BRANCH_ROLLOUT_NUMBER}}     
 
 #########################################################################################
 #                      GettingANewRolloutNumberJob                                      #
