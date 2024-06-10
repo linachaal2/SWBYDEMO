@@ -46,8 +46,13 @@ jobs:
          fi 
     # - run: echo ${{needs.a.outputs.CURRENT_BRANCH_ROLLOUT_NUMBER}}
     #  - run: echo ${{needs.b.outputs.NEW_BRANCH_ROLLOUT_NUMBER}}
-  GetBranchRolloutNumber:
-    name: GetBranchRolloutNumber
+
+#########################################################################################
+#                      GetBranchRolloutNumberJob                                        #
+#########################################################################################
+    
+  GetBranchRolloutNumberJob:
+    name: GetBranchRolloutNumberJob
     runs-on: macos-latest #ubuntu-latest #ubuntu-22.04
     strategy:
       fail-fast: false
@@ -106,15 +111,18 @@ jobs:
       CURRENT_BRANCH_ROLLOUT_NUMBER: ${{ steps.CurrentBranchRolloutNumber.outputs.CURRENT_BRANCH_ROLLOUT_NUMBER }}
      # BRANCH_NAME: ${{ steps.CurrentBranchName.outputs.BRANCH_NAME }}
 
+#########################################################################################
+#                      GettingANewRolloutNumberJob                                      #
+#########################################################################################
   GettingANewRolloutNumberJob:
     name: GettingANewRolloutNumberJob
-    needs: GetBranchRolloutNumber
-    if: contains(needs.GetBranchRolloutNumber.outputs.CURRENT_BRANCH_ROLLOUT_NUMBER,'X')
+    needs: GetBranchRolloutNumberJob
+    if: contains(needs.GetBranchRolloutNumberJob.outputs.CURRENT_BRANCH_ROLLOUT_NUMBER,'X')
     runs-on: macos-latest
     steps:
       - name: Check out the repository to the runner
         uses: actions/checkout@v4
-      - run: echo  ${{needs.GetBranchRolloutNumber.outputs.CURRENT_BRANCH_ROLLOUT_NUMBER}}
+      - run: echo  ${{needs.GetBranchRolloutNumberJob.outputs.CURRENT_BRANCH_ROLLOUT_NUMBER}}
      # checkout main branch 
       
     #brew install libxml2
@@ -160,10 +168,12 @@ jobs:
     outputs:
       NEW_BRANCH_ROLLOUT_NUMBER: ${{ steps.NewRolloutNumber.outputs.NEW_BRANCH_ROLLOUT_NUMBER }} 
 
-   
+#########################################################################################
+#                       CreatingRolloutPackageJob                                       #
+#########################################################################################   
   CreatingRolloutPackageJob:
     name: CreatingRolloutPackageJob
-    needs: [GetBranchRolloutNumber,GettingANewRolloutNumberJob]
+    needs: [GetBranchRolloutNumberJob,GettingANewRolloutNumberJob]
     if: always() && !cancelled() && contains(needs.*.result, 'success')
     runs-on: macos-latest
     steps:
@@ -173,7 +183,7 @@ jobs:
           echo "ROLLOUT_NUMBER_VALUE=${{needs.GettingANewRolloutNumberJob.outputs.NEW_BRANCH_ROLLOUT_NUMBER}}"  
          else
           echo "Current ROLLOUT_NUMBER_VALUE"
-          echo "ROLLOUT_NUMBER_VALUE=${{ needs.GetBranchRolloutNumber.outputs.CURRENT_BRANCH_ROLLOUT_NUMBER }}"
+          echo "ROLLOUT_NUMBER_VALUE=${{ needs.GetBranchRolloutNumberJob.outputs.CURRENT_BRANCH_ROLLOUT_NUMBER }}"
          fi 
     
         
