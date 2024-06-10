@@ -19,7 +19,7 @@
         <dir_db_upgrade>db/upgrade/</dir_db_upgrade>	
 		<dir_db_upgrade_major>2021</dir_db_upgrade_major>  <!-- WMS version -->
 		<dir_db_upgrade_minor>1</dir_db_upgrade_minor>     <!-- WMS version -->
-		<dir_db_upgrade_rollout_number>003</dir_db_upgrade_rollout_number> <!-- Highest Rollout number updated for the whole repository, LES version -->
+		<dir_db_upgrade_rollout_number>037</dir_db_upgrade_rollout_number> <!-- Highest Rollout number updated for the whole repository, LES version -->
     </paths>
 	<branches>
 		<branche-info>
