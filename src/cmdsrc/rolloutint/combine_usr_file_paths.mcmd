@@ -1,6 +1,6 @@
 <command>
   <name>combine usr file paths</name>
-  <description>combine             usr file paths</description>
+  <description>combine              usr file paths</description>
   <type>Local Syntax</type>
   <local-syntax>
 <![CDATA[
