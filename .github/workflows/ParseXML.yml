@@ -118,7 +118,6 @@ jobs:
          echo "CURRENT_BRANCH_ROLLOUT_NUMBER : $CURRENT_BRANCH_ROLLOUT_NUMBER"
     outputs:
       CURRENT_BRANCH_ROLLOUT_NUMBER: ${{ steps.CurrentBranchRolloutNumber.outputs.CURRENT_BRANCH_ROLLOUT_NUMBER }}
-     # BRANCH_NAME: ${{ steps.CurrentBranchName.outputs.BRANCH_NAME }}
      
 
 #########################################################################################
@@ -132,49 +131,14 @@ jobs:
     steps:
       - name: Check out the repository to the runner
         uses: actions/checkout@v4
-      - run: echo  ${{needs.GetBranchRolloutNumberJob.outputs.CURRENT_BRANCH_ROLLOUT_NUMBER}}
-     # checkout main branch 
-      
-    #brew install libxml2
-   # - name: Update Homebrew formula
-   #   uses: dawidd6/action-homebrew-bump-formula@v3
-   #   with:
-        # Required, custom GitHub access token with the 'public_repo' and 'workflow' scopes
-   #     token: ${{ secrets.ACTIONS_KEY }}
-   #     formula: libxml2
-      - name: perl info
-        run: |
-          perl --version
-      - name: setup locallib
-        run: |
-          PERL_LOCAL_LIB_ROOT="$HOME/perl5"
-          >>"$GITHUB_ENV" echo "PERL_LOCAL_LIB_ROOT=$PERL_LOCAL_LIB_ROOT"
-          >>"$GITHUB_ENV" echo "PERL5LIB=$PERL_LOCAL_LIB_ROOT/lib/perl5"
-          >>"$GITHUB_ENV" echo "PERL_MB_OPT=--install_base \"$PERL_LOCAL_LIB_ROOT/\""
-          >>"$GITHUB_ENV" echo "PERL_MM_OPT=INSTALL_BASE=$PERL_LOCAL_LIB_ROOT"
-          >>"$GITHUB_ENV" echo "PATH=$PERL_LOCAL_LIB_ROOT/bin:$PATH"
-      - name: install cpanm
-        run: cpan App::cpanminus
-      - name: test cpanm
-        run: cpanm -v XML::LibXML
+      - run: echo  ${{needs.GetBranchRolloutNumberJob.outputs.CURRENT_BRANCH_ROLLOUT_NUMBER}}  
       - name: Parse Rollout Settings XML to get the New Rollout Number
         id: NewRolloutNumber
         run: |  
-         NEW_BRANCH_ROLLOUT_NUMBER="$(perl ${{ github.workspace }}/scripts/parseXMLfile.pl  -b "NEWBRANCH"  -f "${{ github.workspace }}/scripts/rollout_gen/generic/rollout_settings.xml")"
+         NEW_BRANCH_ROLLOUT_NUMBER="33"
          echo "NEW_BRANCH_ROLLOUT_NUMBER : $NEW_BRANCH_ROLLOUT_NUMBER"
          echo "NEW_BRANCH_ROLLOUT_NUMBER=$NEW_BRANCH_ROLLOUT_NUMBER" >> "$GITHUB_OUTPUT"
-      # echo "$(   $ROLNB)" >> "$GITHUB_OUTPUT"
-        #perl ${{ github.workspace }}/scripts/parseXMLfile.pl \
-        #     -b "NEWBRANCH" \
-         #    -f "${{ github.workspace }}/scripts/rollout_gen/generic/rollout_settings.xml"  >> $GITHUB_OUTPUT
-      #-b "${{ steps.saveBranchName.outputs.BRANCH_NAME }}" \
-      - name:  Print New Rollout Number
-        shell: bash
-        run: |  
-          echo "New Rollout Number = ${{ steps.NewRolloutNumber.outputs.ROLNB }}" 
-      # commit changes to main branch and switch to branch 
 
-      # set the new rollout number in the BranchRolloutNumber.xml
     outputs:
       NEW_BRANCH_ROLLOUT_NUMBER: ${{ steps.NewRolloutNumber.outputs.NEW_BRANCH_ROLLOUT_NUMBER }} 
 
