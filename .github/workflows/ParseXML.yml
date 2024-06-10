@@ -88,14 +88,14 @@ jobs:
           echo "New Rollout Number = ${{ steps.NewRolloutNumber.outputs.NEW_BRANCH_ROLLOUT_NUMBER }}"  
     outputs:
       NEW_BRANCH_ROLLOUT_NUMBER: ${{ steps.NewRolloutNumber.outputs.NEW_BRANCH_ROLLOUT_NUMBER }}    
-  c:
-    name: c
+  CreatingRolloutPackageJob:
+    name: CreatingRolloutPackageJob
     runs-on: macos-latest
     needs: [GetBranchRolloutNumberJob,GettingANewRolloutNumberJob]
     if: always() && !cancelled() && contains(needs.*.result, 'success')
     steps:
       - run: |
-         echo "C"
+         echo "CreatingRolloutPackageJob"
          if ${{ needs.GettingANewRolloutNumberJob.outputs.NEW_BRANCH_ROLLOUT_NUMBER != '' }}; then
           echo "NEW ROLLOUT_NUMBER_VALUE is created"
           echo "ROLLOUT_NUMBER_VALUE=${{needs.GettingANewRolloutNumberJob.outputs.NEW_BRANCH_ROLLOUT_NUMBER}}"  
