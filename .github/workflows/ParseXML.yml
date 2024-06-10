@@ -175,5 +175,5 @@ jobs:
          else
           echo "Current ROLLOUT_NUMBER_VALUE"
           echo "ROLLOUT_NUMBER_VALUE=${{needs.GetBranchRolloutNumberJob.outputs.CURRENT_BRANCH_ROLLOUT_NUMBER}}"
-          echo "NEW_TAG=${{needs.GetBranchRolloutNumberJob.outputs.NEW_TAG}}
+          echo "NEW_TAG=${{needs.GetBranchRolloutNumberJob.outputs.NEW_TAG}}"
          fi 
