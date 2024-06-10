@@ -234,12 +234,16 @@ jobs:
           path: ${{ github.workspace }}/rollout_gen/${{needs.GetBranchRolloutNumberJob.outputs.BRANCH_NAME}}/${{needs.GetBranchRolloutNumberJob.outputs.BRANCH_NAME}}-${{needs.GetBranchRolloutNumberJob.outputs.NEW_TAG}}.tar
       
       # Push and Commit the TAR file into the GIT repository
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
       - name: Push and Commit the TAR file into the GIT repository
         run: |
           # Stage the file, commit and push
           git config --global user.email ${{ github.actor }}[bot]@users.noreply.github.com
           git config --global user.name ${{ github.actor }}
-          git switch ${{needs.GetBranchRolloutNumberJob.outputs.BRANCH_NAME}}
+          git switch ${{ github.head_ref }}
           git add -f .
           git commit -m "Create package ${{needs.GetBranchRolloutNumberJob.outputs.BRANCH_NAME}}-${{needs.GetBranchRolloutNumberJob.outputs.NEW_TAG}}.tar "
           git push 
