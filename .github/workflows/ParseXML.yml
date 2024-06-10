@@ -78,11 +78,11 @@ jobs:
   GetBranchRolloutNumberJob:
     name: GetBranchRolloutNumberJob
     runs-on: macos-latest #ubuntu-latest #ubuntu-22.04
-    strategy:
-      fail-fast: false
-      matrix:
-        perl-version:
-          - 'latest'
+ #   strategy:
+#      fail-fast: false
+ #     matrix:
+  #      perl-version:
+  #        - 'latest'
 
     
     steps:
