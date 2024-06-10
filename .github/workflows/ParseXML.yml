@@ -77,14 +77,7 @@ jobs:
     
   GetBranchRolloutNumberJob:
     name: GetBranchRolloutNumberJob
-    runs-on: macos-latest #ubuntu-latest #ubuntu-22.04
- #   strategy:
-#      fail-fast: false
- #     matrix:
-  #      perl-version:
-  #        - 'latest'
-
-    
+    runs-on: macos-latest #ubuntu-latest #ubuntu-22.04    
     steps:
     - uses: actions/checkout@v4
       with:
@@ -147,19 +140,13 @@ jobs:
 #########################################################################################   
   CreatingRolloutPackageJob:
     name: CreatingRolloutPackageJob
+    runs-on: macos-latest
     needs: [GetBranchRolloutNumberJob,GettingANewRolloutNumberJob]
     if: always() && !cancelled() && contains(needs.*.result, 'success')
-    runs-on: macos-latest
+   
     steps:
       - run: echo ${{needs.GetBranchRolloutNumberJob.outputs.CURRENT_BRANCH_ROLLOUT_NUMBER}}
-      - run: |
-         if ${{ needs.GettingANewRolloutNumberJob.outputs.NEW_BRANCH_ROLLOUT_NUMBER != '' }}; then
-          echo "NEW ROLLOUT_NUMBER_VALUE is created"
-          echo "ROLLOUT_NUMBER_VALUE=${{needs.GettingANewRolloutNumberJob.outputs.NEW_BRANCH_ROLLOUT_NUMBER}}"  
-         else
-          echo "Using Current ROLLOUT_NUMBER_VALUE"
-          echo "ROLLOUT_NUMBER_VALUE=${{needs.GetBranchRolloutNumberJob.outputs.CURRENT_BRANCH_ROLLOUT_NUMBER}}"
-         fi 
+
     
         
       
