@@ -1,6 +1,12 @@
 name: Parsing XML
 on: workflow_dispatch
-
+permissions:
+  pull-requests: write
+  contents: write
+  
+concurrency:
+  group: '${{ github.workflow }} @ ${{ github.event.pull_request.head.label || github.head_ref || github.ref }}'
+  cancel-in-progress: true  
 jobs:
   a:
     name: a
@@ -77,13 +83,7 @@ jobs:
       matrix:
         perl-version:
           - 'latest'
-    permissions:
-      pull-requests: write
-      contents: write
-      
-    concurrency:
-      group: '${{ github.workflow }} @ ${{ github.event.pull_request.head.label || github.head_ref || github.ref }}'
-      cancel-in-progress: true  
+
     
     steps:
     - uses: actions/checkout@v4
