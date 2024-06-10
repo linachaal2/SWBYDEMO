@@ -1,5 +1,17 @@
-name: Parsing XML
-on: workflow_dispatch
+name: Create BY Rollout Package TAR File
+on:
+  pull_request:
+    branches:
+      - main
+ # workflow_dispatch:
+  workflow_call:
+    inputs:
+       customer_name:
+        description: 'Customer Name'
+        required: true
+        type: string
+        default: 'RFH'
+#on: workflow_dispatch
 permissions:
   pull-requests: write
   contents: write
@@ -16,6 +28,66 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0 
+      # Get Customer Name 
+      - name: Get Customer Var
+        id: get_customer-name
+        shell: bash
+        run: |
+          if ${{ vars.CUSTOMER_NAME != '' }}; then
+            echo "CUSTOMER_NAME=${{ vars.CUSTOMER_NAME }}"  >> $GITHUB_OUTPUT
+          else
+            echo "CUSTOMER_NAME=${{ github.event.inputs.customer_name }}"  >> $GITHUB_OUTPUT
+          fi
+    #  - name: Print Customer Var
+    #    run: |        
+    #     echo "${{ steps.get_customer-name.outputs.CUSTOMER_NAME }}"
+          
+      # Need to check if the commit message contain the bump versioning type  
+      - name: Get Head Commit Message
+        id: get_head_commit_message
+        run: echo "HEAD_COMMIT_MESSAGE=$(git show -s --format=%s)" >> "$GITHUB_OUTPUT"   
+      - uses: actions-ecosystem/action-regex-match@v2
+        id: regex-match
+        with:
+          text: ${{ steps.get_head_commit_message.outputs.HEAD_COMMIT_MESSAGE }}
+          regex: '(?<=#)\S*'    
+      - name: Print regex value      
+        run: |     
+           echo "print match value:${{ steps.regex-match.outputs.match }}" 
+      - name: Get the bump type from GIT commit message
+        id: get_release_bump_type
+        shell: bash
+        run: |
+          if ${{ steps.regex-match.outputs.match != '' }}; then
+            echo "HASH_BUMP_VALUE=${{ steps.regex-match.outputs.match }}"  >> $GITHUB_OUTPUT
+          else
+            echo "HASH_BUMP_VALUE='patch'"  >> $GITHUB_OUTPUT
+          fi    
+      - name: Print release bump value      
+        run: |     
+           echo "Final Bump Value: ${{ steps.get_release_bump_type.outputs.HASH_BUMP_VALUE }}"
+    
+      # Determine the next version without tagging the branch
+      - name: Bump version for each merge
+        id: taggerDryRun
+        uses: anothrNick/github-tag-action@1.67.0
+        env:
+         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+         DEFAULT_BRANCH: ${{ github.head_ref }}
+         WITH_V: true
+         DEFAULT_BUMP: ${{ steps.get_release_bump_type.outputs.HASH_BUMP_VALUE }} 
+         DRY_RUN: true
+         
+      - name: Echo new tag
+        run: |
+         echo "The next tag version will be: ${{ steps.taggerDryRun.outputs.new_tag }}"
+      - name: Echo current tag
+        run: |
+         echo "The current tag is: ${{ steps.taggerDryRun.outputs.tag }}"
+      - name: Echo part
+        run: |
+         echo "The version increment was: ${{ steps.taggerDryRun.outputs.part }}"         
+              
       # Save Branch Name, branch name will be used later if we switch to main branch       
       - name:  Current Branch Name 
         id: CurrentBranchName
@@ -49,6 +121,7 @@ jobs:
         #  echo "run_job_b='hello world'" >> $GITHUB_OUTPUT
     outputs:
       CURRENT_BRANCH_ROLLOUT_NUMBER: ${{ steps.CurRolloutNumberEX.outputs.CURRENT_BRANCH_ROLLOUT_NUMBER }}
+      NEW_TAG: ${{ steps.taggerDryRun.outputs.new_tag }}
   GettingANewRolloutNumberJob:
     name: GettingANewRolloutNumberJob
     runs-on: macos-latest
@@ -102,4 +175,5 @@ jobs:
          else
           echo "Current ROLLOUT_NUMBER_VALUE"
           echo "ROLLOUT_NUMBER_VALUE=${{needs.GetBranchRolloutNumberJob.outputs.CURRENT_BRANCH_ROLLOUT_NUMBER}}"
+          echo "NEW_TAG=${{needs.GetBranchRolloutNumberJob.outputs.NEW_TAG}}
          fi 
