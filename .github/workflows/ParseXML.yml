@@ -8,8 +8,8 @@ concurrency:
   group: '${{ github.workflow }} @ ${{ github.event.pull_request.head.label || github.head_ref || github.ref }}'
   cancel-in-progress: true  
 jobs:
-  a:
-    name: a
+  GetBranchRolloutNumberJob:
+    name: GetBranchRolloutNumberJob
     runs-on: macos-latest #ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -40,7 +40,7 @@ jobs:
          echo "Current Branch Rollout Number: ${{ steps.getCurrentBranchRolloutNumberEX.outputs.info }}"
          echo "CURRENT_BRANCH_ROLLOUT_NUMBER='${{ steps.getCurrentBranchRolloutNumberEX.outputs.info }}'" >> "$GITHUB_OUTPUT"
          echo "CURRENT_BRANCH_ROLLOUT_NUMBER : $CURRENT_BRANCH_ROLLOUT_NUMBER"   
-      - run: echo "A"
+      - run: echo "GetBranchRolloutNumberJob"
      # - id: CurRolloutNumberEX
      #   run: |
      #    CURRENT_BRANCH_ROLLOUT_NUMBER="X"
@@ -52,8 +52,8 @@ jobs:
   b:
     name: b
     runs-on: macos-latest
-    needs: a
-    if: contains(needs.a.outputs.CURRENT_BRANCH_ROLLOUT_NUMBER, 'X')
+    needs: GetBranchRolloutNumberJob
+    if: contains(needs.GetBranchRolloutNumberJob.outputs.CURRENT_BRANCH_ROLLOUT_NUMBER, 'X')
     steps:
       - uses: actions/checkout@v4
         with:
@@ -91,7 +91,7 @@ jobs:
   c:
     name: c
     runs-on: macos-latest
-    needs: [a,b]
+    needs: [GetBranchRolloutNumberJob,b]
     if: always() && !cancelled() && contains(needs.*.result, 'success')
     steps:
       - run: |
@@ -101,5 +101,5 @@ jobs:
           echo "ROLLOUT_NUMBER_VALUE=${{needs.b.outputs.NEW_BRANCH_ROLLOUT_NUMBER}}"  
          else
           echo "Current ROLLOUT_NUMBER_VALUE"
-          echo "ROLLOUT_NUMBER_VALUE=${{needs.a.outputs.CURRENT_BRANCH_ROLLOUT_NUMBER}}"
+          echo "ROLLOUT_NUMBER_VALUE=${{needs.GetBranchRolloutNumberJob.outputs.CURRENT_BRANCH_ROLLOUT_NUMBER}}"
          fi 
