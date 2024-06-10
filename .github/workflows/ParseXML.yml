@@ -4,7 +4,7 @@ on: workflow_dispatch
 jobs:
   a:
     name: a
-    runs-on: ubuntu-latest
+    runs-on: macos-latest #ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
@@ -35,7 +35,7 @@ jobs:
       CURRENT_BRANCH_ROLLOUT_NUMBER: ${{ steps.CurRolloutNumberEX.outputs.CURRENT_BRANCH_ROLLOUT_NUMBER }}
   b:
     name: b
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     needs: a
     if: contains(needs.a.outputs.CURRENT_BRANCH_ROLLOUT_NUMBER, 'X')
     steps:
@@ -49,7 +49,7 @@ jobs:
       NEW_BRANCH_ROLLOUT_NUMBER: ${{ steps.NewRolloutNumberEX.outputs.NEW_BRANCH_ROLLOUT_NUMBER }}    
   c:
     name: c
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     needs: [a,b]
     if: always() && !cancelled() && contains(needs.*.result, 'success')
     steps:
