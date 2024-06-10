@@ -6,6 +6,23 @@ jobs:
     name: a
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0 
+      # Validate the rollout number for current branch
+      - name: Parse BranchRolloutNumber XML
+        id: getCurrentBranchRolloutNumberEX
+        uses: mavrosxristoforos/get-xml-info@1.0
+        with:
+         xml-file: 'scripts/rollout_gen/generic/BranchRolloutNumber.xml'
+         xpath: '//branch_rollout_number'
+      - name: Print Current Branch Rollout Number
+        id: CurrentBranchRolloutNumberEX
+        shell: bash
+        run: |   
+         echo "Current Branch Rollout Number: ${{ steps.getCurrentBranchRolloutNumberEX.outputs.info }}"
+            
       - run: echo "A"
       - id: CurRolloutNumberEX
         run: |
