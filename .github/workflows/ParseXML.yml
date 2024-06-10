@@ -77,11 +77,17 @@ jobs:
       - id: NewRolloutNumberEX
         run: |
          echo "B"
-         NEW_BRANCH_ROLLOUT_NUMBER="$(perl ${{ github.workspace }}/scripts/parseXMLfile.pl  -b "NEWBRANCH"  -f "${{ github.workspace }}/scripts/rollout_gen/generic/rollout_settings.xml")"
-         echo "NEW_BRANCH_ROLLOUT_NUMBER : $NEW_BRANCH_ROLLOUT_NUMBER" >> "$GITHUB_OUTPUT"
-         echo "NEW_BRANCH_ROLLOUT_NUMBER : $NEW_BRANCH_ROLLOUT_NUMBER"
+         ROLNB="$(perl ${{ github.workspace }}/scripts/parseXMLfile.pl  -b "NEWBRANCH"  -f "${{ github.workspace }}/scripts/rollout_gen/generic/rollout_settings.xml")"
+         echo "ROLNB : $ROLNB"
+         echo "ROLNB=$ROLNB" >> "$GITHUB_OUTPUT"
+        # echo "NEW_BRANCH_ROLLOUT_NUMBER : $NEW_BRANCH_ROLLOUT_NUMBER" >> "$GITHUB_OUTPUT"
+        # echo "NEW_BRANCH_ROLLOUT_NUMBER : $NEW_BRANCH_ROLLOUT_NUMBER"
+      - name:  Print New Rollout Number
+        shell: bash
+        run: |  
+          echo "New Rollout Number = ${{ steps.NewRolloutNumberEX.outputs.ROLNB }}"  
     outputs:
-      NEW_BRANCH_ROLLOUT_NUMBER: ${{ steps.NewRolloutNumberEX.outputs.NEW_BRANCH_ROLLOUT_NUMBER }}    
+      NEW_BRANCH_ROLLOUT_NUMBER: ${{ steps.NewRolloutNumberEX.outputs.ROLNB }}    
   c:
     name: c
     runs-on: macos-latest
