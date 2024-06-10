@@ -24,6 +24,7 @@ jobs:
     name: GetBranchRolloutNumberJob
     runs-on: ubuntu-latest #macos-latest
     steps:
+      - run: echo "Call =========> GetBranchRolloutNumberJob"
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha }}
@@ -97,7 +98,7 @@ jobs:
       - name:  Print Branch Name 
         shell: bash
         run: |  
-          echo "BRANCH_NAME=${{ steps.saveBranchName.outputs.BRANCH_NAME }}"      
+          echo "BRANCH_NAME=${{ steps.CurrentBranchName.outputs.BRANCH_NAME }}"      
       # Validate the rollout number for current branch
       - name: Parse BranchRolloutNumber XML
         id: getCurrentBranchRolloutNumberEX
@@ -112,7 +113,7 @@ jobs:
          echo "Current Branch Rollout Number: ${{ steps.getCurrentBranchRolloutNumberEX.outputs.info }}"
          echo "CURRENT_BRANCH_ROLLOUT_NUMBER='${{ steps.getCurrentBranchRolloutNumberEX.outputs.info }}'" >> "$GITHUB_OUTPUT"
          echo "CURRENT_BRANCH_ROLLOUT_NUMBER : $CURRENT_BRANCH_ROLLOUT_NUMBER"   
-      - run: echo "GetBranchRolloutNumberJob"
+      
      # - id: CurRolloutNumberEX
      #   run: |
      #    CURRENT_BRANCH_ROLLOUT_NUMBER="X"
@@ -122,12 +123,16 @@ jobs:
     outputs:
       CURRENT_BRANCH_ROLLOUT_NUMBER: ${{ steps.CurRolloutNumberEX.outputs.CURRENT_BRANCH_ROLLOUT_NUMBER }}
       NEW_TAG: ${{ steps.taggerDryRun.outputs.new_tag }}
+      HASH_BUMP_VALUE: ${{ steps.get_release_bump_type.outputs.HASH_BUMP_VALUE }}
+      BRANCH_NAME: ${{ github.head_ref }}
+      CUSTOMER_NAME: ${{ steps.get_customer-name.outputs.CUSTOMER_NAME }}
   GettingANewRolloutNumberJob:
     name: GettingANewRolloutNumberJob
     runs-on: ubuntu-latest
     needs: GetBranchRolloutNumberJob
     if: contains(needs.GetBranchRolloutNumberJob.outputs.CURRENT_BRANCH_ROLLOUT_NUMBER, 'X')
     steps:
+      - run: echo "Call =========> GettingANewRolloutNumberJob"
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha }}
@@ -149,7 +154,6 @@ jobs:
         run: cpanm -v XML::LibXML
       - id: NewRolloutNumber
         run: |
-         echo "GettingANewRolloutNumberJob"
          NEW_BRANCH_ROLLOUT_NUMBER="$(perl ${{ github.workspace }}/scripts/parseXMLfile.pl  -b "NEWBRANCH"  -f "${{ github.workspace }}/scripts/rollout_gen/generic/rollout_settings.xml")"
          echo "NEW_BRANCH_ROLLOUT_NUMBER : $NEW_BRANCH_ROLLOUT_NUMBER"
          echo "NEW_BRANCH_ROLLOUT_NUMBER=$NEW_BRANCH_ROLLOUT_NUMBER" >> "$GITHUB_OUTPUT"
@@ -167,13 +171,91 @@ jobs:
     needs: [GetBranchRolloutNumberJob,GettingANewRolloutNumberJob]
     if: always() && !cancelled() && contains(needs.*.result, 'success')
     steps:
-      - run: |
-         echo "CreatingRolloutPackageJob"
+      - id: UseRolloutNumber
+        run: |
+         echo "Call =========> CreatingRolloutPackageJob"
          if ${{ needs.GettingANewRolloutNumberJob.outputs.NEW_BRANCH_ROLLOUT_NUMBER != '' }}; then
           echo "NEW ROLLOUT_NUMBER_VALUE is created"
-          echo "ROLLOUT_NUMBER_VALUE=${{needs.GettingANewRolloutNumberJob.outputs.NEW_BRANCH_ROLLOUT_NUMBER}}"  
+          echo "USE_ROLLOUT_NUMBER=${{needs.GettingANewRolloutNumberJob.outputs.NEW_BRANCH_ROLLOUT_NUMBER}}" >> "$GITHUB_OUTPUT"
          else
-          echo "Current ROLLOUT_NUMBER_VALUE"
-          echo "ROLLOUT_NUMBER_VALUE=${{needs.GetBranchRolloutNumberJob.outputs.CURRENT_BRANCH_ROLLOUT_NUMBER}}"
-          echo "NEW_TAG=${{needs.GetBranchRolloutNumberJob.outputs.NEW_TAG}}
+          echo "Current ROLLOUT_NUMBER_VALUE is used"
+          echo "USE_ROLLOUT_NUMBER=${{needs.GetBranchRolloutNumberJob.outputs.CURRENT_BRANCH_ROLLOUT_NUMBER}}" >> "$GITHUB_OUTPUT"
          fi 
+      - name:  Print Parameters
+        run: |    
+         echo "NEW_TAG=${{needs.GetBranchRolloutNumberJob.outputs.NEW_TAG}}"
+         echo "HASH_BUMP_VALUE=${{needs.GetBranchRolloutNumberJob.outputs.HASH_BUMP_VALUE}}"
+         echo "BRANCH_NAME=${{needs.GetBranchRolloutNumberJob.outputs.BRANCH_NAME}}"
+         echo "CUSTOMER_NAME=${{needs.GetBranchRolloutNumberJob.outputs.CUSTOMER_NAME}}"
+         echo "USE_ROLLOUT_NUMBER= ${{ steps.UseRolloutNumber.outputs.USE_ROLLOUT_NUMBER }} "
+      - uses: actions/checkout@v3
+        with:
+         fetch-depth: ${{ github.event_name == 'pull_request' && 2 || 0 }}
+      - name: Get list of changes for current branch
+        id: modified-list
+        run: |        
+          if ${{ github.event_name == 'pull_request' }}; then
+           echo "modified_files=$(git diff --name-status  -r HEAD^1 HEAD | xargs)" >> $GITHUB_OUTPUT
+          else
+           echo "modified_files=$(git diff  --name-status ${{ github.event.before }} ${{ github.event.after }} | xargs)" >> $GITHUB_OUTPUT
+          fi
+       #  - name: List changed files
+       #    run: |
+       #      for file in ${{ steps.changed-files.outputs.changed_files }}; do
+       #       echo "$file"
+       #     done     
+
+      # Create the BY rollout package TAR file
+      - name: Check out the repository to the runner
+        uses: actions/checkout@v4  
+      - name: Execute Perl to create the BY rollout package TAR file
+        run: |
+         perl ${{ github.workspace }}/scripts/createRolloutPackage.pl \
+             -c ${{needs.GetBranchRolloutNumberJob.outputs.CUSTOMER_NAME}} \
+             -g "${{ steps.modified-list.outputs.modified_files }}" \
+             -t "${{ github.workspace }}" \
+             -n "${{needs.GetBranchRolloutNumberJob.outputs.BRANCH_NAME}}-${{needs.GetBranchRolloutNumberJob.outputs.NEW_TAG}}" \
+             -d scripts/rollout_gen \
+             -z rollout_gen \
+             -b "${{needs.GetBranchRolloutNumberJob.outputs.BRANCH_NAME}}" \
+             -r inputFile.txt \
+             -f \
+             -l ${{needs.GetBranchRolloutNumberJob.outputs.BRANCH_NAME}}.log \
+             -p \
+             -o \
+             -m
+      
+      # Upload the TAR file as an artifact for debugging
+      - name: Upload TAR file
+        id: tar-file
+        uses: actions/upload-artifact@v4
+        with:
+          name: output-tar-file
+          path: ${{ github.workspace }}/rollout_gen/${{needs.GetBranchRolloutNumberJob.outputs.BRANCH_NAME}}/${{needs.GetBranchRolloutNumberJob.outputs.BRANCH_NAME}}-${{needs.GetBranchRolloutNumberJob.outputs.NEW_TAG}}.tar
+      
+      # Push and Commit the TAR file into the GIT repository
+      - name: Push and Commit the TAR file into the GIT repository
+        run: |
+          # Stage the file, commit and push
+          git config --global user.email ${{ github.actor }}[bot]@users.noreply.github.com
+          git config --global user.name ${{ github.actor }}
+          git switch ${{needs.GetBranchRolloutNumberJob.outputs.BRANCH_NAME}}
+          git add -f .
+          git commit -m "Create package ${{needs.GetBranchRolloutNumberJob.outputs.BRANCH_NAME}}-${{needs.GetBranchRolloutNumberJob.outputs.NEW_TAG}}.tar "
+          git push 
+
+      # Tag the branch with the bump versioning passed in the commit message or Patch by default    
+      - name: Tag branch
+        id: taggerFinal
+        uses: anothrNick/github-tag-action@1.67.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DEFAULT_BRANCH: ${{needs.GetBranchRolloutNumberJob.outputs.BRANCH_NAME}}
+          WITH_V: true
+          DEFAULT_BUMP: ${{needs.GetBranchRolloutNumberJob.outputs.HASH_BUMP_VALUE}}
+      # - name: Create release notes
+      #   id: release_notes
+      #   run: gh release create ${{ steps.taggerFinal.outputs.new_tag }} --generate-notes
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    
