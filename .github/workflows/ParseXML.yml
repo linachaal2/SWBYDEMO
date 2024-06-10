@@ -16,6 +16,16 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0 
+      # Save Branch Name, branch name will be used later if we switch to main branch       
+      - name:  Current Branch Name 
+        id: CurrentBranchName
+        shell: bash
+        run: |  
+          echo "BRANCH_NAME=${{ github.head_ref }}"  >> $GITHUB_OUTPUT
+      - name:  Print Branch Name 
+        shell: bash
+        run: |  
+          echo "BRANCH_NAME=${{ steps.saveBranchName.outputs.BRANCH_NAME }}"      
       # Validate the rollout number for current branch
       - name: Parse BranchRolloutNumber XML
         id: getCurrentBranchRolloutNumberEX
@@ -68,93 +78,3 @@ jobs:
           echo "Current ROLLOUT_NUMBER_VALUE"
           echo "ROLLOUT_NUMBER_VALUE=${{needs.a.outputs.CURRENT_BRANCH_ROLLOUT_NUMBER}}"
          fi 
-    # - run: echo ${{needs.a.outputs.CURRENT_BRANCH_ROLLOUT_NUMBER}}
-    #  - run: echo ${{needs.b.outputs.NEW_BRANCH_ROLLOUT_NUMBER}}
-
-#########################################################################################
-#                      GetBranchRolloutNumberJob                                        #
-#########################################################################################
-    
-  GetCurBrRolNb:
-    name: GetCurBrRolNb
-    runs-on: macos-latest #ubuntu-latest #ubuntu-22.04    
-    steps:
-    - uses: actions/checkout@v4
-      with:
-          ref: ${{ github.event.pull_request.head.sha }}
-          fetch-depth: 0 
-          
-    # Save Branch Name, branch name will be used later if we switch to main branch       
-    - name:  Current Branch Name 
-      id: CurrentBranchName
-      shell: bash
-      run: |  
-          echo "BRANCH_NAME=${{ github.head_ref }}"  >> $GITHUB_OUTPUT
-    - name:  Print Branch Name 
-      shell: bash
-      run: |  
-          echo "BRANCH_NAME=${{ steps.saveBranchName.outputs.BRANCH_NAME }}"    
-          
-    # Validate the rollout number for current branch
-    - name: Parse BranchRolloutNumber XML
-      id: getCurrentBranchRolloutNumber
-      uses: mavrosxristoforos/get-xml-info@1.0
-      with:
-        xml-file: 'scripts/rollout_gen/generic/BranchRolloutNumber.xml'
-        xpath: '//branch_rollout_number'
-    - name: Print Current Branch Rollout Number
-      id: CurrentBranchRolloutNumber
-      shell: bash
-      run: |   
-         echo "Current Branch Rollout Number: ${{ steps.getCurrentBranchRolloutNumber.outputs.info }}"
-         echo "CURRENT_BRANCH_ROLLOUT_NUMBER = '${{ steps.getCurrentBranchRolloutNumber.outputs.info }}'"  >> $GITHUB_OUTPUT
-         echo "CURRENT_BRANCH_ROLLOUT_NUMBER : $CURRENT_BRANCH_ROLLOUT_NUMBER"
-    outputs:
-      CURRENT_BRANCH_ROLLOUT_NUMBER: ${{ steps.CurrentBranchRolloutNumber.outputs.CURRENT_BRANCH_ROLLOUT_NUMBER }}
-  CreatingRolloutPackageJobS:
-    name: CreatingRolloutPackageJobS
-    runs-on: macos-latest
-    needs: GetCurBrRolNb
-    steps:
-      - run: |
-         echo ${{needs.GetCurBrRolNb.outputs.CURRENT_BRANCH_ROLLOUT_NUMBER}}    
-         echo "GetCurBrRolNb=${{needs.GetCurBrRolNb.outputs.CURRENT_BRANCH_ROLLOUT_NUMBER}}"
-
-#########################################################################################
-#                      GettingANewRolloutNumberJob                                      #
-#########################################################################################
-  GettingANewRolloutNumberJob:
-    name: GettingANewRolloutNumberJob
-    needs: GetCurBrRolNb
-    if: contains(needs.GetCurBrRolNb.outputs.CURRENT_BRANCH_ROLLOUT_NUMBER, 'X')
-    runs-on: macos-latest
-    steps:
-      - name: Check out the repository to the runner
-        uses: actions/checkout@v4
-      - run: echo  ${{needs.GetBranchRolloutNumberJob.outputs.CURRENT_BRANCH_ROLLOUT_NUMBER}}  
-      - name: Parse Rollout Settings XML to get the New Rollout Number
-        id: NewRolloutNumber
-        run: |  
-         NEW_BRANCH_ROLLOUT_NUMBER="33"
-         echo "NEW_BRANCH_ROLLOUT_NUMBER : $NEW_BRANCH_ROLLOUT_NUMBER"
-         echo "NEW_BRANCH_ROLLOUT_NUMBER=$NEW_BRANCH_ROLLOUT_NUMBER" >> "$GITHUB_OUTPUT"
-
-    outputs:
-      NEW_BRANCH_ROLLOUT_NUMBER: ${{ steps.NewRolloutNumber.outputs.NEW_BRANCH_ROLLOUT_NUMBER }} 
-
-#########################################################################################
-#                       CreatingRolloutPackageJob                                       #
-#########################################################################################   
-  CreatingRolloutPackageJob:
-    name: CreatingRolloutPackageJob
-    runs-on: macos-latest
-    needs: [GetCurBrRolNb,GettingANewRolloutNumberJob]
-    if: always() && !cancelled() && contains(needs.*.result, 'success')
-   
-    steps:
-      - run: echo ${{needs.GetCurBrRolNb.outputs.CURRENT_BRANCH_ROLLOUT_NUMBER}}
-
-    
-        
-      
-     
