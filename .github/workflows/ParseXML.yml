@@ -24,6 +24,7 @@ jobs:
     name: GetBranchRolloutNumberJob
     runs-on: ubuntu-latest #macos-latest
     steps:
+      - run: echo "Call =========> GetBranchRolloutNumberJob"
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha }}
@@ -112,7 +113,7 @@ jobs:
          echo "Current Branch Rollout Number: ${{ steps.getCurrentBranchRolloutNumberEX.outputs.info }}"
          echo "CURRENT_BRANCH_ROLLOUT_NUMBER='${{ steps.getCurrentBranchRolloutNumberEX.outputs.info }}'" >> "$GITHUB_OUTPUT"
          echo "CURRENT_BRANCH_ROLLOUT_NUMBER : $CURRENT_BRANCH_ROLLOUT_NUMBER"   
-      - run: echo "GetBranchRolloutNumberJob"
+      
      # - id: CurRolloutNumberEX
      #   run: |
      #    CURRENT_BRANCH_ROLLOUT_NUMBER="X"
@@ -122,6 +123,9 @@ jobs:
     outputs:
       CURRENT_BRANCH_ROLLOUT_NUMBER: ${{ steps.CurRolloutNumberEX.outputs.CURRENT_BRANCH_ROLLOUT_NUMBER }}
       NEW_TAG: ${{ steps.taggerDryRun.outputs.new_tag }}
+      HASH_BUMP_VALUE: ${{ steps.get_release_bump_type.outputs.HASH_BUMP_VALUE }}
+      BRANCH_NAME: ${{ steps.saveBranchName.outputs.BRANCH_NAME }}
+      CUSTOMER_NAME: ${{ steps.get_customer-name.outputs.CUSTOMER_NAME }}
   GettingANewRolloutNumberJob:
     name: GettingANewRolloutNumberJob
     runs-on: ubuntu-latest
@@ -149,7 +153,7 @@ jobs:
         run: cpanm -v XML::LibXML
       - id: NewRolloutNumber
         run: |
-         echo "GettingANewRolloutNumberJob"
+         echo "Call =========> GettingANewRolloutNumberJob"
          NEW_BRANCH_ROLLOUT_NUMBER="$(perl ${{ github.workspace }}/scripts/parseXMLfile.pl  -b "NEWBRANCH"  -f "${{ github.workspace }}/scripts/rollout_gen/generic/rollout_settings.xml")"
          echo "NEW_BRANCH_ROLLOUT_NUMBER : $NEW_BRANCH_ROLLOUT_NUMBER"
          echo "NEW_BRANCH_ROLLOUT_NUMBER=$NEW_BRANCH_ROLLOUT_NUMBER" >> "$GITHUB_OUTPUT"
@@ -168,12 +172,15 @@ jobs:
     if: always() && !cancelled() && contains(needs.*.result, 'success')
     steps:
       - run: |
-         echo "CreatingRolloutPackageJob"
+         echo "Call =========> CreatingRolloutPackageJob"
          if ${{ needs.GettingANewRolloutNumberJob.outputs.NEW_BRANCH_ROLLOUT_NUMBER != '' }}; then
           echo "NEW ROLLOUT_NUMBER_VALUE is created"
-          echo "ROLLOUT_NUMBER_VALUE=${{needs.GettingANewRolloutNumberJob.outputs.NEW_BRANCH_ROLLOUT_NUMBER}}"  
+          echo "NEW_BRANCH_ROLLOUT_NUMBER=${{needs.GettingANewRolloutNumberJob.outputs.NEW_BRANCH_ROLLOUT_NUMBER}}"  
          else
           echo "Current ROLLOUT_NUMBER_VALUE"
-          echo "ROLLOUT_NUMBER_VALUE=${{needs.GetBranchRolloutNumberJob.outputs.CURRENT_BRANCH_ROLLOUT_NUMBER}}"
+          echo "CURRENT_BRANCH_ROLLOUT_NUMBER=${{needs.GetBranchRolloutNumberJob.outputs.CURRENT_BRANCH_ROLLOUT_NUMBER}}"
           echo "NEW_TAG=${{needs.GetBranchRolloutNumberJob.outputs.NEW_TAG}}"
+          echo "HASH_BUMP_VALUE=${{needs.GetBranchRolloutNumberJob.outputs.HASH_BUMP_VALUE}}"
+          echo "BRANCH_NAME=${{needs.GetBranchRolloutNumberJob.outputs.BRANCH_NAME}}"
+          echo "CUSTOMER_NAME=${{needs.GetBranchRolloutNumberJob.outputs.CUSTOMER_NAME}}"
          fi 
