@@ -55,6 +55,10 @@ jobs:
     needs: a
     if: contains(needs.a.outputs.CURRENT_BRANCH_ROLLOUT_NUMBER, 'X')
     steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0 
       - name: perl info
         run: |
           perl --version
