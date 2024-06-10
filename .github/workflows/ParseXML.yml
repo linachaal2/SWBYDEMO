@@ -114,11 +114,11 @@ jobs:
   CreatingRolloutPackageJobS:
     name: CreatingRolloutPackageJobS
     runs-on: macos-latest
-    needs: [GetCurBrRolNb]
-    if: always() && !cancelled() && contains(needs.*.result, 'success')
-   
+    needs: GetCurBrRolNb
     steps:
-      - run: echo ${{needs.GetCurBrRolNb.outputs.CURRENT_BRANCH_ROLLOUT_NUMBER}}     
+      - run: |
+         echo ${{needs.GetCurBrRolNb.outputs.CURRENT_BRANCH_ROLLOUT_NUMBER}}    
+         echo "GetCurBrRolNb=${{needs.GetCurBrRolNb.outputs.CURRENT_BRANCH_ROLLOUT_NUMBER}}"
 
 #########################################################################################
 #                      GettingANewRolloutNumberJob                                      #
