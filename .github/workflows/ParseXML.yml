@@ -18,17 +18,18 @@ jobs:
          xml-file: 'scripts/rollout_gen/generic/BranchRolloutNumber.xml'
          xpath: '//branch_rollout_number'
       - name: Print Current Branch Rollout Number
-        id: CurrentBranchRolloutNumberEX
+        id: CurRolloutNumberEX
         shell: bash
         run: |   
          echo "Current Branch Rollout Number: ${{ steps.getCurrentBranchRolloutNumberEX.outputs.info }}"
-            
+         echo "CURRENT_BRANCH_ROLLOUT_NUMBER='${{ steps.getCurrentBranchRolloutNumberEX.outputs.info }}'" >> "$GITHUB_OUTPUT"
+         echo "CURRENT_BRANCH_ROLLOUT_NUMBER : $CURRENT_BRANCH_ROLLOUT_NUMBER"   
       - run: echo "A"
-      - id: CurRolloutNumberEX
-        run: |
-         CURRENT_BRANCH_ROLLOUT_NUMBER="X"
-         echo "CURRENT_BRANCH_ROLLOUT_NUMBER='X'" >> "$GITHUB_OUTPUT"
-         echo "CURRENT_BRANCH_ROLLOUT_NUMBER : $CURRENT_BRANCH_ROLLOUT_NUMBER"
+     # - id: CurRolloutNumberEX
+     #   run: |
+     #    CURRENT_BRANCH_ROLLOUT_NUMBER="X"
+     #    echo "CURRENT_BRANCH_ROLLOUT_NUMBER='X'" >> "$GITHUB_OUTPUT"
+     #    echo "CURRENT_BRANCH_ROLLOUT_NUMBER : $CURRENT_BRANCH_ROLLOUT_NUMBER"
         #  echo "run_job_b='hello world'" >> $GITHUB_OUTPUT
     outputs:
       CURRENT_BRANCH_ROLLOUT_NUMBER: ${{ steps.CurRolloutNumberEX.outputs.CURRENT_BRANCH_ROLLOUT_NUMBER }}
