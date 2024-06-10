@@ -55,11 +55,26 @@ jobs:
     needs: a
     if: contains(needs.a.outputs.CURRENT_BRANCH_ROLLOUT_NUMBER, 'X')
     steps:
+      - name: perl info
+        run: |
+          perl --version
+      - name: setup locallib
+        run: |
+          PERL_LOCAL_LIB_ROOT="$HOME/perl5"
+          >>"$GITHUB_ENV" echo "PERL_LOCAL_LIB_ROOT=$PERL_LOCAL_LIB_ROOT"
+          >>"$GITHUB_ENV" echo "PERL5LIB=$PERL_LOCAL_LIB_ROOT/lib/perl5"
+          >>"$GITHUB_ENV" echo "PERL_MB_OPT=--install_base \"$PERL_LOCAL_LIB_ROOT/\""
+          >>"$GITHUB_ENV" echo "PERL_MM_OPT=INSTALL_BASE=$PERL_LOCAL_LIB_ROOT"
+          >>"$GITHUB_ENV" echo "PATH=$PERL_LOCAL_LIB_ROOT/bin:$PATH"
+      - name: install cpanm
+        run: cpan App::cpanminus
+      - name: test cpanm
+        run: cpanm -v XML::LibXML
       - id: NewRolloutNumberEX
         run: |
          echo "B"
-         NEW_BRANCH_ROLLOUT_NUMBER="100"
-         echo "NEW_BRANCH_ROLLOUT_NUMBER='100'" >> "$GITHUB_OUTPUT"
+         NEW_BRANCH_ROLLOUT_NUMBER="$(perl ${{ github.workspace }}/scripts/parseXMLfile.pl  -b "NEWBRANCH"  -f "${{ github.workspace }}/scripts/rollout_gen/generic/rollout_settings.xml")"
+         echo "NEW_BRANCH_ROLLOUT_NUMBER : $NEW_BRANCH_ROLLOUT_NUMBER" >> "$GITHUB_OUTPUT"
          echo "NEW_BRANCH_ROLLOUT_NUMBER : $NEW_BRANCH_ROLLOUT_NUMBER"
     outputs:
       NEW_BRANCH_ROLLOUT_NUMBER: ${{ steps.NewRolloutNumberEX.outputs.NEW_BRANCH_ROLLOUT_NUMBER }}    
