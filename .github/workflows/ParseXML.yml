@@ -187,6 +187,7 @@ jobs:
     if: always() && !cancelled() && contains(needs.*.result, 'success')
     runs-on: macos-latest
     steps:
+      - run: echo ${{needs.GetBranchRolloutNumberJob.outputs.CURRENT_BRANCH_ROLLOUT_NUMBER}}
       - run: |
          if ${{ needs.GettingANewRolloutNumberJob.outputs.NEW_BRANCH_ROLLOUT_NUMBER != '' }}; then
           echo "NEW ROLLOUT_NUMBER_VALUE is created"
