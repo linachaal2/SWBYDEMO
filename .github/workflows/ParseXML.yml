@@ -75,8 +75,8 @@ jobs:
 #                      GetBranchRolloutNumberJob                                        #
 #########################################################################################
     
-  GetBranchRolloutNumberJob:
-    name: GetBranchRolloutNumberJob
+  GetCurBrRolNb:
+    name: GetCurBrRolNb
     runs-on: macos-latest #ubuntu-latest #ubuntu-22.04    
     steps:
     - uses: actions/checkout@v4
@@ -115,19 +115,19 @@ jobs:
   CreatingRolloutPackageJobS:
     name: CreatingRolloutPackageJobS
     runs-on: macos-latest
-    needs: [GetBranchRolloutNumberJob]
+    needs: [GetCurBrRolNb]
     if: always() && !cancelled() && contains(needs.*.result, 'success')
    
     steps:
-      - run: echo ${{needs.GetBranchRolloutNumberJob.outputs.CURRENT_BRANCH_ROLLOUT_NUMBER}}     
+      - run: echo ${{needs.GetCurBrRolNb.outputs.CURRENT_BRANCH_ROLLOUT_NUMBER}}     
 
 #########################################################################################
 #                      GettingANewRolloutNumberJob                                      #
 #########################################################################################
   GettingANewRolloutNumberJob:
     name: GettingANewRolloutNumberJob
-    needs: GetBranchRolloutNumberJob
-    if: contains(needs.GetBranchRolloutNumberJob.outputs.CURRENT_BRANCH_ROLLOUT_NUMBER, 'X')
+    needs: GetCurBrRolNb
+    if: contains(needs.GetCurBrRolNb.outputs.CURRENT_BRANCH_ROLLOUT_NUMBER, 'X')
     runs-on: macos-latest
     steps:
       - name: Check out the repository to the runner
@@ -149,11 +149,11 @@ jobs:
   CreatingRolloutPackageJob:
     name: CreatingRolloutPackageJob
     runs-on: macos-latest
-    needs: [GetBranchRolloutNumberJob,GettingANewRolloutNumberJob]
+    needs: [GetCurBrRolNb,GettingANewRolloutNumberJob]
     if: always() && !cancelled() && contains(needs.*.result, 'success')
    
     steps:
-      - run: echo ${{needs.GetBranchRolloutNumberJob.outputs.CURRENT_BRANCH_ROLLOUT_NUMBER}}
+      - run: echo ${{needs.GetCurBrRolNb.outputs.CURRENT_BRANCH_ROLLOUT_NUMBER}}
 
     
         
