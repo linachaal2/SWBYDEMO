@@ -25,7 +25,7 @@ jobs:
         run: |
          echo "B"
          NEW_BRANCH_ROLLOUT_NUMBER="100"
-         echo "NEW_BRANCH_ROLLOUT_NUMBER='X'" >> "$GITHUB_OUTPUT"
+         echo "NEW_BRANCH_ROLLOUT_NUMBER='100'" >> "$GITHUB_OUTPUT"
          echo "NEW_BRANCH_ROLLOUT_NUMBER : $NEW_BRANCH_ROLLOUT_NUMBER"
     outputs:
       NEW_BRANCH_ROLLOUT_NUMBER: ${{ steps.NewRolloutNumberEX.outputs.NEW_BRANCH_ROLLOUT_NUMBER }}    
