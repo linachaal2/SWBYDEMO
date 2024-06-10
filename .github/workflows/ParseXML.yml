@@ -105,7 +105,7 @@ jobs:
     outputs:
       CURRENT_BRANCH_ROLLOUT_NUMBER: ${{ steps.CurrentBranchRolloutNumber.outputs.CURRENT_BRANCH_ROLLOUT_NUMBER }}
      # BRANCH_NAME: ${{ steps.CurrentBranchName.outputs.BRANCH_NAME }}
-      
+
   GettingANewRolloutNumberJob:
     name: GettingANewRolloutNumberJob
     needs: GetBranchRolloutNumber
@@ -159,6 +159,7 @@ jobs:
       # set the new rollout number in the BranchRolloutNumber.xml
     outputs:
       NEW_BRANCH_ROLLOUT_NUMBER: ${{ steps.NewRolloutNumber.outputs.NEW_BRANCH_ROLLOUT_NUMBER }} 
+
    
   CreatingRolloutPackageJob:
     name: CreatingRolloutPackageJob
@@ -166,7 +167,15 @@ jobs:
     if: always() && !cancelled() && contains(needs.*.result, 'success')
     runs-on: macos-latest
     steps:
-      - run: echo  ${{needs.GetBranchRolloutNumber.outputs.CURRENT_BRANCH_ROLLOUT_NUMBER}}
+      - run: |
+         if ${{ needs.GettingANewRolloutNumberJob.outputs.NEW_BRANCH_ROLLOUT_NUMBER != '' }}; then
+          echo "NEW ROLLOUT_NUMBER_VALUE is created"
+          echo "ROLLOUT_NUMBER_VALUE=${{needs.GettingANewRolloutNumberJob.outputs.NEW_BRANCH_ROLLOUT_NUMBER}}"  
+         else
+          echo "Current ROLLOUT_NUMBER_VALUE"
+          echo "ROLLOUT_NUMBER_VALUE=${{ needs.GetBranchRolloutNumber.outputs.CURRENT_BRANCH_ROLLOUT_NUMBER }}"
+         fi 
+    
         
       
      
