@@ -10,7 +10,7 @@ jobs:
       - id: CurRolloutNumberEX
         run: |
          CURRENT_BRANCH_ROLLOUT_NUMBER="X"
-         echo "CURRENT_BRANCH_ROLLOUT_NUMBER='X'" >> "$GITHUB_OUTPUT"
+         echo "CURRENT_BRANCH_ROLLOUT_NUMBER='400'" >> "$GITHUB_OUTPUT"
          echo "CURRENT_BRANCH_ROLLOUT_NUMBER : $CURRENT_BRANCH_ROLLOUT_NUMBER"
         #  echo "run_job_b='hello world'" >> $GITHUB_OUTPUT
     outputs:
@@ -35,9 +35,17 @@ jobs:
     needs: [a,b]
     if: always() && !cancelled() && contains(needs.*.result, 'success')
     steps:
-      - run: echo "C"
-      - run: echo ${{needs.a.outputs.CURRENT_BRANCH_ROLLOUT_NUMBER}}
-      - run: echo ${{needs.b.outputs.NEW_BRANCH_ROLLOUT_NUMBER}}
+      - run: |
+         echo "C"
+         if ${{ needs.b.outputs.NEW_BRANCH_ROLLOUT_NUMBER != '' }}; then
+          echo "NEW ROLLOUT_NUMBER_VALUE is created"
+          echo "ROLLOUT_NUMBER_VALUE=${{needs.b.outputs.NEW_BRANCH_ROLLOUT_NUMBER}}"  
+         else
+          echo "Current ROLLOUT_NUMBER_VALUE"
+          echo "ROLLOUT_NUMBER_VALUE=${{needs.a.outputs.CURRENT_BRANCH_ROLLOUT_NUMBER}}
+         fi 
+    # - run: echo ${{needs.a.outputs.CURRENT_BRANCH_ROLLOUT_NUMBER}}
+    #  - run: echo ${{needs.b.outputs.NEW_BRANCH_ROLLOUT_NUMBER}}
   GetBranchRolloutNumber:
     name: GetBranchRolloutNumber
     runs-on: macos-latest #ubuntu-latest #ubuntu-22.04
