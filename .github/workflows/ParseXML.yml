@@ -215,19 +215,17 @@ jobs:
        #     done     
 
       # Create the BY rollout package TAR file
-     # - name: Check out the repository to the runner
-     #   uses: actions/checkout@v4  
-     # - uses: actions/checkout@v4
-     #   with:
-      #    ref: ${{ github.event.pull_request.head.sha }}
-      #    fetch-depth: 0   
+      # <optional prefix>-<customer_name>-WMS.<rollout_number>.<branch_name>_<Git_version>
+      #example:
+      # USR-CUSTNAME-WMS.RolloutNumber.BRANCHNANE_vGITTAG.tar
+ 
       - name: Execute Perl to create the BY rollout package TAR file
         run: |
          perl ${{ github.workspace }}/scripts/createRolloutPackage.pl \
              -c ${{needs.GetBranchRolloutNumberJob.outputs.CUSTOMER_NAME}} \
              -g "${{ steps.modified-list.outputs.modified_files }}" \
              -t "${{ github.workspace }}" \
-             -n "${{needs.GetBranchRolloutNumberJob.outputs.BRANCH_NAME}}-${{needs.GetBranchRolloutNumberJob.outputs.NEW_TAG}}" \
+             -n "USR-${{needs.GetBranchRolloutNumberJob.outputs.CUSTOMER_NAME}}-WMS.${{ steps.UseRolloutNumber.outputs.USE_ROLLOUT_NUMBER }}.${{needs.GetBranchRolloutNumberJob.outputs.BRANCH_NAME}}_${{needs.GetBranchRolloutNumberJob.outputs.NEW_TAG}}" \
              -d scripts/rollout_gen \
              -z rollout_gen \
              -b "${{needs.GetBranchRolloutNumberJob.outputs.BRANCH_NAME}}" \
@@ -237,14 +235,16 @@ jobs:
              -p \
              -o \
              -m
-      
+      #-n "${{needs.GetBranchRolloutNumberJob.outputs.BRANCH_NAME}}-${{needs.GetBranchRolloutNumberJob.outputs.NEW_TAG}}" \
+
       # Upload the TAR file as an artifact for debugging
       - name: Upload TAR file
         id: tar-file
         uses: actions/upload-artifact@v4
         with:
           name: output-tar-file
-          path: ${{ github.workspace }}/rollout_gen/${{needs.GetBranchRolloutNumberJob.outputs.BRANCH_NAME}}/${{needs.GetBranchRolloutNumberJob.outputs.BRANCH_NAME}}-${{needs.GetBranchRolloutNumberJob.outputs.NEW_TAG}}.tar
+          path: ${{ github.workspace }}/rollout_gen/${{needs.GetBranchRolloutNumberJob.outputs.BRANCH_NAME}}/USR-${{needs.GetBranchRolloutNumberJob.outputs.CUSTOMER_NAME}}-WMS.${{ steps.UseRolloutNumber.outputs.USE_ROLLOUT_NUMBER }}.${{needs.GetBranchRolloutNumberJob.outputs.BRANCH_NAME}}_${{needs.GetBranchRolloutNumberJob.outputs.NEW_TAG}}.tar
+     #path: ${{ github.workspace }}/rollout_gen/${{needs.GetBranchRolloutNumberJob.outputs.BRANCH_NAME}}/${{needs.GetBranchRolloutNumberJob.outputs.BRANCH_NAME}}-${{needs.GetBranchRolloutNumberJob.outputs.NEW_TAG}}.tar
 
       # update Branch rollout number in  BranchRolloutNumber.xml 
       - name: Execute Perl to update  file
@@ -261,7 +261,7 @@ jobs:
           git config --global user.name ${{ github.actor }}
           git switch ${{ github.head_ref }}
           git add -f .
-          git commit -m "Create package ${{needs.GetBranchRolloutNumberJob.outputs.BRANCH_NAME}}-${{needs.GetBranchRolloutNumberJob.outputs.NEW_TAG}}.tar "
+          git commit -m "Create package USR-${{needs.GetBranchRolloutNumberJob.outputs.CUSTOMER_NAME}}-WMS.${{ steps.UseRolloutNumber.outputs.USE_ROLLOUT_NUMBER }}.${{needs.GetBranchRolloutNumberJob.outputs.BRANCH_NAME}}_${{needs.GetBranchRolloutNumberJob.outputs.NEW_TAG}}.tar "
           git push 
   
       # Tag the branch with the bump versioning passed in the commit message or Patch by default    
