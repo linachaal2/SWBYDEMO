@@ -110,4 +110,4 @@ $rolloutSettingsFile = $opts{f} if defined($opts{f});#-b - required - GIT branch
 
 
 my $new_rollout_number = GenerateNewRolloutNumber();
-print ("Return value is $new_rollout_number\n" );
+print ("$new_rollout_number" );
