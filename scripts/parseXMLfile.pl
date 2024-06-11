@@ -16,6 +16,7 @@ use File::Basename;
 use File::Copy;
 use File::Find;
 use Time::localtime;
+
 #use Text::Trim;
 #use XML::Parser;
 
@@ -29,10 +30,10 @@ my $rolloutSettingsFile;
 my %opts = ();
 
 #####################################################################
-# show usage()
+# show GenerateNewRolloutNumber()
 #####################################################################
-#perl createRolloutPackage.pl -n RLTEST1 -d rollout -r inputFile.txt -f -l test1.log
-sub UpdateRolloutNumber {
+
+sub GenerateNewRolloutNumber {
 	my $dom = XML::LibXML->load_xml(location => $rolloutSettingsFile);
 
 	#Validate the XML file 
@@ -83,7 +84,7 @@ sub UpdateRolloutNumber {
 
 	#print $dom->toString(1);
 	return $new_rollout_number;
-}#UpdateRolloutNumber
+}#GenerateNewRolloutNumber
 
 #####################################################################
 #####################################################################
@@ -108,5 +109,5 @@ $rolloutSettingsFile = $opts{f} if defined($opts{f});#-b - required - GIT branch
 #$rolloutSettingsFile = 'rollout_settings.xml';
 
 
-my $new_rollout_number = UpdateRolloutNumber();
+my $new_rollout_number = GenerateNewRolloutNumber();
 print ("Return value is $new_rollout_number\n" );
