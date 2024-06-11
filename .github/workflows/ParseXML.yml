@@ -242,7 +242,7 @@ jobs:
         run: |
          perl ${{ github.workspace }}/scripts/updateBranchRolloutNumberXMLfile.pl \
              -v ${{ steps.UseRolloutNumber.outputs.USE_ROLLOUT_NUMBER }} \
-             -f ${{ github.workspace }}/rollout_gen/generic/BranchRolloutNumber.xml
+             -f ${{ github.workspace }}/scripts/rollout_gen/generic/BranchRolloutNumber.xml
          
       # Push and Commit the TAR file into the GIT repository
       - name: Push and Commit the TAR file into the GIT repository
