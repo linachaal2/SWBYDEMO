@@ -27,6 +27,7 @@ use XML::LibXML;
 
 my $git_branch_name ;
 my $rolloutSettingsFile;
+my $vOutputFile;
 my %opts = ();
 
 #####################################################################
@@ -69,6 +70,10 @@ sub GenerateNewRolloutNumber {
 	$Highest_Rollout_Number->removeChildNodes();
 	$Highest_Rollout_Number->appendText($new_rollout_number);
 	#print $dom->toString(1);
+	#printf("File is opened for writing\n");
+	open($vOutputFile, ">$rolloutSettingsFile")or die "Could not open file  $!";;
+	print $vOutputFile $dom->toString(1);
+	close($vOutputFile);
 	#foreach my $highestRolloutNumber ($dom->findnodes('/rollout_settings/paths/dir_db_upgrade_rollout_number')) {
 	#    print $highestRolloutNumber->to_literal();
 	#}

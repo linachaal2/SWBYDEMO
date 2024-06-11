@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
 <rollout_settings>
-    <connections>
-        <!-- <connection>    
+  <connections>
+    <!-- <connection>    
             <wh_name>xxxx</wh_name>
             <wh_id>xxxx</wh_id>
             <query_wh_id>xxxx</query_wh_id>
@@ -14,26 +14,33 @@
             <remote_prefix>remote("http://localhost:4600/service")</remote_prefix>
             <db_prefix>[USE AMRWMSMD];</db_prefix>
         </connection> -->
-    </connections>
-    <paths>
-        <dir_db_upgrade>db/upgrade/</dir_db_upgrade>	
-		<dir_db_upgrade_major>2021</dir_db_upgrade_major>  <!-- WMS version -->
-		<dir_db_upgrade_minor>1</dir_db_upgrade_minor>     <!-- WMS version -->
-		<dir_db_upgrade_rollout_number>037</dir_db_upgrade_rollout_number> <!-- Highest Rollout number updated for the whole repository, LES version -->
-    </paths>
-	<branches>
-		<branche-info>
-			<branche-name>WH</branche-name>
-			<branche-rol>001</branche-rol>
-		</branche-info>
-		<branche-info>
-			<branche-name>LOC</branche-name>
-			<branche-rol>002</branche-rol>
-		</branche-info>
-		<branche-info>
-			<branche-name>CLI</branche-name>
-			<branche-rol>003</branche-rol>
-		</branche-info>
-	</branches>
-    <mload_excluded_columns>u_version,moddte,mod_usr_id,ins_dt,last_upd_dt,ins_user_id,last_upd_user_id</mload_excluded_columns>
+  </connections>
+  <paths>
+    <dir_db_upgrade>db/upgrade/</dir_db_upgrade>
+    <dir_db_upgrade_major>2021</dir_db_upgrade_major>
+    <!-- WMS version -->
+    <dir_db_upgrade_minor>1</dir_db_upgrade_minor>
+    <!-- WMS version -->
+    <dir_db_upgrade_rollout_number>038</dir_db_upgrade_rollout_number>
+    <!-- Highest Rollout number updated for the whole repository, LES version -->
+  </paths>
+  <branches>
+    <branche-info>
+      <branche-name>WH</branche-name>
+      <branche-rol>001</branche-rol>
+    </branche-info>
+    <branche-info>
+      <branche-name>LOC</branche-name>
+      <branche-rol>002</branche-rol>
+    </branche-info>
+    <branche-info>
+      <branche-name>CLI</branche-name>
+      <branche-rol>003</branche-rol>
+    </branche-info>
+    <branche-info>
+      <branche-name>GITBRANCHY</branche-name>
+      <branche-rol>038</branche-rol>
+    </branche-info>
+  </branches>
+  <mload_excluded_columns>u_version,moddte,mod_usr_id,ins_dt,last_upd_dt,ins_user_id,last_upd_user_id</mload_excluded_columns>
 </rollout_settings>
