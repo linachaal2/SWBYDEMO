@@ -21,7 +21,7 @@
     <!-- WMS version -->
     <dir_db_upgrade_minor>1</dir_db_upgrade_minor>
     <!-- WMS version -->
-    <dir_db_upgrade_rollout_number>038</dir_db_upgrade_rollout_number>
+    <dir_db_upgrade_rollout_number>039</dir_db_upgrade_rollout_number>
     <!-- Highest Rollout number updated for the whole repository, LES version -->
   </paths>
   <branches>
@@ -40,6 +40,10 @@
     <branche-info>
       <branche-name>GITBRANCHY</branche-name>
       <branche-rol>038</branche-rol>
+    </branche-info>
+    <branche-info>
+      <branche-name>NEWBRANCH</branche-name>
+      <branche-rol>039</branche-rol>
     </branche-info>
   </branches>
   <mload_excluded_columns>u_version,moddte,mod_usr_id,ins_dt,last_upd_dt,ins_user_id,last_upd_user_id</mload_excluded_columns>
