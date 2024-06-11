@@ -239,11 +239,11 @@ jobs:
           # Stage the file, commit and push
           git config --global user.email ${{ github.actor }}[bot]@users.noreply.github.com
           git config --global user.name ${{ github.actor }}
-          git switch ${{ github.head_ref }}
+        
           git add -f .
           git commit -m "Create package ${{needs.GetBranchRolloutNumberJob.outputs.BRANCH_NAME}}-${{needs.GetBranchRolloutNumberJob.outputs.NEW_TAG}}.tar "
           git push 
-
+ # git switch ${{ github.head_ref }}
       # Tag the branch with the bump versioning passed in the commit message or Patch by default    
       - name: Tag branch
         id: taggerFinal
