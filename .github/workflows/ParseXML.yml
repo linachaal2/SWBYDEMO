@@ -163,6 +163,7 @@ jobs:
          git add -f .
          git commit -m "Update rollout_settings.xml for Branch ${{needs.GetBranchRolloutNumberJob.outputs.BRANCH_NAME}} "
          git push  
+         git switch ${{ github.head_ref }}
       - name:  Print New Rollout Number
         shell: bash
         run: |  
@@ -175,6 +176,10 @@ jobs:
     needs: [GetBranchRolloutNumberJob,GettingANewRolloutNumberJob]
     if: always() && !cancelled() && contains(needs.*.result, 'success')
     steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0 
       - id: UseRolloutNumber
         run: |
          echo "Call =========> CreatingRolloutPackageJob"
@@ -212,10 +217,10 @@ jobs:
       # Create the BY rollout package TAR file
      # - name: Check out the repository to the runner
      #   uses: actions/checkout@v4  
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.head.sha }}
-          fetch-depth: 0   
+     # - uses: actions/checkout@v4
+     #   with:
+      #    ref: ${{ github.event.pull_request.head.sha }}
+      #    fetch-depth: 0   
       - name: Execute Perl to create the BY rollout package TAR file
         run: |
          perl ${{ github.workspace }}/scripts/createRolloutPackage.pl \
