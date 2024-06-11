@@ -68,24 +68,29 @@ my $log = "";
 my $SrcInputFile ="";
 my $CustomerFile;
 my $vOutputFile;
+
 #####################################################################
 # show usage()
 #####################################################################
-#perl createRolloutPackage.pl -n RLTEST1 -d rollout -r inputFile.txt -f -l test1.log
+
+#perl /home/runner/work/SWBYDEMO/SWBYDEMO/scripts/createRolloutPackageManual.pl -g "A src/cmdsrc/usrint/add_Lc_XML_tag.mcmd M src/cmdsrc/usrint/add_lc_file_to_xml.mcmd" -t "/home/runner/work/SWBYDEMO/SWBYDEMO" -n "B6-v1.1.2" -d rollout -r inputFile.txt -f -l B6.log -p -o -m
 sub show_usage {
   die "Correct usage for $0 is as follows:\n"   
         . "$0\n"
+		. "\t-g <List of modified files>\n"
+        . "\t-t <Workspace path of GIT repository, replaces LESDIR>\n"
+		. "\t-c <Customer Name>\n"
         . "\t-n <Rollout Name>\n"
         . "\t-d <Rollout Directory - path from \$LESDIR where the rollout package will be created>\n"
         . "\t-r <Rollout Input File>\n"
 		. "\t-z <Rollout Tar Final Directory>\n"
 		. "\t-b <Git Branch Name>\n"
         . "\t-f <Force delete of package if it already exists>\n"
-        . "\t-p <create the rollout script and package this to a tar file after pulling all components>\n"
-        . "\t-u <create the rollout script>\n"
-        . "\t-m <create a readme file>\n"
+        . "\t-p <Create the rollout script and package this to a tar file after pulling all components>\n"
+        . "\t-u <Create the rollout script>\n"
+        . "\t-m <Create a readme file>\n"
         . "\t-l <Log File - file will be written to LESDIR/log directory>\n"
-        . "\t-o show detailed output\n"
+        . "\t-o Show detailed output\n"
         . "\t-h <Help - this screen>\n";
 }#show_usage
 
@@ -114,6 +119,7 @@ sub write_log{
 		$log = "";
 	}
 }#write_log
+
 #####################################################################
 # create_ro_dir($fulldir)
 #	$fulldir - this is the full directory path for the directory to
@@ -239,6 +245,7 @@ sub copy_ro_file
 	}
 	
 }#copy_ro_file
+
 #####################################################################
 # get_load_directory($table)
 #	$table - table name
@@ -313,7 +320,6 @@ sub get_file_load_directory
 sub pull_files{
 
 	my %opts = ();
-	#my $LESDIR = "/y/Docker/MY-GIT/SWBYDEMO";
 	my $ro_dir;
 	my $logfile;
 	my $detailed_output;
@@ -599,94 +605,6 @@ sub pull_files{
 
 	}
 
-	#####################################################################
-	# IU - Integrator Unload
-	#####################################################################
-	# if this is for a directory, copy directory
-	elsif(uc($data_type) eq "IU")
-	{
-
-		my $status;
-		my @result;
-		my $unload_statement;
-		my $src_system = $sql_text;
-		my $dest_system = $component_dir;
-		
-		if(!$ifd_list && !$event_list)
-		{
-			if($detailed_output){printf( "Error!  No ifds or events specified to unload.  No integrator unloads will be performed.\n");}
-			$log = $log . "Error!  No ifds or events specified to unload.  No integrator unloads will be performed.\n";
-			$error_text = $error_text .  "- Error!  No ifds or events specified to unload.  No integrator unloads will be performed!\n";
-			$errors_exist = 1;
-		}
-		else
-		{
-			if($detailed_output){printf( "IU\nUnloading Integrator Transaction(s)\n\tIFD List $ifd_list\n\tEvent List: $event_list\n");}
-			$log = $log . "IU\nUnloading Integrator Transaction(s)\n\tIFD List $ifd_list\n\tEvent List: $event_list\n";
-		
-			if(!$ifd_list)
-			{
-				$ifd_list = "NULL";
-			}
-			if(!$event_list)
-			{
-				$event_list = "NULL"
-			
-			}
-			
-			if(!$file)
-			{
-				if($detailed_output){printf( "No filename specified for integrator unload.  Using default: $ro_name.slexp\n");}
-				$log = $log . "No filename specified for integrator unload.  Using default: $ro_name.slexp\n";
-				$file = $ro_name . ".slexp";
-			}
-			else
-			{
-				if($detailed_output){printf( "Unloading to file: $file\n");}
-				$log = $log . "Unloading to file: $file\n";
-			}
-			my $full_path = $lesdir . "/db/data/integrator/". $file;
-			
-			if(-e $full_path)
-			{
-				if($detailed_output){printf( "Unload already exists: $file\nDeleting...\n");}
-				$log = $log . "Unload already exists: $file\nDeleting...\n";
-				unlink($full_path);
-			}
-			
-			my $unload_statement = "sl_list dependencies where evt_list = \"$event_list\" and ifd_list = \"$ifd_list\" and unload_filename = '$full_path'";
-			if($src_system)
-			{
-				$unload_statement = $unload_statement . " and TRG_SYS_ID = '$src_system'";
-			}
-			if($dest_system)
-			{
-				$unload_statement = $unload_statement . " and DEST_SYS_ID = '$dest_system'";
-			}
-			
-			if($detailed_output){printf( "Unload statement: $unload_statement\n");}
-			$log = $log . "Unload statement: $unload_statement\n";
-			($status, @result) = &MSQLExec($unload_statement);
-			if($detailed_output){printf( "status: $status\nresult: @result\n");}
-			if($status)
-			{
-				if($detailed_output){printf( "Error unloading integrator transaction(s)\n\tIFD List $ifd_list\n\tEvent List: $event_list\n");}
-				$log = $log . "Error unloading integrator transaction(s)\n\tIFD List $ifd_list\n\tEvent List: $event_list\n";
-				$error_text = $error_text .  "- Error unloading integrator transaction(s)\n\t- IFD List $ifd_list\n\t- Event List: $event_list\n";
-				$errors_exist = 1;
-			}
-			else
-			{
-				if($detailed_output){printf( "Succesfully unloaded integrator transaction(s)\n\tIFD List $ifd_list\n\tEvent List: $event_list\n");}
-				$log = $log . "Succesfully unloaded integrator transaction(s)\n\tIFD List $ifd_list\n\tEvent List: $event_list\n";
-				
-				create_ro_dir($ro_dir.$ro_name . "/pkg/db/data/integrator");
-				copy_ro_file($lesdir . "/db/data/integrator",$file,$ro_dir.$ro_name . "/pkg/db/data/integrator");
-			
-			}
-
-		}
-	}
 	else
 	{
 		if($detailed_output){printf( "Invalid option for component type: $data_type\n\n");}
@@ -703,7 +621,7 @@ sub pull_files{
 	close(OUTF);
 	
 }#pull_files
-  
+
 #####################################################################
 # package_rollout($cmd_string)
 #	$cmd_string - command line parameters from the ro input file
@@ -739,8 +657,6 @@ sub package_rollout{
 	# Initial variable declaration and validations
 	#####################################################################
 
-	#my $LESDIR = "/y/Docker/MY-GIT/SWBYDEMO";
-
 	my %opts = ();
 	my $logfile;
 
@@ -753,7 +669,7 @@ sub package_rollout{
 	my $rebuildpretext = "# Perform any environment rebuilds if necessary.";
 	my $pack;
 	my $readme;
-    my $ro_script = "# Extension $ro_name\n#\n# This script has been built specifically to deploy patch $ro_name\n";
+        my $ro_script = "# Extension $ro_name\n#\n# This script has been built specifically to deploy patch $ro_name\n";
 	#get options
 	getopts('d:l:ohpm', \%opts);
 
@@ -875,6 +791,7 @@ sub package_rollout{
 		  print "Sorting files ";
 		  sort @_
 		}
+		
 		sub writehighmsql
 		{
 			if(!-d $File::Find::name)
@@ -1151,10 +1068,6 @@ sub package_rollout{
 		  print "Sorting files ";
 		  sort @_
 		}
-		#sub preprocess
-		#{ 
-		#	sort { uc $a cmp uc $b } @_ ;
-		#}
 		
 		sub writemsql
 		{
@@ -1162,7 +1075,7 @@ sub package_rollout{
 			{
 				my $msqlfile = $_;
 				my $msqldir = basename($File::Find::dir);
-				
+			
 				if($detailed_output){printf("Found Low Priority MSQL: \n\tfile = $msqlfile\n\tdirectory = $msqldir\nWriting REPLACE and RUNSQL lines to rollout script for $msqlfile\n\n");}
 				$log = $log . "Found Low Priority MSQL: \n\tfile = $msqlfile\n\tdirectory = $msqldir\nWriting REPLACE and RUNSQL lines to rollout script for $msqlfile \n\tREPLACE pkg/$MSQLPATH/$msqldir/$msqlfile \$LESDIR/$MSQLPATH/$msqldir\n\trunsql \$LESDIR/$MSQLPATH/$msqldir/$msqlfile\n\n";
 				$replacetext = $replacetext . "REPLACE pkg/$MSQLPATH/$msqldir/$msqlfile \$LESDIR/$MSQLPATH/$msqldir\n";
@@ -1612,7 +1525,6 @@ if (!-e  $ro_dir.$ro)
 					print "File syntax: $fullFileSyntax\n"; 		
 					print {$vInputFile} $fullFileSyntax . "\n";
 				}
-				##### tbl tdoc sql db upgrade 
 				# Map CSV files 
 				elsif ($fileExt eq "csv"){
 					#SQL -t poldat  -f "UC_1234.csv"
