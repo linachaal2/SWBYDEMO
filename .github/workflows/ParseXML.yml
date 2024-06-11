@@ -154,25 +154,19 @@ jobs:
         run: cpanm -v XML::LibXML
       - id: NewRolloutNumber
         run: |
+         git config --global user.email ${{ github.actor }}[bot]@users.noreply.github.com
+         git config --global user.name ${{ github.actor }}
+         git switch main
          NEW_BRANCH_ROLLOUT_NUMBER="$(perl ${{ github.workspace }}/scripts/parseXMLfile.pl  -b "NEWBRANCH"  -f "${{ github.workspace }}/scripts/rollout_gen/generic/rollout_settings.xml")"
          echo "NEW_BRANCH_ROLLOUT_NUMBER : $NEW_BRANCH_ROLLOUT_NUMBER"
          echo "NEW_BRANCH_ROLLOUT_NUMBER=$NEW_BRANCH_ROLLOUT_NUMBER" >> "$GITHUB_OUTPUT"
-        # echo "NEW_BRANCH_ROLLOUT_NUMBER : $NEW_BRANCH_ROLLOUT_NUMBER" >> "$GITHUB_OUTPUT"
-        # echo "NEW_BRANCH_ROLLOUT_NUMBER : $NEW_BRANCH_ROLLOUT_NUMBER"
+         git add -f .
+         git commit -m "Update rollout_settings.xml for Branch ${{needs.GetBranchRolloutNumberJob.outputs.BRANCH_NAME}} "
+         git push  
       - name:  Print New Rollout Number
         shell: bash
         run: |  
-          echo "New Rollout Number = ${{ steps.NewRolloutNumber.outputs.NEW_BRANCH_ROLLOUT_NUMBER }}" 
-        # Push and Commit the TAR file into the GIT repository
-      - name: Push and Commit the TAR file into the GIT repository
-        run: |
-          # Stage the file rollout_settings.xml, commit and push to main branch
-          git config --global user.email ${{ github.actor }}[bot]@users.noreply.github.com
-          git config --global user.name ${{ github.actor }}
-          git switch main
-          git add -f .
-          git commit -m "Update rollout_settings.xml for Branch ${{needs.GetBranchRolloutNumberJob.outputs.BRANCH_NAME}} "
-          git push  
+          echo "New Rollout Number = ${{ steps.NewRolloutNumber.outputs.NEW_BRANCH_ROLLOUT_NUMBER }}"       
     outputs:
       NEW_BRANCH_ROLLOUT_NUMBER: ${{ steps.NewRolloutNumber.outputs.NEW_BRANCH_ROLLOUT_NUMBER }}    
   CreatingRolloutPackageJob:
