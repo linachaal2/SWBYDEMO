@@ -157,7 +157,7 @@ jobs:
          git config --global user.email ${{ github.actor }}[bot]@users.noreply.github.com
          git config --global user.name ${{ github.actor }}
          git switch main
-         NEW_BRANCH_ROLLOUT_NUMBER="$(perl ${{ github.workspace }}/scripts/parseXMLfile.pl  -b ${{needs.GetBranchRolloutNumberJob.outputs.BRANCH_NAME}} -f "${{ github.workspace }}/scripts/rollout_gen/generic/rollout_settings.xml")"
+         NEW_BRANCH_ROLLOUT_NUMBER="$(perl ${{ github.workspace }}/scripts/parseRolloutSettingsFile.pl  -b ${{needs.GetBranchRolloutNumberJob.outputs.BRANCH_NAME}} -f "${{ github.workspace }}/scripts/rollout_gen/generic/rollout_settings.xml")"
          echo "NEW_BRANCH_ROLLOUT_NUMBER : $NEW_BRANCH_ROLLOUT_NUMBER"
          echo "NEW_BRANCH_ROLLOUT_NUMBER=$NEW_BRANCH_ROLLOUT_NUMBER" >> "$GITHUB_OUTPUT"
          git add -f .
